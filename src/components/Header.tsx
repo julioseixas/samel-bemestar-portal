@@ -1,4 +1,5 @@
-import { Heart, User, KeyRound, UserCircle } from "lucide-react";
+import { Heart, User, KeyRound, UserCircle, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -13,6 +14,13 @@ interface HeaderProps {
 }
 
 export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProps) => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/");
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card shadow-soft">
       <div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-6">
@@ -50,6 +58,10 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
               <DropdownMenuItem className="cursor-pointer">
                 <UserCircle className="mr-2 h-4 w-4" />
                 <span>Ver dados pessoais</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer text-destructive" onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Sair</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
