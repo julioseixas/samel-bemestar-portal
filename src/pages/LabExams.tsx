@@ -117,7 +117,7 @@ const LabExams = () => {
       if (userToken) {
         try {
           const decoded: any = jwtDecode(userToken);
-          authToken = decoded.chave || "";
+          authToken = decoded.token || "";
         } catch (error) {
           console.error("Erro ao decodificar token:", error);
         }

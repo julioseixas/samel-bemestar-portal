@@ -89,8 +89,8 @@ const Index = () => {
               <CardContent>
                 <div className="space-y-2 text-sm">
                   <div className="grid grid-cols-[140px_1fr] gap-2">
-                    <span className="font-semibold">Chave:</span>
-                    <span className="font-mono break-all text-xs">{jwtInfo.chave}</span>
+                    <span className="font-semibold">Token/Chave:</span>
+                    <span className="font-mono break-all text-xs">{jwtInfo.token || 'N/A'}</span>
                   </div>
                   <div className="grid grid-cols-[140px_1fr] gap-2">
                     <span className="font-semibold">Tipo Beneficiário:</span>
