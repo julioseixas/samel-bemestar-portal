@@ -250,23 +250,22 @@ const LabExams = () => {
                         <TableHead>Data</TableHead>
                         <TableHead>Paciente</TableHead>
                         <TableHead>Médico</TableHead>
-                        <TableHead className="text-right">Ações</TableHead>
+                        <TableHead className="text-right">Ver exames</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {exams.map((exam, index) => (
-                        <TableRow key={`${exam.nrAtendimento}-${index}`}>
-                          <TableCell>{exam.dataEntrada}</TableCell>
+                        <TableRow key={`${exam.nrAtendimento}-${index}`} className="hover:bg-muted/50">
+                          <TableCell className="font-medium">{exam.dataEntrada}</TableCell>
                           <TableCell>{exam.nomeCliente}</TableCell>
-                          <TableCell>{exam.medicoSolicitante}</TableCell>
+                          <TableCell className="text-primary">{exam.medicoSolicitante}</TableCell>
                           <TableCell className="text-right">
                             <Button
-                              variant="outline"
-                              size="sm"
+                              size="icon"
+                              className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-full h-9 w-9"
                               onClick={() => handleViewDetails(exam)}
                             >
-                              <Eye className="mr-2 h-4 w-4" />
-                              Ver Detalhes
+                              <Eye className="h-4 w-4" />
                             </Button>
                           </TableCell>
                         </TableRow>
