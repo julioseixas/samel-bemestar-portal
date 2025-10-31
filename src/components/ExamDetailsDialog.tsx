@@ -322,17 +322,18 @@ export function ExamDetailsDialog({
           if (!isOpen) setSelectedExam(null);
         }}
       >
-        <DialogContent className="max-w-[95vw] w-full h-[90vh] flex flex-col overflow-hidden p-0">
-          <div className="flex-1 overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Laudo - {selectedExam?.procedimentoExame}</DialogTitle>
+        <DialogContent className="max-w-[95vw] w-full h-[90vh] flex flex-col p-0">
+          <DialogHeader className="px-6 py-4 border-b bg-card shrink-0">
+            <DialogTitle className="text-xl">
+              Laudo - {selectedExam?.procedimentoExame}
+            </DialogTitle>
             <DialogDescription>
               Laudo completo do exame com informações do paciente e resultado
             </DialogDescription>
           </DialogHeader>
 
-          {selectedExam && (
-            <div className="space-y-6">
+          <div className="flex-1 overflow-y-auto px-6 py-4">
+            {selectedExam && (
               <ExamReportView
                 examData={{
                   ...selectedExam,
@@ -340,18 +341,17 @@ export function ExamDetailsDialog({
                 }}
                 tipoLaudo={apiEndpoint.includes("Lab") ? "lab" : "cdi"}
               />
+            )}
+          </div>
 
-              <div className="flex justify-end gap-2 print:hidden">
-                <Button variant="outline" onClick={() => setSelectedExam(null)}>
-                  Fechar
-                </Button>
-                <Button onClick={handlePrintReport}>
-                  <Printer className="h-4 w-4 mr-2" />
-                  Imprimir Laudo
-                </Button>
-              </div>
-            </div>
-          )}
+          <div className="shrink-0 px-6 py-4 border-t bg-card flex justify-end gap-2 print:hidden">
+            <Button variant="outline" onClick={() => setSelectedExam(null)}>
+              Fechar
+            </Button>
+            <Button onClick={handlePrintReport}>
+              <Printer className="h-4 w-4 mr-2" />
+              Imprimir Laudo
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
