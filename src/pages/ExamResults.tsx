@@ -33,10 +33,7 @@ const ExamResults = () => {
   }, []);
 
   const handleLabExams = () => {
-    toast({
-      title: "Laudo de exames laboratoriais",
-      description: "Esta funcionalidade está em desenvolvimento.",
-    });
+    navigate("/lab-exams");
   };
 
   const handleCDIExams = () => {
