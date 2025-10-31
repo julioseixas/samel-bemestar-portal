@@ -35,11 +35,15 @@ interface ExamDetail {
   dsAssinatura: string;
   medicoSolicitante: string;
   medicoLaudo: string;
-  cd_medico_solic: string;
-  nm_medico_solic: string;
+  cd_medico_solic?: string;
+  nm_medico_solic?: string;
   procedimentoExame: string;
-  dtLaudo: string;
+  dtLaudo?: string;
   dtLiberacao: string;
+  // Campos adicionais do CDI
+  ds_titulo_laudo?: string;
+  cdMedicoLaudo?: string;
+  urlImg?: string;
 }
 
 interface ExamDetailsDialogProps {
