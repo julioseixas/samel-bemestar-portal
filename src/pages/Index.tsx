@@ -19,7 +19,7 @@ const Index = () => {
     if (patientData) {
       try {
         const data = JSON.parse(patientData);
-        setPatientName(data.nm_pessoa_fisica || "Paciente");
+        setPatientName(data.nome || "Paciente");
       } catch (error) {
         console.error("Erro ao carregar dados do paciente:", error);
       }
