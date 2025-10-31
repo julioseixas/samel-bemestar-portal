@@ -1,5 +1,11 @@
-import { Heart, User } from "lucide-react";
+import { Heart, User, KeyRound, UserCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface HeaderProps {
   patientName?: string;
@@ -25,14 +31,28 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
             <p className="text-sm text-muted-foreground">Olá,</p>
             <p className="text-base font-semibold text-foreground md:text-lg">{patientName}</p>
           </div>
-          <Avatar className="h-12 w-12 border-2 border-primary">
-            {profilePhoto ? (
-              <AvatarImage src={`data:image/jpeg;base64,${profilePhoto}`} alt={patientName} />
-            ) : null}
-            <AvatarFallback className="bg-primary text-primary-foreground">
-              <User className="h-6 w-6" />
-            </AvatarFallback>
-          </Avatar>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Avatar className="h-12 w-12 border-2 border-primary cursor-pointer hover:opacity-80 transition-opacity">
+                {profilePhoto ? (
+                  <AvatarImage src={`data:image/jpeg;base64,${profilePhoto}`} alt={patientName} />
+                ) : null}
+                <AvatarFallback className="bg-primary text-primary-foreground">
+                  <User className="h-6 w-6" />
+                </AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem className="cursor-pointer">
+                <KeyRound className="mr-2 h-4 w-4" />
+                <span>Atualizar senha</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                <UserCircle className="mr-2 h-4 w-4" />
+                <span>Ver dados pessoais</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>
