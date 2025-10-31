@@ -150,26 +150,13 @@ All colors MUST be HSL.
 
 /* Print styles for exam reports */
 @media print {
-  /* Hide all page elements except the print content */
-  body * {
-    visibility: hidden;
+  /* Page settings */
+  @page {
+    size: A4;
+    margin: 15mm;
   }
   
-  #printMe,
-  #printMe * {
-    visibility: visible;
-  }
-  
-  #printMe {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    background: white !important;
-  }
-  
-  /* Hide dialog overlay and buttons */
-  [role="dialog"],
+  /* Hide buttons and UI elements */
   button,
   .print\:hidden {
     display: none !important;
@@ -182,14 +169,32 @@ All colors MUST be HSL.
     color-adjust: exact !important;
   }
   
-  /* Page settings */
-  @page {
-    size: A4;
-    margin: 15mm;
+  /* Show only the exam report */
+  body > *:not([role="dialog"]) {
+    display: none !important;
+  }
+  
+  [role="dialog"] {
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    background: white !important;
+    border: none !important;
+  }
+  
+  /* Make the dialog content full width */
+  [role="dialog"] > * {
+    max-width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
   
   /* Avoid page breaks inside important content */
-  .border {
+  .border,
+  div[style*="border"] {
     page-break-inside: avoid;
   }
   
@@ -197,5 +202,12 @@ All colors MUST be HSL.
   body {
     font-family: Arial, sans-serif;
     line-height: 1.4;
+  }
+  
+  /* Remove dialog padding and styling for print */
+  [role="dialog"] [data-radix-dialog-content] {
+    box-shadow: none !important;
+    border: none !important;
+    max-height: none !important;
   }
 }
