@@ -37,10 +37,7 @@ const ExamResults = () => {
   };
 
   const handleCDIExams = () => {
-    toast({
-      title: "Laudo de exames CDI",
-      description: "Esta funcionalidade está em desenvolvimento.",
-    });
+    navigate("/cdi-exams");
   };
 
   return (
