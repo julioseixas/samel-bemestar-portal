@@ -19,7 +19,7 @@ interface ExamReportViewProps {
 
 export function ExamReportView({ examData, tipoLaudo }: ExamReportViewProps) {
   return (
-    <div id="printMe" className="bg-background p-6 max-w-[800px] mx-auto">
+    <div id="printMe" className="bg-background p-6 max-w-[800px] mx-auto print:p-0">
       {/* CABEÇALHO */}
       <div className="flex mb-4 border border-border">
         <div className="w-[150px] border-r border-border flex items-center justify-center p-4 bg-card">

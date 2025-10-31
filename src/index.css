@@ -212,7 +212,7 @@ All colors MUST be HSL.
   #printMe {
     max-width: 100% !important;
     margin: 0 !important;
-    padding: 0 !important;
+    padding: 10mm !important;
     background: white !important;
   }
   
@@ -239,9 +239,21 @@ All colors MUST be HSL.
     color: #2563eb !important;
   }
   
-  /* Avoid page breaks inside content blocks */
-  .border,
-  div[class*="border"] {
+  /* Avoid page breaks only in critical sections */
+  #printMe > div:first-child,
+  #printMe > div:nth-child(2),
+  #printMe > div:nth-child(3) {
+    page-break-inside: avoid;
+    page-break-after: avoid;
+  }
+  
+  /* Allow page breaks in the report body */
+  #printMe > div:nth-child(4) {
+    page-break-inside: auto;
+  }
+  
+  /* Avoid page breaks in footer sections */
+  #printMe > div:nth-last-child(-n+3) {
     page-break-inside: avoid;
   }
   
