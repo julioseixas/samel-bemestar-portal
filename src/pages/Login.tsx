@@ -28,6 +28,7 @@ const Login = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "identificador-dispositivo": "request-android",
           },
           body: JSON.stringify({
             email: email,
