@@ -76,6 +76,29 @@ const Login = () => {
               } catch (notifError) {
                 console.error("Erro ao buscar notificações:", notifError);
               }
+
+              // Busca a foto do perfil
+              try {
+                const fotoResponse = await fetch(
+                  "https://api-portalpaciente-web.samel.com.br/api/Cliente/ObterFoto",
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                  }
+                );
+
+                const fotoData = await fotoResponse.json();
+                
+                if (fotoData.sucesso && fotoData.dados) {
+                  // Armazena a foto em base64 no localStorage
+                  localStorage.setItem("profilePhoto", fotoData.dados);
+                  console.log("Foto de perfil carregada");
+                }
+              } catch (fotoError) {
+                console.error("Erro ao buscar foto de perfil:", fotoError);
+              }
             }
           } catch (jwtError) {
             console.error("Erro ao decodificar JWT:", jwtError);

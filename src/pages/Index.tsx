@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AppointmentBanner } from "@/components/AppointmentBanner";
@@ -7,6 +8,27 @@ import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const { toast } = useToast();
+  const [patientName, setPatientName] = useState("Paciente");
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Carrega os dados do paciente do localStorage
+    const patientData = localStorage.getItem("patientData");
+    const photo = localStorage.getItem("profilePhoto");
+    
+    if (patientData) {
+      try {
+        const data = JSON.parse(patientData);
+        setPatientName(data.nm_pessoa_fisica || "Paciente");
+      } catch (error) {
+        console.error("Erro ao carregar dados do paciente:", error);
+      }
+    }
+    
+    if (photo) {
+      setProfilePhoto(photo);
+    }
+  }, []);
 
   const handleCardClick = (feature: string) => {
     toast({
@@ -17,7 +39,7 @@ const Index = () => {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header patientName="Maria Silva" />
+      <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
       
       <main className="flex-1">
         <div className="container mx-auto px-4 py-6 md:px-6 md:py-10">
