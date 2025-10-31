@@ -156,19 +156,30 @@ All colors MUST be HSL.
     margin: 12mm;
   }
   
+  /* Hide EVERYTHING except the exam report */
+  body * {
+    visibility: hidden !important;
+  }
+  
+  /* Only show the exam report and its children */
+  #printMe,
+  #printMe * {
+    visibility: visible !important;
+  }
+  
+  /* Position the exam report at the top left */
+  #printMe {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+  }
+  
   /* Reset body for print */
   body {
     font-family: Arial, sans-serif;
     line-height: 1.4;
     color: #000 !important;
     background: white !important;
-  }
-  
-  /* Hide buttons and unnecessary UI elements */
-  button,
-  .print\:hidden,
-  [data-radix-dialog-overlay] {
-    display: none !important;
   }
   
   /* Make dialog behave as regular content */
