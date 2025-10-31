@@ -5,9 +5,11 @@ import { AppointmentBanner } from "@/components/AppointmentBanner";
 import { DashboardCard } from "@/components/DashboardCard";
 import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, FolderOpen } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
 
@@ -138,7 +140,7 @@ const Index = () => {
                 iconColor="text-success"
                 buttonText="Ver Resultados"
                 variant="success"
-                onClick={() => handleCardClick("Resultados de Exames")}
+                onClick={() => navigate("/exam-results")}
               />
               
               <DashboardCard
