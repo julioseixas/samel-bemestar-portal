@@ -3,7 +3,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AppointmentBanner } from "@/components/AppointmentBanner";
 import { DashboardCard } from "@/components/DashboardCard";
-import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, Baby, MessageCircle, ClipboardPlus, FolderOpen } from "lucide-react";
+import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, FolderOpen } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
@@ -159,16 +159,6 @@ const Index = () => {
                 buttonText="Renovar Receita"
                 variant="default"
                 onClick={() => handleCardClick("Renovação de Receita")}
-              />
-              
-              <DashboardCard
-                title="MARCAÇÃO DE PARTO DESEJADO"
-                description="Agende a data desejada para seu parto"
-                icon={Baby}
-                iconColor="text-primary"
-                buttonText="Agendar Parto"
-                variant="secondary"
-                onClick={() => handleCardClick("Marcação de Parto")}
               />
               
               <DashboardCard
