@@ -147,3 +147,55 @@ All colors MUST be HSL.
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 }
+
+/* Print styles for exam reports */
+@media print {
+  /* Hide all page elements except the print content */
+  body * {
+    visibility: hidden;
+  }
+  
+  #printMe,
+  #printMe * {
+    visibility: visible;
+  }
+  
+  #printMe {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: white !important;
+  }
+  
+  /* Hide dialog overlay and buttons */
+  [role="dialog"],
+  button,
+  .print\:hidden {
+    display: none !important;
+  }
+  
+  /* Preserve colors and backgrounds for medical documents */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+  
+  /* Page settings */
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+  
+  /* Avoid page breaks inside important content */
+  .border {
+    page-break-inside: avoid;
+  }
+  
+  /* Ensure proper text rendering */
+  body {
+    font-family: Arial, sans-serif;
+    line-height: 1.4;
+  }
+}
