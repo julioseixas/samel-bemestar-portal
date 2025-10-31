@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Heart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
+import jwt from "jsonwebtoken";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -45,13 +46,70 @@ const Login = () => {
         // Decodifica o JWT retornado em dados2
         if (data.dados2) {
           try {
-            const decodedData = jwtDecode(data.dados2) as any;
-            // Armazena os dados do paciente no localStorage
-            localStorage.setItem("patientData", JSON.stringify(decodedData));
-            console.log("Dados do paciente:", decodedData);
+            const decoded = jwtDecode(data.dados2) as any;
+            const SECRET_KEY = '9j7d8k20f##';
+
+            // Monta o objeto do titular
+            const titular = {
+              tipoBeneficiario: decoded.tipoBeneficiario,
+              nome: decoded.nome,
+              cdPessoaFisica: decoded.id,
+              email: decoded.usuario?.email,
+              idUsuario: decoded.usuario?.id,
+              clienteContratos: decoded.clienteContratos,
+              ieGravida: decoded.ieGravida,
+              rating: decoded.rating,
+              tipo: "Titular"
+            };
+
+            // Lista unificada de pacientes (titular + dependentes)
+            const listAllPacient: any[] = [titular];
+
+            // Adiciona os dependentes se existirem
+            if (decoded.dependentes && decoded.dependentes.length > 0) {
+              decoded.dependentes.forEach((dependente: any) => {
+                listAllPacient.push({
+                  ...dependente,
+                  tipo: "Dependente"
+                });
+              });
+            }
+
+            // Assina a lista completa com JWT
+            const listToScheduleToken = jwt.sign(
+              { listAllPacient }, 
+              SECRET_KEY, 
+              { expiresIn: '100d' }
+            );
+            localStorage.setItem('listToSchedule', listToScheduleToken);
+
+            // Assina só o titular
+            const titularToken = jwt.sign(
+              { titular }, 
+              SECRET_KEY, 
+              { expiresIn: '100d' }
+            );
+            localStorage.setItem('titular', titularToken);
+
+            // Salva o rating do titular
+            localStorage.setItem('rating', titular.rating?.toString() || '0');
+
+            // Assina e salva o token do usuário (chave de autenticação)
+            const chave = decoded.chave || data.dados2;
+            const userToken = jwt.sign(
+              { chave }, 
+              SECRET_KEY, 
+              { expiresIn: '100d' }
+            );
+            localStorage.setItem('user', userToken);
+
+            // Armazena também os dados completos decodificados para referência
+            localStorage.setItem("patientData", JSON.stringify(decoded));
 
             // Busca as notificações do paciente
-            if (decodedData.cd_pessoa_fisica) {
+            if (decoded.cd_pessoa_fisica || decoded.id) {
+              const idCliente = decoded.cd_pessoa_fisica || decoded.id;
+              
               try {
                 const notificacoesResponse = await fetch(
                   "https://api-portalpaciente-web.samel.com.br/api/notificacao/ObterNotificacoesCliente",
@@ -61,7 +119,7 @@ const Login = () => {
                       "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                      idCliente: decodedData.cd_pessoa_fisica,
+                      idCliente: idCliente,
                     }),
                   }
                 );
@@ -69,9 +127,7 @@ const Login = () => {
                 const notificacoesData = await notificacoesResponse.json();
                 
                 if (notificacoesData.sucesso) {
-                  // Armazena as notificações no localStorage
                   localStorage.setItem("notifications", JSON.stringify(notificacoesData.dados));
-                  console.log("Notificações:", notificacoesData.dados);
                 }
               } catch (notifError) {
                 console.error("Erro ao buscar notificações:", notifError);
@@ -87,7 +143,7 @@ const Login = () => {
                       "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                      idCliente: decodedData.cd_pessoa_fisica,
+                      idCliente: idCliente,
                     }),
                   }
                 );
@@ -95,16 +151,14 @@ const Login = () => {
                 const fotoData = await fotoResponse.json();
                 
                 if (fotoData.sucesso && fotoData.dados) {
-                  // Armazena a foto em base64 no localStorage
                   localStorage.setItem("profilePhoto", fotoData.dados);
-                  console.log("Foto de perfil carregada");
                 }
               } catch (fotoError) {
                 console.error("Erro ao buscar foto de perfil:", fotoError);
               }
             }
           } catch (jwtError) {
-            console.error("Erro ao decodificar JWT:", jwtError);
+            console.error("Erro ao processar JWT:", jwtError);
           }
         }
 

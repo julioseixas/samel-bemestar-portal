@@ -6,6 +6,7 @@ import { ArrowLeft, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
+import jwt from "jsonwebtoken";
 import {
   Table,
   TableBody,
@@ -37,59 +38,78 @@ const LabExams = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const patientData = localStorage.getItem("patientData");
-    const photo = localStorage.getItem("profilePhoto");
-    
-    if (patientData) {
+    const SECRET_KEY = '9j7d8k20f##';
+    const storedTitular = localStorage.getItem("titular");
+    const storedListToSchedule = localStorage.getItem("listToSchedule");
+    const storedProfilePhoto = localStorage.getItem("profilePhoto");
+
+    if (storedTitular) {
       try {
-        const data = JSON.parse(patientData);
-        setPatientName(data.nome || "Paciente");
-        
-        // Collect all client IDs
+        // Decodifica o titular para pegar o nome
+        const decodedTitular: any = jwt.verify(storedTitular, SECRET_KEY);
+        setPatientName(decodedTitular.titular?.nome || "Paciente");
+      } catch (error) {
+        console.error("Erro ao decodificar titular:", error);
+      }
+    }
+
+    if (storedListToSchedule) {
+      try {
+        // Decodifica a lista de pacientes para pegar os IDs
+        const decodedList: any = jwt.verify(storedListToSchedule, SECRET_KEY);
         const clientIds: number[] = [];
         
-        // Add main client ID from clienteContratos
-        if (data.clienteContratos && Array.isArray(data.clienteContratos)) {
-          data.clienteContratos.forEach((contrato: any) => {
-            if (contrato.id) {
-              clientIds.push(Number(contrato.id));
+        if (decodedList.listAllPacient && decodedList.listAllPacient.length > 0) {
+          decodedList.listAllPacient.forEach((paciente: any) => {
+            // Pega o ID do titular (de clienteContratos)
+            if (paciente.clienteContratos && paciente.clienteContratos.length > 0) {
+              paciente.clienteContratos.forEach((contrato: any) => {
+                if (contrato.id) {
+                  clientIds.push(Number(contrato.id));
+                }
+              });
+            }
+            
+            // Pega o ID do dependente diretamente se existir
+            if (paciente.tipo === "Dependente" && paciente.id) {
+              clientIds.push(Number(paciente.id));
             }
           });
         }
-        
-        // Add dependent IDs
-        if (data.dependentes && Array.isArray(data.dependentes)) {
-          data.dependentes.forEach((dep: any) => {
-            if (dep.id) {
-              clientIds.push(Number(dep.id));
-            }
+
+        if (clientIds.length > 0) {
+          fetchLabExams(clientIds);
+        } else {
+          toast({
+            title: "Erro",
+            description: "Nenhum ID de cliente encontrado",
+            variant: "destructive",
           });
+          setLoading(false);
         }
-        
-        // Fetch lab exams
-        fetchLabExams(clientIds);
       } catch (error) {
-        console.error("Erro ao carregar dados do paciente:", error);
+        console.error("Erro ao processar lista de pacientes:", error);
         setLoading(false);
       }
     } else {
       setLoading(false);
     }
-    
-    if (photo) {
-      setProfilePhoto(photo);
+
+    if (storedProfilePhoto) {
+      setProfilePhoto(storedProfilePhoto);
     }
   }, []);
 
   const fetchLabExams = async (clientIds: number[]) => {
     try {
+      const SECRET_KEY = '9j7d8k20f##';
       // Obter e decodificar o JWT para pegar a chave de autenticação
       const userToken = localStorage.getItem("user");
       let authToken = "";
       
       if (userToken) {
         try {
-          const decoded: any = jwtDecode(userToken);
+          const decoded: any = jwt.verify(userToken, SECRET_KEY);
           authToken = decoded.chave || "";
         } catch (error) {
           console.error("Erro ao decodificar token:", error);
