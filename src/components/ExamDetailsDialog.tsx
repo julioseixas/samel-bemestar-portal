@@ -161,29 +161,125 @@ export function ExamDetailsDialog({
             body {
               font-family: Arial, sans-serif;
               padding: 20px;
-              color: #333;
+              color: #000;
               background: white;
+              line-height: 1.4;
             }
+            
+            /* Container principal */
+            #printMe {
+              max-width: 800px;
+              margin: 0 auto;
+              background: white;
+              padding: 0;
+            }
+            
+            /* Remove backgrounds e bordas coloridas para impressão */
+            div[style*="border"] {
+              border-color: #000 !important;
+            }
+            
+            /* Estilização dos textos */
+            p {
+              margin: 4px 0;
+              color: #000;
+            }
+            
+            strong {
+              font-weight: bold;
+              color: #000;
+            }
+            
+            h5 {
+              margin: 0;
+              color: #000;
+            }
+            
+            small {
+              font-size: 11px;
+              color: #000;
+            }
+            
+            /* Cabeçalho */
+            .text-primary {
+              color: #000 !important;
+            }
+            
+            /* Corpo do laudo */
             .prose {
               max-width: 100%;
+              color: #000;
             }
+            
             .prose p {
-              margin: 0.5em 0;
+              margin: 8px 0;
+              color: #000;
             }
+            
+            .prose pre {
+              white-space: pre-wrap;
+              font-family: 'Courier New', monospace;
+              font-size: 12px;
+              color: #000;
+            }
+            
+            /* Remove cores de fundo */
+            .bg-card,
+            .bg-background {
+              background: white !important;
+            }
+            
+            /* Botões ocultos na impressão */
+            button {
+              display: none !important;
+            }
+            
             @media print {
-              button {
-                display: none !important;
-              }
               body {
-                padding: 10px;
+                padding: 10mm;
+              }
+              
+              @page {
+                margin: 10mm;
+                size: A4;
+              }
+              
+              /* Evita quebras de página indesejadas */
+              div {
+                page-break-inside: avoid;
+              }
+              
+              /* Remove shadows e efeitos */
+              * {
+                box-shadow: none !important;
+                text-shadow: none !important;
+              }
+            }
+            
+            @media screen {
+              .print-button {
+                display: block !important;
+                margin: 20px auto;
+                padding: 12px 24px;
+                background: #059669;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 600;
+              }
+              
+              .print-button:hover {
+                background: #047857;
               }
             }
           </style>
         </head>
         <body>
           ${printContent.innerHTML}
-          <div style="margin-top: 20px; text-align: center; page-break-inside: avoid;">
-            <button onclick="window.print()" style="padding: 10px 20px; background: #059669; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">
+          <div style="margin-top: 30px; text-align: center; page-break-inside: avoid;">
+            <button onclick="window.print()" class="print-button">
               Imprimir Laudo
             </button>
           </div>
