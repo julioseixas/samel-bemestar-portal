@@ -5,7 +5,7 @@ interface ExamReportViewProps {
     procedimentoExame: string;
     nrAtendimento: number;
     medicoSolicitante: string;
-    dsCabecalho: string;
+    dsResultado: string;
     dsAssinatura: string;
     nomeCliente: string;
     dataNascimento: string;
@@ -66,7 +66,7 @@ export function ExamReportView({ examData, tipoLaudo }: ExamReportViewProps) {
         <div
           className="prose prose-sm max-w-none"
           dangerouslySetInnerHTML={{
-            __html: examData.dsCabecalho || "",
+            __html: examData.dsResultado || "",
           }}
         />
       </div>

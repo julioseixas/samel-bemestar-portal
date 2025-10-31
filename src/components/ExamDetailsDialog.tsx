@@ -31,6 +31,7 @@ interface ExamDetail {
   dsSetor: string;
   idCliente: string;
   dsCabecalho: string;
+  dsResultado: string;
   dsAssinatura: string;
   medicoSolicitante: string;
   medicoLaudo: string;
@@ -278,7 +279,10 @@ export function ExamDetailsDialog({
           {selectedExam && (
             <div className="space-y-6">
               <ExamReportView
-                examData={selectedExam}
+                examData={{
+                  ...selectedExam,
+                  dsResultado: selectedExam.dsResultado || selectedExam.dsCabecalho
+                }}
                 tipoLaudo={apiEndpoint.includes("Lab") ? "lab" : "cdi"}
               />
 
