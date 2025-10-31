@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import samelLogo from "@/assets/samel-logo.png";
 
 interface ExamReportViewProps {
   examData: {
@@ -23,7 +24,7 @@ export function ExamReportView({ examData, tipoLaudo }: ExamReportViewProps) {
       {/* CABEÇALHO */}
       <div className="flex mb-4 border border-border">
         <div className="w-[150px] border-r border-border flex items-center justify-center p-4 bg-card">
-          <div className="text-primary font-bold text-xl">SAMEL</div>
+          <img src={samelLogo} alt="Samel Logo" className="w-full h-auto max-h-[100px] object-contain" />
         </div>
         <div className="flex-1 p-4 bg-card">
           <h5 className="text-center font-bold text-sm mb-2">
