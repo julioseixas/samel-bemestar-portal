@@ -47,10 +47,38 @@ const Login = () => {
         // Decodifica o JWT retornado em dados2
         if (data.dados2) {
           try {
-            const decodedData = jwt.verify(data.dados2, JWT_SECRET);
+            const decodedData = jwt.verify(data.dados2, JWT_SECRET) as any;
             // Armazena os dados do paciente no localStorage
             localStorage.setItem("patientData", JSON.stringify(decodedData));
             console.log("Dados do paciente:", decodedData);
+
+            // Busca as notificações do paciente
+            if (decodedData.cd_pessoa_fisica) {
+              try {
+                const notificacoesResponse = await fetch(
+                  "https://api-portalpaciente-web.samel.com.br/api/notificacao/ObterNotificacoesCliente",
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      idCliente: decodedData.cd_pessoa_fisica,
+                    }),
+                  }
+                );
+
+                const notificacoesData = await notificacoesResponse.json();
+                
+                if (notificacoesData.sucesso) {
+                  // Armazena as notificações no localStorage
+                  localStorage.setItem("notifications", JSON.stringify(notificacoesData.dados));
+                  console.log("Notificações:", notificacoesData.dados);
+                }
+              } catch (notifError) {
+                console.error("Erro ao buscar notificações:", notifError);
+              }
+            }
           } catch (jwtError) {
             console.error("Erro ao decodificar JWT:", jwtError);
           }
