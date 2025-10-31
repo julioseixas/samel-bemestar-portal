@@ -41,27 +41,45 @@ const Index = () => {
   ];
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <AppSidebar />
       
       <div className="flex-1 flex flex-col">
         <TopBar />
         
-        <main className="flex-1 bg-background">
-          <div className="bg-primary text-primary-foreground px-6 py-3">
-            <h1 className="text-lg font-medium">Início</h1>
+        <main className="flex-1">
+          {/* Header with gradient */}
+          <div className="bg-gradient-to-r from-primary via-primary/95 to-primary/90 text-primary-foreground px-8 py-4 shadow-md">
+            <h1 className="text-xl font-bold tracking-tight">Início</h1>
           </div>
 
-          <div className="container mx-auto px-6 py-8">
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {features.map((feature) => (
-                <FeatureCard
+          {/* Content area with better spacing */}
+          <div className="container mx-auto px-8 py-10">
+            {/* Welcome message */}
+            <div className="mb-10 animate-fade-in">
+              <h2 className="text-2xl font-bold text-foreground mb-2">
+                O que você deseja fazer hoje?
+              </h2>
+              <p className="text-muted-foreground">
+                Escolha uma das opções abaixo para começar
+              </p>
+            </div>
+
+            {/* Feature cards grid with staggered animation */}
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 animate-fade-in">
+              {features.map((feature, index) => (
+                <div 
                   key={feature.title}
-                  title={feature.title}
-                  icon={feature.icon}
-                  iconColor={feature.color}
-                  onClick={() => handleFeatureClick(feature.title)}
-                />
+                  style={{ animationDelay: `${index * 50}ms` }}
+                  className="animate-scale-in"
+                >
+                  <FeatureCard
+                    title={feature.title}
+                    icon={feature.icon}
+                    iconColor={feature.color}
+                    onClick={() => handleFeatureClick(feature.title)}
+                  />
+                </div>
               ))}
             </div>
           </div>

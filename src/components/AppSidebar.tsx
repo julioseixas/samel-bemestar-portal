@@ -26,46 +26,60 @@ export const AppSidebar = () => {
   }, []);
 
   return (
-    <aside className="w-80 bg-gradient-to-br from-primary via-primary to-primary/90 p-6 flex flex-col">
+    <aside className="w-80 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-8 flex flex-col relative overflow-hidden">
+      {/* Decorative background patterns */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-32 translate-x-32" />
+      <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full blur-3xl translate-y-32 -translate-x-32" />
+      
       {/* Logo Samel */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 text-white">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white">
-            <Heart className="h-6 w-6 text-primary" fill="currentColor" />
+      <div className="relative mb-12 animate-fade-in">
+        <div className="flex items-center gap-3 text-white">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white shadow-lg">
+            <Heart className="h-7 w-7 text-primary" fill="currentColor" />
           </div>
           <div>
-            <h1 className="text-xl font-bold">Samel</h1>
-            <p className="text-xs opacity-90">Saúde</p>
+            <h1 className="text-2xl font-bold tracking-tight">Samel</h1>
+            <p className="text-sm opacity-90">Saúde</p>
           </div>
         </div>
       </div>
 
       {/* Card do paciente */}
-      <div className="flex-1 flex items-center justify-center">
-        <Card className="w-full bg-card/95 backdrop-blur-sm border-none shadow-card p-6">
-          <div className="flex flex-col items-center space-y-4">
-            <Avatar className="h-24 w-24 border-4 border-primary">
-              {profilePhoto ? (
-                <AvatarImage src={`data:image/jpeg;base64,${profilePhoto}`} alt={patientData?.nm_pessoa_fisica} />
-              ) : null}
-              <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
-                <User className="h-12 w-12" />
-              </AvatarFallback>
-            </Avatar>
+      <div className="relative flex-1 flex items-center justify-center animate-scale-in">
+        <Card className="w-full bg-white/98 backdrop-blur-md border-none shadow-2xl rounded-3xl p-8 hover:shadow-3xl transition-shadow duration-300">
+          <div className="flex flex-col items-center space-y-6">
+            {/* Avatar with ring effect */}
+            <div className="relative">
+              <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
+              <Avatar className="relative h-28 w-28 border-4 border-white shadow-xl ring-4 ring-primary/20">
+                {profilePhoto ? (
+                  <AvatarImage src={`data:image/jpeg;base64,${profilePhoto}`} alt={patientData?.nm_pessoa_fisica} />
+                ) : null}
+                <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-3xl">
+                  <User className="h-14 w-14" strokeWidth={1.5} />
+                </AvatarFallback>
+              </Avatar>
+            </div>
             
-            <div className="text-center space-y-1">
-              <h3 className="font-semibold text-lg text-foreground">
+            {/* User info with better hierarchy */}
+            <div className="text-center space-y-3 w-full">
+              <h3 className="font-bold text-xl text-foreground tracking-tight">
                 {patientData?.nm_pessoa_fisica || "Carregando..."}
               </h3>
-              <div className="text-sm text-muted-foreground space-y-0.5">
-                <p className="uppercase tracking-wide">Carteirinha Digital</p>
-                <p className="font-mono">{patientData?.cd_pessoa_fisica || "000000000"}</p>
+              <div className="space-y-1.5 pt-2 pb-2 px-4 bg-muted/30 rounded-xl">
+                <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
+                  Carteirinha Digital
+                </p>
+                <p className="font-mono text-base font-bold text-primary">
+                  {patientData?.cd_pessoa_fisica || "000000000"}
+                </p>
               </div>
             </div>
 
+            {/* Button with modern styling */}
             <Button 
               variant="default" 
-              className="w-full bg-primary hover:bg-primary-hover"
+              className="w-full bg-primary hover:bg-primary-hover shadow-md hover:shadow-lg transition-all duration-300 font-semibold py-6 rounded-xl"
             >
               EDITAR DADOS
             </Button>
