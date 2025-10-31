@@ -114,7 +114,7 @@ const Index = () => {
                   </div>
                   <div className="grid grid-cols-[140px_1fr] gap-2">
                     <span className="font-semibold">Rating:</span>
-                    <span>{jwtInfo.rating}</span>
+                    <span>{typeof jwtInfo.rating === 'object' ? JSON.stringify(jwtInfo.rating) : jwtInfo.rating}</span>
                   </div>
                   <div className="grid grid-cols-[140px_1fr] gap-2">
                     <span className="font-semibold">Dependentes:</span>
