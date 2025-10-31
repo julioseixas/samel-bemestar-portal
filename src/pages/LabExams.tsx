@@ -7,6 +7,7 @@ import { ExamDetailsDialog } from "@/components/ExamDetailsDialog";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -261,8 +262,15 @@ const LabExams = () => {
             </CardHeader>
             <CardContent>
               {loading ? (
-                <div className="flex items-center justify-center py-8">
-                  <p className="text-muted-foreground">Carregando exames...</p>
+                <div className="space-y-4">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="flex items-center space-x-4">
+                      <Skeleton className="h-12 w-[180px]" />
+                      <Skeleton className="h-12 flex-1" />
+                      <Skeleton className="h-12 w-[200px]" />
+                      <Skeleton className="h-10 w-10 rounded-full" />
+                    </div>
+                  ))}
                 </div>
               ) : exams.length === 0 ? (
                 <div className="flex items-center justify-center py-8">

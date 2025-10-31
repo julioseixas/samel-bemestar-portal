@@ -6,6 +6,16 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import {
   Table,
   TableBody,
@@ -64,12 +74,24 @@ export function ExamDetailsDialog({
   const [examDetails, setExamDetails] = useState<ExamDetail[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedExam, setSelectedExam] = useState<ExamDetail | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
   const { toast } = useToast();
+
+  // Cálculos de paginação
+  const totalPages = Math.ceil(examDetails.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentExams = examDetails.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   // Chama a API quando o dialog abrir
   useEffect(() => {
     if (open && !selectedExam) {
-      console.log("🔄 Dialog abriu, disparando fetchExamDetails...");
+      setCurrentPage(1);
       fetchExamDetails();
     }
   }, [open]);
@@ -152,75 +174,145 @@ export function ExamDetailsDialog({
           if (!isOpen) {
             onOpenChange(false);
             setExamDetails([]);
+            setCurrentPage(1);
           }
         }}
       >
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-[95vw] w-full h-[90vh] flex flex-col p-0">
+          <DialogHeader className="px-6 py-4 border-b">
             <DialogTitle>Detalhes dos Exames</DialogTitle>
             <DialogDescription>
               Visualize os detalhes completos dos exames realizados
             </DialogDescription>
           </DialogHeader>
 
-          {loading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : examDetails.length === 0 ? (
-            <div className="flex items-center justify-center py-8">
-              <p className="text-muted-foreground">Nenhum detalhe encontrado.</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Exame</TableHead>
-                    <TableHead>Paciente</TableHead>
-                    <TableHead>Médico</TableHead>
-                    <TableHead>Data de Liberação</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {examDetails.map((detail, index) => (
-                    <TableRow key={`${detail.nrSequenciaLaudoPaciente}-${index}`}>
-                      <TableCell className="font-medium">
-                        {detail.procedimentoExame}
-                      </TableCell>
-                      <TableCell>{detail.nomeCliente}</TableCell>
-                      <TableCell>{detail.nomeProfissional}</TableCell>
-                      <TableCell>{detail.dtLiberacao}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex gap-2 justify-end">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleViewReport(detail)}
-                          >
-                            <Eye className="h-4 w-4 mr-2" />
-                            Ver Laudo
-                          </Button>
-                          {detail.urlImg && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => window.open(detail.urlImg, '_blank')}
-                              className="bg-primary/10 hover:bg-primary/20 text-primary"
-                            >
-                              <Image className="h-4 w-4 mr-2" />
-                              Ver Imagem
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
+          <div className="flex-1 overflow-y-auto px-6 py-4">
+            {loading ? (
+              <div className="space-y-4">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="flex items-center space-x-4">
+                    <Skeleton className="h-12 w-12 rounded" />
+                    <div className="space-y-2 flex-1">
+                      <Skeleton className="h-4 w-[250px]" />
+                      <Skeleton className="h-4 w-[200px]" />
+                    </div>
+                    <Skeleton className="h-10 w-[100px]" />
+                  </div>
+                ))}
+              </div>
+            ) : examDetails.length === 0 ? (
+              <div className="flex items-center justify-center py-12">
+                <p className="text-muted-foreground">Nenhum detalhe encontrado.</p>
+              </div>
+            ) : (
+              <>
+                <div className="rounded-lg border bg-card shadow-soft overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Exame</TableHead>
+                        <TableHead>Paciente</TableHead>
+                        <TableHead>Médico</TableHead>
+                        <TableHead>Data de Liberação</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {currentExams.map((detail, index) => (
+                        <TableRow key={`${detail.nrSequenciaLaudoPaciente}-${index}`}>
+                          <TableCell className="font-medium">
+                            {detail.procedimentoExame}
+                          </TableCell>
+                          <TableCell>{detail.nomeCliente}</TableCell>
+                          <TableCell>{detail.nomeProfissional}</TableCell>
+                          <TableCell>{detail.dtLiberacao}</TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex gap-2 justify-end">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleViewReport(detail)}
+                              >
+                                <Eye className="h-4 w-4 mr-2" />
+                                Ver Laudo
+                              </Button>
+                              {detail.urlImg && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => window.open(detail.urlImg, '_blank')}
+                                  className="bg-primary/10 hover:bg-primary/20 text-primary"
+                                >
+                                  <Image className="h-4 w-4 mr-2" />
+                                  Ver Imagem
+                                </Button>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {examDetails.length > itemsPerPage && (
+                  <div className="mt-6">
+                    <Pagination>
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious 
+                            onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
+                            className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                          />
+                        </PaginationItem>
+                        
+                        {[...Array(totalPages)].map((_, index) => {
+                          const pageNumber = index + 1;
+                          if (
+                            pageNumber === 1 ||
+                            pageNumber === totalPages ||
+                            (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+                          ) {
+                            return (
+                              <PaginationItem key={pageNumber}>
+                                <PaginationLink
+                                  onClick={() => handlePageChange(pageNumber)}
+                                  isActive={currentPage === pageNumber}
+                                  className="cursor-pointer"
+                                >
+                                  {pageNumber}
+                                </PaginationLink>
+                              </PaginationItem>
+                            );
+                          } else if (
+                            pageNumber === currentPage - 2 ||
+                            pageNumber === currentPage + 2
+                          ) {
+                            return (
+                              <PaginationItem key={pageNumber}>
+                                <PaginationEllipsis />
+                              </PaginationItem>
+                            );
+                          }
+                          return null;
+                        })}
+
+                        <PaginationItem>
+                          <PaginationNext 
+                            onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
+                            className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                    <p className="text-center text-sm text-muted-foreground mt-2">
+                      Página {currentPage} de {totalPages} ({examDetails.length} exames)
+                    </p>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -230,7 +322,8 @@ export function ExamDetailsDialog({
           if (!isOpen) setSelectedExam(null);
         }}
       >
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-[95vw] w-full h-[90vh] flex flex-col overflow-hidden p-0">
+          <div className="flex-1 overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Laudo - {selectedExam?.procedimentoExame}</DialogTitle>
             <DialogDescription>
@@ -259,6 +352,7 @@ export function ExamDetailsDialog({
               </div>
             </div>
           )}
+          </div>
         </DialogContent>
       </Dialog>
     </>
