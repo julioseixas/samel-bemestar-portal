@@ -29,7 +29,7 @@ const Login = () => {
           body: JSON.stringify({
             email: email,
             senha: password,
-            chaveNotificacaoDispositivo: "",
+            chaveNotificacaoDispositivo: "postman-device",
           }),
         }
       );
