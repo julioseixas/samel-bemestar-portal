@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Heart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
-import jwt from "jsonwebtoken";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -47,7 +46,6 @@ const Login = () => {
         if (data.dados2) {
           try {
             const decoded = jwtDecode(data.dados2) as any;
-            const SECRET_KEY = '9j7d8k20f##';
 
             // Monta o objeto do titular
             const titular = {
@@ -75,33 +73,14 @@ const Login = () => {
               });
             }
 
-            // Assina a lista completa com JWT
-            const listToScheduleToken = jwt.sign(
-              { listAllPacient }, 
-              SECRET_KEY, 
-              { expiresIn: '100d' }
-            );
-            localStorage.setItem('listToSchedule', listToScheduleToken);
-
-            // Assina só o titular
-            const titularToken = jwt.sign(
-              { titular }, 
-              SECRET_KEY, 
-              { expiresIn: '100d' }
-            );
-            localStorage.setItem('titular', titularToken);
-
-            // Salva o rating do titular
+            // Armazena os dados estruturados no localStorage
+            localStorage.setItem('listToSchedule', JSON.stringify({ listAllPacient }));
+            localStorage.setItem('titular', JSON.stringify({ titular }));
             localStorage.setItem('rating', titular.rating?.toString() || '0');
-
-            // Assina e salva o token do usuário (chave de autenticação)
+            
+            // Armazena a chave de autenticação
             const chave = decoded.chave || data.dados2;
-            const userToken = jwt.sign(
-              { chave }, 
-              SECRET_KEY, 
-              { expiresIn: '100d' }
-            );
-            localStorage.setItem('user', userToken);
+            localStorage.setItem('user', JSON.stringify({ chave }));
 
             // Armazena também os dados completos decodificados para referência
             localStorage.setItem("patientData", JSON.stringify(decoded));

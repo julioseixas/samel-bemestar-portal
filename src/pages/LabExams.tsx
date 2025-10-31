@@ -5,8 +5,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { jwtDecode } from "jwt-decode";
-import jwt from "jsonwebtoken";
 import {
   Table,
   TableBody,
@@ -38,29 +36,26 @@ const LabExams = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const SECRET_KEY = '9j7d8k20f##';
     const storedTitular = localStorage.getItem("titular");
     const storedListToSchedule = localStorage.getItem("listToSchedule");
     const storedProfilePhoto = localStorage.getItem("profilePhoto");
 
     if (storedTitular) {
       try {
-        // Decodifica o titular para pegar o nome
-        const decodedTitular: any = jwt.verify(storedTitular, SECRET_KEY);
-        setPatientName(decodedTitular.titular?.nome || "Paciente");
+        const parsedTitular = JSON.parse(storedTitular);
+        setPatientName(parsedTitular.titular?.nome || "Paciente");
       } catch (error) {
-        console.error("Erro ao decodificar titular:", error);
+        console.error("Erro ao processar titular:", error);
       }
     }
 
     if (storedListToSchedule) {
       try {
-        // Decodifica a lista de pacientes para pegar os IDs
-        const decodedList: any = jwt.verify(storedListToSchedule, SECRET_KEY);
+        const parsedList = JSON.parse(storedListToSchedule);
         const clientIds: number[] = [];
         
-        if (decodedList.listAllPacient && decodedList.listAllPacient.length > 0) {
-          decodedList.listAllPacient.forEach((paciente: any) => {
+        if (parsedList.listAllPacient && parsedList.listAllPacient.length > 0) {
+          parsedList.listAllPacient.forEach((paciente: any) => {
             // Pega o ID do titular (de clienteContratos)
             if (paciente.clienteContratos && paciente.clienteContratos.length > 0) {
               paciente.clienteContratos.forEach((contrato: any) => {
@@ -102,17 +97,16 @@ const LabExams = () => {
 
   const fetchLabExams = async (clientIds: number[]) => {
     try {
-      const SECRET_KEY = '9j7d8k20f##';
-      // Obter e decodificar o JWT para pegar a chave de autenticação
+      // Obter a chave de autenticação do localStorage
       const userToken = localStorage.getItem("user");
       let authToken = "";
       
       if (userToken) {
         try {
-          const decoded: any = jwt.verify(userToken, SECRET_KEY);
-          authToken = decoded.chave || "";
+          const parsed = JSON.parse(userToken);
+          authToken = parsed.chave || "";
         } catch (error) {
-          console.error("Erro ao decodificar token:", error);
+          console.error("Erro ao processar token:", error);
         }
       }
 
