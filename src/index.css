@@ -153,29 +153,28 @@ All colors MUST be HSL.
   /* Page settings */
   @page {
     size: A4;
-    margin: 15mm;
+    margin: 12mm;
   }
   
-  /* Hide buttons and UI elements */
+  /* Reset body for print */
+  body {
+    font-family: Arial, sans-serif;
+    line-height: 1.4;
+    color: #000 !important;
+    background: white !important;
+  }
+  
+  /* Hide buttons and unnecessary UI elements */
   button,
-  .print\:hidden {
+  .print\:hidden,
+  [data-radix-dialog-overlay] {
     display: none !important;
   }
   
-  /* Preserve colors and backgrounds for medical documents */
-  * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-    color-adjust: exact !important;
-  }
-  
-  /* Show only the exam report */
-  body > *:not([role="dialog"]) {
-    display: none !important;
-  }
-  
+  /* Make dialog behave as regular content */
   [role="dialog"] {
     position: static !important;
+    transform: none !important;
     width: 100% !important;
     max-width: 100% !important;
     height: auto !important;
@@ -183,31 +182,81 @@ All colors MUST be HSL.
     overflow: visible !important;
     background: white !important;
     border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
   
-  /* Make the dialog content full width */
-  [role="dialog"] > * {
+  /* Remove all dialog styling */
+  [data-radix-dialog-content] {
     max-width: 100% !important;
     max-height: none !important;
     overflow: visible !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
   }
   
-  /* Avoid page breaks inside important content */
+  /* Style the print content */
+  #printMe {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+  
+  /* Make borders black for print */
+  .border-border {
+    border-color: #000 !important;
+  }
+  
+  /* Ensure text is black */
+  * {
+    color: #000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Keep backgrounds white */
+  .bg-card,
+  .bg-background {
+    background: white !important;
+  }
+  
+  /* Keep primary color for logo/header */
+  .text-primary {
+    color: #2563eb !important;
+  }
+  
+  /* Avoid page breaks inside content blocks */
   .border,
-  div[style*="border"] {
+  div[class*="border"] {
     page-break-inside: avoid;
   }
   
-  /* Ensure proper text rendering */
-  body {
-    font-family: Arial, sans-serif;
-    line-height: 1.4;
+  /* Ensure proper spacing */
+  .p-6 {
+    padding: 1.5rem !important;
   }
   
-  /* Remove dialog padding and styling for print */
-  [role="dialog"] [data-radix-dialog-content] {
-    box-shadow: none !important;
-    border: none !important;
-    max-height: none !important;
+  .mb-4 {
+    margin-bottom: 1rem !important;
+  }
+  
+  /* Fix prose content */
+  .prose {
+    max-width: 100% !important;
+  }
+  
+  .prose p,
+  .prose pre {
+    color: #000 !important;
+    margin: 0.5em 0 !important;
+  }
+  
+  /* Ensure all sections are visible */
+  div[style*="display: flex"],
+  div[style*="flex-direction"] {
+    display: block !important;
   }
 }
