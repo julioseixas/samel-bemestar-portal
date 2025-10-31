@@ -31,7 +31,9 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     
-    // Simulação de login - aqui você integrará com sua API
+    // Aqui você integrará com sua API existente
+    // Exemplo: await fetch('/api/login', { method: 'POST', body: JSON.stringify({ cpf, password }) })
+    
     setTimeout(() => {
       setLoading(false);
       navigate("/");
