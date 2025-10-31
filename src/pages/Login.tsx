@@ -40,7 +40,7 @@ const Login = () => {
         title: "Login realizado com sucesso!",
         description: "Bem-vindo ao Portal do Paciente",
       });
-      navigate("/");
+      navigate("/dashboard");
       setIsLoading(false);
     }, 1000);
   };
