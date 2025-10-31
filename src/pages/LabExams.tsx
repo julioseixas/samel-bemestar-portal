@@ -174,8 +174,11 @@ const LabExams = () => {
   };
 
   const handleViewDetails = (exam: LabExam) => {
+    console.log("👆 Clique no botão Ver Exames detectado!");
+    console.log("📋 Exame selecionado:", exam);
     setSelectedExam(exam);
     setDialogOpen(true);
+    console.log("✅ Estado atualizado: dialogOpen = true");
   };
 
   // Cálculos de paginação
@@ -360,15 +363,13 @@ const LabExams = () => {
 
       <Footer />
 
-      {selectedExam && (
-        <ExamDetailsDialog
-          open={dialogOpen}
-          onOpenChange={setDialogOpen}
-          idCliente={selectedExam.idCliente}
-          idAtendimento={selectedExam.nrAtendimento}
-          apiEndpoint="https://api-portalpaciente-web.samel.com.br/api/Agenda/Procedimento/ObterExamesLaudoLabDetalhe"
-        />
-      )}
+      <ExamDetailsDialog
+        open={dialogOpen && !!selectedExam}
+        onOpenChange={setDialogOpen}
+        idCliente={selectedExam?.idCliente || ""}
+        idAtendimento={selectedExam?.nrAtendimento || 0}
+        apiEndpoint="https://api-portalpaciente-web.samel.com.br/api/Agenda/Procedimento/ObterExamesLaudoLabDetalhe"
+      />
     </div>
   );
 };

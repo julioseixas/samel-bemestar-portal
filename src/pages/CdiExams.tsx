@@ -123,8 +123,11 @@ const CdiExams = () => {
   };
 
   const handleViewExam = (exam: CdiExam) => {
+    console.log("👆 Clique no botão Ver Exames CDI detectado!");
+    console.log("📋 Exame selecionado:", exam);
     setSelectedExam(exam);
     setDialogOpen(true);
+    console.log("✅ Estado atualizado: dialogOpen = true");
   };
 
   // Cálculos de paginação
@@ -264,15 +267,13 @@ const CdiExams = () => {
 
       <Footer />
 
-      {selectedExam && (
-        <ExamDetailsDialog
-          open={dialogOpen}
-          onOpenChange={setDialogOpen}
-          idCliente={selectedExam.idCliente}
-          idAtendimento={selectedExam.nrAtendimento}
-          apiEndpoint="https://api-portalpaciente-web.samel.com.br/api/Agenda/Procedimento/ObterExamesLaudoCdiDetalhe"
-        />
-      )}
+      <ExamDetailsDialog
+        open={dialogOpen && !!selectedExam}
+        onOpenChange={setDialogOpen}
+        idCliente={selectedExam?.idCliente || ""}
+        idAtendimento={selectedExam?.nrAtendimento || 0}
+        apiEndpoint="https://api-portalpaciente-web.samel.com.br/api/Agenda/Procedimento/ObterExamesLaudoCdiDetalhe"
+      />
     </div>
   );
 };
