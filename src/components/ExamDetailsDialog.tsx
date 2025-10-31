@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Printer, Eye, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
+import { ExamReportView } from "@/components/ExamReportView";
 
 interface ExamDetail {
   nrSequenciaLaudoPaciente: number;
@@ -140,85 +141,51 @@ export function ExamDetailsDialog({
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
 
+    // Get the HTML content from ExamReportView
+    const printContent = document.getElementById("printMe");
+    if (!printContent) return;
+
     const content = `
       <!DOCTYPE html>
       <html>
         <head>
           <title>Laudo - ${selectedExam.procedimentoExame}</title>
+          <meta charset="UTF-8">
           <style>
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
             body {
               font-family: Arial, sans-serif;
-              margin: 20px;
-              color: #333;
-            }
-            h1 {
-              color: #059669;
-              border-bottom: 2px solid #059669;
-              padding-bottom: 10px;
-            }
-            .info {
-              margin: 20px 0;
-            }
-            .info-row {
-              margin: 10px 0;
-            }
-            .label {
-              font-weight: bold;
-              display: inline-block;
-              width: 200px;
-            }
-            .content {
-              margin-top: 20px;
-              border: 1px solid #ddd;
               padding: 20px;
-              background: #f9f9f9;
+              color: #333;
+              background: white;
+            }
+            .prose {
+              max-width: 100%;
+            }
+            .prose p {
+              margin: 0.5em 0;
             }
             @media print {
               button {
-                display: none;
+                display: none !important;
+              }
+              body {
+                padding: 10px;
               }
             }
           </style>
         </head>
         <body>
-          <h1>${selectedExam.procedimentoExame}</h1>
-          <div class="info">
-            <div class="info-row">
-              <span class="label">Paciente:</span>
-              <span>${selectedExam.nomeCliente}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">Data de Nascimento:</span>
-              <span>${selectedExam.dataNascimento}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">Médico Solicitante:</span>
-              <span>${selectedExam.medicoSolicitante}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">Médico do Laudo:</span>
-              <span>${selectedExam.medicoLaudo}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">Data de Liberação:</span>
-              <span>${selectedExam.dtLiberacao}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">Convênio:</span>
-              <span>${selectedExam.dsConvenio}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">Setor:</span>
-              <span>${selectedExam.dsSetor}</span>
-            </div>
+          ${printContent.innerHTML}
+          <div style="margin-top: 20px; text-align: center; page-break-inside: avoid;">
+            <button onclick="window.print()" style="padding: 10px 20px; background: #059669; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">
+              Imprimir Laudo
+            </button>
           </div>
-          <div class="content">
-            ${selectedExam.dsCabecalho || ""}
-            ${selectedExam.dsAssinatura || ""}
-          </div>
-          <button onclick="window.print()" style="margin-top: 20px; padding: 10px 20px; background: #059669; color: white; border: none; border-radius: 5px; cursor: pointer;">
-            Imprimir
-          </button>
         </body>
       </html>
     `;
@@ -309,48 +276,13 @@ export function ExamDetailsDialog({
           </DialogHeader>
 
           {selectedExam && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="font-semibold">Paciente:</span>{" "}
-                  {selectedExam.nomeCliente}
-                </div>
-                <div>
-                  <span className="font-semibold">Data de Nascimento:</span>{" "}
-                  {selectedExam.dataNascimento}
-                </div>
-                <div>
-                  <span className="font-semibold">Médico Solicitante:</span>{" "}
-                  {selectedExam.medicoSolicitante}
-                </div>
-                <div>
-                  <span className="font-semibold">Médico do Laudo:</span>{" "}
-                  {selectedExam.medicoLaudo}
-                </div>
-                <div>
-                  <span className="font-semibold">Data de Liberação:</span>{" "}
-                  {selectedExam.dtLiberacao}
-                </div>
-                <div>
-                  <span className="font-semibold">Convênio:</span>{" "}
-                  {selectedExam.dsConvenio}
-                </div>
-              </div>
+            <div className="space-y-6">
+              <ExamReportView
+                examData={selectedExam}
+                tipoLaudo={apiEndpoint.includes("Lab") ? "lab" : "cdi"}
+              />
 
-              <div className="border rounded-lg p-4 bg-muted/30">
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: selectedExam.dsCabecalho || "",
-                  }}
-                />
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: selectedExam.dsAssinatura || "",
-                  }}
-                />
-              </div>
-
-              <div className="flex justify-end gap-2">
+              <div className="flex justify-end gap-2 print:hidden">
                 <Button variant="outline" onClick={() => setSelectedExam(null)}>
                   Fechar
                 </Button>
