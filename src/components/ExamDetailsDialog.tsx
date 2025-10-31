@@ -61,6 +61,10 @@ export function ExamDetailsDialog({
   const { toast } = useToast();
 
   const fetchExamDetails = async () => {
+    console.log("🔍 Buscando detalhes do exame...");
+    console.log("📍 Endpoint:", apiEndpoint);
+    console.log("📋 Payload:", { idCliente, idAtendimento });
+    
     setLoading(true);
     try {
       const userToken = localStorage.getItem("user");
@@ -70,11 +74,13 @@ export function ExamDetailsDialog({
         try {
           const decoded: any = jwtDecode(userToken);
           authToken = decoded.token || "";
+          console.log("🔑 Token autenticação encontrado");
         } catch (error) {
           console.error("Erro ao decodificar token:", error);
         }
       }
 
+      console.log("🚀 Fazendo requisição para:", apiEndpoint);
       const response = await fetch(apiEndpoint, {
         method: "POST",
         headers: {
@@ -88,11 +94,16 @@ export function ExamDetailsDialog({
         }),
       });
 
+      console.log("📡 Status da resposta:", response.status);
+
       const result = await response.json();
+      console.log("📦 Resposta da API:", result);
 
       if (result.sucesso && result.dados) {
+        console.log("✅ Detalhes carregados:", result.dados.length, "itens");
         setExamDetails(result.dados);
       } else {
+        console.log("⚠️ Nenhum dado encontrado");
         toast({
           title: "Aviso",
           description: result.mensagem || "Nenhum detalhe encontrado.",
@@ -100,7 +111,7 @@ export function ExamDetailsDialog({
         });
       }
     } catch (error) {
-      console.error("Erro ao buscar detalhes:", error);
+      console.error("❌ Erro ao buscar detalhes:", error);
       toast({
         title: "Erro",
         description: "Não foi possível carregar os detalhes do exame.",
