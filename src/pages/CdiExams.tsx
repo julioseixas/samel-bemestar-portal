@@ -14,6 +14,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface CdiExam {
   nrAtendimento: number;
@@ -34,6 +43,8 @@ const CdiExams = () => {
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [exams, setExams] = useState<CdiExam[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const patientData = localStorage.getItem("patientData");
@@ -111,6 +122,17 @@ const CdiExams = () => {
     });
   };
 
+  // Cálculos de paginação
+  const totalPages = Math.ceil(exams.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentExams = exams.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
@@ -155,7 +177,7 @@ const CdiExams = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {exams.map((exam, index) => (
+                  {currentExams.map((exam, index) => (
                     <TableRow key={`${exam.nrAtendimento}-${index}`}>
                       <TableCell>{exam.dataEntrada}</TableCell>
                       <TableCell>{exam.nomeCliente}</TableCell>
@@ -174,6 +196,62 @@ const CdiExams = () => {
                   ))}
                 </TableBody>
               </Table>
+
+              {!loading && exams.length > itemsPerPage && (
+                <div className="mt-6 px-4">
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious 
+                          onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
+                          className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        />
+                      </PaginationItem>
+                      
+                      {[...Array(totalPages)].map((_, index) => {
+                        const pageNumber = index + 1;
+                        if (
+                          pageNumber === 1 ||
+                          pageNumber === totalPages ||
+                          (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+                        ) {
+                          return (
+                            <PaginationItem key={pageNumber}>
+                              <PaginationLink
+                                onClick={() => handlePageChange(pageNumber)}
+                                isActive={currentPage === pageNumber}
+                                className="cursor-pointer"
+                              >
+                                {pageNumber}
+                              </PaginationLink>
+                            </PaginationItem>
+                          );
+                        } else if (
+                          pageNumber === currentPage - 2 ||
+                          pageNumber === currentPage + 2
+                        ) {
+                          return (
+                            <PaginationItem key={pageNumber}>
+                              <PaginationEllipsis />
+                            </PaginationItem>
+                          );
+                        }
+                        return null;
+                      })}
+
+                      <PaginationItem>
+                        <PaginationNext 
+                          onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
+                          className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                  <p className="text-center text-sm text-muted-foreground mt-2">
+                    Página {currentPage} de {totalPages} ({exams.length} exames)
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>
