@@ -4,6 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
   Table,
@@ -223,6 +224,9 @@ export function ExamDetailsDialog({
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Detalhes dos Exames</DialogTitle>
+            <DialogDescription>
+              Visualize os detalhes completos dos exames realizados
+            </DialogDescription>
           </DialogHeader>
 
           {loading ? (
@@ -282,6 +286,9 @@ export function ExamDetailsDialog({
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Laudo - {selectedExam?.procedimentoExame}</DialogTitle>
+            <DialogDescription>
+              Laudo completo do exame com informações do paciente e resultado
+            </DialogDescription>
           </DialogHeader>
 
           {selectedExam && (
