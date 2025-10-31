@@ -3,7 +3,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AppointmentBanner } from "@/components/AppointmentBanner";
 import { DashboardCard } from "@/components/DashboardCard";
-import { Calendar, FileText, CreditCard, HeadphonesIcon, ClipboardList, User } from "lucide-react";
+import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, Baby, MessageCircle, ClipboardPlus, FolderOpen } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
@@ -72,19 +72,69 @@ const Index = () => {
             
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               <DashboardCard
-                title="Minhas Consultas"
-                description="Veja suas consultas agendadas e o histórico completo"
+                title="MARCAR CONSULTA"
+                description="Agende uma nova consulta com nossos especialistas"
                 icon={Calendar}
                 iconColor="text-primary"
-                buttonText="Ver Consultas"
+                buttonText="Agendar Consulta"
                 variant="default"
-                onClick={() => handleCardClick("Consultas")}
+                onClick={() => handleCardClick("Marcar Consulta")}
               />
               
               <DashboardCard
-                title="Resultados de Exames"
-                description="Acesse seus resultados de exames e laudos médicos"
-                icon={FileText}
+                title="MARCAR EXAME"
+                description="Solicite e agende seus exames laboratoriais"
+                icon={ClipboardPlus}
+                iconColor="text-primary"
+                buttonText="Agendar Exame"
+                variant="default"
+                onClick={() => handleCardClick("Marcar Exame")}
+              />
+              
+              <DashboardCard
+                title="MEU PRONTUÁRIO"
+                description="Acesse seu histórico médico completo"
+                icon={FolderOpen}
+                iconColor="text-primary"
+                buttonText="Ver Prontuário"
+                variant="default"
+                onClick={() => handleCardClick("Meu Prontuário")}
+              />
+              
+              <DashboardCard
+                title="REALIZAR CHECK-IN NA TELEMEDICINA"
+                description="Faça check-in para sua consulta online"
+                icon={Video}
+                iconColor="text-success"
+                buttonText="Fazer Check-in"
+                variant="success"
+                onClick={() => handleCardClick("Check-in Telemedicina")}
+              />
+              
+              <DashboardCard
+                title="VER CONSULTAS / EXAMES AGENDADOS"
+                description="Visualize todos os seus agendamentos"
+                icon={CalendarCheck}
+                iconColor="text-primary"
+                buttonText="Ver Agendamentos"
+                variant="default"
+                onClick={() => handleCardClick("Consultas e Exames Agendados")}
+              />
+              
+              <DashboardCard
+                title="VER RECEITAS E ATESTADOS"
+                description="Acesse suas receitas médicas e atestados"
+                icon={Pill}
+                iconColor="text-primary"
+                buttonText="Ver Receitas"
+                variant="default"
+                onClick={() => handleCardClick("Receitas e Atestados")}
+              />
+              
+              <DashboardCard
+                title="VER RESULTADOS DE EXAMES"
+                description="Consulte os resultados dos seus exames"
+                icon={TestTube}
                 iconColor="text-success"
                 buttonText="Ver Resultados"
                 variant="success"
@@ -92,43 +142,43 @@ const Index = () => {
               />
               
               <DashboardCard
-                title="Financeiro"
-                description="Consulte e baixe seus boletos e comprovantes"
-                icon={CreditCard}
+                title="MINHA INTERNAÇÃO"
+                description="Acompanhe informações sobre sua internação"
+                icon={Bed}
                 iconColor="text-warning"
-                buttonText="Ver Boletos"
+                buttonText="Ver Internação"
                 variant="warning"
-                onClick={() => handleCardClick("Financeiro")}
+                onClick={() => handleCardClick("Minha Internação")}
               />
               
               <DashboardCard
-                title="Agendar Consulta"
-                description="Marque uma nova consulta com seus médicos"
-                icon={ClipboardList}
+                title="RENOVAÇÃO DE RECEITA"
+                description="Solicite a renovação das suas receitas"
+                icon={RefreshCw}
                 iconColor="text-primary"
-                buttonText="Agendar Agora"
+                buttonText="Renovar Receita"
                 variant="default"
-                onClick={() => handleCardClick("Agendar Consulta")}
+                onClick={() => handleCardClick("Renovação de Receita")}
               />
               
               <DashboardCard
-                title="Meus Dados"
-                description="Atualize suas informações pessoais e de contato"
-                icon={User}
-                iconColor="text-accent-foreground"
-                buttonText="Editar Perfil"
-                variant="secondary"
-                onClick={() => handleCardClick("Meus Dados")}
-              />
-              
-              <DashboardCard
-                title="Precisa de Ajuda?"
-                description="Fale conosco por telefone, e-mail ou WhatsApp"
-                icon={HeadphonesIcon}
+                title="MARCAÇÃO DE PARTO DESEJADO"
+                description="Agende a data desejada para seu parto"
+                icon={Baby}
                 iconColor="text-primary"
-                buttonText="Entrar em Contato"
+                buttonText="Agendar Parto"
+                variant="secondary"
+                onClick={() => handleCardClick("Marcação de Parto")}
+              />
+              
+              <DashboardCard
+                title="CHATBOT SAMEL"
+                description="Converse com nosso assistente virtual"
+                icon={MessageCircle}
+                iconColor="text-primary"
+                buttonText="Iniciar Chat"
                 variant="outline"
-                onClick={() => handleCardClick("Suporte")}
+                onClick={() => handleCardClick("Chatbot Samel")}
               />
             </div>
           </div>
