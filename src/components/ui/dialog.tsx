@@ -1,3 +1,34 @@
+/**
+ * PADRÃO DE MODAIS DO PROJETO
+ * 
+ * Para manter consistência, todos os modais devem seguir este padrão:
+ * 
+ * <Dialog open={isOpen} onOpenChange={setIsOpen}>
+ *   <DialogContent className="max-w-[95vw] w-full h-[90vh] flex flex-col p-0">
+ *     
+ *     <!-- HEADER FIXO -->
+ *     <DialogHeader className="px-6 py-4 border-b bg-card shrink-0">
+ *       <DialogTitle className="text-xl">Título</DialogTitle>
+ *       <DialogDescription>Descrição</DialogDescription>
+ *     </DialogHeader>
+ * 
+ *     <!-- CONTEÚDO SCROLLÁVEL -->
+ *     <div className="flex-1 overflow-y-auto px-6 py-4">
+ *       {conteúdo}
+ *     </div>
+ * 
+ *     <!-- FOOTER FIXO (opcional) -->
+ *     <div className="shrink-0 px-6 py-4 border-t bg-card flex justify-end gap-2 print:hidden">
+ *       <Button variant="outline" onClick={onClose}>Fechar</Button>
+ *       <Button onClick={onAction}>Ação</Button>
+ *     </div>
+ * 
+ *   </DialogContent>
+ * </Dialog>
+ * 
+ * Veja MODAL_STANDARDS.md para mais detalhes e exemplos.
+ */
+
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
