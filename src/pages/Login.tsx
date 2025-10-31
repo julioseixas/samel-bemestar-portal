@@ -86,6 +86,9 @@ const Login = () => {
                     headers: {
                       "Content-Type": "application/json",
                     },
+                    body: JSON.stringify({
+                      idCliente: decodedData.cd_pessoa_fisica,
+                    }),
                   }
                 );
 
