@@ -62,7 +62,7 @@ export function ExamReportView({ examData, tipoLaudo }: ExamReportViewProps) {
       </div>
 
       {/* CORPO DO LAUDO */}
-      <div className="border border-border bg-card p-6 mb-4 min-h-[500px]">
+      <div className="border border-border bg-card p-6 mb-4">
         <div
           className="prose prose-sm max-w-none"
           dangerouslySetInnerHTML={{
