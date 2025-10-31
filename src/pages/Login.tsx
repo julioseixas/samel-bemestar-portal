@@ -5,9 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Heart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import jwt from "jsonwebtoken";
-
-const JWT_SECRET = "9j7d8k20f##";
+import { jwtDecode } from "jwt-decode";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -47,7 +45,7 @@ const Login = () => {
         // Decodifica o JWT retornado em dados2
         if (data.dados2) {
           try {
-            const decodedData = jwt.verify(data.dados2, JWT_SECRET) as any;
+            const decodedData = jwtDecode(data.dados2) as any;
             // Armazena os dados do paciente no localStorage
             localStorage.setItem("patientData", JSON.stringify(decodedData));
             console.log("Dados do paciente:", decodedData);
