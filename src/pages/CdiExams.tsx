@@ -3,6 +3,7 @@ import { Footer } from "@/components/Footer";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Eye } from "lucide-react";
+import { ExamDetailsDialog } from "@/components/ExamDetailsDialog";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
@@ -45,6 +46,8 @@ const CdiExams = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [selectedExam, setSelectedExam] = useState<CdiExam | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     const patientData = localStorage.getItem("patientData");
@@ -120,10 +123,8 @@ const CdiExams = () => {
   };
 
   const handleViewExam = (exam: CdiExam) => {
-    toast({
-      title: "Visualizar exame",
-      description: `Exame de ${exam.nomeCliente} - Atendimento ${exam.nrAtendimento}`,
-    });
+    setSelectedExam(exam);
+    setDialogOpen(true);
   };
 
   // Cálculos de paginação
@@ -262,6 +263,16 @@ const CdiExams = () => {
       </main>
 
       <Footer />
+
+      {selectedExam && (
+        <ExamDetailsDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          idCliente={selectedExam.idCliente}
+          idAtendimento={selectedExam.nrAtendimento}
+          apiEndpoint="https://api-portalpaciente-web.samel.com.br/api/Agenda/Procedimento/ObterExamesLaudoCdiDetalhe"
+        />
+      )}
     </div>
   );
 };

@@ -3,6 +3,7 @@ import { Footer } from "@/components/Footer";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Eye } from "lucide-react";
+import { ExamDetailsDialog } from "@/components/ExamDetailsDialog";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
@@ -47,6 +48,8 @@ const LabExams = () => {
   const [jwtInfo, setJwtInfo] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [selectedExam, setSelectedExam] = useState<LabExam | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -171,10 +174,8 @@ const LabExams = () => {
   };
 
   const handleViewDetails = (exam: LabExam) => {
-    toast({
-      title: "Detalhes do Exame",
-      description: "Funcionalidade de visualização de detalhes em desenvolvimento.",
-    });
+    setSelectedExam(exam);
+    setDialogOpen(true);
   };
 
   // Cálculos de paginação
@@ -358,6 +359,16 @@ const LabExams = () => {
       </main>
 
       <Footer />
+
+      {selectedExam && (
+        <ExamDetailsDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          idCliente={selectedExam.idCliente}
+          idAtendimento={selectedExam.nrAtendimento}
+          apiEndpoint="https://api-portalpaciente-web.samel.com.br/api/Agenda/Procedimento/ObterExamesLaudoLabDetalhe"
+        />
+      )}
     </div>
   );
 };
