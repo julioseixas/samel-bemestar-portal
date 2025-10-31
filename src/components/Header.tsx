@@ -7,6 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface HeaderProps {
   patientName?: string;
@@ -35,6 +36,7 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
         </div>
         
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <div className="text-right">
             <p className="text-sm text-muted-foreground">Olá,</p>
             <p className="text-base font-semibold text-foreground md:text-lg">{patientName}</p>
