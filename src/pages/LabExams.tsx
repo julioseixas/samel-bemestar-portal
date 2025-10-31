@@ -35,11 +35,23 @@ const LabExams = () => {
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [exams, setExams] = useState<LabExam[]>([]);
   const [loading, setLoading] = useState(true);
+  const [jwtInfo, setJwtInfo] = useState<any>(null);
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
     const storedListToSchedule = localStorage.getItem("listToSchedule");
     const storedProfilePhoto = localStorage.getItem("profilePhoto");
+    const userToken = localStorage.getItem("user");
+
+    // Decodifica o JWT para mostrar informações técnicas
+    if (userToken) {
+      try {
+        const decoded: any = jwtDecode(userToken);
+        setJwtInfo(decoded);
+      } catch (error) {
+        console.error("Erro ao decodificar JWT:", error);
+      }
+    }
 
     if (storedTitular) {
       try {
@@ -168,6 +180,54 @@ const LabExams = () => {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Voltar
           </Button>
+
+          {jwtInfo && (
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle className="text-xl">Informações Técnicas do JWT</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm">
+                  <div className="grid grid-cols-[120px_1fr] gap-2">
+                    <span className="font-semibold">Chave:</span>
+                    <span className="font-mono break-all">{jwtInfo.chave}</span>
+                  </div>
+                  <div className="grid grid-cols-[120px_1fr] gap-2">
+                    <span className="font-semibold">Tipo Beneficiário:</span>
+                    <span>{jwtInfo.tipoBeneficiario}</span>
+                  </div>
+                  <div className="grid grid-cols-[120px_1fr] gap-2">
+                    <span className="font-semibold">Nome:</span>
+                    <span>{jwtInfo.nome}</span>
+                  </div>
+                  <div className="grid grid-cols-[120px_1fr] gap-2">
+                    <span className="font-semibold">ID:</span>
+                    <span>{jwtInfo.id}</span>
+                  </div>
+                  <div className="grid grid-cols-[120px_1fr] gap-2">
+                    <span className="font-semibold">Email:</span>
+                    <span>{jwtInfo.usuario?.email}</span>
+                  </div>
+                  <div className="grid grid-cols-[120px_1fr] gap-2">
+                    <span className="font-semibold">ID Usuário:</span>
+                    <span>{jwtInfo.usuario?.id}</span>
+                  </div>
+                  <div className="grid grid-cols-[120px_1fr] gap-2">
+                    <span className="font-semibold">Rating:</span>
+                    <span>{jwtInfo.rating}</span>
+                  </div>
+                  <div className="grid grid-cols-[120px_1fr] gap-2">
+                    <span className="font-semibold">Dependentes:</span>
+                    <span>{jwtInfo.dependentes?.length || 0}</span>
+                  </div>
+                  <div className="grid grid-cols-[120px_1fr] gap-2">
+                    <span className="font-semibold">Contratos:</span>
+                    <span>{jwtInfo.clienteContratos?.length || 0}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           <Card>
             <CardHeader>
