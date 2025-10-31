@@ -15,7 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Printer, Eye, Loader2 } from "lucide-react";
+import { Printer, Eye, Loader2, Image } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
 import { ExamReportView } from "@/components/ExamReportView";
@@ -193,14 +193,27 @@ export function ExamDetailsDialog({
                       <TableCell>{detail.nomeProfissional}</TableCell>
                       <TableCell>{detail.dtLiberacao}</TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleViewReport(detail)}
-                        >
-                          <Eye className="h-4 w-4 mr-2" />
-                          Ver Laudo
-                        </Button>
+                        <div className="flex gap-2 justify-end">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleViewReport(detail)}
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            Ver Laudo
+                          </Button>
+                          {detail.urlImg && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => window.open(detail.urlImg, '_blank')}
+                              className="bg-primary/10 hover:bg-primary/20 text-primary"
+                            >
+                              <Image className="h-4 w-4 mr-2" />
+                              Ver Imagem
+                            </Button>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
