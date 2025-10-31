@@ -102,7 +102,11 @@ const CdiExams = () => {
       }
 
       const data = await response.json();
-      setExams(data);
+      if (data.sucesso && data.dados) {
+        setExams(data.dados);
+      } else {
+        setExams([]);
+      }
     } catch (error) {
       console.error("Erro ao buscar exames CDI:", error);
       toast({
