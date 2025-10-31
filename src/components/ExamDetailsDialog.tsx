@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -59,6 +59,14 @@ export function ExamDetailsDialog({
   const [loading, setLoading] = useState(false);
   const [selectedExam, setSelectedExam] = useState<ExamDetail | null>(null);
   const { toast } = useToast();
+
+  // Chama a API quando o dialog abrir
+  useEffect(() => {
+    if (open && !selectedExam) {
+      console.log("🔄 Dialog abriu, disparando fetchExamDetails...");
+      fetchExamDetails();
+    }
+  }, [open]);
 
   const fetchExamDetails = async () => {
     console.log("🔍 Buscando detalhes do exame...");
@@ -224,10 +232,8 @@ export function ExamDetailsDialog({
       <Dialog
         open={open && !selectedExam}
         onOpenChange={(isOpen) => {
-          onOpenChange(isOpen);
-          if (isOpen) {
-            fetchExamDetails();
-          } else {
+          if (!isOpen) {
+            onOpenChange(false);
             setExamDetails([]);
           }
         }}
