@@ -78,9 +78,8 @@ const Login = () => {
             localStorage.setItem('titular', JSON.stringify({ titular }));
             localStorage.setItem('rating', titular.rating?.toString() || '0');
             
-            // Armazena a chave de autenticação
-            const chave = decoded.chave || data.dados2;
-            localStorage.setItem('user', JSON.stringify({ chave }));
+            // Armazena o JWT original para uso posterior
+            localStorage.setItem('user', data.dados2);
 
             // Armazena também os dados completos decodificados para referência
             localStorage.setItem("patientData", JSON.stringify(decoded));

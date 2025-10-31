@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { jwtDecode } from "jwt-decode";
 import {
   Table,
   TableBody,
@@ -97,16 +98,16 @@ const LabExams = () => {
 
   const fetchLabExams = async (clientIds: number[]) => {
     try {
-      // Obter a chave de autenticação do localStorage
+      // Decodificar o JWT para pegar a chave de autenticação
       const userToken = localStorage.getItem("user");
       let authToken = "";
       
       if (userToken) {
         try {
-          const parsed = JSON.parse(userToken);
-          authToken = parsed.chave || "";
+          const decoded: any = jwtDecode(userToken);
+          authToken = decoded.chave || "";
         } catch (error) {
-          console.error("Erro ao processar token:", error);
+          console.error("Erro ao decodificar token:", error);
         }
       }
 
