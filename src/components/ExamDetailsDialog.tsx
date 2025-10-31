@@ -79,8 +79,8 @@ export function ExamDetailsDialog({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "chave-autenticacao": authToken,
           "identificador-dispositivo": "request-android",
+          "chave-autenticacao": authToken,
         },
         body: JSON.stringify({
           idCliente: idCliente,
