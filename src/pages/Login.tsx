@@ -5,6 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Heart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = "9j7d8k20f##";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -41,6 +44,18 @@ const Login = () => {
       const data = await response.json();
 
       if (data.sucesso) {
+        // Decodifica o JWT retornado em dados2
+        if (data.dados2) {
+          try {
+            const decodedData = jwt.verify(data.dados2, JWT_SECRET);
+            // Armazena os dados do paciente no localStorage
+            localStorage.setItem("patientData", JSON.stringify(decodedData));
+            console.log("Dados do paciente:", decodedData);
+          } catch (jwtError) {
+            console.error("Erro ao decodificar JWT:", jwtError);
+          }
+        }
+
         toast({
           title: "Login realizado com sucesso!",
           description: "Bem-vindo ao Portal do Paciente",
