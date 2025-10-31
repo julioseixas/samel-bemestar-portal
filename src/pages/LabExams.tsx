@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { jwtDecode } from "jwt-decode";
 import {
   Table,
   TableBody,
@@ -82,12 +83,27 @@ const LabExams = () => {
 
   const fetchLabExams = async (clientIds: number[]) => {
     try {
+      // Obter e decodificar o JWT para pegar a chave de autenticação
+      const userToken = localStorage.getItem("user");
+      let authToken = "";
+      
+      if (userToken) {
+        try {
+          const decoded: any = jwtDecode(userToken);
+          authToken = decoded.chave || "";
+        } catch (error) {
+          console.error("Erro ao decodificar token:", error);
+        }
+      }
+
       const response = await fetch(
         "https://api-portalpaciente-web.samel.com.br/api/Agenda/Procedimento/ObterExamesLaudoLabMaster",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "chave-autenticacao": authToken,
+            "identificador-dispositivo": "request-android",
           },
           body: JSON.stringify({ idCliente: clientIds }),
         }
