@@ -19,6 +19,9 @@ const Login = () => {
     setIsLoading(true);
 
     try {
+      const chaveNotificacaoDispositivo = 
+        sessionStorage.getItem("tokenFirebase") || "postman-device";
+
       const response = await fetch(
         "https://api-portalpaciente-web.samel.com.br/api/Login/ValidarCredenciais3",
         {
@@ -29,7 +32,7 @@ const Login = () => {
           body: JSON.stringify({
             email: email,
             senha: password,
-            chaveNotificacaoDispositivo: "postman-device",
+            chaveNotificacaoDispositivo: chaveNotificacaoDispositivo,
           }),
         }
       );
