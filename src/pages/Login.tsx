@@ -18,15 +18,46 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulated login - replace with your API call
-    setTimeout(() => {
+    try {
+      const response = await fetch(
+        "https://api-portalpaciente-web.samel.com.br/api/Login/ValidarCredenciais3",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email,
+            senha: password,
+            chaveNotificacaoDispositivo: "",
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.sucesso) {
+        toast({
+          title: "Login realizado com sucesso!",
+          description: "Bem-vindo ao Portal do Paciente",
+        });
+        navigate("/dashboard");
+      } else {
+        toast({
+          title: "Erro ao fazer login",
+          description: data.mensagem || "Credenciais inválidas",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
       toast({
-        title: "Login realizado com sucesso!",
-        description: "Bem-vindo ao Portal do Paciente",
+        title: "Erro ao fazer login",
+        description: "Não foi possível conectar ao servidor. Tente novamente.",
+        variant: "destructive",
       });
-      navigate("/dashboard");
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
