@@ -189,8 +189,8 @@ const LabExams = () => {
               <CardContent>
                 <div className="space-y-2 text-sm">
                   <div className="grid grid-cols-[120px_1fr] gap-2">
-                    <span className="font-semibold">Chave:</span>
-                    <span className="font-mono break-all">{jwtInfo.chave}</span>
+                    <span className="font-semibold">Token/Chave:</span>
+                    <span className="font-mono break-all text-xs">{jwtInfo.token || 'N/A'}</span>
                   </div>
                   <div className="grid grid-cols-[120px_1fr] gap-2">
                     <span className="font-semibold">Tipo Beneficiário:</span>
@@ -214,7 +214,7 @@ const LabExams = () => {
                   </div>
                   <div className="grid grid-cols-[120px_1fr] gap-2">
                     <span className="font-semibold">Rating:</span>
-                    <span>{jwtInfo.rating}</span>
+                    <span>{typeof jwtInfo.rating === 'object' ? JSON.stringify(jwtInfo.rating) : jwtInfo.rating}</span>
                   </div>
                   <div className="grid grid-cols-[120px_1fr] gap-2">
                     <span className="font-semibold">Dependentes:</span>
