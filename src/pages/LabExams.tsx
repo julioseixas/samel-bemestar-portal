@@ -2,12 +2,25 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Eye } from "lucide-react";
+import { ArrowLeft, Eye, TrendingUp } from "lucide-react";
 import { ExamDetailsDialog } from "@/components/ExamDetailsDialog";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -39,6 +52,20 @@ interface LabExam {
   tipo: number;
 }
 
+interface Patient {
+  id: string;
+  nome: string;
+  tipo: string;
+  cdPessoaFisica?: string;
+}
+
+interface LabProgressExam {
+  CD_PESSOA_FISICA: string;
+  NR_SEQ_EXAME: number;
+  NM_EXAME: string;
+  DS_UNIDADE_MEDIDA: string;
+}
+
 const LabExams = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -51,6 +78,14 @@ const LabExams = () => {
   const itemsPerPage = 10;
   const [selectedExam, setSelectedExam] = useState<LabExam | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  
+  // Estados para progressão laboratorial
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [progressDialogOpen, setProgressDialogOpen] = useState(false);
+  const [progressExams, setProgressExams] = useState<LabProgressExam[]>([]);
+  const [selectedProgressExam, setSelectedProgressExam] = useState<string>("");
+  const [loadingProgressExams, setLoadingProgressExams] = useState(false);
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -81,9 +116,18 @@ const LabExams = () => {
       try {
         const parsedList = JSON.parse(storedListToSchedule);
         const clientIds: number[] = [];
+        const patientsList: Patient[] = [];
         
         if (parsedList.listAllPacient && parsedList.listAllPacient.length > 0) {
           parsedList.listAllPacient.forEach((paciente: any) => {
+            // Monta a lista de pacientes para a tabela de progressão
+            patientsList.push({
+              id: paciente.cdPessoaFisica || paciente.id,
+              nome: paciente.nome,
+              tipo: paciente.tipo || "Titular",
+              cdPessoaFisica: paciente.cdPessoaFisica || paciente.id
+            });
+
             // Pega o ID do titular (de clienteContratos)
             if (paciente.clienteContratos && paciente.clienteContratos.length > 0) {
               paciente.clienteContratos.forEach((contrato: any) => {
@@ -99,6 +143,8 @@ const LabExams = () => {
             }
           });
         }
+
+        setPatients(patientsList);
 
         if (clientIds.length > 0) {
           fetchLabExams(clientIds);
@@ -193,6 +239,49 @@ const LabExams = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleViewProgress = async (patient: Patient) => {
+    setSelectedPatient(patient);
+    setProgressDialogOpen(true);
+    setSelectedProgressExam("");
+    setProgressExams([]);
+    
+    if (patient.cdPessoaFisica) {
+      await fetchProgressExams(patient.cdPessoaFisica);
+    }
+  };
+
+  const fetchProgressExams = async (cdPessoaFisica: string) => {
+    setLoadingProgressExams(true);
+    try {
+      const response = await fetch(
+        `https://api-prontuario.samel.com.br/unidade/prontuario/exames/buscarExamesLabPaciente?cd_pessoa_fisica=${cdPessoaFisica}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "identificador-dispositivo": "request-android",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Erro ao buscar exames laboratoriais");
+      }
+
+      const data = await response.json();
+      setProgressExams(data);
+    } catch (error) {
+      console.error("Erro ao buscar exames:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar os exames laboratoriais.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingProgressExams(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
@@ -255,6 +344,57 @@ const LabExams = () => {
               </CardContent>
             </Card>
           )}
+
+          {/* Tabela de Pacientes para Progressão Laboratorial */}
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="text-2xl">Progressão Laboratorial por Paciente</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {patients.length === 0 ? (
+                <div className="flex items-center justify-center py-8">
+                  <p className="text-muted-foreground">Nenhum paciente encontrado.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Paciente</TableHead>
+                        <TableHead>Tipo</TableHead>
+                        <TableHead className="text-right">Ver Progressão</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {patients.map((patient, index) => (
+                        <TableRow key={`${patient.id}-${index}`} className="hover:bg-muted/50">
+                          <TableCell className="font-medium">{patient.nome}</TableCell>
+                          <TableCell>
+                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                              patient.tipo === "Titular" 
+                                ? "bg-primary/10 text-primary" 
+                                : "bg-secondary/10 text-secondary-foreground"
+                            }`}>
+                              {patient.tipo}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              size="icon"
+                              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-9 w-9"
+                              onClick={() => handleViewProgress(patient)}
+                            >
+                              <TrendingUp className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           <Card>
             <CardHeader>
@@ -378,6 +518,64 @@ const LabExams = () => {
         idAtendimento={selectedExam?.nrAtendimento || 0}
         apiEndpoint="https://api-portalpaciente-web.samel.com.br/api/Agenda/Procedimento/ObterExamesLaudoLabDetalhe"
       />
+
+      {/* Dialog de Progressão Laboratorial */}
+      <Dialog open={progressDialogOpen} onOpenChange={setProgressDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Progressão Laboratorial - {selectedPatient?.nome}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Selecione um exame para visualizar sua progressão ao longo do tempo.
+            </p>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Exame</label>
+              <Select
+                value={selectedProgressExam}
+                onValueChange={setSelectedProgressExam}
+                disabled={loadingProgressExams || progressExams.length === 0}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={loadingProgressExams ? "Carregando exames..." : "Selecione um exame"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {progressExams.map((exam) => (
+                    <SelectItem
+                      key={`${exam.NR_SEQ_EXAME}-${exam.NM_EXAME}`}
+                      value={exam.NR_SEQ_EXAME.toString()}
+                    >
+                      {exam.NM_EXAME}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {progressExams.length === 0 && !loadingProgressExams && (
+              <p className="text-sm text-muted-foreground">
+                Nenhum exame laboratorial encontrado para este paciente.
+              </p>
+            )}
+
+            {selectedProgressExam && (
+              <div className="rounded-lg border bg-muted/50 p-4">
+                <p className="text-sm text-muted-foreground">
+                  Exame selecionado: <span className="font-semibold text-foreground">
+                    {progressExams.find(e => e.NR_SEQ_EXAME.toString() === selectedProgressExam)?.NM_EXAME}
+                  </span>
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Unidade de medida: <span className="font-semibold text-foreground">
+                    {progressExams.find(e => e.NR_SEQ_EXAME.toString() === selectedProgressExam)?.DS_UNIDADE_MEDIDA}
+                  </span>
+                </p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
