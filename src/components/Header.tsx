@@ -1,4 +1,4 @@
-import { Heart, User, KeyRound, UserCircle, LogOut, Moon, Sun } from "lucide-react";
+import { User, KeyRound, UserCircle, LogOut, Moon, Sun } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import samelLogo from "@/assets/samel-logo.png";
 
 interface HeaderProps {
   patientName?: string;
@@ -28,8 +29,8 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
     <header className="sticky top-0 z-50 w-full border-b bg-card shadow-soft">
       <div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
-            <Heart className="h-7 w-7 text-primary-foreground" fill="currentColor" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl overflow-hidden">
+            <img src={samelLogo} alt="Hospital Samel" className="h-full w-full object-contain" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-primary md:text-2xl">Hospital Samel</h1>
