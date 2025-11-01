@@ -3,7 +3,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AppointmentBanner } from "@/components/AppointmentBanner";
 import { DashboardCard } from "@/components/DashboardCard";
-import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, FolderOpen } from "lucide-react";
+import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, FolderOpen, TrendingUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
@@ -204,6 +204,16 @@ const Index = () => {
                 buttonText="Ver Resultados"
                 variant="success"
                 onClick={() => navigate("/exam-results")}
+              />
+              
+              <DashboardCard
+                title="PROGRESSÃO DE EXAMES LAB"
+                description="Acompanhe a evolução dos seus exames laboratoriais"
+                icon={TrendingUp}
+                iconColor="text-primary"
+                buttonText="Ver Progressão"
+                variant="default"
+                onClick={() => navigate("/lab-progress")}
               />
               
               <DashboardCard
