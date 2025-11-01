@@ -25,6 +25,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Printer, Eye, Loader2, Image } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
@@ -74,6 +75,7 @@ export function ExamDetailsDialog({
   const [examDetails, setExamDetails] = useState<ExamDetail[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedExam, setSelectedExam] = useState<ExamDetail | null>(null);
+  const [selectedExamIndexes, setSelectedExamIndexes] = useState<Set<number>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const { toast } = useToast();
@@ -166,6 +168,50 @@ export function ExamDetailsDialog({
     window.print();
   };
 
+  const handleToggleExam = (index: number) => {
+    const newSelected = new Set(selectedExamIndexes);
+    if (newSelected.has(index)) {
+      newSelected.delete(index);
+    } else {
+      newSelected.add(index);
+    }
+    setSelectedExamIndexes(newSelected);
+  };
+
+  const handleToggleAll = () => {
+    if (selectedExamIndexes.size === currentExams.length) {
+      setSelectedExamIndexes(new Set());
+    } else {
+      const allIndexes = currentExams.map((_, i) => startIndex + i);
+      setSelectedExamIndexes(new Set(allIndexes));
+    }
+  };
+
+  const handleViewSelectedReports = () => {
+    if (selectedExamIndexes.size === 0) {
+      toast({
+        title: "Aviso",
+        description: "Selecione pelo menos um exame para visualizar.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Abrir cada laudo selecionado em uma nova aba
+    selectedExamIndexes.forEach((index) => {
+      const exam = examDetails[index];
+      // Criar uma URL temporária com os dados do exame
+      const reportData = encodeURIComponent(JSON.stringify(exam));
+      const reportUrl = `${window.location.origin}/report-view?data=${reportData}&type=${apiEndpoint.includes("Lab") ? "lab" : "cdi"}`;
+      window.open(reportUrl, '_blank');
+    });
+
+    toast({
+      title: "Laudos abertos",
+      description: `${selectedExamIndexes.size} laudo(s) aberto(s) em nova(s) aba(s).`,
+    });
+  };
+
   return (
     <>
       <Dialog
@@ -175,6 +221,7 @@ export function ExamDetailsDialog({
             onOpenChange(false);
             setExamDetails([]);
             setCurrentPage(1);
+            setSelectedExamIndexes(new Set());
           }
         }}
       >
@@ -210,6 +257,13 @@ export function ExamDetailsDialog({
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead className="w-12">
+                          <Checkbox
+                            checked={selectedExamIndexes.size === currentExams.length && currentExams.length > 0}
+                            onCheckedChange={handleToggleAll}
+                            aria-label="Selecionar todos"
+                          />
+                        </TableHead>
                         <TableHead>Exame</TableHead>
                         <TableHead>Paciente</TableHead>
                         <TableHead>Médico</TableHead>
@@ -218,39 +272,49 @@ export function ExamDetailsDialog({
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {currentExams.map((detail, index) => (
-                        <TableRow key={`${detail.nrSequenciaLaudoPaciente}-${index}`}>
-                          <TableCell className="font-medium">
-                            {detail.procedimentoExame}
-                          </TableCell>
-                          <TableCell>{detail.nomeCliente}</TableCell>
-                          <TableCell>{detail.nomeProfissional}</TableCell>
-                          <TableCell>{detail.dtLiberacao}</TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex gap-2 justify-end">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleViewReport(detail)}
-                              >
-                                <Eye className="h-4 w-4 mr-2" />
-                                Ver Laudo
-                              </Button>
-                              {detail.urlImg && (
+                      {currentExams.map((detail, index) => {
+                        const globalIndex = startIndex + index;
+                        return (
+                          <TableRow key={`${detail.nrSequenciaLaudoPaciente}-${index}`}>
+                            <TableCell>
+                              <Checkbox
+                                checked={selectedExamIndexes.has(globalIndex)}
+                                onCheckedChange={() => handleToggleExam(globalIndex)}
+                                aria-label={`Selecionar ${detail.procedimentoExame}`}
+                              />
+                            </TableCell>
+                            <TableCell className="font-medium">
+                              {detail.procedimentoExame}
+                            </TableCell>
+                            <TableCell>{detail.nomeCliente}</TableCell>
+                            <TableCell>{detail.nomeProfissional}</TableCell>
+                            <TableCell>{detail.dtLiberacao}</TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex gap-2 justify-end">
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => window.open(detail.urlImg, '_blank')}
-                                  className="bg-primary/10 hover:bg-primary/20 text-primary"
+                                  onClick={() => handleViewReport(detail)}
                                 >
-                                  <Image className="h-4 w-4 mr-2" />
-                                  Ver Imagem
+                                  <Eye className="h-4 w-4 mr-2" />
+                                  Ver Laudo
                                 </Button>
-                              )}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                                {detail.urlImg && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => window.open(detail.urlImg, '_blank')}
+                                    className="bg-primary/10 hover:bg-primary/20 text-primary"
+                                  >
+                                    <Image className="h-4 w-4 mr-2" />
+                                    Ver Imagem
+                                  </Button>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 </div>
@@ -313,6 +377,23 @@ export function ExamDetailsDialog({
               </>
             )}
           </div>
+
+          {!loading && examDetails.length > 0 && (
+            <div className="shrink-0 px-6 py-4 border-t bg-card flex justify-between items-center">
+              <div className="text-sm text-muted-foreground">
+                {selectedExamIndexes.size > 0 && (
+                  <span>{selectedExamIndexes.size} exame(s) selecionado(s)</span>
+                )}
+              </div>
+              <Button 
+                onClick={handleViewSelectedReports}
+                disabled={selectedExamIndexes.size === 0}
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                Ver Laudos Selecionados ({selectedExamIndexes.size})
+              </Button>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
