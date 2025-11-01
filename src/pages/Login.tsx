@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, Heart } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
+import samelLogo from "@/assets/samel-logo.png";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -170,7 +171,7 @@ const Login = () => {
         <div className="w-full max-w-md space-y-8">
           <div className="text-center space-y-2">
             <div className="flex justify-center mb-4">
-              <Heart className="w-12 h-12 text-primary" />
+              <img src={samelLogo} alt="Hospital Samel" className="w-16 h-16 object-contain" />
             </div>
             <h1 className="text-3xl font-bold text-foreground">Portal do Paciente</h1>
             <p className="text-muted-foreground">
@@ -252,8 +253,8 @@ const Login = () => {
       {/* Right side - Illustration */}
       <div className="hidden lg:flex flex-1 bg-gradient-to-br from-primary/10 via-primary/5 to-background items-center justify-center p-12">
         <div className="max-w-lg space-y-6 text-center">
-          <div className="w-full aspect-square rounded-2xl bg-primary/10 flex items-center justify-center">
-            <Heart className="w-32 h-32 text-primary" />
+          <div className="w-full aspect-square rounded-2xl bg-primary/10 flex items-center justify-center p-12">
+            <img src={samelLogo} alt="Hospital Samel" className="w-full h-full object-contain" />
           </div>
           <div className="space-y-2">
             <h2 className="text-2xl font-bold text-foreground">
