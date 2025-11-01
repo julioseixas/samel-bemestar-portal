@@ -1,4 +1,5 @@
-import { Phone, Mail, MapPin, Heart } from "lucide-react";
+import { Phone, Mail, MapPin } from "lucide-react";
+import samelLogo from "@/assets/samel-logo.png";
 
 export const Footer = () => {
   return (
@@ -7,8 +8,8 @@ export const Footer = () => {
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           <div>
             <div className="mb-4 flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-                <Heart className="h-6 w-6 text-primary-foreground" fill="currentColor" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden">
+                <img src={samelLogo} alt="Hospital Samel" className="h-full w-full object-contain" />
               </div>
               <span className="text-lg font-bold text-primary">Hospital Samel</span>
             </div>
