@@ -39,6 +39,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from "recharts";
 
 interface LabExam {
   nrAtendimento: number;
@@ -66,6 +67,20 @@ interface LabProgressExam {
   DS_UNIDADE_MEDIDA: string;
 }
 
+interface ExamProgressionData {
+  CD_PESSOA_FISICA: string;
+  NR_ATENDIMENTO: number;
+  NR_PRESCRICAO: number;
+  NR_SEQ_EXAME: number;
+  NM_EXAME: string;
+  DS_RESULTADO: number;
+  DS_UNIDADE_MEDIDA: string;
+  DT_RESULTADO: string;
+  QT_MINIMA: number;
+  QT_MAXIMA: number;
+  DS_REFERENCIA: string;
+}
+
 const LabExams = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -86,6 +101,8 @@ const LabExams = () => {
   const [progressExams, setProgressExams] = useState<LabProgressExam[]>([]);
   const [selectedProgressExam, setSelectedProgressExam] = useState<string>("");
   const [loadingProgressExams, setLoadingProgressExams] = useState(false);
+  const [examProgressionData, setExamProgressionData] = useState<ExamProgressionData[]>([]);
+  const [loadingProgression, setLoadingProgression] = useState(false);
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -278,6 +295,46 @@ const LabExams = () => {
       });
     } finally {
       setLoadingProgressExams(false);
+    }
+  };
+
+  const fetchExamProgression = async (cdPessoaFisica: string, nrSeqExame: number) => {
+    setLoadingProgression(true);
+    try {
+      const response = await fetch(
+        `http://localhost:3210/prontuario/exames/buscarProgressaoExame?cd_pessoa_fisica=${cdPessoaFisica}&nr_seq_exame=${nrSeqExame}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Erro ao buscar progressão do exame");
+      }
+
+      const data = await response.json();
+      setExamProgressionData(data);
+    } catch (error) {
+      console.error("Erro ao buscar progressão:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar a progressão do exame.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingProgression(false);
+    }
+  };
+
+  const handleProgressExamChange = (value: string) => {
+    setSelectedProgressExam(value);
+    setExamProgressionData([]);
+    
+    if (selectedPatient?.cdPessoaFisica && value) {
+      fetchExamProgression(selectedPatient.cdPessoaFisica, Number(value));
     }
   };
 
@@ -520,7 +577,7 @@ const LabExams = () => {
 
       {/* Dialog de Progressão Laboratorial */}
       <Dialog open={progressDialogOpen} onOpenChange={setProgressDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Progressão Laboratorial - {selectedPatient?.nome}</DialogTitle>
           </DialogHeader>
@@ -533,7 +590,7 @@ const LabExams = () => {
               <label className="text-sm font-medium">Exame</label>
               <Select
                 value={selectedProgressExam}
-                onValueChange={setSelectedProgressExam}
+                onValueChange={handleProgressExamChange}
                 disabled={loadingProgressExams || progressExams.length === 0}
               >
                 <SelectTrigger className="w-full">
@@ -558,18 +615,113 @@ const LabExams = () => {
               </p>
             )}
 
-            {selectedProgressExam && (
-              <div className="rounded-lg border bg-muted/50 p-4">
-                <p className="text-sm text-muted-foreground">
-                  Exame selecionado: <span className="font-semibold text-foreground">
-                    {progressExams.find(e => e.NR_SEQ_EXAME.toString() === selectedProgressExam)?.NM_EXAME}
-                  </span>
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Unidade de medida: <span className="font-semibold text-foreground">
-                    {progressExams.find(e => e.NR_SEQ_EXAME.toString() === selectedProgressExam)?.DS_UNIDADE_MEDIDA}
-                  </span>
-                </p>
+            {loadingProgression && (
+              <div className="space-y-4">
+                <Skeleton className="h-32 w-full" />
+                <Skeleton className="h-64 w-full" />
+              </div>
+            )}
+
+            {!loadingProgression && examProgressionData.length > 0 && (
+              <div className="space-y-6">
+                {/* Informações do último resultado */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Último Resultado</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">Data</p>
+                        <p className="text-sm font-semibold">
+                          {examProgressionData[0]?.DT_RESULTADO}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">Resultado</p>
+                        <p className="text-sm font-semibold">
+                          {examProgressionData[0]?.DS_RESULTADO} {examProgressionData[0]?.DS_UNIDADE_MEDIDA}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">Mínimo</p>
+                        <p className="text-sm font-semibold text-blue-600">
+                          {examProgressionData[0]?.QT_MINIMA}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">Máximo</p>
+                        <p className="text-sm font-semibold text-red-600">
+                          {examProgressionData[0]?.QT_MAXIMA}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Gráfico de progressão */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Progressão ao Longo do Tempo</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart
+                        data={[...examProgressionData].reverse().map(item => ({
+                          data: item.DT_RESULTADO,
+                          resultado: item.DS_RESULTADO,
+                          minimo: item.QT_MINIMA,
+                          maximo: item.QT_MAXIMA,
+                        }))}
+                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="data" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <ReferenceLine y={examProgressionData[0]?.QT_MINIMA} stroke="blue" strokeDasharray="3 3" label="Mínimo" />
+                        <ReferenceLine y={examProgressionData[0]?.QT_MAXIMA} stroke="red" strokeDasharray="3 3" label="Máximo" />
+                        <Line type="monotone" dataKey="resultado" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 4 }} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+
+                {/* Tabela com histórico completo */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Histórico Completo</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Data</TableHead>
+                            <TableHead>Resultado</TableHead>
+                            <TableHead>Unidade</TableHead>
+                            <TableHead>Mínimo</TableHead>
+                            <TableHead>Máximo</TableHead>
+                            <TableHead>Referência</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {examProgressionData.map((item, index) => (
+                            <TableRow key={`${item.NR_ATENDIMENTO}-${index}`}>
+                              <TableCell className="font-medium">{item.DT_RESULTADO}</TableCell>
+                              <TableCell className="font-semibold">{item.DS_RESULTADO}</TableCell>
+                              <TableCell>{item.DS_UNIDADE_MEDIDA}</TableCell>
+                              <TableCell className="text-blue-600">{item.QT_MINIMA}</TableCell>
+                              <TableCell className="text-red-600">{item.QT_MAXIMA}</TableCell>
+                              <TableCell className="text-sm text-muted-foreground">{item.DS_REFERENCIA}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             )}
           </div>
