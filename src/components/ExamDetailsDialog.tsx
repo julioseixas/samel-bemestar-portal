@@ -76,6 +76,7 @@ export function ExamDetailsDialog({
   const [loading, setLoading] = useState(false);
   const [selectedExam, setSelectedExam] = useState<ExamDetail | null>(null);
   const [selectedExamIndexes, setSelectedExamIndexes] = useState<Set<number>>(new Set());
+  const [viewingMultiple, setViewingMultiple] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const { toast } = useToast();
@@ -196,26 +197,19 @@ export function ExamDetailsDialog({
       });
       return;
     }
+    setViewingMultiple(true);
+  };
 
-    // Abrir cada laudo selecionado em uma nova aba
-    selectedExamIndexes.forEach((index) => {
-      const exam = examDetails[index];
-      // Criar uma URL temporária com os dados do exame
-      const reportData = encodeURIComponent(JSON.stringify(exam));
-      const reportUrl = `${window.location.origin}/report-view?data=${reportData}&type=${apiEndpoint.includes("Lab") ? "lab" : "cdi"}`;
-      window.open(reportUrl, '_blank');
-    });
-
-    toast({
-      title: "Laudos abertos",
-      description: `${selectedExamIndexes.size} laudo(s) aberto(s) em nova(s) aba(s).`,
-    });
+  const getSelectedExams = () => {
+    return Array.from(selectedExamIndexes)
+      .sort((a, b) => a - b)
+      .map(index => examDetails[index]);
   };
 
   return (
     <>
       <Dialog
-        open={open && !selectedExam}
+        open={open && !selectedExam && !viewingMultiple}
         onOpenChange={(isOpen) => {
           if (!isOpen) {
             onOpenChange(false);
@@ -432,6 +426,57 @@ export function ExamDetailsDialog({
             <Button onClick={handlePrintReport}>
               <Printer className="h-4 w-4 mr-2" />
               Imprimir Laudo
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={viewingMultiple}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) {
+            setViewingMultiple(false);
+            setSelectedExamIndexes(new Set());
+          }
+        }}
+      >
+        <DialogContent className="max-w-[95vw] w-full h-[90vh] flex flex-col p-0">
+          <DialogHeader className="px-6 py-4 border-b bg-card shrink-0">
+            <DialogTitle className="text-xl">
+              Laudos Selecionados ({selectedExamIndexes.size} exames)
+            </DialogTitle>
+            <DialogDescription>
+              Visualização de múltiplos laudos em sequência
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-y-auto px-6 py-4">
+            {getSelectedExams().map((exam, index) => (
+              <div key={`report-${index}`} className="mb-8 pb-8 border-b last:border-b-0">
+                <h3 className="text-lg font-semibold mb-4 text-primary">
+                  Exame {index + 1}: {exam.procedimentoExame}
+                </h3>
+                <ExamReportView
+                  examData={{
+                    ...exam,
+                    dsResultado: exam.dsResultado || exam.dsCabecalho
+                  }}
+                  tipoLaudo={apiEndpoint.includes("Lab") ? "lab" : "cdi"}
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className="shrink-0 px-6 py-4 border-t bg-card flex justify-end gap-2 print:hidden">
+            <Button variant="outline" onClick={() => {
+              setViewingMultiple(false);
+              setSelectedExamIndexes(new Set());
+            }}>
+              Fechar
+            </Button>
+            <Button onClick={handlePrintReport}>
+              <Printer className="h-4 w-4 mr-2" />
+              Imprimir Todos
             </Button>
           </div>
         </DialogContent>
