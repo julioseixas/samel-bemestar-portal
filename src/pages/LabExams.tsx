@@ -259,7 +259,6 @@ const LabExams = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "identificador-dispositivo": "request-android",
           },
         }
       );
