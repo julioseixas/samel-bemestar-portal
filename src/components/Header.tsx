@@ -1,13 +1,14 @@
-import { Heart, User, KeyRound, UserCircle, LogOut } from "lucide-react";
+import { Heart, User, KeyRound, UserCircle, LogOut, Moon, Sun } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface HeaderProps {
   patientName?: string;
@@ -16,6 +17,7 @@ interface HeaderProps {
 
 export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProps) => {
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
 
   const handleLogout = () => {
     localStorage.clear();
@@ -36,7 +38,6 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
         </div>
         
         <div className="flex items-center gap-3">
-          <ThemeToggle />
           <div className="text-right">
             <p className="text-sm text-muted-foreground">Olá,</p>
             <p className="text-base font-semibold text-foreground md:text-lg">{patientName}</p>
@@ -61,6 +62,19 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
                 <UserCircle className="mr-2 h-4 w-4" />
                 <span>Ver dados pessoais</span>
               </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                className="cursor-pointer" 
+                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+              >
+                {theme === "light" ? (
+                  <Moon className="mr-2 h-4 w-4" />
+                ) : (
+                  <Sun className="mr-2 h-4 w-4" />
+                )}
+                <span>{theme === "light" ? "Modo escuro" : "Modo claro"}</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem className="cursor-pointer text-destructive" onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Sair</span>
