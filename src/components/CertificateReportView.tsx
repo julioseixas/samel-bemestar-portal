@@ -97,17 +97,12 @@ export function CertificateReportView({ certificateData }: CertificateReportView
         </div>
         <div className="flex-1 border border-border border-l-0 bg-card px-4 py-2">
           <p className="font-bold mb-1">Assinatura:</p>
-          <div className="text-center flex items-center justify-center min-h-[80px]">
-            {certificateData.dsAssinatura ? (
-              <img 
-                src={`data:image/png;base64,${certificateData.dsAssinatura}`}
-                alt="Assinatura do médico"
-                className="max-h-[100px] w-auto object-contain"
-              />
-            ) : (
-              <span className="text-muted-foreground text-sm">Sem assinatura</span>
-            )}
-          </div>
+          <div
+            className="text-center flex items-center justify-center min-h-[80px]"
+            dangerouslySetInnerHTML={{
+              __html: certificateData.dsAssinatura || "",
+            }}
+          />
         </div>
       </div>
 
