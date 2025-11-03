@@ -1,7 +1,7 @@
 import { Header } from "@/components/Header";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Printer } from "lucide-react";
+import { Printer, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
@@ -23,6 +23,13 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { CertificateReportView } from "@/components/CertificateReportView";
 
 interface Certificate {
   nr_atendimento: number;
@@ -56,6 +63,8 @@ const CertificatesList = () => {
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -175,9 +184,15 @@ const CertificatesList = () => {
     }
   };
 
-  const handlePrint = (certificate: Certificate) => {
-    // Implementar lógica de impressão usando qrCodeDownloadReceita
-    window.open(certificate.qrCodeDownloadReceita, '_blank');
+  const handleView = (certificate: Certificate) => {
+    setSelectedCertificate(certificate);
+    setIsDialogOpen(true);
+  };
+
+  const handlePrint = () => {
+    if (selectedCertificate) {
+      window.print();
+    }
   };
 
   const totalPages = Math.ceil(certificates.length / itemsPerPage);
@@ -236,7 +251,7 @@ const CertificatesList = () => {
                           <TableHead>Profissional</TableHead>
                           <TableHead>CRM</TableHead>
                           <TableHead>Setor</TableHead>
-                          <TableHead className="text-right">Imprimir</TableHead>
+                          <TableHead className="text-right">Ações</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -251,9 +266,9 @@ const CertificatesList = () => {
                               <Button
                                 size="icon"
                                 className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-9 w-9"
-                                onClick={() => handlePrint(certificate)}
+                                onClick={() => handleView(certificate)}
                               >
-                                <Printer className="h-4 w-4" />
+                                <Eye className="h-4 w-4" />
                               </Button>
                             </TableCell>
                           </TableRow>
@@ -301,6 +316,39 @@ const CertificatesList = () => {
           </Card>
         </div>
       </main>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-[900px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              <span>Visualizar Atestado</span>
+              <Button
+                size="sm"
+                onClick={handlePrint}
+                className="bg-primary hover:bg-primary/90"
+              >
+                <Printer className="h-4 w-4 mr-2" />
+                Imprimir
+              </Button>
+            </DialogTitle>
+          </DialogHeader>
+          {selectedCertificate && (
+            <CertificateReportView
+              certificateData={{
+                nrAtendimento: selectedCertificate.nrAtendimento,
+                dsResultado: selectedCertificate.dsResultado,
+                nomeCliente: selectedCertificate.nomeCliente,
+                dataNascimento: selectedCertificate.dataNascimento,
+                dsConvenio: selectedCertificate.dsConvenio,
+                dsSetor: selectedCertificate.dsSetor,
+                nomeProfissional: selectedCertificate.nomeProfissional,
+                dataEntrada: selectedCertificate.dataEntrada,
+                dsAssinatura: selectedCertificate.dsAssinatura,
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
