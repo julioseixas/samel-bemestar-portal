@@ -12,6 +12,12 @@ interface Patient {
   nome: string;
   tipo: string;
   sexo?: string;
+  codigoCarteirinha?: string;
+  clienteContratos?: Array<{
+    id: string;
+    sexo?: string;
+    codigoCarteirinha?: string;
+  }>;
 }
 
 const AppointmentSchedule = () => {
@@ -53,7 +59,25 @@ const AppointmentSchedule = () => {
   }, []);
 
   const handleSelectPatient = (patient: Patient) => {
-    localStorage.setItem("selectedPatient", JSON.stringify(patient));
+    // Para o titular, pegar dados do clienteContratos[0] se existir
+    const patientData = patient.tipo === "Titular" && patient.clienteContratos?.[0]
+      ? {
+          id: patient.id,
+          nome: patient.nome,
+          tipo: patient.tipo,
+          sexo: patient.clienteContratos[0].sexo,
+          codigoCarteirinha: patient.clienteContratos[0].codigoCarteirinha
+        }
+      : {
+          id: patient.id,
+          nome: patient.nome,
+          tipo: patient.tipo,
+          sexo: patient.sexo,
+          codigoCarteirinha: patient.codigoCarteirinha
+        };
+    
+    console.log("Dados do paciente selecionado:", patientData);
+    localStorage.setItem("selectedPatient", JSON.stringify(patientData));
     navigate("/appointment-details");
   };
 

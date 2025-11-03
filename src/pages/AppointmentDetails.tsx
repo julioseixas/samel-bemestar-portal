@@ -12,7 +12,7 @@ interface Patient {
   nome: string;
   tipo: string;
   sexo?: string;
-  codCarteirinha?: string;
+  codigoCarteirinha?: string;
 }
 
 const AppointmentDetails = () => {
@@ -101,10 +101,10 @@ const AppointmentDetails = () => {
                   <span className="text-sm font-medium text-muted-foreground">Nome:</span>
                   <p className="text-lg font-semibold">{selectedPatient.nome}</p>
                 </div>
-                {selectedPatient.codCarteirinha && (
+                {selectedPatient.codigoCarteirinha && (
                   <div>
                     <span className="text-sm font-medium text-muted-foreground">Código da Carteirinha:</span>
-                    <p className="text-lg font-semibold">{selectedPatient.codCarteirinha}</p>
+                    <p className="text-lg font-semibold">{selectedPatient.codigoCarteirinha}</p>
                   </div>
                 )}
                 <div className="flex gap-2">
