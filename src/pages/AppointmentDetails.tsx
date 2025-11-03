@@ -15,6 +15,14 @@ interface Patient {
   codigoCarteirinha?: string;
 }
 
+interface Convenio {
+  id: number;
+  descricao: string;
+  convenioSamel: string;
+  agenda_exames_livre: string;
+  imagem: string;
+}
+
 const AppointmentDetails = () => {
   const navigate = useNavigate();
   const [patientName, setPatientName] = useState("Paciente");
@@ -22,6 +30,8 @@ const AppointmentDetails = () => {
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [selectedConvenio, setSelectedConvenio] = useState("");
   const [selectedEspecialidade, setSelectedEspecialidade] = useState("");
+  const [convenios, setConvenios] = useState<Convenio[]>([]);
+  const [loadingConvenios, setLoadingConvenios] = useState(true);
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -53,6 +63,26 @@ const AppointmentDetails = () => {
       navigate("/appointment-schedule");
     }
   }, [navigate]);
+
+  useEffect(() => {
+    const fetchConvenios = async () => {
+      try {
+        setLoadingConvenios(true);
+        const response = await fetch('https://api-portalpaciente-web.samel.com.br/api/Convenio/ListarConvenios');
+        const data = await response.json();
+        
+        if (data.sucesso && data.dados) {
+          setConvenios(data.dados);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar convênios:", error);
+      } finally {
+        setLoadingConvenios(false);
+      }
+    };
+
+    fetchConvenios();
+  }, []);
 
   const handleContinue = () => {
     if (!selectedConvenio || !selectedEspecialidade) {
@@ -127,16 +157,25 @@ const AppointmentDetails = () => {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="convenio">Convênio</Label>
-                  <Select value={selectedConvenio} onValueChange={setSelectedConvenio}>
+                  <Select value={selectedConvenio} onValueChange={setSelectedConvenio} disabled={loadingConvenios}>
                     <SelectTrigger id="convenio">
-                      <SelectValue placeholder="Selecione o convênio" />
+                      <SelectValue placeholder={loadingConvenios ? "Carregando..." : "Selecione o convênio"} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="unimed">Unimed</SelectItem>
-                      <SelectItem value="bradesco">Bradesco Saúde</SelectItem>
-                      <SelectItem value="sulamerica">SulAmérica</SelectItem>
-                      <SelectItem value="amil">Amil</SelectItem>
-                      <SelectItem value="particular">Particular</SelectItem>
+                      {convenios.map((convenio) => (
+                        <SelectItem key={convenio.id} value={convenio.id.toString()}>
+                          <div className="flex items-center gap-2">
+                            {convenio.imagem && (
+                              <img 
+                                src={convenio.imagem} 
+                                alt={convenio.descricao}
+                                className="h-6 w-6 object-contain"
+                              />
+                            )}
+                            <span>{convenio.descricao}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
