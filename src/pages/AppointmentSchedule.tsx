@@ -13,10 +13,12 @@ interface Patient {
   tipo: string;
   sexo?: string;
   codigoCarteirinha?: string;
+  dataNascimento?: string;
   clienteContratos?: Array<{
     id: string;
     sexo?: string;
     codigoCarteirinha?: string;
+    dataNascimento?: string;
   }>;
 }
 
@@ -66,14 +68,16 @@ const AppointmentSchedule = () => {
           nome: patient.nome,
           tipo: patient.tipo,
           sexo: patient.clienteContratos[0].sexo,
-          codigoCarteirinha: patient.clienteContratos[0].codigoCarteirinha
+          codigoCarteirinha: patient.clienteContratos[0].codigoCarteirinha,
+          dataNascimento: patient.clienteContratos[0].dataNascimento
         }
       : {
           id: patient.id,
           nome: patient.nome,
           tipo: patient.tipo,
           sexo: patient.sexo,
-          codigoCarteirinha: patient.codigoCarteirinha
+          codigoCarteirinha: patient.codigoCarteirinha,
+          dataNascimento: patient.dataNascimento
         };
     
     console.log("Dados do paciente selecionado:", patientData);
