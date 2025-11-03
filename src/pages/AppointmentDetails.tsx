@@ -97,12 +97,19 @@ const AppointmentDetails = () => {
 
   useEffect(() => {
     const fetchEspecialidades = async () => {
-      if (!selectedConvenio || !selectedPatient || !titular) return;
+      if (!selectedConvenio || !selectedPatient || !titular) {
+        console.log("Dados insuficientes:", { selectedConvenio, selectedPatient, titular });
+        return;
+      }
 
       try {
         setLoadingEspecialidades(true);
         setEspecialidades([]);
         setSelectedEspecialidade("");
+
+        const cdDependente = selectedPatient.tipo === "Titular" 
+          ? (titular.id?.toString() || "") 
+          : (selectedPatient.id?.toString() || "");
 
         const params = new URLSearchParams({
           idConvenio: selectedConvenio,
@@ -110,14 +117,18 @@ const AppointmentDetails = () => {
           cdPessoaFisica: titular.cdPessoaFisica?.toString() || "",
           sexo: selectedPatient.sexo || "",
           descricaoEspecialidade: "",
-          cdDependente: selectedPatient.tipo === "Titular" ? titular.id.toString() : selectedPatient.id.toString(),
+          cdDependente: cdDependente,
           nrCarteirinha: selectedPatient.codigoCarteirinha || ""
         });
+
+        console.log("Buscando especialidades com params:", Object.fromEntries(params));
 
         const response = await fetch(
           `https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ListarEspecialidadesComAgendaDisponivel3?${params}`
         );
         const data = await response.json();
+        
+        console.log("Resposta especialidades:", data);
         
         if (data.sucesso && data.dados) {
           setEspecialidades(data.dados);
