@@ -108,6 +108,9 @@ const AppointmentDetails = () => {
         setSelectedEspecialidade("");
 
         const cdDependente = selectedPatient.id?.toString() || "";
+        
+        // Obtém o token de autenticação do localStorage
+        const authToken = localStorage.getItem("user") || "";
 
         const params = new URLSearchParams({
           idConvenio: selectedConvenio,
@@ -122,7 +125,15 @@ const AppointmentDetails = () => {
         console.log("Buscando especialidades com params:", Object.fromEntries(params));
 
         const response = await fetch(
-          `https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ListarEspecialidadesComAgendaDisponivel3?${params}`
+          `https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ListarEspecialidadesComAgendaDisponivel3?${params}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "identificador-dispositivo": "request-android",
+              "chave-autenticacao": authToken
+            }
+          }
         );
         const data = await response.json();
         
