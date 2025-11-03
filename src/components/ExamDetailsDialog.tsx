@@ -26,10 +26,11 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Printer, Eye, Loader2, Image } from "lucide-react";
+import { Printer, Eye, Loader2, Image, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
 import { ExamReportView } from "@/components/ExamReportView";
+import html2pdf from "html2pdf.js";
 
 interface ExamDetail {
   nrSequenciaLaudoPaciente: number;
@@ -167,6 +168,68 @@ export function ExamDetailsDialog({
 
   const handlePrintReport = () => {
     window.print();
+  };
+
+  const handleDownloadReport = async () => {
+    if (!selectedExam) return;
+
+    try {
+      const element = document.getElementById('printMe');
+      if (!element) return;
+
+      const opt = {
+        margin: 10,
+        filename: `laudo-${selectedExam.nrAtendimento}-${selectedExam.procedimentoExame}.pdf`,
+        image: { type: 'jpeg' as const, quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
+      };
+
+      await html2pdf().set(opt).from(element).save();
+      
+      toast({
+        title: "Sucesso",
+        description: "PDF baixado com sucesso!",
+      });
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível gerar o PDF.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDownloadMultipleReports = async () => {
+    if (selectedExamIndexes.size === 0) return;
+
+    try {
+      const element = document.getElementById('printMe');
+      if (!element) return;
+
+      const opt = {
+        margin: 10,
+        filename: `laudos-multiplos-${Date.now()}.pdf`,
+        image: { type: 'jpeg' as const, quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
+      };
+
+      await html2pdf().set(opt).from(element).save();
+      
+      toast({
+        title: "Sucesso",
+        description: "PDF com múltiplos laudos baixado com sucesso!",
+      });
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível gerar o PDF.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleToggleExam = (index: number) => {
@@ -423,6 +486,10 @@ export function ExamDetailsDialog({
             <Button variant="outline" onClick={() => setSelectedExam(null)}>
               Fechar
             </Button>
+            <Button variant="outline" onClick={handleDownloadReport}>
+              <Download className="h-4 w-4 mr-2" />
+              Baixar PDF
+            </Button>
             <Button onClick={handlePrintReport}>
               <Printer className="h-4 w-4 mr-2" />
               Imprimir Laudo
@@ -473,6 +540,10 @@ export function ExamDetailsDialog({
               setSelectedExamIndexes(new Set());
             }}>
               Fechar
+            </Button>
+            <Button variant="outline" onClick={handleDownloadMultipleReports}>
+              <Download className="h-4 w-4 mr-2" />
+              Baixar PDF
             </Button>
             <Button onClick={handlePrintReport}>
               <Printer className="h-4 w-4 mr-2" />
