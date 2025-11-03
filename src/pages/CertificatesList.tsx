@@ -318,35 +318,40 @@ const CertificatesList = () => {
       </main>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-[900px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center justify-between">
-              <span>Visualizar Atestado</span>
-              <Button
-                size="sm"
-                onClick={handlePrint}
-                className="bg-primary hover:bg-primary/90"
-              >
-                <Printer className="h-4 w-4 mr-2" />
-                Imprimir
-              </Button>
+        <DialogContent className="max-w-[95vw] w-full h-[90vh] flex flex-col p-0">
+          <DialogHeader className="px-6 py-4 border-b bg-card shrink-0">
+            <DialogTitle className="text-xl">
+              Atestado - {selectedCertificate?.nomeProfissional}
             </DialogTitle>
           </DialogHeader>
-          {selectedCertificate && (
-            <CertificateReportView
-              certificateData={{
-                nrAtendimento: selectedCertificate.nrAtendimento,
-                dsResultado: selectedCertificate.dsResultado,
-                nomeCliente: selectedCertificate.nomeCliente,
-                dataNascimento: selectedCertificate.dataNascimento,
-                dsConvenio: selectedCertificate.dsConvenio,
-                dsSetor: selectedCertificate.dsSetor,
-                nomeProfissional: selectedCertificate.nomeProfissional,
-                dataEntrada: selectedCertificate.dataEntrada,
-                dsAssinatura: selectedCertificate.dsAssinatura,
-              }}
-            />
-          )}
+
+          <div className="flex-1 overflow-y-auto px-6 py-4">
+            {selectedCertificate && (
+              <CertificateReportView
+                certificateData={{
+                  nrAtendimento: selectedCertificate.nrAtendimento,
+                  dsResultado: selectedCertificate.dsResultado,
+                  nomeCliente: selectedCertificate.nomeCliente,
+                  dataNascimento: selectedCertificate.dataNascimento,
+                  dsConvenio: selectedCertificate.dsConvenio,
+                  dsSetor: selectedCertificate.dsSetor,
+                  nomeProfissional: selectedCertificate.nomeProfissional,
+                  dataEntrada: selectedCertificate.dataEntrada,
+                  dsAssinatura: selectedCertificate.dsAssinatura,
+                }}
+              />
+            )}
+          </div>
+
+          <div className="shrink-0 px-6 py-4 border-t bg-card flex justify-end gap-2 print:hidden">
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              Fechar
+            </Button>
+            <Button onClick={handlePrint}>
+              <Printer className="h-4 w-4 mr-2" />
+              Imprimir Atestado
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
