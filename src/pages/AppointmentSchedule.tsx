@@ -11,6 +11,7 @@ interface Patient {
   id: number;
   nome: string;
   tipo: string;
+  idade?: number;
   sexo?: string;
   codigoCarteirinha?: string;
   dataNascimento?: string;
@@ -53,26 +54,28 @@ const AppointmentSchedule = () => {
           // Adicionar o titular (do clienteContratos)
           if (firstPatient.clienteContratos && firstPatient.clienteContratos.length > 0) {
             const titularContrato = firstPatient.clienteContratos[0];
-            allPatients.push({
-              id: firstPatient.cdPessoaFisica || Date.now(),
-              nome: firstPatient.nome,
-              tipo: "Titular",
-              sexo: titularContrato.sexo,
-              codigoCarteirinha: titularContrato.codigoCarteirinha,
-              dataNascimento: titularContrato.dataNascimento
-            });
+        allPatients.push({
+          id: firstPatient.cdPessoaFisica || Date.now(),
+          nome: firstPatient.nome,
+          tipo: "Titular",
+          idade: titularContrato.idade,
+          sexo: titularContrato.sexo,
+          codigoCarteirinha: titularContrato.codigoCarteirinha,
+          dataNascimento: titularContrato.dataNascimento
+        });
             
             // Adicionar os dependentes
             if (titularContrato.dependentes && titularContrato.dependentes.length > 0) {
               titularContrato.dependentes.forEach((dependente: any, index: number) => {
-                allPatients.push({
-                  id: dependente.cdPessoaFisica || Date.now() + index + 1,
-                  nome: dependente.nome,
-                  tipo: "Dependente",
-                  sexo: dependente.sexo,
-                  codigoCarteirinha: dependente.codigoCarteirinha,
-                  dataNascimento: dependente.dataNascimento
-                });
+            allPatients.push({
+              id: dependente.cdPessoaFisica || Date.now() + index + 1,
+              nome: dependente.nome,
+              tipo: "Dependente",
+              idade: dependente.idade,
+              sexo: dependente.sexo,
+              codigoCarteirinha: dependente.codigoCarteirinha,
+              dataNascimento: dependente.dataNascimento
+            });
               });
             }
           }
@@ -95,6 +98,7 @@ const AppointmentSchedule = () => {
       id: patient.id,
       nome: patient.nome,
       tipo: patient.tipo,
+      idade: patient.idade,
       sexo: patient.sexo,
       codigoCarteirinha: patient.codigoCarteirinha,
       dataNascimento: patient.dataNascimento
