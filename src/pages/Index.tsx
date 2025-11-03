@@ -95,7 +95,7 @@ const Index = () => {
                 buttonText="Agendar Consulta"
                 variant="default"
                 useDashboardColor={true}
-                onClick={() => handleCardClick("Marcar Consulta")}
+                onClick={() => navigate("/appointment-schedule")}
               />
               
               <DashboardCard
