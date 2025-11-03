@@ -186,7 +186,7 @@ const CdiExams = () => {
           ) : (
             <div className="max-h-[60vh] overflow-y-auto">
               <Table>
-                <TableHeader>
+                <TableHeader className="sticky top-0 bg-card z-10">
                   <TableRow>
                     <TableHead>Data</TableHead>
                     <TableHead>Paciente</TableHead>

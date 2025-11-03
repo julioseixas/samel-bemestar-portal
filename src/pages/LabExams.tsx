@@ -363,7 +363,7 @@ const LabExams = () => {
               ) : (
                 <div className="overflow-x-auto max-h-[40vh] overflow-y-auto">
                   <Table>
-                    <TableHeader>
+                    <TableHeader className="sticky top-0 bg-card z-10">
                       <TableRow>
                         <TableHead>Paciente</TableHead>
                         <TableHead>Tipo</TableHead>
@@ -426,7 +426,7 @@ const LabExams = () => {
               ) : (
                 <div className="overflow-x-auto max-h-[50vh] overflow-y-auto">
                   <Table>
-                    <TableHeader>
+                    <TableHeader className="sticky top-0 bg-card z-10">
                       <TableRow>
                         <TableHead>Data</TableHead>
                         <TableHead>Paciente</TableHead>
@@ -645,7 +645,7 @@ const LabExams = () => {
                   <CardContent>
                     <div className="overflow-x-auto">
                       <Table>
-                        <TableHeader>
+                        <TableHeader className="sticky top-0 bg-card z-10">
                           <TableRow>
                             <TableHead>Data</TableHead>
                             <TableHead>Resultado</TableHead>

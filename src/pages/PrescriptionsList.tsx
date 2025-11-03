@@ -276,7 +276,7 @@ const PrescriptionsList = () => {
                 <>
                   <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
                     <Table>
-                      <TableHeader>
+                      <TableHeader className="sticky top-0 bg-card z-10">
                         <TableRow>
                           <TableHead>Data</TableHead>
                           <TableHead>Paciente</TableHead>

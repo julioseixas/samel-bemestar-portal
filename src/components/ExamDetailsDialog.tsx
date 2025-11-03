@@ -312,7 +312,7 @@ export function ExamDetailsDialog({
               <>
                 <div className="rounded-lg border bg-card shadow-soft overflow-hidden">
                   <Table>
-                    <TableHeader>
+                    <TableHeader className="sticky top-0 bg-card z-10">
                       <TableRow>
                         <TableHead className="w-12">
                           <Checkbox
