@@ -167,7 +167,7 @@ const AppointmentDetails = () => {
                           <div className="flex items-center gap-2">
                             {convenio.imagem && (
                               <img 
-                                src={convenio.imagem} 
+                                src={`data:image/png;base64,${convenio.imagem}`} 
                                 alt={convenio.descricao}
                                 className="h-6 w-6 object-contain"
                               />
