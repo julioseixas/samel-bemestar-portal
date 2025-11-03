@@ -227,18 +227,71 @@ const CertificatesList = () => {
     }
   };
 
-  const handleShareWhatsApp = () => {
+  const handleShareWhatsApp = async () => {
     if (!selectedCertificate) return;
 
-    const message = `Olá! Gostaria de compartilhar meu atestado médico:\n\n` +
-      `👤 Paciente: ${selectedCertificate.nomeCliente}\n` +
-      `👨‍⚕️ Profissional: ${selectedCertificate.nomeProfissional}\n` +
-      `📅 Data: ${selectedCertificate.dataEntrada}\n` +
-      `🏥 Atendimento: ${selectedCertificate.nrAtendimento}\n` +
-      `📋 Setor: ${selectedCertificate.dsSetor}`;
+    try {
+      const element = document.getElementById('printMe');
+      if (!element) return;
 
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+      const opt = {
+        margin: 10,
+        filename: `atestado-${selectedCertificate.nrAtendimento}.pdf`,
+        image: { type: 'jpeg' as const, quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
+      };
+
+      // Gerar PDF como blob
+      const pdf = await html2pdf().set(opt).from(element).output('blob');
+      
+      // Tentar usar Web Share API se disponível
+      if (navigator.share && navigator.canShare) {
+        const file = new File([pdf], `atestado-${selectedCertificate.nrAtendimento}.pdf`, { type: 'application/pdf' });
+        
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: 'Atestado Médico',
+            text: `Atestado - ${selectedCertificate.nomeProfissional}`,
+          });
+          
+          toast({
+            title: "Sucesso",
+            description: "PDF compartilhado com sucesso!",
+          });
+          return;
+        }
+      }
+      
+      // Fallback: fazer download e abrir WhatsApp
+      const url = URL.createObjectURL(pdf);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `atestado-${selectedCertificate.nrAtendimento}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Download iniciado",
+        description: "PDF baixado. Por favor, anexe-o manualmente no WhatsApp.",
+      });
+      
+      // Abrir WhatsApp com mensagem
+      const message = `Olá! Segue meu atestado médico em anexo.\n\n` +
+        `👤 Paciente: ${selectedCertificate.nomeCliente}\n` +
+        `📅 Data: ${selectedCertificate.dataEntrada}`;
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+      
+    } catch (error) {
+      console.error("Erro ao compartilhar:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível compartilhar o PDF.",
+        variant: "destructive",
+      });
+    }
   };
 
   const totalPages = Math.ceil(certificates.length / itemsPerPage);

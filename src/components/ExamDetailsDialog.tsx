@@ -202,19 +202,73 @@ export function ExamDetailsDialog({
     }
   };
 
-  const handleShareWhatsApp = (exam?: ExamDetail) => {
+  const handleShareWhatsApp = async (exam?: ExamDetail) => {
     const examToShare = exam || selectedExam;
     if (!examToShare) return;
 
-    const tipoExame = apiEndpoint.includes("Lab") ? "Laboratorial" : "CDI";
-    const message = `Olá! Gostaria de compartilhar o resultado do meu exame ${tipoExame}:\n\n` +
-      `📋 Exame: ${examToShare.procedimentoExame}\n` +
-      `👤 Paciente: ${examToShare.nomeCliente}\n` +
-      `📅 Data: ${examToShare.dataEntrada}\n` +
-      `🏥 Atendimento: ${examToShare.nrAtendimento}`;
+    try {
+      const element = document.getElementById('printMe');
+      if (!element) return;
 
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+      const tipoExame = apiEndpoint.includes("Lab") ? "Laboratorial" : "CDI";
+      const opt = {
+        margin: 10,
+        filename: `laudo-${examToShare.nrAtendimento}-${examToShare.procedimentoExame}.pdf`,
+        image: { type: 'jpeg' as const, quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
+      };
+
+      // Gerar PDF como blob
+      const pdf = await html2pdf().set(opt).from(element).output('blob');
+      
+      // Tentar usar Web Share API se disponível
+      if (navigator.share && navigator.canShare) {
+        const file = new File([pdf], `laudo-${examToShare.nrAtendimento}.pdf`, { type: 'application/pdf' });
+        
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: `Laudo de Exame ${tipoExame}`,
+            text: `Laudo - ${examToShare.procedimentoExame}`,
+          });
+          
+          toast({
+            title: "Sucesso",
+            description: "PDF compartilhado com sucesso!",
+          });
+          return;
+        }
+      }
+      
+      // Fallback: fazer download e abrir WhatsApp
+      const url = URL.createObjectURL(pdf);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `laudo-${examToShare.nrAtendimento}-${examToShare.procedimentoExame}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Download iniciado",
+        description: "PDF baixado. Por favor, anexe-o manualmente no WhatsApp.",
+      });
+      
+      // Abrir WhatsApp com mensagem
+      const message = `Olá! Segue o resultado do meu exame ${tipoExame} em anexo.\n\n` +
+        `📋 Exame: ${examToShare.procedimentoExame}\n` +
+        `📅 Data: ${examToShare.dataEntrada}`;
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+      
+    } catch (error) {
+      console.error("Erro ao compartilhar:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível compartilhar o PDF.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDownloadMultipleReports = async () => {

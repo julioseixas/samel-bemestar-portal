@@ -227,18 +227,71 @@ const PrescriptionsList = () => {
     }
   };
 
-  const handleShareWhatsApp = () => {
+  const handleShareWhatsApp = async () => {
     if (!selectedPrescription) return;
 
-    const message = `Olá! Gostaria de compartilhar minha receita médica:\n\n` +
-      `👤 Paciente: ${selectedPrescription.nomeCliente}\n` +
-      `👨‍⚕️ Profissional: ${selectedPrescription.nomeProfissional}\n` +
-      `📅 Data: ${selectedPrescription.dataEntrada}\n` +
-      `🏥 Atendimento: ${selectedPrescription.nrAtendimento}\n` +
-      `📋 Setor: ${selectedPrescription.dsSetor}`;
+    try {
+      const element = document.getElementById('printMe');
+      if (!element) return;
 
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+      const opt = {
+        margin: 10,
+        filename: `receita-${selectedPrescription.nrAtendimento}.pdf`,
+        image: { type: 'jpeg' as const, quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
+      };
+
+      // Gerar PDF como blob
+      const pdf = await html2pdf().set(opt).from(element).output('blob');
+      
+      // Tentar usar Web Share API se disponível
+      if (navigator.share && navigator.canShare) {
+        const file = new File([pdf], `receita-${selectedPrescription.nrAtendimento}.pdf`, { type: 'application/pdf' });
+        
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: 'Receita Médica',
+            text: `Receita - ${selectedPrescription.nomeProfissional}`,
+          });
+          
+          toast({
+            title: "Sucesso",
+            description: "PDF compartilhado com sucesso!",
+          });
+          return;
+        }
+      }
+      
+      // Fallback: fazer download e abrir WhatsApp
+      const url = URL.createObjectURL(pdf);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `receita-${selectedPrescription.nrAtendimento}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Download iniciado",
+        description: "PDF baixado. Por favor, anexe-o manualmente no WhatsApp.",
+      });
+      
+      // Abrir WhatsApp com mensagem
+      const message = `Olá! Segue minha receita médica em anexo.\n\n` +
+        `👤 Paciente: ${selectedPrescription.nomeCliente}\n` +
+        `📅 Data: ${selectedPrescription.dataEntrada}`;
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+      
+    } catch (error) {
+      console.error("Erro ao compartilhar:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível compartilhar o PDF.",
+        variant: "destructive",
+      });
+    }
   };
 
   const totalPages = Math.ceil(prescriptions.length / itemsPerPage);
