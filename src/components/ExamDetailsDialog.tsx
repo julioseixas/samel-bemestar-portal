@@ -413,7 +413,7 @@ export function ExamDetailsDialog({
           }
         }}
       >
-        <DialogContent className="max-w-[95vw] sm:max-w-[90vw] w-full h-[90vh] flex flex-col p-0">
+        <DialogContent className="w-full h-full sm:max-w-[90vw] sm:h-[90vh] flex flex-col p-0 max-w-none sm:rounded-lg">
           <DialogHeader className="px-3 sm:px-6 py-3 sm:py-4 border-b">
             <DialogTitle className="text-base sm:text-lg">Detalhes dos Exames</DialogTitle>
             <DialogDescription className="text-xs sm:text-sm">
@@ -428,20 +428,21 @@ export function ExamDetailsDialog({
                   <div key={i} className="flex items-center space-x-4">
                     <Skeleton className="h-12 w-12 rounded" />
                     <div className="space-y-2 flex-1">
-                      <Skeleton className="h-4 w-[250px]" />
-                      <Skeleton className="h-4 w-[200px]" />
+                      <Skeleton className="h-4 w-full sm:w-[250px]" />
+                      <Skeleton className="h-4 w-3/4 sm:w-[200px]" />
                     </div>
-                    <Skeleton className="h-10 w-[100px]" />
+                    <Skeleton className="h-10 w-[100px] hidden sm:block" />
                   </div>
                 ))}
               </div>
             ) : examDetails.length === 0 ? (
               <div className="flex items-center justify-center py-12">
-                <p className="text-muted-foreground">Nenhum detalhe encontrado.</p>
+                <p className="text-muted-foreground text-sm">Nenhum detalhe encontrado.</p>
               </div>
             ) : (
               <>
-                <div className="rounded-lg border bg-card shadow-soft overflow-x-auto">
+                {/* Desktop: Table view */}
+                <div className="hidden md:block rounded-lg border bg-card shadow-soft overflow-x-auto">
                   <Table>
                     <TableHeader className="sticky top-0 bg-card z-10">
                       <TableRow>
@@ -505,6 +506,57 @@ export function ExamDetailsDialog({
                       })}
                     </TableBody>
                   </Table>
+                </div>
+
+                {/* Mobile: Card view */}
+                <div className="md:hidden space-y-3">
+                  {currentExams.map((detail, index) => {
+                    const globalIndex = startIndex + index;
+                    return (
+                      <div key={`${detail.nrSequenciaLaudoPaciente}-${index}`} className="bg-card border rounded-lg p-4 space-y-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-start gap-2 flex-1">
+                            <Checkbox
+                              checked={selectedExamIndexes.has(globalIndex)}
+                              onCheckedChange={() => handleToggleExam(globalIndex)}
+                              aria-label={`Selecionar ${detail.procedimentoExame}`}
+                              className="mt-1"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-semibold text-sm mb-1 line-clamp-2">{detail.procedimentoExame}</h4>
+                              <div className="space-y-1 text-xs text-muted-foreground">
+                                <p><span className="font-medium">Paciente:</span> {detail.nomeCliente}</p>
+                                <p><span className="font-medium">Médico:</span> {detail.nomeProfissional}</p>
+                                <p><span className="font-medium">Liberação:</span> {detail.dtLiberacao}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleViewReport(detail)}
+                            className="flex-1 text-xs"
+                          >
+                            <Eye className="h-3 w-3 mr-1" />
+                            Ver Laudo
+                          </Button>
+                          {detail.urlImg && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => window.open(detail.urlImg, '_blank')}
+                              className="flex-1 bg-primary/10 hover:bg-primary/20 text-primary text-xs"
+                            >
+                              <Image className="h-3 w-3 mr-1" />
+                              Imagem
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
 
                 {examDetails.length > itemsPerPage && (
