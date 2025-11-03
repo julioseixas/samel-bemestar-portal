@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Printer, Eye, Loader2, Image, Download } from "lucide-react";
+import { Printer, Eye, Loader2, Image, Download, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
 import { ExamReportView } from "@/components/ExamReportView";
@@ -200,6 +200,21 @@ export function ExamDetailsDialog({
         variant: "destructive",
       });
     }
+  };
+
+  const handleShareWhatsApp = (exam?: ExamDetail) => {
+    const examToShare = exam || selectedExam;
+    if (!examToShare) return;
+
+    const tipoExame = apiEndpoint.includes("Lab") ? "Laboratorial" : "CDI";
+    const message = `Olá! Gostaria de compartilhar o resultado do meu exame ${tipoExame}:\n\n` +
+      `📋 Exame: ${examToShare.procedimentoExame}\n` +
+      `👤 Paciente: ${examToShare.nomeCliente}\n` +
+      `📅 Data: ${examToShare.dataEntrada}\n` +
+      `🏥 Atendimento: ${examToShare.nrAtendimento}`;
+
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
   };
 
   const handleDownloadMultipleReports = async () => {
@@ -606,6 +621,10 @@ export function ExamDetailsDialog({
               <Download className="h-4 w-4 mr-2" />
               Baixar PDF
             </Button>
+            <Button variant="outline" onClick={() => handleShareWhatsApp()}>
+              <Share2 className="h-4 w-4 mr-2" />
+              Compartilhar
+            </Button>
             <Button onClick={handlePrintReport}>
               <Printer className="h-4 w-4 mr-2" />
               Imprimir Laudo
@@ -660,6 +679,15 @@ export function ExamDetailsDialog({
             <Button variant="outline" onClick={handleDownloadMultipleReports}>
               <Download className="h-4 w-4 mr-2" />
               Baixar PDF
+            </Button>
+            <Button variant="outline" onClick={() => {
+              const selectedExams = getSelectedExams();
+              if (selectedExams.length > 0) {
+                handleShareWhatsApp(selectedExams[0]);
+              }
+            }}>
+              <Share2 className="h-4 w-4 mr-2" />
+              Compartilhar
             </Button>
             <Button onClick={handlePrintReport}>
               <Printer className="h-4 w-4 mr-2" />

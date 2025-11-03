@@ -1,7 +1,7 @@
 import { Header } from "@/components/Header";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Printer, Eye, Download } from "lucide-react";
+import { Printer, Eye, Download, Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
@@ -227,6 +227,20 @@ const PrescriptionsList = () => {
     }
   };
 
+  const handleShareWhatsApp = () => {
+    if (!selectedPrescription) return;
+
+    const message = `Olá! Gostaria de compartilhar minha receita médica:\n\n` +
+      `👤 Paciente: ${selectedPrescription.nomeCliente}\n` +
+      `👨‍⚕️ Profissional: ${selectedPrescription.nomeProfissional}\n` +
+      `📅 Data: ${selectedPrescription.dataEntrada}\n` +
+      `🏥 Atendimento: ${selectedPrescription.nrAtendimento}\n` +
+      `📋 Setor: ${selectedPrescription.dsSetor}`;
+
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   const totalPages = Math.ceil(prescriptions.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -384,9 +398,13 @@ const PrescriptionsList = () => {
               <Download className="h-4 w-4 mr-2" />
               Baixar PDF
             </Button>
+            <Button variant="outline" onClick={handleShareWhatsApp}>
+              <Share2 className="h-4 w-4 mr-2" />
+              Compartilhar
+            </Button>
             <Button onClick={handlePrint}>
               <Printer className="h-4 w-4 mr-2" />
-              Imprimir Receita
+              Imprimir
             </Button>
           </div>
         </DialogContent>

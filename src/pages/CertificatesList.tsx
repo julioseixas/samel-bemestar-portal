@@ -1,7 +1,7 @@
 import { Header } from "@/components/Header";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Printer, Eye, Download } from "lucide-react";
+import { Printer, Eye, Download, Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
@@ -227,6 +227,20 @@ const CertificatesList = () => {
     }
   };
 
+  const handleShareWhatsApp = () => {
+    if (!selectedCertificate) return;
+
+    const message = `Olá! Gostaria de compartilhar meu atestado médico:\n\n` +
+      `👤 Paciente: ${selectedCertificate.nomeCliente}\n` +
+      `👨‍⚕️ Profissional: ${selectedCertificate.nomeProfissional}\n` +
+      `📅 Data: ${selectedCertificate.dataEntrada}\n` +
+      `🏥 Atendimento: ${selectedCertificate.nrAtendimento}\n` +
+      `📋 Setor: ${selectedCertificate.dsSetor}`;
+
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   const totalPages = Math.ceil(certificates.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -384,9 +398,13 @@ const CertificatesList = () => {
               <Download className="h-4 w-4 mr-2" />
               Baixar PDF
             </Button>
+            <Button variant="outline" onClick={handleShareWhatsApp}>
+              <Share2 className="h-4 w-4 mr-2" />
+              Compartilhar
+            </Button>
             <Button onClick={handlePrint}>
               <Printer className="h-4 w-4 mr-2" />
-              Imprimir Atestado
+              Imprimir
             </Button>
           </div>
         </DialogContent>
