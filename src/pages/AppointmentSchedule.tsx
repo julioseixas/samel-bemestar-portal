@@ -43,6 +43,11 @@ const AppointmentSchedule = () => {
     if (storedListToSchedule) {
       try {
         const parsedList = JSON.parse(storedListToSchedule);
+        console.log("DEBUG - Estrutura completa do listToSchedule:", parsedList);
+        console.log("DEBUG - Chaves disponíveis:", Object.keys(parsedList));
+        console.log("DEBUG - clienteContratos:", parsedList.clienteContratos);
+        console.log("DEBUG - dependentes:", parsedList.dependentes);
+        
         const allPatients: Patient[] = [];
         
         // Adicionar titular (clienteContratos)
