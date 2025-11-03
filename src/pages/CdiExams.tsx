@@ -161,7 +161,7 @@ const CdiExams = () => {
               <Button
                 variant="outline"
                 onClick={() => navigate("/exam-results")}
-                className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                className="border-[#47A67E] text-[#47A67E] hover:bg-[#47A67E] hover:text-white"
               >
                 voltar
               </Button>
