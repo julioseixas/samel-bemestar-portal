@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import samelLogo from "@/assets/samel-logo.png";
+import QRCode from "react-qr-code";
 
 interface CertificateReportViewProps {
   certificateData: {
@@ -18,10 +19,6 @@ interface CertificateReportViewProps {
 }
 
 export function CertificateReportView({ certificateData, documentType = "atestado" }: CertificateReportViewProps) {
-  console.log("🔍 CertificateReportView - certificateData:", certificateData);
-  console.log("🔍 QR Code value:", certificateData.qrCodeDownloadReceita);
-  console.log("🔍 QR Code exists?", !!certificateData.qrCodeDownloadReceita);
-  
   return (
     <div id="printMe" className="bg-background p-6 max-w-[800px] mx-auto print:p-0">
       {/* CABEÇALHO */}
@@ -42,10 +39,11 @@ export function CertificateReportView({ certificateData, documentType = "atestad
         </div>
         {certificateData.qrCodeDownloadReceita && (
           <div className="w-[120px] flex items-center justify-center p-2 bg-card">
-            <img 
-              src={certificateData.qrCodeDownloadReceita} 
-              alt="QR Code para Download" 
-              className="w-full h-auto max-w-[100px] object-contain"
+            <QRCode 
+              value={certificateData.qrCodeDownloadReceita} 
+              size={100}
+              level="M"
+              className="w-full h-auto"
             />
           </div>
         )}
