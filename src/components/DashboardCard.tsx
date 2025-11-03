@@ -11,6 +11,7 @@ interface DashboardCardProps {
   onClick?: () => void;
   variant?: "default" | "success" | "warning" | "destructive" | "secondary" | "outline" | "ghost" | "link";
   useDashboardColor?: boolean;
+  customButtonColor?: string;
 }
 
 export const DashboardCard = ({
@@ -22,6 +23,7 @@ export const DashboardCard = ({
   onClick,
   variant = "default",
   useDashboardColor = false,
+  customButtonColor,
 }: DashboardCardProps) => {
   return (
     <div className="group flex flex-col rounded-2xl bg-card p-6 shadow-card transition-all hover:shadow-lg md:p-8">
@@ -47,6 +49,7 @@ export const DashboardCard = ({
           "w-full",
           useDashboardColor && "bg-[hsl(var(--dashboard-button))] text-[hsl(var(--dashboard-button-foreground))] hover:bg-[hsl(var(--dashboard-button))]/90"
         )}
+        style={customButtonColor ? { backgroundColor: customButtonColor, color: 'white' } : undefined}
       >
         {buttonText}
       </Button>

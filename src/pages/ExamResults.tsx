@@ -72,6 +72,7 @@ const ExamResults = () => {
               buttonText="Ver Laudos"
               variant="success"
               onClick={handleLabExams}
+              customButtonColor="#49AA81"
             />
             
             <DashboardCard
@@ -82,6 +83,7 @@ const ExamResults = () => {
               buttonText="Ver Laudos"
               variant="default"
               onClick={handleCDIExams}
+              customButtonColor="#49AA81"
             />
           </div>
         </div>
