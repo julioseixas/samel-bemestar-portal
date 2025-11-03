@@ -43,42 +43,11 @@ const AppointmentSchedule = () => {
     if (storedListToSchedule) {
       try {
         const parsedList = JSON.parse(storedListToSchedule);
-        console.log("DEBUG - Estrutura completa do listToSchedule:", parsedList);
-        console.log("DEBUG - Chaves disponíveis:", Object.keys(parsedList));
-        console.log("DEBUG - clienteContratos:", parsedList.clienteContratos);
-        console.log("DEBUG - dependentes:", parsedList.dependentes);
         
-        const allPatients: Patient[] = [];
-        
-        // Adicionar titular (clienteContratos)
-        if (parsedList.clienteContratos && parsedList.clienteContratos.length > 0) {
-          parsedList.clienteContratos.forEach((contrato: any) => {
-            allPatients.push({
-              id: contrato.id || contrato.codigoCarteirinha,
-              nome: contrato.nome || "Titular",
-              tipo: "Titular",
-              sexo: contrato.sexo,
-              codigoCarteirinha: contrato.codigoCarteirinha,
-              clienteContratos: [contrato]
-            });
-          });
+        if (parsedList.listAllPacient && parsedList.listAllPacient.length > 0) {
+          console.log("Pacientes carregados:", parsedList.listAllPacient);
+          setPatients(parsedList.listAllPacient);
         }
-        
-        // Adicionar dependentes
-        if (parsedList.dependentes && parsedList.dependentes.length > 0) {
-          parsedList.dependentes.forEach((dependente: any) => {
-            allPatients.push({
-              id: dependente.id || dependente.codigoCarteirinha,
-              nome: dependente.nome,
-              tipo: "Dependente",
-              sexo: dependente.sexo,
-              codigoCarteirinha: dependente.codigoCarteirinha
-            });
-          });
-        }
-        
-        console.log("Pacientes carregados:", allPatients);
-        setPatients(allPatients);
       } catch (error) {
         console.error("Erro ao processar lista de pacientes:", error);
       }
