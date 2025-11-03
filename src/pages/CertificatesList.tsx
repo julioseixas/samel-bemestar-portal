@@ -1,7 +1,7 @@
 import { Header } from "@/components/Header";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Printer, Eye } from "lucide-react";
+import { Printer, Eye, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
@@ -195,6 +195,12 @@ const CertificatesList = () => {
     }
   };
 
+  const handleDownload = () => {
+    if (selectedCertificate?.qrCodeDownloadReceita) {
+      window.open(selectedCertificate.qrCodeDownloadReceita, '_blank');
+    }
+  };
+
   const totalPages = Math.ceil(certificates.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -251,7 +257,7 @@ const CertificatesList = () => {
                           <TableHead>Profissional</TableHead>
                           <TableHead>CRM</TableHead>
                           <TableHead>Setor</TableHead>
-                          <TableHead className="text-right">Ações</TableHead>
+                          <TableHead className="text-right">Ver</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -346,6 +352,10 @@ const CertificatesList = () => {
           <div className="shrink-0 px-6 py-4 border-t bg-card flex justify-end gap-2 print:hidden">
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               Fechar
+            </Button>
+            <Button variant="outline" onClick={handleDownload}>
+              <Download className="h-4 w-4 mr-2" />
+              Baixar PDF
             </Button>
             <Button onClick={handlePrint}>
               <Printer className="h-4 w-4 mr-2" />

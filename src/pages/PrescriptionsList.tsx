@@ -1,7 +1,7 @@
 import { Header } from "@/components/Header";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Printer } from "lucide-react";
+import { Printer, Eye, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
@@ -23,6 +23,13 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { CertificateReportView } from "@/components/CertificateReportView";
 
 interface Prescription {
   nr_atendimento: number;
@@ -56,6 +63,8 @@ const PrescriptionsList = () => {
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedPrescription, setSelectedPrescription] = useState<Prescription | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -175,8 +184,21 @@ const PrescriptionsList = () => {
     }
   };
 
-  const handlePrint = (prescription: Prescription) => {
-    window.open(prescription.qrCodeDownloadReceita, '_blank');
+  const handleView = (prescription: Prescription) => {
+    setSelectedPrescription(prescription);
+    setIsDialogOpen(true);
+  };
+
+  const handlePrint = () => {
+    if (selectedPrescription) {
+      window.print();
+    }
+  };
+
+  const handleDownload = () => {
+    if (selectedPrescription?.qrCodeDownloadReceita) {
+      window.open(selectedPrescription.qrCodeDownloadReceita, '_blank');
+    }
   };
 
   const totalPages = Math.ceil(prescriptions.length / itemsPerPage);
@@ -235,7 +257,7 @@ const PrescriptionsList = () => {
                           <TableHead>Profissional</TableHead>
                           <TableHead>CRM</TableHead>
                           <TableHead>Setor</TableHead>
-                          <TableHead className="text-right">Imprimir</TableHead>
+                          <TableHead className="text-right">Ver</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -250,9 +272,9 @@ const PrescriptionsList = () => {
                               <Button
                                 size="icon"
                                 className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-9 w-9"
-                                onClick={() => handlePrint(prescription)}
+                                onClick={() => handleView(prescription)}
                               >
-                                <Printer className="h-4 w-4" />
+                                <Eye className="h-4 w-4" />
                               </Button>
                             </TableCell>
                           </TableRow>
@@ -300,6 +322,48 @@ const PrescriptionsList = () => {
           </Card>
         </div>
       </main>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-[95vw] w-full h-[90vh] flex flex-col p-0">
+          <DialogHeader className="px-6 py-4 border-b bg-card shrink-0">
+            <DialogTitle className="text-xl">
+              Receita - {selectedPrescription?.nomeProfissional}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-y-auto px-6 py-4">
+            {selectedPrescription && (
+              <CertificateReportView
+                certificateData={{
+                  nrAtendimento: selectedPrescription.nrAtendimento,
+                  dsResultado: selectedPrescription.dsResultado,
+                  nomeCliente: selectedPrescription.nomeCliente,
+                  dataNascimento: selectedPrescription.dataNascimento,
+                  dsConvenio: selectedPrescription.dsConvenio,
+                  dsSetor: selectedPrescription.dsSetor,
+                  nomeProfissional: selectedPrescription.nomeProfissional,
+                  dataEntrada: selectedPrescription.dataEntrada,
+                  dsAssinatura: selectedPrescription.dsAssinatura,
+                }}
+              />
+            )}
+          </div>
+
+          <div className="shrink-0 px-6 py-4 border-t bg-card flex justify-end gap-2 print:hidden">
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              Fechar
+            </Button>
+            <Button variant="outline" onClick={handleDownload}>
+              <Download className="h-4 w-4 mr-2" />
+              Baixar PDF
+            </Button>
+            <Button onClick={handlePrint}>
+              <Printer className="h-4 w-4 mr-2" />
+              Imprimir Receita
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
