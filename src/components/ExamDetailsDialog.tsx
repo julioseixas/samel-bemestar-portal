@@ -518,8 +518,16 @@ export function ExamDetailsDialog({
                       {currentExams.map((detail, index) => {
                         const globalIndex = startIndex + index;
                         return (
-                          <TableRow key={`${detail.nrSequenciaLaudoPaciente}-${index}`}>
-                            <TableCell>
+                          <TableRow 
+                            key={`${detail.nrSequenciaLaudoPaciente}-${index}`}
+                            className="cursor-pointer"
+                            onClick={(e) => {
+                              // Não selecionar se clicar nos botões
+                              if ((e.target as HTMLElement).closest('button')) return;
+                              handleToggleExam(globalIndex);
+                            }}
+                          >
+                            <TableCell onClick={(e) => e.stopPropagation()}>
                               <Checkbox
                                 checked={selectedExamIndexes.has(globalIndex)}
                                 onCheckedChange={() => handleToggleExam(globalIndex)}
@@ -532,7 +540,7 @@ export function ExamDetailsDialog({
                             <TableCell>{detail.nomeCliente}</TableCell>
                             <TableCell>{detail.nomeProfissional}</TableCell>
                             <TableCell>{detail.dtLiberacao}</TableCell>
-                            <TableCell className="text-right">
+                            <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                               <div className="flex gap-2 justify-end">
                                 <Button
                                   size="sm"
@@ -567,15 +575,25 @@ export function ExamDetailsDialog({
                   {currentExams.map((detail, index) => {
                     const globalIndex = startIndex + index;
                     return (
-                      <div key={`${detail.nrSequenciaLaudoPaciente}-${index}`} className="bg-card border rounded-lg p-4 space-y-3">
+                      <div 
+                        key={`${detail.nrSequenciaLaudoPaciente}-${index}`} 
+                        className="bg-card border rounded-lg p-4 space-y-3 cursor-pointer active:bg-muted/50"
+                        onClick={(e) => {
+                          // Não selecionar se clicar nos botões ou checkbox
+                          if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('[role="checkbox"]')) return;
+                          handleToggleExam(globalIndex);
+                        }}
+                      >
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex items-start gap-2 flex-1">
-                            <Checkbox
-                              checked={selectedExamIndexes.has(globalIndex)}
-                              onCheckedChange={() => handleToggleExam(globalIndex)}
-                              aria-label={`Selecionar ${detail.procedimentoExame}`}
-                              className="mt-1"
-                            />
+                            <div onClick={(e) => e.stopPropagation()}>
+                              <Checkbox
+                                checked={selectedExamIndexes.has(globalIndex)}
+                                onCheckedChange={() => handleToggleExam(globalIndex)}
+                                aria-label={`Selecionar ${detail.procedimentoExame}`}
+                                className="mt-1"
+                              />
+                            </div>
                             <div className="flex-1 min-w-0">
                               <h4 className="font-semibold text-sm mb-1 line-clamp-2">{detail.procedimentoExame}</h4>
                               <div className="space-y-1 text-xs text-muted-foreground">
@@ -586,7 +604,7 @@ export function ExamDetailsDialog({
                             </div>
                           </div>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                           <Button
                             size="sm"
                             variant="outline"
@@ -673,8 +691,8 @@ export function ExamDetailsDialog({
           </div>
 
           {!loading && examDetails.length > 0 && (
-            <div className="shrink-0 px-6 py-4 border-t bg-card flex justify-between items-center">
-              <div className="text-sm text-muted-foreground">
+            <div className="shrink-0 px-3 sm:px-6 py-3 sm:py-4 border-t bg-card flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-0">
+              <div className="text-xs sm:text-sm text-muted-foreground">
                 {selectedExamIndexes.size > 0 && (
                   <span>{selectedExamIndexes.size} exame(s) selecionado(s)</span>
                 )}
@@ -682,9 +700,11 @@ export function ExamDetailsDialog({
               <Button 
                 onClick={handleViewSelectedReports}
                 disabled={selectedExamIndexes.size === 0}
+                className="w-full sm:w-auto text-xs sm:text-sm"
+                size="sm"
               >
                 <Eye className="h-4 w-4 mr-2" />
-                Ver Laudos Selecionados ({selectedExamIndexes.size})
+                Ver Laudos ({selectedExamIndexes.size})
               </Button>
             </div>
           )}
@@ -719,21 +739,21 @@ export function ExamDetailsDialog({
             )}
           </div>
 
-          <div className="shrink-0 px-6 py-4 border-t bg-card flex justify-end gap-2 print:hidden">
-            <Button variant="outline" onClick={() => setSelectedExam(null)} size="icon" className="h-9 w-9">
+          <div className="shrink-0 px-3 sm:px-6 py-3 sm:py-4 border-t bg-card flex justify-end gap-2 print:hidden">
+            <Button variant="outline" onClick={() => setSelectedExam(null)} size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
               <span className="sr-only">Fechar</span>
-              <span className="text-lg">✕</span>
+              <span className="text-base sm:text-lg">✕</span>
             </Button>
-            <Button variant="outline" onClick={handleDownloadReport} size="icon" className="h-9 w-9">
-              <Download className="h-4 w-4" />
+            <Button variant="outline" onClick={handleDownloadReport} size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
+              <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span className="sr-only">Baixar PDF</span>
             </Button>
-            <Button variant="outline" onClick={() => handleShareWhatsApp()} size="icon" className="h-9 w-9">
-              <Share2 className="h-4 w-4" />
+            <Button variant="outline" onClick={() => handleShareWhatsApp()} size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
+              <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span className="sr-only">Compartilhar</span>
             </Button>
-            <Button onClick={handlePrintReport} size="icon" className="h-9 w-9">
-              <Printer className="h-4 w-4" />
+            <Button onClick={handlePrintReport} size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
+              <Printer className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span className="sr-only">Imprimir</span>
             </Button>
           </div>
@@ -776,16 +796,16 @@ export function ExamDetailsDialog({
             ))}
           </div>
 
-          <div className="shrink-0 px-6 py-4 border-t bg-card flex justify-end gap-2 print:hidden">
+          <div className="shrink-0 px-3 sm:px-6 py-3 sm:py-4 border-t bg-card flex justify-end gap-2 print:hidden">
             <Button variant="outline" onClick={() => {
               setViewingMultiple(false);
               setSelectedExamIndexes(new Set());
-            }} size="icon" className="h-9 w-9">
+            }} size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
               <span className="sr-only">Fechar</span>
-              <span className="text-lg">✕</span>
+              <span className="text-base sm:text-lg">✕</span>
             </Button>
-            <Button variant="outline" onClick={handleDownloadMultipleReports} size="icon" className="h-9 w-9">
-              <Download className="h-4 w-4" />
+            <Button variant="outline" onClick={handleDownloadMultipleReports} size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
+              <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span className="sr-only">Baixar PDFs</span>
             </Button>
             <Button variant="outline" onClick={() => {
@@ -793,12 +813,12 @@ export function ExamDetailsDialog({
               if (selectedExams.length > 0) {
                 handleShareWhatsApp(selectedExams[0]);
               }
-            }} size="icon" className="h-9 w-9">
-              <Share2 className="h-4 w-4" />
+            }} size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
+              <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span className="sr-only">Compartilhar</span>
             </Button>
-            <Button onClick={handlePrintReport} size="icon" className="h-9 w-9">
-              <Printer className="h-4 w-4" />
+            <Button onClick={handlePrintReport} size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
+              <Printer className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span className="sr-only">Imprimir</span>
             </Button>
           </div>
