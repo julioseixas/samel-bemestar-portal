@@ -1,5 +1,4 @@
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
@@ -300,8 +299,6 @@ const CertificatesList = () => {
           </Card>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

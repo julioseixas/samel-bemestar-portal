@@ -1,5 +1,4 @@
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Eye, TrendingUp } from "lucide-react";
@@ -514,8 +513,6 @@ const LabExams = () => {
           </Card>
         </div>
       </main>
-
-      <Footer />
 
       <ExamDetailsDialog
         open={dialogOpen && !!selectedExam}

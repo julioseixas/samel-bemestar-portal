@@ -1,5 +1,4 @@
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { DashboardCard } from "@/components/DashboardCard";
 import { FileText, Activity } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -87,8 +86,6 @@ const ExamResults = () => {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

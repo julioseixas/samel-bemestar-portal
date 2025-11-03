@@ -1,5 +1,4 @@
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { DashboardCard } from "@/components/DashboardCard";
 import { FileCheck, Pill } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -79,8 +78,6 @@ const PrescriptionsAndCertificates = () => {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };
