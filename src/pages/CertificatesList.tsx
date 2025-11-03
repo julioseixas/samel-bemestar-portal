@@ -2,7 +2,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Printer } from "lucide-react";
+import { Printer } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
@@ -197,18 +197,16 @@ const CertificatesList = () => {
       
       <main className="flex-1">
         <div className="container mx-auto px-4 py-6 md:px-6 md:py-10">
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/prescriptions-and-certificates")}
-            className="mb-6"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Voltar
-          </Button>
-
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <CardTitle className="text-2xl">Meus Atestados</CardTitle>
+              <Button
+                variant="outline"
+                onClick={() => navigate("/prescriptions-and-certificates")}
+                className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+              >
+                voltar
+              </Button>
             </CardHeader>
             <CardContent>
               {loading ? (
@@ -228,7 +226,7 @@ const CertificatesList = () => {
                 </div>
               ) : (
                 <>
-                  <div className="overflow-x-auto">
+                  <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
                     <Table>
                       <TableHeader>
                         <TableRow>

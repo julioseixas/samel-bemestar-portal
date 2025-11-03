@@ -2,7 +2,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Eye, TrendingUp } from "lucide-react";
+import { Eye, TrendingUp } from "lucide-react";
 import { ExamDetailsDialog } from "@/components/ExamDetailsDialog";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -344,20 +344,17 @@ const LabExams = () => {
       
       <main className="flex-1">
         <div className="container mx-auto px-4 py-6 md:px-6 md:py-10">
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/exam-results")}
-            className="mb-6"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Voltar
-          </Button>
-
-
           {/* Tabela de Pacientes para Progressão Laboratorial */}
           <Card className="mb-6">
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <CardTitle className="text-2xl">Progressão Laboratorial por Paciente</CardTitle>
+              <Button
+                variant="outline"
+                onClick={() => navigate("/exam-results")}
+                className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+              >
+                voltar
+              </Button>
             </CardHeader>
             <CardContent>
               {patients.length === 0 ? (
@@ -365,7 +362,7 @@ const LabExams = () => {
                   <p className="text-muted-foreground">Nenhum paciente encontrado.</p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto max-h-[40vh] overflow-y-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -426,7 +423,7 @@ const LabExams = () => {
                   <p className="text-muted-foreground">Nenhum exame encontrado.</p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto max-h-[50vh] overflow-y-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>

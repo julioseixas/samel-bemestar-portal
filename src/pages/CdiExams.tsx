@@ -2,7 +2,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Eye } from "lucide-react";
+import { Eye } from "lucide-react";
 import { ExamDetailsDialog } from "@/components/ExamDetailsDialog";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -148,26 +148,27 @@ const CdiExams = () => {
       
       <main className="flex-1">
         <div className="container mx-auto px-4 py-6 md:px-6 md:py-10">
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/exam-results")}
-            className="mb-6"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Voltar
-          </Button>
-
-          <div className="mb-8">
-            <h2 className="mb-2 text-2xl font-bold text-foreground md:text-3xl">
-              Laudo de Exames CDI
-            </h2>
-            <p className="text-base text-muted-foreground md:text-lg">
-              Centro de Diagnóstico por Imagem
-            </p>
-          </div>
+          <div className="rounded-lg border bg-card shadow-soft overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b">
+              <div>
+                <h2 className="text-2xl font-bold text-foreground">
+                  Laudo de Exames CDI
+                </h2>
+                <p className="text-base text-muted-foreground">
+                  Centro de Diagnóstico por Imagem
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => navigate("/exam-results")}
+                className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+              >
+                voltar
+              </Button>
+            </div>
 
           {loading ? (
-            <div className="rounded-lg border bg-card shadow-soft overflow-hidden p-6 space-y-4">
+            <div className="p-6 space-y-4">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="flex items-center space-x-4">
                   <Skeleton className="h-12 w-[180px]" />
@@ -182,7 +183,7 @@ const CdiExams = () => {
               <p className="text-muted-foreground">Nenhum exame CDI encontrado.</p>
             </div>
           ) : (
-            <div className="rounded-lg border bg-card shadow-soft overflow-hidden">
+            <div className="max-h-[60vh] overflow-y-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -214,7 +215,7 @@ const CdiExams = () => {
               </Table>
 
               {!loading && exams.length > itemsPerPage && (
-                <div className="mt-6 px-4">
+                <div className="p-6 border-t">
                   <Pagination>
                     <PaginationContent>
                       <PaginationItem>
@@ -270,6 +271,7 @@ const CdiExams = () => {
               )}
             </div>
           )}
+          </div>
         </div>
       </main>
 
