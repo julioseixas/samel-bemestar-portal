@@ -21,7 +21,20 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
   const { theme, setTheme } = useTheme();
 
   const handleLogout = () => {
+    // Remove todos os dados do paciente do localStorage
+    localStorage.removeItem('user');
+    localStorage.removeItem('titular');
+    localStorage.removeItem('listToSchedule');
+    localStorage.removeItem('selectedPatient');
+    localStorage.removeItem('patientData');
+    localStorage.removeItem('profilePhoto');
+    localStorage.removeItem('notifications');
+    localStorage.removeItem('rating');
+    
+    // Limpa qualquer outro dado remanescente
     localStorage.clear();
+    
+    // Redireciona para a página de login
     navigate("/");
   };
 
