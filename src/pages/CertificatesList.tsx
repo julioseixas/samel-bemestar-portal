@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
 import { Skeleton } from "@/components/ui/skeleton";
+import html2pdf from "html2pdf.js";
 import {
   Table,
   TableBody,
@@ -195,9 +196,34 @@ const CertificatesList = () => {
     }
   };
 
-  const handleDownload = () => {
-    if (selectedCertificate?.qrCodeDownloadReceita) {
-      window.open(selectedCertificate.qrCodeDownloadReceita, '_blank');
+  const handleDownload = async () => {
+    if (!selectedCertificate) return;
+
+    try {
+      const element = document.getElementById('printMe');
+      if (!element) return;
+
+      const opt = {
+        margin: 10,
+        filename: `atestado-${selectedCertificate.nrAtendimento}.pdf`,
+        image: { type: 'jpeg' as const, quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
+      };
+
+      await html2pdf().set(opt).from(element).save();
+      
+      toast({
+        title: "Sucesso",
+        description: "PDF baixado com sucesso!",
+      });
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível gerar o PDF.",
+        variant: "destructive",
+      });
     }
   };
 
