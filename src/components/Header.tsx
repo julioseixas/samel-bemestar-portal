@@ -27,30 +27,30 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card shadow-soft">
-      <div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl overflow-hidden">
+      <div className="container mx-auto flex h-16 sm:h-20 items-center justify-between px-3 sm:px-4 md:px-6">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl overflow-hidden">
             <img src={samelLogo} alt="Hospital Samel" className="h-full w-full object-contain" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-primary md:text-2xl">Hospital Samel</h1>
-            <p className="text-xs text-muted-foreground md:text-sm">Portal do Paciente</p>
+            <h1 className="text-base sm:text-xl font-bold text-primary md:text-2xl">Hospital Samel</h1>
+            <p className="text-[10px] sm:text-xs text-muted-foreground md:text-sm">Portal do Paciente</p>
           </div>
         </div>
         
-        <div className="flex items-center gap-3">
-          <div className="text-right">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="text-right hidden sm:block">
             <p className="text-sm text-muted-foreground">Olá,</p>
             <p className="text-base font-semibold text-foreground md:text-lg">{patientName}</p>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Avatar className="h-12 w-12 border-2 border-primary cursor-pointer hover:opacity-80 transition-opacity">
+              <Avatar className="h-10 w-10 sm:h-12 sm:w-12 border-2 border-primary cursor-pointer hover:opacity-80 transition-opacity">
                 {profilePhoto ? (
                   <AvatarImage src={`data:image/jpeg;base64,${profilePhoto}`} alt={patientName} />
                 ) : null}
                 <AvatarFallback className="bg-primary text-primary-foreground">
-                  <User className="h-6 w-6" />
+                  <User className="h-5 w-5 sm:h-6 sm:w-6" />
                 </AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>

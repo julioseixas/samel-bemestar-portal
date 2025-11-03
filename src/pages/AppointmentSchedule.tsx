@@ -94,23 +94,24 @@ const AppointmentSchedule = () => {
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
       
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-6 md:px-6 md:py-10">
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-foreground md:text-3xl">
+        <div className="container mx-auto px-4 py-4 sm:py-6 md:px-6 md:py-10">
+          <div className="mb-4 sm:mb-6">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground md:text-3xl">
                 Marcação de Consulta
               </h2>
-              <p className="mt-2 text-muted-foreground">
-                Selecione para quem você deseja marcar a consulta
-              </p>
+              <Button
+                variant="outline"
+                onClick={() => navigate("/dashboard")}
+                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
+                size="sm"
+              >
+                Voltar
+              </Button>
             </div>
-            <Button
-              variant="outline"
-              onClick={() => navigate("/dashboard")}
-              className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-            >
-              Voltar ao Dashboard
-            </Button>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              Selecione para quem você deseja marcar a consulta
+            </p>
           </div>
 
           {patients.length === 0 ? (

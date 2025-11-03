@@ -58,19 +58,19 @@ const Index = () => {
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
       
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-6 md:px-6 md:py-10">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:px-6 md:py-10">
           {/* Welcome Section */}
-          <div className="mb-8">
-            <h2 className="mb-2 text-2xl font-bold text-foreground md:text-3xl">
+          <div className="mb-6 sm:mb-8">
+            <h2 className="mb-2 text-xl sm:text-2xl font-bold text-foreground md:text-3xl">
               Bem-vinda ao seu Portal! 👋
             </h2>
-            <p className="text-base text-muted-foreground md:text-lg">
+            <p className="text-sm sm:text-base text-muted-foreground md:text-lg">
               Aqui você pode acessar todas as suas informações de saúde de forma simples e rápida.
             </p>
           </div>
 
           {/* Next Appointment Banner */}
-          <div className="mb-8 md:mb-12">
+          <div className="mb-6 sm:mb-8 md:mb-12">
             <AppointmentBanner
               date="Quinta-feira, 15 de Janeiro"
               time="14:30"
@@ -81,12 +81,12 @@ const Index = () => {
           </div>
 
           {/* Dashboard Cards Grid */}
-          <div className="mb-8">
-            <h3 className="mb-6 text-xl font-semibold text-foreground md:text-2xl">
+          <div className="mb-6 sm:mb-8">
+            <h3 className="mb-4 sm:mb-6 text-lg sm:text-xl font-semibold text-foreground md:text-2xl">
               O que você deseja fazer?
             </h3>
             
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
               <DashboardCard
                 title="MARCAR CONSULTA"
                 description="Agende uma nova consulta com nossos especialistas"
@@ -199,15 +199,15 @@ const Index = () => {
 
           {/* Informações Técnicas do JWT */}
           {jwtInfo && (
-            <div className="mb-8">
+            <div className="mb-6 sm:mb-8">
               <Accordion type="single" collapsible className="w-full">
                 <AccordionItem value="jwt-info">
-                  <AccordionTrigger className="text-lg font-semibold">
+                  <AccordionTrigger className="text-base sm:text-lg font-semibold">
                     Informações Técnicas do JWT
                   </AccordionTrigger>
                   <AccordionContent>
-                    <div className="space-y-2 text-sm pt-2">
-                      <div className="grid grid-cols-[140px_1fr] gap-2">
+                    <div className="space-y-2 text-xs sm:text-sm pt-2">
+                      <div className="grid grid-cols-[100px_1fr] sm:grid-cols-[140px_1fr] gap-2">
                         <span className="font-semibold">Token/Chave:</span>
                         <span className="font-mono break-all text-xs">{jwtInfo.token || 'N/A'}</span>
                       </div>

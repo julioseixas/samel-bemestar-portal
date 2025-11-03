@@ -162,38 +162,39 @@ const AppointmentDetails = () => {
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
       
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-6 md:px-6 md:py-10">
-          <div className="mb-6">
+        <div className="container mx-auto px-4 py-4 sm:py-6 md:px-6 md:py-10">
+          <div className="mb-4 sm:mb-6">
             <Button
               variant="outline"
               onClick={() => navigate("/appointment-schedule")}
-              className="mb-4 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+              className="mb-3 sm:mb-4 border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
+              size="sm"
             >
               ← Voltar
             </Button>
             
-            <h2 className="text-2xl font-bold text-foreground md:text-3xl">
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground md:text-3xl">
               Marcação de Consulta
             </h2>
-            <p className="mt-2 text-muted-foreground">
+            <p className="mt-1 sm:mt-2 text-sm sm:text-base text-muted-foreground">
               Selecione o convênio e a especialidade para a consulta
             </p>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Paciente Selecionado</CardTitle>
+                <CardTitle className="text-base sm:text-lg">Paciente Selecionado</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-2 sm:space-y-3">
                 <div>
-                  <span className="text-sm font-medium text-muted-foreground">Nome:</span>
-                  <p className="text-lg font-semibold">{selectedPatient.nome}</p>
+                  <span className="text-xs sm:text-sm font-medium text-muted-foreground">Nome:</span>
+                  <p className="text-base sm:text-lg font-semibold">{selectedPatient.nome}</p>
                 </div>
                 {selectedPatient.codigoCarteirinha && (
                   <div>
-                    <span className="text-sm font-medium text-muted-foreground">Código da Carteirinha:</span>
-                    <p className="text-lg font-semibold">{selectedPatient.codigoCarteirinha}</p>
+                    <span className="text-xs sm:text-sm font-medium text-muted-foreground">Código da Carteirinha:</span>
+                    <p className="text-base sm:text-lg font-semibold">{selectedPatient.codigoCarteirinha}</p>
                   </div>
                 )}
                 <div className="flex gap-2">
@@ -211,9 +212,9 @@ const AppointmentDetails = () => {
 
             <Card>
               <CardHeader>
-                <CardTitle>Detalhes da Consulta</CardTitle>
+                <CardTitle className="text-base sm:text-lg">Detalhes da Consulta</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 sm:space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="convenio">Convênio</Label>
                   <Select value={selectedConvenio} onValueChange={setSelectedConvenio} disabled={loadingConvenios}>

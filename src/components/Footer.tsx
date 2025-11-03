@@ -3,9 +3,9 @@ import samelLogo from "@/assets/samel-logo.png";
 
 export const Footer = () => {
   return (
-    <footer className="mt-16 border-t bg-card">
-      <div className="container mx-auto px-4 py-8 md:px-6 md:py-12">
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+    <footer className="mt-8 sm:mt-16 border-t bg-card">
+      <div className="container mx-auto px-4 py-6 sm:py-8 md:px-6 md:py-12">
+        <div className="grid gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <div className="mb-4 flex items-center gap-2">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden">

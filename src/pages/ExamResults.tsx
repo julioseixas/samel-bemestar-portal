@@ -44,26 +44,27 @@ const ExamResults = () => {
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
       
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-6 md:px-6 md:py-10">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:px-6 md:py-10">
           <Button
             variant="outline"
             onClick={() => navigate("/dashboard")}
-            className="mb-6 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+            className="mb-4 sm:mb-6 border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
+            size="sm"
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
+            <ArrowLeft className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
             Voltar ao Dashboard
           </Button>
 
-          <div className="mb-8">
-            <h2 className="mb-2 text-2xl font-bold text-foreground md:text-3xl">
+          <div className="mb-6 sm:mb-8">
+            <h2 className="mb-2 text-xl sm:text-2xl font-bold text-foreground md:text-3xl">
               Resultado de Exames
             </h2>
-            <p className="text-base text-muted-foreground md:text-lg">
+            <p className="text-sm sm:text-base text-muted-foreground md:text-lg">
               Selecione o tipo de exame que deseja visualizar
             </p>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2 max-w-4xl">
+          <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-2 max-w-4xl">
             <DashboardCard
               title="LAUDO DE EXAMES LABORATORIAIS"
               description="Visualize os resultados dos seus exames de laboratório"

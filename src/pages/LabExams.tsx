@@ -342,20 +342,21 @@ const LabExams = () => {
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
       
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-6 md:px-6 md:py-10">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:px-6 md:py-10">
           {/* Tabela de Pacientes para Progressão Laboratorial */}
-          <Card className="mb-6">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0">
-              <CardTitle className="text-2xl">Progressão Laboratorial por Paciente</CardTitle>
+          <Card className="mb-4 sm:mb-6">
+            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 p-3 sm:p-6">
+              <CardTitle className="text-lg sm:text-2xl">Progressão Laboratorial por Paciente</CardTitle>
               <Button
                 variant="outline"
                 onClick={() => navigate("/exam-results")}
-                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
+                size="sm"
               >
                 voltar
               </Button>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-3 sm:p-6">
               {patients.length === 0 ? (
                 <div className="flex items-center justify-center py-8">
                   <p className="text-muted-foreground">Nenhum paciente encontrado.</p>
@@ -402,10 +403,10 @@ const LabExams = () => {
           </Card>
 
           <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl">Laudo de Exames Laboratoriais</CardTitle>
+            <CardHeader className="p-3 sm:p-6">
+              <CardTitle className="text-lg sm:text-2xl">Laudo de Exames Laboratoriais</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-3 sm:p-6">
               {loading ? (
                 <div className="overflow-x-auto max-h-[50vh] overflow-y-auto">
                   <div className="space-y-4">

@@ -146,21 +146,22 @@ const CdiExams = () => {
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
       
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-6 md:px-6 md:py-10">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:px-6 md:py-10">
           <div className="rounded-lg border bg-card shadow-soft overflow-hidden">
-            <div className="flex items-center justify-between p-6 border-b">
+            <div className="flex items-center justify-between p-3 sm:p-6 border-b">
               <div>
-                <h2 className="text-2xl font-bold text-foreground">
+                <h2 className="text-lg sm:text-2xl font-bold text-foreground">
                   Laudo de Exames CDI
                 </h2>
-                <p className="text-base text-muted-foreground">
+                <p className="text-xs sm:text-base text-muted-foreground">
                   Centro de Diagnóstico por Imagem
                 </p>
               </div>
               <Button
                 variant="outline"
                 onClick={() => navigate("/exam-results")}
-                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
+                size="sm"
               >
                 voltar
               </Button>
@@ -184,7 +185,7 @@ const CdiExams = () => {
               <p className="text-muted-foreground">Nenhum exame CDI encontrado.</p>
             </div>
           ) : (
-            <div className="max-h-[60vh] overflow-y-auto">
+            <div className="max-h-[60vh] overflow-y-auto overflow-x-auto">
               <Table>
                 <TableHeader className="sticky top-0 bg-card z-10">
                   <TableRow>

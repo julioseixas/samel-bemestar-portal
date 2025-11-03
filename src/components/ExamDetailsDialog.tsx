@@ -413,15 +413,15 @@ export function ExamDetailsDialog({
           }
         }}
       >
-        <DialogContent className="max-w-[95vw] w-full h-[90vh] flex flex-col p-0">
-          <DialogHeader className="px-6 py-4 border-b">
-            <DialogTitle>Detalhes dos Exames</DialogTitle>
-            <DialogDescription>
+        <DialogContent className="max-w-[95vw] sm:max-w-[90vw] w-full h-[90vh] flex flex-col p-0">
+          <DialogHeader className="px-3 sm:px-6 py-3 sm:py-4 border-b">
+            <DialogTitle className="text-base sm:text-lg">Detalhes dos Exames</DialogTitle>
+            <DialogDescription className="text-xs sm:text-sm">
               Visualize os detalhes completos dos exames realizados
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto px-6 py-4">
+          <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-3 sm:py-4">
             {loading ? (
               <div className="space-y-4">
                 {[...Array(5)].map((_, i) => (
@@ -441,7 +441,7 @@ export function ExamDetailsDialog({
               </div>
             ) : (
               <>
-                <div className="rounded-lg border bg-card shadow-soft overflow-hidden">
+                <div className="rounded-lg border bg-card shadow-soft overflow-x-auto">
                   <Table>
                     <TableHeader className="sticky top-0 bg-card z-10">
                       <TableRow>

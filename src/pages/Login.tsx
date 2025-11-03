@@ -168,19 +168,19 @@ const Login = () => {
   return (
     <div className="min-h-screen flex">
       {/* Left side - Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-background">
-        <div className="w-full max-w-md space-y-8">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-8 bg-background">
+        <div className="w-full max-w-md space-y-6 sm:space-y-8">
           <div className="text-center space-y-2">
             <div className="flex justify-center mb-4">
-              <img src={samelLogo} alt="Hospital Samel" className="w-16 h-16 object-contain" />
+              <img src={samelLogo} alt="Hospital Samel" className="w-12 h-12 sm:w-16 sm:h-16 object-contain" />
             </div>
-            <h1 className="text-3xl font-bold text-foreground">Portal do Paciente</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Portal do Paciente</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Acesse sua conta para gerenciar suas consultas e exames
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             <div className="space-y-2">
               <Label htmlFor="email">E-mail</Label>
               <Input
@@ -224,11 +224,11 @@ const Login = () => {
               </a>
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full text-sm sm:text-base" disabled={isLoading}>
               {isLoading ? "Entrando..." : "Entrar"}
             </Button>
 
-            <div className="text-center text-sm text-muted-foreground">
+            <div className="text-center text-xs sm:text-sm text-muted-foreground">
               Não tem uma conta?{" "}
               <a href="#" className="text-primary hover:underline font-medium">
                 Cadastre-se
