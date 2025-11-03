@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { User, ChevronRight } from "lucide-react";
+import { UserRound, User as UserMale, ChevronRight } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
@@ -11,9 +11,7 @@ interface Patient {
   id: number;
   nome: string;
   tipo: string;
-  dataNascimento?: string;
-  cpf?: string;
-  clienteContratos?: Array<{ id: number }>;
+  sexo?: string;
 }
 
 const AppointmentSchedule = () => {
@@ -108,46 +106,29 @@ const AppointmentSchedule = () => {
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-12 w-12">
-                          <AvatarImage src={patient.tipo === "Titular" ? profilePhoto || undefined : undefined} />
-                          <AvatarFallback className="bg-primary/10 text-primary">
-                            {getInitials(patient.nome)}
+                          <AvatarFallback className={patient.sexo === 'M' ? "bg-blue-100 text-blue-600" : "bg-pink-100 text-pink-600"}>
+                            {patient.sexo === 'M' ? <UserMale className="h-6 w-6" /> : <UserRound className="h-6 w-6" />}
                           </AvatarFallback>
                         </Avatar>
                         <div>
                           <CardTitle className="text-lg">{patient.nome}</CardTitle>
-                          <Badge 
-                            variant={patient.tipo === "Titular" ? "default" : "secondary"}
-                            className="mt-1"
-                          >
-                            {patient.tipo}
-                          </Badge>
+                          <div className="mt-1 flex gap-2">
+                            <Badge 
+                              variant={patient.tipo === "Titular" ? "default" : "secondary"}
+                            >
+                              {patient.tipo}
+                            </Badge>
+                            {patient.sexo && (
+                              <Badge variant="outline">
+                                {patient.sexo === 'M' ? 'Masculino' : 'Feminino'}
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2 text-sm text-muted-foreground">
-                      {patient.dataNascimento && (
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">Data de Nascimento:</span>
-                          <span>{patient.dataNascimento}</span>
-                        </div>
-                      )}
-                      {patient.cpf && (
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">CPF:</span>
-                          <span>{patient.cpf}</span>
-                        </div>
-                      )}
-                      {patient.clienteContratos && patient.clienteContratos.length > 0 && (
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">Contratos:</span>
-                          <span>{patient.clienteContratos.length}</span>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
                 </Card>
               ))}
             </div>
