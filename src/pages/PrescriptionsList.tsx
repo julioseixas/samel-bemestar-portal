@@ -298,6 +298,7 @@ const PrescriptionsList = () => {
                           <TableHead>Profissional</TableHead>
                           <TableHead>CRM</TableHead>
                           <TableHead>Setor</TableHead>
+                          <TableHead className="text-center">QR Code</TableHead>
                           <TableHead className="text-right">Ver</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -309,6 +310,18 @@ const PrescriptionsList = () => {
                             <TableCell>{prescription.nomeProfissional}</TableCell>
                             <TableCell>{prescription.crm}</TableCell>
                             <TableCell>{prescription.dsSetor}</TableCell>
+                            <TableCell className="text-center">
+                              {prescription.qrCodeDownloadReceita ? (
+                                <img 
+                                  src={prescription.qrCodeDownloadReceita} 
+                                  alt="QR Code" 
+                                  className="w-12 h-12 sm:w-16 sm:h-16 mx-auto border rounded cursor-pointer hover:scale-105 transition-transform"
+                                  onClick={() => window.open(prescription.qrCodeDownloadReceita, '_blank')}
+                                />
+                              ) : (
+                                <span className="text-xs text-muted-foreground">N/A</span>
+                              )}
+                            </TableCell>
                             <TableCell className="text-right">
                               <Button
                                 size="icon"
