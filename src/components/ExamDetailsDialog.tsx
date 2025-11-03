@@ -666,20 +666,21 @@ export function ExamDetailsDialog({
           </div>
 
           <div className="shrink-0 px-6 py-4 border-t bg-card flex justify-end gap-2 print:hidden">
-            <Button variant="outline" onClick={() => setSelectedExam(null)}>
-              Fechar
+            <Button variant="outline" onClick={() => setSelectedExam(null)} size="icon" className="h-9 w-9">
+              <span className="sr-only">Fechar</span>
+              <span className="text-lg">✕</span>
             </Button>
-            <Button variant="outline" onClick={handleDownloadReport}>
-              <Download className="h-4 w-4 mr-2" />
-              Baixar PDF
+            <Button variant="outline" onClick={handleDownloadReport} size="icon" className="h-9 w-9">
+              <Download className="h-4 w-4" />
+              <span className="sr-only">Baixar PDF</span>
             </Button>
-            <Button variant="outline" onClick={() => handleShareWhatsApp()}>
-              <Share2 className="h-4 w-4 mr-2" />
-              Compartilhar
+            <Button variant="outline" onClick={() => handleShareWhatsApp()} size="icon" className="h-9 w-9">
+              <Share2 className="h-4 w-4" />
+              <span className="sr-only">Compartilhar</span>
             </Button>
-            <Button onClick={handlePrintReport}>
-              <Printer className="h-4 w-4 mr-2" />
-              Imprimir Laudo
+            <Button onClick={handlePrintReport} size="icon" className="h-9 w-9">
+              <Printer className="h-4 w-4" />
+              <span className="sr-only">Imprimir</span>
             </Button>
           </div>
         </DialogContent>
@@ -725,25 +726,26 @@ export function ExamDetailsDialog({
             <Button variant="outline" onClick={() => {
               setViewingMultiple(false);
               setSelectedExamIndexes(new Set());
-            }}>
-              Fechar
+            }} size="icon" className="h-9 w-9">
+              <span className="sr-only">Fechar</span>
+              <span className="text-lg">✕</span>
             </Button>
-            <Button variant="outline" onClick={handleDownloadMultipleReports}>
-              <Download className="h-4 w-4 mr-2" />
-              Baixar PDF
+            <Button variant="outline" onClick={handleDownloadMultipleReports} size="icon" className="h-9 w-9">
+              <Download className="h-4 w-4" />
+              <span className="sr-only">Baixar PDFs</span>
             </Button>
             <Button variant="outline" onClick={() => {
               const selectedExams = getSelectedExams();
               if (selectedExams.length > 0) {
                 handleShareWhatsApp(selectedExams[0]);
               }
-            }}>
-              <Share2 className="h-4 w-4 mr-2" />
-              Compartilhar
+            }} size="icon" className="h-9 w-9">
+              <Share2 className="h-4 w-4" />
+              <span className="sr-only">Compartilhar</span>
             </Button>
-            <Button onClick={handlePrintReport}>
-              <Printer className="h-4 w-4 mr-2" />
-              Imprimir Todos
+            <Button onClick={handlePrintReport} size="icon" className="h-9 w-9">
+              <Printer className="h-4 w-4" />
+              <span className="sr-only">Imprimir</span>
             </Button>
           </div>
         </DialogContent>

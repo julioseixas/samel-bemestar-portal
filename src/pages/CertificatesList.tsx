@@ -392,21 +392,22 @@ const CertificatesList = () => {
             )}
           </div>
 
-          <div className="shrink-0 px-3 sm:px-6 py-3 sm:py-4 border-t bg-card flex flex-col sm:flex-row justify-end gap-2 print:hidden">
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)} size="sm" className="text-xs sm:text-sm">
-              Fechar
+          <div className="shrink-0 px-3 sm:px-6 py-3 sm:py-4 border-t bg-card flex justify-end gap-2 print:hidden">
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)} size="icon" className="h-9 w-9">
+              <span className="sr-only">Fechar</span>
+              <span className="text-lg">✕</span>
             </Button>
-            <Button variant="outline" onClick={handleDownload} size="sm" className="text-xs sm:text-sm">
-              <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              Baixar PDF
+            <Button variant="outline" onClick={handleDownload} size="icon" className="h-9 w-9">
+              <Download className="h-4 w-4" />
+              <span className="sr-only">Baixar PDF</span>
             </Button>
-            <Button variant="outline" onClick={handleShareWhatsApp} size="sm" className="text-xs sm:text-sm">
-              <Share2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              Compartilhar
+            <Button variant="outline" onClick={handleShareWhatsApp} size="icon" className="h-9 w-9">
+              <Share2 className="h-4 w-4" />
+              <span className="sr-only">Compartilhar</span>
             </Button>
-            <Button onClick={handlePrint} size="sm" className="text-xs sm:text-sm">
-              <Printer className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              Imprimir
+            <Button onClick={handlePrint} size="icon" className="h-9 w-9">
+              <Printer className="h-4 w-4" />
+              <span className="sr-only">Imprimir</span>
             </Button>
           </div>
         </DialogContent>
