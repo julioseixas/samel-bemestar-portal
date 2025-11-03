@@ -14,6 +14,7 @@ import PrescriptionsAndCertificates from "./pages/PrescriptionsAndCertificates";
 import CertificatesList from "./pages/CertificatesList";
 import PrescriptionsList from "./pages/PrescriptionsList";
 import AppointmentSchedule from "./pages/AppointmentSchedule";
+import AppointmentDetails from "./pages/AppointmentDetails";
 
 const queryClient = new QueryClient();
 
@@ -33,7 +34,8 @@ const App = () => (
             <Route path="/prescriptions-and-certificates" element={<PrescriptionsAndCertificates />} />
             <Route path="/certificates" element={<CertificatesList />} />
             <Route path="/prescriptions" element={<PrescriptionsList />} />
-            <Route path="/appointment-schedule" element={<AppointmentSchedule />} />
+          <Route path="/appointment-schedule" element={<AppointmentSchedule />} />
+          <Route path="/appointment-details" element={<AppointmentDetails />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

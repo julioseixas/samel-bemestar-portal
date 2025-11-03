@@ -53,8 +53,8 @@ const AppointmentSchedule = () => {
   }, []);
 
   const handleSelectPatient = (patient: Patient) => {
-    // TODO: Navegar para próxima etapa de agendamento com o paciente selecionado
-    console.log("Paciente selecionado:", patient);
+    localStorage.setItem("selectedPatient", JSON.stringify(patient));
+    navigate("/appointment-details");
   };
 
   const getInitials = (name: string) => {
