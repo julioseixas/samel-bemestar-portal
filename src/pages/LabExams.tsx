@@ -407,15 +407,17 @@ const LabExams = () => {
             </CardHeader>
             <CardContent>
               {loading ? (
-                <div className="space-y-4">
-                  {[...Array(5)].map((_, i) => (
-                    <div key={i} className="flex items-center space-x-4">
-                      <Skeleton className="h-12 w-[180px]" />
-                      <Skeleton className="h-12 flex-1" />
-                      <Skeleton className="h-12 w-[200px]" />
-                      <Skeleton className="h-10 w-10 rounded-full" />
-                    </div>
-                  ))}
+                <div className="overflow-x-auto max-h-[50vh] overflow-y-auto">
+                  <div className="space-y-4">
+                    {[...Array(10)].map((_, i) => (
+                      <div key={i} className="flex items-center space-x-4">
+                        <Skeleton className="h-12 w-[180px]" />
+                        <Skeleton className="h-12 flex-1" />
+                        <Skeleton className="h-12 w-[200px]" />
+                        <Skeleton className="h-10 w-10 rounded-full" />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ) : exams.length === 0 ? (
                 <div className="flex items-center justify-center py-8">
