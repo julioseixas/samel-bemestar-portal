@@ -40,7 +40,7 @@ const PrescriptionsList = () => {
               <Button
                 variant="outline"
                 onClick={() => navigate("/prescriptions-and-certificates")}
-                className="border-[#47A67E] text-[#47A67E] hover:bg-[#47A67E] hover:text-white"
+                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
               >
                 voltar
               </Button>
