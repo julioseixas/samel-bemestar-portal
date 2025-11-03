@@ -121,36 +121,49 @@ const AppointmentSchedule = () => {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {patients.map((patient) => (
-                <Card 
-                  key={patient.id} 
-                  className="group cursor-pointer transition-all hover:shadow-lg border-2 hover:border-primary"
-                  onClick={() => handleSelectPatient(patient)}
-                >
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="text-lg">{patient.nome}</CardTitle>
-                        <div className="mt-2 flex gap-2">
-                          <Badge 
-                            variant={patient.tipo === "Titular" ? "default" : "secondary"}
-                          >
-                            {patient.tipo}
-                          </Badge>
-                          {patient.sexo && (
-                            <Badge variant="outline">
-                              {patient.sexo?.toUpperCase() === 'M' ? 'Masculino' : 'Feminino'}
+            <>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {patients.map((patient) => (
+                  <Card 
+                    key={patient.id} 
+                    className="group cursor-pointer transition-all hover:shadow-lg border-2 hover:border-primary"
+                    onClick={() => handleSelectPatient(patient)}
+                  >
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <CardTitle className="text-lg">{patient.nome}</CardTitle>
+                          <div className="mt-2 flex gap-2">
+                            <Badge 
+                              variant={patient.tipo === "Titular" ? "default" : "secondary"}
+                            >
+                              {patient.tipo}
                             </Badge>
-                          )}
+                            {patient.sexo && (
+                              <Badge variant="outline">
+                                {patient.sexo?.toUpperCase() === 'M' ? 'Masculino' : 'Feminino'}
+                              </Badge>
+                            )}
+                          </div>
                         </div>
+                        <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
                       </div>
-                      <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
-                    </div>
-                  </CardHeader>
-                </Card>
-              ))}
-            </div>
+                    </CardHeader>
+                  </Card>
+                ))}
+              </div>
+
+              <Card className="mt-6">
+                <CardHeader>
+                  <CardTitle className="text-base sm:text-lg text-destructive">DEBUG - Lista de Pacientes (JSON)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <pre className="overflow-auto rounded-md bg-muted p-4 text-xs max-h-96">
+                    {JSON.stringify(patients, null, 2)}
+                  </pre>
+                </CardContent>
+              </Card>
+            </>
           )}
         </div>
       </main>
