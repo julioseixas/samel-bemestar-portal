@@ -39,6 +39,7 @@ const AppointmentSchedule = () => {
         const parsedList = JSON.parse(storedListToSchedule);
         
         if (parsedList.listAllPacient && parsedList.listAllPacient.length > 0) {
+          console.log("Pacientes carregados:", parsedList.listAllPacient);
           setPatients(parsedList.listAllPacient);
         }
       } catch (error) {
@@ -106,8 +107,8 @@ const AppointmentSchedule = () => {
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-12 w-12">
-                          <AvatarFallback className={patient.sexo === 'M' ? "bg-blue-100 text-blue-600" : "bg-pink-100 text-pink-600"}>
-                            {patient.sexo === 'M' ? <UserMale className="h-6 w-6" /> : <UserRound className="h-6 w-6" />}
+                          <AvatarFallback className={patient.sexo?.toUpperCase() === 'M' ? "bg-blue-100 text-blue-600" : "bg-pink-100 text-pink-600"}>
+                            {patient.sexo?.toUpperCase() === 'M' ? <UserMale className="h-6 w-6" /> : <UserRound className="h-6 w-6" />}
                           </AvatarFallback>
                         </Avatar>
                         <div>
@@ -120,7 +121,7 @@ const AppointmentSchedule = () => {
                             </Badge>
                             {patient.sexo && (
                               <Badge variant="outline">
-                                {patient.sexo === 'M' ? 'Masculino' : 'Feminino'}
+                                {patient.sexo?.toUpperCase() === 'M' ? 'Masculino' : 'Feminino'}
                               </Badge>
                             )}
                           </div>
