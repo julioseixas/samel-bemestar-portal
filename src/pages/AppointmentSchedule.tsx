@@ -40,6 +40,10 @@ const AppointmentSchedule = () => {
       try {
         const parsedList = JSON.parse(storedListToSchedule);
         
+        console.log("=== OBJETO COMPLETO listToSchedule ===");
+        console.log(parsedList);
+        console.log("=====================================");
+        
         if (parsedList.listAllPacient && parsedList.listAllPacient.length > 0) {
           const firstPatient = parsedList.listAllPacient[0];
           
