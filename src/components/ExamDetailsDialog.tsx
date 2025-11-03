@@ -31,6 +31,7 @@ import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
 import { ExamReportView } from "@/components/ExamReportView";
 import html2pdf from "html2pdf.js";
+import samelLogo from "@/assets/samel-logo.png";
 
 interface ExamDetail {
   nrSequenciaLaudoPaciente: number;
@@ -205,28 +206,143 @@ export function ExamDetailsDialog({
     if (selectedExamIndexes.size === 0) return;
 
     try {
-      const element = document.getElementById('printMe');
-      if (!element) return;
+      const selectedExams = getSelectedExams();
+      
+      toast({
+        title: "Iniciando downloads",
+        description: `Baixando ${selectedExams.length} laudo(s)...`,
+      });
 
-      const opt = {
-        margin: 10,
-        filename: `laudos-multiplos-${Date.now()}.pdf`,
-        image: { type: 'jpeg' as const, quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
-      };
+      // Baixar cada exame individualmente
+      for (let i = 0; i < selectedExams.length; i++) {
+        const exam = selectedExams[i];
+        
+        // Criar um elemento temporário com o conteúdo do exame
+        const tempDiv = document.createElement('div');
+        tempDiv.id = 'temp-print-element';
+        tempDiv.style.position = 'absolute';
+        tempDiv.style.left = '-9999px';
+        document.body.appendChild(tempDiv);
 
-      await html2pdf().set(opt).from(element).save();
+        // Renderizar o conteúdo do exame no elemento temporário
+        const examContent = `
+          <div style="background: white; padding: 24px; max-width: 800px; margin: 0 auto;">
+            <div style="display: flex; margin-bottom: 16px; border: 1px solid #e5e7eb;">
+              <div style="width: 150px; border-right: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: center; padding: 16px;">
+                <img src="${samelLogo}" alt="Samel Logo" style="width: 100%; height: auto; max-height: 100px; object-fit: contain;" />
+              </div>
+              <div style="flex: 1; padding: 16px;">
+                <h5 style="text-align: center; font-weight: bold; font-size: 14px; margin-bottom: 8px;">
+                  SAMEL SERVIÇOS DE ASSISTÊNCIA MÉDICO HOSPITALAR LTDA
+                </h5>
+                <p style="text-align: center; font-size: 12px; color: #6b7280; margin-bottom: 4px;">
+                  Rua Joaquim Nabuco, 1755 - Manaus - AM - CEP 69020030 - Fone: 21292200
+                </p>
+                <p style="text-align: center; font-size: 12px; color: #6b7280;">
+                  CRF-RS 5-11649 CNPJ: 04159778000107
+                </p>
+              </div>
+            </div>
+            <div style="display: flex; margin-bottom: 16px;">
+              <div style="flex: 1; border: 1px solid #e5e7eb; padding: 12px;">
+                <p style="text-align: center; font-weight: bold;">EXAMES</p>
+              </div>
+              <div style="flex: 1; border: 1px solid #e5e7eb; border-left: 0; padding: 12px;">
+                <p style="text-align: center;">
+                  <span style="font-weight: bold;">ATENDIMENTO: </span>
+                  <span style="font-weight: bold;">${exam.nrAtendimento}</span>
+                </p>
+              </div>
+            </div>
+            <div style="margin-bottom: 16px;">
+              <div style="border: 1px solid #e5e7eb; padding: 8px 16px;">
+                <p style="text-align: center;">
+                  <span style="font-weight: bold;">Médico(a) Solicitante: </span>
+                  ${exam.medicoSolicitante}
+                </p>
+              </div>
+            </div>
+            <div style="border: 1px solid #e5e7eb; padding: 24px; margin-bottom: 16px; min-height: 200px;">
+              ${exam.dsResultado || exam.dsCabecalho}
+            </div>
+            <div style="display: flex; margin-bottom: 16px;">
+              <div style="flex: 1; border: 1px solid #e5e7eb; padding: 8px 16px;">
+                <p style="margin-bottom: 4px;">
+                  <span style="font-weight: bold;">Paciente: </span>
+                  ${exam.nomeCliente}
+                </p>
+                <p>
+                  <span style="font-weight: bold;">Data Nasc: </span>
+                  ${exam.dataNascimento}
+                </p>
+              </div>
+              <div style="flex: 1; border: 1px solid #e5e7eb; border-left: 0; padding: 8px 16px;">
+                <p style="margin-bottom: 4px;">
+                  <span style="font-weight: bold;">Convênio: </span>
+                  ${exam.dsConvenio}
+                </p>
+                <p>
+                  <span style="font-weight: bold;">Setor: </span>
+                  ${exam.dsSetor}
+                </p>
+              </div>
+            </div>
+            <div style="display: flex; margin-bottom: 16px;">
+              <div style="flex: 2; border: 1px solid #e5e7eb; padding: 8px 16px;">
+                <p style="text-align: center; margin-bottom: 4px;">
+                  <span style="font-weight: bold;">
+                    ${apiEndpoint.includes("Lab") ? "Analista Clínico: " : "Médico(a): "}
+                  </span>
+                  ${exam.medicoLaudo}
+                </p>
+                <p style="text-align: center;">
+                  <span style="font-weight: bold;">Data de Entrada: </span>
+                  ${exam.dataEntrada}
+                </p>
+              </div>
+              <div style="flex: 1; border: 1px solid #e5e7eb; border-left: 0; padding: 8px 16px;">
+                <p style="font-weight: bold; margin-bottom: 4px;">Assinatura:</p>
+                <div style="text-align: center;">
+                  ${exam.dsAssinatura || ""}
+                </div>
+              </div>
+            </div>
+            <div style="text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #e5e7eb; padding-top: 8px;">
+              <p>Este documento é válido somente com assinatura digital ou física do profissional responsável</p>
+            </div>
+          </div>
+        `;
+        
+        tempDiv.innerHTML = examContent;
+
+        const opt = {
+          margin: 10,
+          filename: `laudo-${exam.nrAtendimento}-${exam.procedimentoExame.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
+          image: { type: 'jpeg' as const, quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
+        };
+
+        await html2pdf().set(opt).from(tempDiv).save();
+        
+        // Remover o elemento temporário
+        document.body.removeChild(tempDiv);
+        
+        // Pequeno delay entre downloads para não sobrecarregar o navegador
+        if (i < selectedExams.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+      }
       
       toast({
         title: "Sucesso",
-        description: "PDF com múltiplos laudos baixado com sucesso!",
+        description: `${selectedExams.length} laudo(s) baixado(s) com sucesso!`,
       });
     } catch (error) {
-      console.error("Erro ao gerar PDF:", error);
+      console.error("Erro ao gerar PDFs:", error);
       toast({
         title: "Erro",
-        description: "Não foi possível gerar o PDF.",
+        description: "Não foi possível gerar os PDFs.",
         variant: "destructive",
       });
     }
