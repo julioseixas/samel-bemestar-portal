@@ -13,6 +13,8 @@ interface Patient {
   tipo: string;
   sexo?: string;
   codigoCarteirinha?: string;
+  idade?: number;
+  cdPessoaFisica?: number;
 }
 
 interface Convenio {
@@ -23,15 +25,23 @@ interface Convenio {
   imagem: string;
 }
 
+interface Especialidade {
+  id: number;
+  descricao: string;
+}
+
 const AppointmentDetails = () => {
   const navigate = useNavigate();
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [titular, setTitular] = useState<Patient | null>(null);
   const [selectedConvenio, setSelectedConvenio] = useState("");
   const [selectedEspecialidade, setSelectedEspecialidade] = useState("");
   const [convenios, setConvenios] = useState<Convenio[]>([]);
   const [loadingConvenios, setLoadingConvenios] = useState(true);
+  const [especialidades, setEspecialidades] = useState<Especialidade[]>([]);
+  const [loadingEspecialidades, setLoadingEspecialidades] = useState(false);
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -42,6 +52,7 @@ const AppointmentDetails = () => {
       try {
         const parsedTitular = JSON.parse(storedTitular);
         setPatientName(parsedTitular.titular?.nome || "Paciente");
+        setTitular(parsedTitular.titular);
       } catch (error) {
         console.error("Erro ao processar titular:", error);
       }
@@ -83,6 +94,43 @@ const AppointmentDetails = () => {
 
     fetchConvenios();
   }, []);
+
+  useEffect(() => {
+    const fetchEspecialidades = async () => {
+      if (!selectedConvenio || !selectedPatient || !titular) return;
+
+      try {
+        setLoadingEspecialidades(true);
+        setEspecialidades([]);
+        setSelectedEspecialidade("");
+
+        const params = new URLSearchParams({
+          idConvenio: selectedConvenio,
+          idadeCliente: selectedPatient.idade?.toString() || "0",
+          cdPessoaFisica: titular.cdPessoaFisica?.toString() || "",
+          sexo: selectedPatient.sexo || "",
+          descricaoEspecialidade: "",
+          cdDependente: selectedPatient.tipo === "Titular" ? titular.id.toString() : selectedPatient.id.toString(),
+          nrCarteirinha: selectedPatient.codigoCarteirinha || ""
+        });
+
+        const response = await fetch(
+          `https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ListarEspecialidadesComAgendaDisponivel3?${params}`
+        );
+        const data = await response.json();
+        
+        if (data.sucesso && data.dados) {
+          setEspecialidades(data.dados);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar especialidades:", error);
+      } finally {
+        setLoadingEspecialidades(false);
+      }
+    };
+
+    fetchEspecialidades();
+  }, [selectedConvenio, selectedPatient, titular]);
 
   const handleContinue = () => {
     if (!selectedConvenio || !selectedEspecialidade) {
@@ -182,17 +230,26 @@ const AppointmentDetails = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="especialidade">Especialidade</Label>
-                  <Select value={selectedEspecialidade} onValueChange={setSelectedEspecialidade}>
+                  <Select 
+                    value={selectedEspecialidade} 
+                    onValueChange={setSelectedEspecialidade}
+                    disabled={!selectedConvenio || loadingEspecialidades}
+                  >
                     <SelectTrigger id="especialidade">
-                      <SelectValue placeholder="Selecione a especialidade" />
+                      <SelectValue placeholder={
+                        loadingEspecialidades 
+                          ? "Carregando..." 
+                          : !selectedConvenio 
+                            ? "Selecione um convênio primeiro"
+                            : "Selecione a especialidade"
+                      } />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="cardiologia">Cardiologia</SelectItem>
-                      <SelectItem value="dermatologia">Dermatologia</SelectItem>
-                      <SelectItem value="ortopedia">Ortopedia</SelectItem>
-                      <SelectItem value="pediatria">Pediatria</SelectItem>
-                      <SelectItem value="clinica-geral">Clínica Geral</SelectItem>
-                      <SelectItem value="ginecologia">Ginecologia</SelectItem>
+                      {especialidades.map((especialidade) => (
+                        <SelectItem key={especialidade.id} value={especialidade.id.toString()}>
+                          {especialidade.descricao}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
