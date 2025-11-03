@@ -12,6 +12,7 @@ interface CertificateReportViewProps {
     nomeProfissional: string;
     dataEntrada: string;
     dsAssinatura: string;
+    qrCodeDownloadReceita?: string;
   };
   documentType?: "receita" | "atestado";
 }
@@ -24,7 +25,7 @@ export function CertificateReportView({ certificateData, documentType = "atestad
         <div className="w-[150px] border-r border-border flex items-center justify-center p-4 bg-card">
           <img src={samelLogo} alt="Samel Logo" className="w-full h-auto max-h-[100px] object-contain" />
         </div>
-        <div className="flex-1 p-4 bg-card">
+        <div className="flex-1 p-4 bg-card border-r border-border">
           <h5 className="text-center font-bold text-sm mb-2">
             SAMEL SERVIÇOS DE ASSISTÊNCIA MÉDICO HOSPITALAR LTDA
           </h5>
@@ -35,6 +36,15 @@ export function CertificateReportView({ certificateData, documentType = "atestad
             CRF-RS 5-11649 CNPJ: 04159778000107
           </p>
         </div>
+        {certificateData.qrCodeDownloadReceita && (
+          <div className="w-[120px] flex items-center justify-center p-2 bg-card">
+            <img 
+              src={certificateData.qrCodeDownloadReceita} 
+              alt="QR Code para Download" 
+              className="w-full h-auto max-w-[100px] object-contain"
+            />
+          </div>
+        )}
       </div>
 
       {/* RECEITA OU ATESTADO / ATENDIMENTO */}

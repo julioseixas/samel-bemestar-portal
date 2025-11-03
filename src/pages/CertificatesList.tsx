@@ -398,6 +398,7 @@ const CertificatesList = () => {
                   nomeProfissional: selectedCertificate.nomeProfissional,
                   dataEntrada: selectedCertificate.dataEntrada,
                   dsAssinatura: selectedCertificate.dsAssinatura,
+                  qrCodeDownloadReceita: selectedCertificate.qrCodeDownloadReceita,
                 }}
                 documentType="atestado"
               />

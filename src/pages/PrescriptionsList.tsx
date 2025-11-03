@@ -398,6 +398,7 @@ const PrescriptionsList = () => {
                   nomeProfissional: selectedPrescription.nomeProfissional,
                   dataEntrada: selectedPrescription.dataEntrada,
                   dsAssinatura: selectedPrescription.dsAssinatura,
+                  qrCodeDownloadReceita: selectedPrescription.qrCodeDownloadReceita,
                 }}
                 documentType="receita"
               />
