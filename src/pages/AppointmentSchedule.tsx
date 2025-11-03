@@ -3,8 +3,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { UserRound, User as UserMale, ChevronRight } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ChevronRight } from "lucide-react";
+
 import { Badge } from "@/components/ui/badge";
 
 interface Patient {
@@ -105,26 +105,19 @@ const AppointmentSchedule = () => {
                 >
                   <CardHeader>
                     <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-12 w-12">
-                          <AvatarFallback className={patient.sexo?.toUpperCase() === 'M' ? "bg-blue-100 text-blue-600" : "bg-pink-100 text-pink-600"}>
-                            {patient.sexo?.toUpperCase() === 'M' ? <UserMale className="h-6 w-6" /> : <UserRound className="h-6 w-6" />}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <CardTitle className="text-lg">{patient.nome}</CardTitle>
-                          <div className="mt-1 flex gap-2">
-                            <Badge 
-                              variant={patient.tipo === "Titular" ? "default" : "secondary"}
-                            >
-                              {patient.tipo}
+                      <div>
+                        <CardTitle className="text-lg">{patient.nome}</CardTitle>
+                        <div className="mt-2 flex gap-2">
+                          <Badge 
+                            variant={patient.tipo === "Titular" ? "default" : "secondary"}
+                          >
+                            {patient.tipo}
+                          </Badge>
+                          {patient.sexo && (
+                            <Badge variant="outline">
+                              {patient.sexo?.toUpperCase() === 'M' ? 'Masculino' : 'Feminino'}
                             </Badge>
-                            {patient.sexo && (
-                              <Badge variant="outline">
-                                {patient.sexo?.toUpperCase() === 'M' ? 'Masculino' : 'Feminino'}
-                              </Badge>
-                            )}
-                          </div>
+                          )}
                         </div>
                       </div>
                       <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
