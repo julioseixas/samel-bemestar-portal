@@ -107,9 +107,7 @@ const AppointmentDetails = () => {
         setEspecialidades([]);
         setSelectedEspecialidade("");
 
-        const cdDependente = selectedPatient.tipo === "Titular" 
-          ? (titular.id?.toString() || "") 
-          : (selectedPatient.id?.toString() || "");
+        const cdDependente = selectedPatient.id?.toString() || "";
 
         const params = new URLSearchParams({
           idConvenio: selectedConvenio,
