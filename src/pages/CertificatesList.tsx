@@ -371,6 +371,7 @@ const CertificatesList = () => {
                   dataEntrada: selectedCertificate.dataEntrada,
                   dsAssinatura: selectedCertificate.dsAssinatura,
                 }}
+                documentType="atestado"
               />
             )}
           </div>

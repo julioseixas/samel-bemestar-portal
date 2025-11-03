@@ -13,9 +13,10 @@ interface CertificateReportViewProps {
     dataEntrada: string;
     dsAssinatura: string;
   };
+  documentType?: "receita" | "atestado";
 }
 
-export function CertificateReportView({ certificateData }: CertificateReportViewProps) {
+export function CertificateReportView({ certificateData, documentType = "atestado" }: CertificateReportViewProps) {
   return (
     <div id="printMe" className="bg-background p-6 max-w-[800px] mx-auto print:p-0">
       {/* CABEÇALHO */}
@@ -36,10 +37,10 @@ export function CertificateReportView({ certificateData }: CertificateReportView
         </div>
       </div>
 
-      {/* ATESTADO / ATENDIMENTO */}
+      {/* RECEITA OU ATESTADO / ATENDIMENTO */}
       <div className="flex mb-4">
         <div className="flex-1 border border-border bg-card p-3">
-          <p className="text-center font-bold">ATESTADO</p>
+          <p className="text-center font-bold">{documentType === "receita" ? "RECEITA" : "ATESTADO"}</p>
         </div>
         <div className="flex-1 border border-border border-l-0 bg-card p-3">
           <p className="text-center">

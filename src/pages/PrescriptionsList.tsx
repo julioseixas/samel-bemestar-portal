@@ -371,6 +371,7 @@ const PrescriptionsList = () => {
                   dataEntrada: selectedPrescription.dataEntrada,
                   dsAssinatura: selectedPrescription.dsAssinatura,
                 }}
+                documentType="receita"
               />
             )}
           </div>
