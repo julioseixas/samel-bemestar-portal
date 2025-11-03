@@ -353,53 +353,6 @@ const LabExams = () => {
             Voltar
           </Button>
 
-          {jwtInfo && (
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="text-xl">Informações Técnicas do JWT</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 text-sm">
-                  <div className="grid grid-cols-[120px_1fr] gap-2">
-                    <span className="font-semibold">Token/Chave:</span>
-                    <span className="font-mono break-all text-xs">{jwtInfo.token || 'N/A'}</span>
-                  </div>
-                  <div className="grid grid-cols-[120px_1fr] gap-2">
-                    <span className="font-semibold">Tipo Beneficiário:</span>
-                    <span>{jwtInfo.tipoBeneficiario}</span>
-                  </div>
-                  <div className="grid grid-cols-[120px_1fr] gap-2">
-                    <span className="font-semibold">Nome:</span>
-                    <span>{jwtInfo.nome}</span>
-                  </div>
-                  <div className="grid grid-cols-[120px_1fr] gap-2">
-                    <span className="font-semibold">ID:</span>
-                    <span>{jwtInfo.id}</span>
-                  </div>
-                  <div className="grid grid-cols-[120px_1fr] gap-2">
-                    <span className="font-semibold">Email:</span>
-                    <span>{jwtInfo.usuario?.email}</span>
-                  </div>
-                  <div className="grid grid-cols-[120px_1fr] gap-2">
-                    <span className="font-semibold">ID Usuário:</span>
-                    <span>{jwtInfo.usuario?.id}</span>
-                  </div>
-                  <div className="grid grid-cols-[120px_1fr] gap-2">
-                    <span className="font-semibold">Rating:</span>
-                    <span>{typeof jwtInfo.rating === 'object' ? JSON.stringify(jwtInfo.rating) : jwtInfo.rating}</span>
-                  </div>
-                  <div className="grid grid-cols-[120px_1fr] gap-2">
-                    <span className="font-semibold">Dependentes:</span>
-                    <span>{jwtInfo.dependentes?.length || 0}</span>
-                  </div>
-                  <div className="grid grid-cols-[120px_1fr] gap-2">
-                    <span className="font-semibold">Contratos:</span>
-                    <span>{jwtInfo.clienteContratos?.length || 0}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
 
           {/* Tabela de Pacientes para Progressão Laboratorial */}
           <Card className="mb-6">
