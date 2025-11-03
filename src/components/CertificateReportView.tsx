@@ -23,26 +23,27 @@ export function CertificateReportView({ certificateData, documentType = "atestad
     <div id="printMe" className="bg-background p-6 max-w-[800px] mx-auto print:p-0">
       {/* CABEÇALHO */}
       <div className="flex mb-4 border border-border">
-        <div className="w-[150px] border-r border-border flex items-center justify-center p-4 bg-card">
-          <img src={samelLogo} alt="Samel Logo" className="w-full h-auto max-h-[100px] object-contain" />
+        <div className="w-[80px] sm:w-[150px] border-r border-border flex items-center justify-center p-2 sm:p-4 bg-card">
+          <img src={samelLogo} alt="Samel Logo" className="w-full h-auto max-h-[50px] sm:max-h-[100px] object-contain" />
         </div>
-        <div className="flex-1 p-4 bg-card border-r border-border">
-          <h5 className="text-center font-bold text-sm mb-2">
+        <div className="flex-1 p-2 sm:p-4 bg-card border-r border-border">
+          <h5 className="text-center font-bold text-[10px] sm:text-sm mb-1 sm:mb-2">
             SAMEL SERVIÇOS DE ASSISTÊNCIA MÉDICO HOSPITALAR LTDA
           </h5>
-          <p className="text-center text-xs text-muted-foreground mb-1">
+          <p className="text-center text-[8px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-1">
             Rua Joaquim Nabuco, 1755 - Manaus - AM - CEP 69020030 - Fone: 21292200
           </p>
-          <p className="text-center text-xs text-muted-foreground">
+          <p className="text-center text-[8px] sm:text-xs text-muted-foreground">
             CRF-RS 5-11649 CNPJ: 04159778000107
           </p>
         </div>
         {certificateData.qrCodeDownloadReceita && (
-          <div className="w-[120px] flex items-center justify-center p-2 bg-card">
+          <div className="w-[70px] sm:w-[120px] flex items-center justify-center p-1 sm:p-2 bg-card">
             <QRCode 
               value={certificateData.qrCodeDownloadReceita} 
-              size={100}
+              size={60}
               level="M"
+              className="w-[60px] h-[60px] sm:w-[100px] sm:h-[100px]"
             />
           </div>
         )}
