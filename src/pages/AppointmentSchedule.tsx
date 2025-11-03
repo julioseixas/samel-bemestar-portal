@@ -14,12 +14,6 @@ interface Patient {
   sexo?: string;
   codigoCarteirinha?: string;
   dataNascimento?: string;
-  clienteContratos?: Array<{
-    id: string;
-    sexo?: string;
-    codigoCarteirinha?: string;
-    dataNascimento?: string;
-  }>;
 }
 
 const AppointmentSchedule = () => {
@@ -47,8 +41,40 @@ const AppointmentSchedule = () => {
         const parsedList = JSON.parse(storedListToSchedule);
         
         if (parsedList.listAllPacient && parsedList.listAllPacient.length > 0) {
-          console.log("Pacientes carregados:", parsedList.listAllPacient);
-          setPatients(parsedList.listAllPacient);
+          const firstPatient = parsedList.listAllPacient[0];
+          
+          // Array para armazenar todos os pacientes
+          const allPatients: Patient[] = [];
+          
+          // Adicionar o titular (do clienteContratos)
+          if (firstPatient.clienteContratos && firstPatient.clienteContratos.length > 0) {
+            const titularContrato = firstPatient.clienteContratos[0];
+            allPatients.push({
+              id: firstPatient.cdPessoaFisica || Date.now(),
+              nome: firstPatient.nome,
+              tipo: "Titular",
+              sexo: titularContrato.sexo,
+              codigoCarteirinha: titularContrato.codigoCarteirinha,
+              dataNascimento: titularContrato.dataNascimento
+            });
+            
+            // Adicionar os dependentes
+            if (titularContrato.dependentes && titularContrato.dependentes.length > 0) {
+              titularContrato.dependentes.forEach((dependente: any, index: number) => {
+                allPatients.push({
+                  id: dependente.cdPessoaFisica || Date.now() + index + 1,
+                  nome: dependente.nome,
+                  tipo: "Dependente",
+                  sexo: dependente.sexo,
+                  codigoCarteirinha: dependente.codigoCarteirinha,
+                  dataNascimento: dependente.dataNascimento
+                });
+              });
+            }
+          }
+          
+          console.log("Todos os pacientes carregados:", allPatients);
+          setPatients(allPatients);
         }
       } catch (error) {
         console.error("Erro ao processar lista de pacientes:", error);
@@ -61,24 +87,14 @@ const AppointmentSchedule = () => {
   }, []);
 
   const handleSelectPatient = (patient: Patient) => {
-    // Para o titular, pegar dados do clienteContratos[0] se existir
-    const patientData = patient.tipo === "Titular" && patient.clienteContratos?.[0]
-      ? {
-          id: patient.id,
-          nome: patient.nome,
-          tipo: patient.tipo,
-          sexo: patient.clienteContratos[0].sexo,
-          codigoCarteirinha: patient.clienteContratos[0].codigoCarteirinha,
-          dataNascimento: patient.clienteContratos[0].dataNascimento
-        }
-      : {
-          id: patient.id,
-          nome: patient.nome,
-          tipo: patient.tipo,
-          sexo: patient.sexo,
-          codigoCarteirinha: patient.codigoCarteirinha,
-          dataNascimento: patient.dataNascimento
-        };
+    const patientData = {
+      id: patient.id,
+      nome: patient.nome,
+      tipo: patient.tipo,
+      sexo: patient.sexo,
+      codigoCarteirinha: patient.codigoCarteirinha,
+      dataNascimento: patient.dataNascimento
+    };
     
     console.log("Dados do paciente selecionado:", patientData);
     localStorage.setItem("selectedPatient", JSON.stringify(patientData));
