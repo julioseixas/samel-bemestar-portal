@@ -159,6 +159,8 @@ const PrescriptionsList = () => {
       const result = await response.json();
 
       if (result.sucesso && result.dados) {
+        console.log("📦 API Response - prescriptions data:", result.dados);
+        console.log("📦 First prescription sample:", result.dados[0]);
         setPrescriptions(result.dados);
         if (result.mensagem) {
           toast({
@@ -186,6 +188,8 @@ const PrescriptionsList = () => {
   };
 
   const handleView = (prescription: Prescription) => {
+    console.log("📋 Selected prescription:", prescription);
+    console.log("📋 QR Code from prescription:", prescription.qrCodeDownloadReceita);
     setSelectedPrescription(prescription);
     setIsDialogOpen(true);
   };
