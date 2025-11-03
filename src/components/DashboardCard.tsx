@@ -10,6 +10,7 @@ interface DashboardCardProps {
   buttonText: string;
   onClick?: () => void;
   variant?: "default" | "success" | "warning" | "destructive" | "secondary" | "outline" | "ghost" | "link";
+  useDashboardColor?: boolean;
 }
 
 export const DashboardCard = ({
@@ -20,6 +21,7 @@ export const DashboardCard = ({
   buttonText,
   onClick,
   variant = "default",
+  useDashboardColor = false,
 }: DashboardCardProps) => {
   return (
     <div className="group flex flex-col rounded-2xl bg-card p-6 shadow-card transition-all hover:shadow-lg md:p-8">
@@ -41,7 +43,10 @@ export const DashboardCard = ({
         onClick={onClick} 
         variant={variant}
         size="lg"
-        className="w-full"
+        className={cn(
+          "w-full",
+          useDashboardColor && "bg-[hsl(var(--dashboard-button))] text-[hsl(var(--dashboard-button-foreground))] hover:bg-[hsl(var(--dashboard-button))]/90"
+        )}
       >
         {buttonText}
       </Button>

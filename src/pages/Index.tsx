@@ -143,6 +143,7 @@ const Index = () => {
                 iconColor="text-primary"
                 buttonText="Agendar Consulta"
                 variant="default"
+                useDashboardColor={true}
                 onClick={() => handleCardClick("Marcar Consulta")}
               />
               
@@ -153,6 +154,7 @@ const Index = () => {
                 iconColor="text-primary"
                 buttonText="Agendar Exame"
                 variant="default"
+                useDashboardColor={true}
                 onClick={() => handleCardClick("Marcar Exame")}
               />
               
@@ -163,6 +165,7 @@ const Index = () => {
                 iconColor="text-primary"
                 buttonText="Ver Prontuário"
                 variant="default"
+                useDashboardColor={true}
                 onClick={() => handleCardClick("Meu Prontuário")}
               />
               
@@ -173,6 +176,7 @@ const Index = () => {
                 iconColor="text-success"
                 buttonText="Fazer Check-in"
                 variant="success"
+                useDashboardColor={true}
                 onClick={() => handleCardClick("Check-in Telemedicina")}
               />
               
@@ -183,6 +187,7 @@ const Index = () => {
                 iconColor="text-primary"
                 buttonText="Ver Agendamentos"
                 variant="default"
+                useDashboardColor={true}
                 onClick={() => handleCardClick("Consultas e Exames Agendados")}
               />
               
@@ -193,6 +198,7 @@ const Index = () => {
                 iconColor="text-primary"
                 buttonText="Ver Receitas"
                 variant="default"
+                useDashboardColor={true}
                 onClick={() => handleCardClick("Receitas e Atestados")}
               />
               
@@ -203,6 +209,7 @@ const Index = () => {
                 iconColor="text-success"
                 buttonText="Ver Resultados"
                 variant="success"
+                useDashboardColor={true}
                 onClick={() => navigate("/exam-results")}
               />
               
@@ -223,6 +230,7 @@ const Index = () => {
                 iconColor="text-primary"
                 buttonText="Renovar Receita"
                 variant="default"
+                useDashboardColor={true}
                 onClick={() => handleCardClick("Renovação de Receita")}
               />
               

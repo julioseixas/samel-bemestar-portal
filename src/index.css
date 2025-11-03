@@ -48,6 +48,10 @@ All colors MUST be HSL.
     --accent: 145 23% 65%;
     --accent-foreground: 155 49% 18%;
 
+    /* Dashboard card button - Samel green */
+    --dashboard-button: 155 49% 52%;
+    --dashboard-button-foreground: 0 0% 100%;
+
     /* Borders and inputs */
     --border: 145 20% 88%;
     --input: 145 20% 88%;
@@ -97,6 +101,10 @@ All colors MUST be HSL.
 
     --accent: 155 35% 35%;
     --accent-foreground: 0 0% 95%;
+
+    /* Dashboard card button - Samel green (adjusted for dark mode) */
+    --dashboard-button: 155 49% 52%;
+    --dashboard-button-foreground: 0 0% 100%;
 
     --border: 0 0% 25%;
     --input: 0 0% 25%;
