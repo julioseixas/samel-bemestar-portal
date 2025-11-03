@@ -36,9 +36,9 @@ const PrescriptionsAndCertificates = () => {
       <main className="flex-1">
         <div className="container mx-auto px-4 py-6 md:px-6 md:py-10">
           <Button
-            variant="ghost"
+            variant="outline"
             onClick={() => navigate("/dashboard")}
-            className="mb-6"
+            className="mb-6 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Voltar ao Dashboard
