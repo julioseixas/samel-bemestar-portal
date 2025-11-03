@@ -150,7 +150,7 @@ const Index = () => {
                 buttonText="Ver Receitas"
                 variant="default"
                 useDashboardColor={true}
-                onClick={() => handleCardClick("Receitas e Atestados")}
+                onClick={() => navigate("/prescriptions-and-certificates")}
               />
               
               <DashboardCard
