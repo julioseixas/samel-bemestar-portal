@@ -160,9 +160,14 @@ const AppointmentDetails = () => {
       alert("Por favor, selecione o convênio e a especialidade");
       return;
     }
-    // TODO: Navegar para próxima etapa
-    console.log("Convênio:", selectedConvenio);
-    console.log("Especialidade:", selectedEspecialidade);
+    
+    navigate("/appointment-professionals", {
+      state: {
+        selectedPatient,
+        selectedConvenio,
+        selectedEspecialidade
+      }
+    });
   };
 
   if (!selectedPatient) {
