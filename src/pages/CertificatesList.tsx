@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
 import { Skeleton } from "@/components/ui/skeleton";
 import html2pdf from "html2pdf.js";
+import { getApiHeaders } from "@/lib/api-headers";
 import {
   Table,
   TableBody,
@@ -144,11 +145,7 @@ const CertificatesList = () => {
         "https://api-portalpaciente-web.samel.com.br/api/Agenda/ListarMeuProntuario2",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "chave-autenticacao": authToken,
-            "identificador-dispositivo": "request-android",
-          },
+          headers: getApiHeaders(),
           body: JSON.stringify({ 
             idCliente: clientIds,
             tipo: 1 

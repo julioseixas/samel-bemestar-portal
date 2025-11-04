@@ -7,6 +7,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getApiHeaders } from "@/lib/api-headers";
 import {
   Pagination,
   PaginationContent,
@@ -124,11 +125,7 @@ export function ExamDetailsDialog({
       console.log("🚀 Fazendo requisição para:", apiEndpoint);
       const response = await fetch(apiEndpoint, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "identificador-dispositivo": "request-android",
-          "chave-autenticacao": authToken,
-        },
+        headers: getApiHeaders(),
         body: JSON.stringify({
           idCliente: idCliente,
           idAtendimento: idAtendimento,

@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getApiHeaders } from "@/lib/api-headers";
 import {
   Select,
   SelectContent,
@@ -204,11 +205,7 @@ const LabExams = () => {
         "https://api-portalpaciente-web.samel.com.br/api/Agenda/Procedimento/ObterExamesLaudoLabMaster",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "chave-autenticacao": authToken,
-            "identificador-dispositivo": "request-android",
-          },
+          headers: getApiHeaders(),
           body: JSON.stringify({ idCliente: clientIds }),
         }
       );

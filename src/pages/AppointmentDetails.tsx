@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { jwtDecode } from "jwt-decode";
+import { getApiHeaders } from "@/lib/api-headers";
 
 interface Patient {
   id: number;
@@ -81,27 +81,13 @@ const AppointmentDetails = () => {
       try {
         setLoadingConvenios(true);
         
-        // Obtém o token de autenticação do localStorage
-        const userToken = localStorage.getItem("user") || "";
-        const decoded: any = jwtDecode(userToken);
-        const authToken = decoded.token || userToken;
-        
-        const headers = {
-          "Content-Type": "application/json",
-          "identificador-dispositivo": "request-android",
-          "chave-autenticacao": authToken
-        };
-
-        console.log("=== HEADERS LISTAR CONVÊNIOS ===");
-        console.log(headers);
-        console.log("Token:", authToken);
-        console.log("================================");
+        const headers = getApiHeaders();
         
         const response = await fetch(
           'https://api-portalpaciente-web.samel.com.br/api/Convenio/ListarConvenios',
           {
             method: "GET",
-            headers: headers
+            headers
           }
         );
         const data = await response.json();
@@ -133,11 +119,6 @@ const AppointmentDetails = () => {
 
         const cdDependente = selectedPatient.id?.toString() || "";
         
-        // Obtém o token de autenticação do localStorage
-        const userToken = localStorage.getItem("user") || "";
-        const decoded: any = jwtDecode(userToken);
-        const authToken = decoded.token || userToken;
-
         const params = new URLSearchParams({
           idConvenio: selectedConvenio,
           idadeCliente: selectedPatient.idade?.toString() || "0",
@@ -148,17 +129,7 @@ const AppointmentDetails = () => {
           nrCarteirinha: selectedPatient.codigoCarteirinha || ""
         });
 
-        const headers = {
-          "Content-Type": "application/json",
-          "identificador-dispositivo": "request-android",
-          "chave-autenticacao": authToken
-        };
-
-        console.log("=== HEADERS LISTAR ESPECIALIDADES ===");
-        console.log(headers);
-        console.log("Token:", authToken);
-        console.log("Params:", Object.fromEntries(params));
-        console.log("====================================");
+        const headers = getApiHeaders();
 
         const response = await fetch(
           `https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ListarEspecialidadesComAgendaDisponivel3?${params}`,
