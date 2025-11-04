@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { jwtDecode } from "jwt-decode";
 
 interface Patient {
   id: number;
@@ -81,7 +82,9 @@ const AppointmentDetails = () => {
         setLoadingConvenios(true);
         
         // Obtém o token de autenticação do localStorage
-        const authToken = localStorage.getItem("user") || "";
+        const userToken = localStorage.getItem("user") || "";
+        const decoded: any = jwtDecode(userToken);
+        const authToken = decoded.token || userToken;
         
         const headers = {
           "Content-Type": "application/json",
@@ -131,7 +134,9 @@ const AppointmentDetails = () => {
         const cdDependente = selectedPatient.id?.toString() || "";
         
         // Obtém o token de autenticação do localStorage
-        const authToken = localStorage.getItem("user") || "";
+        const userToken = localStorage.getItem("user") || "";
+        const decoded: any = jwtDecode(userToken);
+        const authToken = decoded.token || userToken;
 
         const params = new URLSearchParams({
           idConvenio: selectedConvenio,
