@@ -96,9 +96,12 @@ const AppointmentTimes = () => {
             // data2 está no formato "04/12/2025 11:24" (DD/MM/YYYY)
             const dateStr = horario.data2.split(' ')[0]; // Pegar apenas a parte da data
             const [day, month, year] = dateStr.split('/');
-            return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+            const parsedDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+            console.log('Parsing date from API:', horario.data2, '-> Date object:', parsedDate.toISOString());
+            return parsedDate;
           });
           
+          console.log('Available dates array:', dates.map(d => d.toISOString()));
           setAvailableDates(dates);
         }
       } catch (error) {
