@@ -8,6 +8,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { getApiHeaders } from "@/lib/api-headers";
 import { format, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface HorarioDisponivel {
   id: number;
@@ -36,6 +39,9 @@ const AppointmentTimes = () => {
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [availableDates, setAvailableDates] = useState<Date[]>([]);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [selectedHorario, setSelectedHorario] = useState<HorarioDisponivel | null>(null);
+  const [phoneNumber, setPhoneNumber] = useState("");
 
   const { selectedPatient, selectedConvenio, selectedEspecialidade, selectedProfissional } = location.state || {};
 
@@ -245,8 +251,8 @@ const AppointmentTimes = () => {
                               variant="outline"
                               className="w-full justify-start text-left"
                               onClick={() => {
-                                // TODO: Próximo passo - confirmar agendamento
-                                console.log("Horário selecionado:", horario);
+                                setSelectedHorario(horario);
+                                setIsConfirmModalOpen(true);
                               }}
                             >
                               <div className="flex-1">
@@ -267,6 +273,72 @@ const AppointmentTimes = () => {
           )}
         </div>
       </main>
+
+      <Dialog open={isConfirmModalOpen} onOpenChange={setIsConfirmModalOpen}>
+        <DialogContent className="max-w-[95vw] w-full sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirmar Agendamento</DialogTitle>
+            <DialogDescription>
+              Informe seu número de telefone para confirmação via WhatsApp
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            {selectedHorario && (
+              <div className="space-y-2">
+                <div className="text-sm">
+                  <span className="font-semibold">Data:</span>{" "}
+                  {selectedHorario.data2.split(' ')[0]}
+                </div>
+                <div className="text-sm">
+                  <span className="font-semibold">Horário:</span>{" "}
+                  {selectedHorario.data2.split(' ')[1]}
+                </div>
+                <div className="text-sm">
+                  <span className="font-semibold">Unidade:</span>{" "}
+                  {selectedHorario.unidade.nome}
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="phone">Telefone (WhatsApp)</Label>
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="(00) 00000-0000"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsConfirmModalOpen(false);
+                setPhoneNumber("");
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => {
+                // TODO: Implementar confirmação do agendamento
+                console.log("Confirmar agendamento:", {
+                  horario: selectedHorario,
+                  telefone: phoneNumber
+                });
+                setIsConfirmModalOpen(false);
+                setPhoneNumber("");
+              }}
+            >
+              Confirmar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
