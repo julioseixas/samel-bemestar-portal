@@ -79,7 +79,21 @@ const AppointmentDetails = () => {
     const fetchConvenios = async () => {
       try {
         setLoadingConvenios(true);
-        const response = await fetch('https://api-portalpaciente-web.samel.com.br/api/Convenio/ListarConvenios');
+        
+        // Obtém o token de autenticação do localStorage
+        const authToken = localStorage.getItem("user") || "";
+        
+        const response = await fetch(
+          'https://api-portalpaciente-web.samel.com.br/api/Convenio/ListarConvenios',
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "identificador-dispositivo": "request-android",
+              "chave-autenticacao": authToken
+            }
+          }
+        );
         const data = await response.json();
         
         if (data.sucesso && data.dados) {
