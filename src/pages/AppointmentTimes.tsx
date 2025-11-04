@@ -93,9 +93,9 @@ const AppointmentTimes = () => {
           
           // Extrair datas disponíveis
           const dates = data.dados.map((horario: HorarioDisponivel) => {
-            // Usar data2 que está no formato "2025/12/04 11:16:00"
+            // data2 está no formato "04/12/2025 11:24" (DD/MM/YYYY)
             const dateStr = horario.data2.split(' ')[0]; // Pegar apenas a parte da data
-            const [year, month, day] = dateStr.split('/');
+            const [day, month, year] = dateStr.split('/');
             return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
           });
           
@@ -128,7 +128,7 @@ const AppointmentTimes = () => {
     
     return horarios.filter(horario => {
       const dateStr = horario.data2.split(' ')[0];
-      const [year, month, day] = dateStr.split('/');
+      const [day, month, year] = dateStr.split('/');
       const horarioDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
       
       return (
