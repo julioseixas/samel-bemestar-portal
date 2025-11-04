@@ -61,6 +61,26 @@ const AppointmentTimes = () => {
   }, [navigate, selectedPatient, selectedConvenio, selectedEspecialidade, selectedProfissional]);
 
   useEffect(() => {
+    if (selectedDate && horarios.length > 0) {
+      const filteredHorarios = horarios.filter(horario => {
+        const dateStr = horario.data2.split(' ')[0];
+        const [day, month, year] = dateStr.split('/');
+        const horarioDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        
+        return (
+          horarioDate.getDate() === selectedDate.getDate() &&
+          horarioDate.getMonth() === selectedDate.getMonth() &&
+          horarioDate.getFullYear() === selectedDate.getFullYear()
+        );
+      });
+      
+      console.log('📅 Data selecionada:', format(selectedDate, "dd/MM/yyyy", { locale: ptBR }));
+      console.log('⏰ Horários disponíveis:', filteredHorarios);
+      console.log('📋 Total de horários:', filteredHorarios.length);
+    }
+  }, [selectedDate, horarios]);
+
+  useEffect(() => {
     const fetchHorarios = async () => {
       if (!selectedPatient || !selectedConvenio || !selectedEspecialidade || !selectedProfissional) {
         return;
