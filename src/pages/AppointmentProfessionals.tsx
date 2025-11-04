@@ -204,8 +204,14 @@ const AppointmentProfessionals = () => {
                     <Button 
                       className="w-full mt-4"
                       onClick={() => {
-                        // TODO: Navegar para próxima etapa com os dados do profissional
-                        console.log("Profissional selecionado:", profissional);
+                        navigate("/appointment-times", {
+                          state: {
+                            selectedPatient,
+                            selectedConvenio,
+                            selectedEspecialidade,
+                            selectedProfissional: profissional
+                          }
+                        });
                       }}
                     >
                       Selecionar Profissional
