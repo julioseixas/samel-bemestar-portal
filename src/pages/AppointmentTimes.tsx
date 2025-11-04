@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Calendar } from "@/components/ui/calendar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { getApiHeaders } from "@/lib/api-headers";
 import { format, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -233,29 +234,31 @@ const AppointmentTimes = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-2">
-                      {getTimesForSelectedDate().map((horario) => {
-                        const horarioTime = horario.data2.split(' ')[1]; // Extrai "HH:MM" de "DD/MM/YYYY HH:MM"
-                        return (
-                          <Button
-                            key={horario.id}
-                            variant="outline"
-                            className="w-full justify-start text-left"
-                            onClick={() => {
-                              // TODO: Próximo passo - confirmar agendamento
-                              console.log("Horário selecionado:", horario);
-                            }}
-                          >
-                            <div className="flex-1">
-                              <div className="font-semibold">{horarioTime}</div>
-                              <div className="text-xs text-muted-foreground">
-                                {horario.unidade.nome}
+                    <ScrollArea className="h-[60vh]">
+                      <div className="space-y-2 pr-4">
+                        {getTimesForSelectedDate().map((horario) => {
+                          const horarioTime = horario.data2.split(' ')[1]; // Extrai "HH:MM" de "DD/MM/YYYY HH:MM"
+                          return (
+                            <Button
+                              key={horario.id}
+                              variant="outline"
+                              className="w-full justify-start text-left"
+                              onClick={() => {
+                                // TODO: Próximo passo - confirmar agendamento
+                                console.log("Horário selecionado:", horario);
+                              }}
+                            >
+                              <div className="flex-1">
+                                <div className="font-semibold">{horarioTime}</div>
+                                <div className="text-xs text-muted-foreground">
+                                  {horario.unidade.nome}
+                                </div>
                               </div>
-                            </div>
-                          </Button>
-                        );
-                      })}
-                    </div>
+                            </Button>
+                          );
+                        })}
+                      </div>
+                    </ScrollArea>
                   </CardContent>
                 </Card>
               )}
