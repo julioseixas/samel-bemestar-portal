@@ -83,15 +83,22 @@ const AppointmentDetails = () => {
         // Obtém o token de autenticação do localStorage
         const authToken = localStorage.getItem("user") || "";
         
+        const headers = {
+          "Content-Type": "application/json",
+          "identificador-dispositivo": "request-android",
+          "chave-autenticacao": authToken
+        };
+
+        console.log("=== HEADERS LISTAR CONVÊNIOS ===");
+        console.log(headers);
+        console.log("Token:", authToken);
+        console.log("================================");
+        
         const response = await fetch(
           'https://api-portalpaciente-web.samel.com.br/api/Convenio/ListarConvenios',
           {
             method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              "identificador-dispositivo": "request-android",
-              "chave-autenticacao": authToken
-            }
+            headers: headers
           }
         );
         const data = await response.json();
@@ -136,17 +143,23 @@ const AppointmentDetails = () => {
           nrCarteirinha: selectedPatient.codigoCarteirinha || ""
         });
 
-        console.log("Buscando especialidades com params:", Object.fromEntries(params));
+        const headers = {
+          "Content-Type": "application/json",
+          "identificador-dispositivo": "request-android",
+          "chave-autenticacao": authToken
+        };
+
+        console.log("=== HEADERS LISTAR ESPECIALIDADES ===");
+        console.log(headers);
+        console.log("Token:", authToken);
+        console.log("Params:", Object.fromEntries(params));
+        console.log("====================================");
 
         const response = await fetch(
           `https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ListarEspecialidadesComAgendaDisponivel3?${params}`,
           {
             method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              "identificador-dispositivo": "request-android",
-              "chave-autenticacao": authToken
-            }
+            headers: headers
           }
         );
         const data = await response.json();
