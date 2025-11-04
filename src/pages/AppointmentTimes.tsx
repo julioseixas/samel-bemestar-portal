@@ -182,14 +182,14 @@ const AppointmentTimes = () => {
                 <CardHeader>
                   <CardTitle className="text-lg">Selecione uma Data</CardTitle>
                 </CardHeader>
-                <CardContent className="flex justify-center">
+                <CardContent className="flex justify-center pointer-events-auto">
                   <Calendar
                     mode="single"
                     selected={selectedDate}
                     onSelect={setSelectedDate}
                     disabled={(date) => !isDateAvailable(date)}
                     locale={ptBR}
-                    className="rounded-md border"
+                    className="rounded-md border pointer-events-auto"
                   />
                 </CardContent>
               </Card>
