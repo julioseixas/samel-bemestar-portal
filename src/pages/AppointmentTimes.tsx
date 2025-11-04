@@ -112,12 +112,15 @@ const AppointmentTimes = () => {
   }, [selectedPatient, selectedConvenio, selectedEspecialidade, selectedProfissional]);
 
   const isDateAvailable = (date: Date) => {
-    return availableDates.some(
-      availableDate =>
-        availableDate.getDate() === date.getDate() &&
-        availableDate.getMonth() === date.getMonth() &&
-        availableDate.getFullYear() === date.getFullYear()
+    const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const isAvailable = availableDates.some(
+      availableDate => {
+        const availableString = `${availableDate.getFullYear()}-${String(availableDate.getMonth() + 1).padStart(2, '0')}-${String(availableDate.getDate()).padStart(2, '0')}`;
+        return availableString === dateString;
+      }
     );
+    console.log('Checking date:', dateString, 'Available:', isAvailable, 'Total available dates:', availableDates.length);
+    return isAvailable;
   };
 
   const getTimesForSelectedDate = () => {
