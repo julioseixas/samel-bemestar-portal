@@ -42,6 +42,7 @@ const AppointmentTimes = () => {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [selectedHorario, setSelectedHorario] = useState<HorarioDisponivel | null>(null);
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { selectedPatient, selectedConvenio, selectedEspecialidade, selectedProfissional } = location.state || {};
 
@@ -172,6 +173,65 @@ const AppointmentTimes = () => {
     console.log('Horários disponíveis para esta data:', JSON.stringify(filteredHorarios, null, 2));
     
     return filteredHorarios;
+  };
+
+  const formatPhoneNumber = (phone: string): string => {
+    // Remove todos os caracteres não numéricos
+    const cleaned = phone.replace(/\D/g, '');
+    
+    // Se já tem o código do país (55), retorna
+    if (cleaned.startsWith('55')) {
+      return cleaned;
+    }
+    
+    // Se começa com 0, remove o 0
+    const withoutZero = cleaned.startsWith('0') ? cleaned.substring(1) : cleaned;
+    
+    // Adiciona o código do país
+    return `55${withoutZero}`;
+  };
+
+  const handleConfirmAppointment = async () => {
+    if (!phoneNumber || !selectedHorario) return;
+
+    try {
+      setIsSubmitting(true);
+      
+      const formattedPhone = formatPhoneNumber(phoneNumber);
+      
+      const headers = getApiHeaders();
+      
+      const response = await fetch(
+        'https://api-portalpaciente-web.samel.com.br/api/token/receberNumero',
+        {
+          method: 'POST',
+          headers: {
+            ...headers,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            telefone: formattedPhone
+          })
+        }
+      );
+
+      const data = await response.json();
+      
+      if (data.sucesso) {
+        // TODO: Navegar para próxima tela ou mostrar sucesso
+        console.log('Número enviado com sucesso:', data);
+        setIsConfirmModalOpen(false);
+        setPhoneNumber("");
+      } else {
+        console.error('Erro ao enviar número:', data.mensagem);
+        alert(data.mensagem || 'Erro ao enviar número de telefone');
+      }
+    } catch (error) {
+      console.error('Erro ao confirmar agendamento:', error);
+      alert('Erro ao processar solicitação. Tente novamente.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!selectedProfissional) {
@@ -324,17 +384,10 @@ const AppointmentTimes = () => {
               Cancelar
             </Button>
             <Button
-              onClick={() => {
-                // TODO: Implementar confirmação do agendamento
-                console.log("Confirmar agendamento:", {
-                  horario: selectedHorario,
-                  telefone: phoneNumber
-                });
-                setIsConfirmModalOpen(false);
-                setPhoneNumber("");
-              }}
+              onClick={handleConfirmAppointment}
+              disabled={!phoneNumber || isSubmitting}
             >
-              Confirmar
+              {isSubmitting ? "Enviando..." : "Confirmar"}
             </Button>
           </div>
         </DialogContent>
