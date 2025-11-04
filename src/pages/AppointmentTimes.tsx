@@ -129,7 +129,7 @@ const AppointmentTimes = () => {
   const getTimesForSelectedDate = () => {
     if (!selectedDate) return [];
     
-    return horarios.filter(horario => {
+    const filteredHorarios = horarios.filter(horario => {
       const dateStr = horario.data2.split(' ')[0];
       const [day, month, year] = dateStr.split('/');
       const horarioDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
@@ -140,6 +140,11 @@ const AppointmentTimes = () => {
         horarioDate.getFullYear() === selectedDate.getFullYear()
       );
     });
+    
+    console.log('Data selecionada:', format(selectedDate, "dd/MM/yyyy", { locale: ptBR }));
+    console.log('Horários disponíveis para esta data:', JSON.stringify(filteredHorarios, null, 2));
+    
+    return filteredHorarios;
   };
 
   if (!selectedProfissional) {
