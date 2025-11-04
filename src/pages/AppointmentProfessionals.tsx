@@ -108,7 +108,8 @@ const AppointmentProfessionals = () => {
   }, [selectedPatient, selectedConvenio, selectedEspecialidade]);
 
   const getAvatarImage = (sexo: string) => {
-    return sexo === 'F' 
+    const sexoNormalizado = sexo?.trim().toUpperCase();
+    return sexoNormalizado === 'F' 
       ? "https://api.dicebear.com/7.x/avataaars/svg?seed=female"
       : "https://api.dicebear.com/7.x/avataaars/svg?seed=male";
   };
