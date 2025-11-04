@@ -234,24 +234,27 @@ const AppointmentTimes = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
-                      {getTimesForSelectedDate().map((horario) => (
-                        <Button
-                          key={horario.id}
-                          variant="outline"
-                          className="w-full justify-start text-left"
-                          onClick={() => {
-                            // TODO: Próximo passo - confirmar agendamento
-                            console.log("Horário selecionado:", horario);
-                          }}
-                        >
-                          <div className="flex-1">
-                            <div className="font-semibold">{horario.horaEspecial}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {horario.unidade.nome}
+                      {getTimesForSelectedDate().map((horario) => {
+                        const horarioTime = horario.data2.split(' ')[1]; // Extrai "HH:MM" de "DD/MM/YYYY HH:MM"
+                        return (
+                          <Button
+                            key={horario.id}
+                            variant="outline"
+                            className="w-full justify-start text-left"
+                            onClick={() => {
+                              // TODO: Próximo passo - confirmar agendamento
+                              console.log("Horário selecionado:", horario);
+                            }}
+                          >
+                            <div className="flex-1">
+                              <div className="font-semibold">{horarioTime}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {horario.unidade.nome}
+                              </div>
                             </div>
-                          </div>
-                        </Button>
-                      ))}
+                          </Button>
+                        );
+                      })}
                     </div>
                   </CardContent>
                 </Card>
