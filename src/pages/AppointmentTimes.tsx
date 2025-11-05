@@ -11,6 +11,7 @@ import { ptBR } from "date-fns/locale";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
 
 interface HorarioDisponivel {
   id: number;
@@ -43,6 +44,9 @@ const AppointmentTimes = () => {
   const [selectedHorario, setSelectedHorario] = useState<HorarioDisponivel | null>(null);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isTokenModalOpen, setIsTokenModalOpen] = useState(false);
+  const [token, setToken] = useState("");
+  const { toast } = useToast();
 
   const { selectedPatient, selectedConvenio, selectedEspecialidade, selectedProfissional } = location.state || {};
 
@@ -217,20 +221,134 @@ const AppointmentTimes = () => {
 
       const data = await response.json();
       
-      if (data.sucesso) {
-        // TODO: Navegar para próxima tela ou mostrar sucesso
-        console.log('Número enviado com sucesso:', data);
+      if (data.status) {
         setIsConfirmModalOpen(false);
-        setPhoneNumber("");
+        setIsTokenModalOpen(true);
       } else {
-        console.error('Erro ao enviar número:', data.mensagem);
-        alert(data.mensagem || 'Erro ao enviar número de telefone');
+        toast({
+          variant: "destructive",
+          title: "Erro",
+          description: data.mensagem || 'Erro ao enviar número de telefone'
+        });
       }
     } catch (error) {
       console.error('Erro ao confirmar agendamento:', error);
-      alert('Erro ao processar solicitação. Tente novamente.');
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: 'Erro ao processar solicitação. Tente novamente.'
+      });
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleValidateToken = async () => {
+    if (!token || !selectedHorario || !selectedPatient) return;
+
+    try {
+      setIsSubmitting(true);
+      const formattedPhone = formatPhoneNumber(phoneNumber);
+      const headers = getApiHeaders();
+
+      const response = await fetch(
+        'https://api-portalpaciente-web.samel.com.br/api/token/validarToken',
+        {
+          method: 'POST',
+          headers: {
+            ...headers,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            telefone: formattedPhone,
+            token: token,
+            cdPessoaFisica: selectedPatient.id
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.status) {
+        await handleConfirmAgendamento();
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Erro",
+          description: data.mensagem || 'Token inválido'
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao validar token:', error);
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: 'Erro ao validar token. Tente novamente.'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleConfirmAgendamento = async () => {
+    if (!selectedHorario || !selectedPatient) return;
+
+    try {
+      const titular = JSON.parse(localStorage.getItem("titular") || "{}");
+      const headers = getApiHeaders();
+
+      const tipo = selectedHorario.horaEspecial === "N" ? 1 : 2;
+
+      const response = await fetch(
+        'https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ConfirmarAgendamento2',
+        {
+          method: 'POST',
+          headers: {
+            ...headers,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            idCliente: titular.titular?.id || "",
+            idConvenio: selectedConvenio,
+            codigoCarteirinha: selectedPatient.codigoCarteirinha || "",
+            idAgenda: selectedHorario.idAgenda,
+            dataAgenda: selectedHorario.data,
+            idEmpresa: selectedPatient.idEmpresa || 0,
+            procedimentos: [],
+            tipo: tipo,
+            idDependente: selectedPatient.id,
+            ie_encaminhamento: "N",
+            nr_seq_med_avaliacao_paciente: null
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.sucesso) {
+        toast({
+          title: "Sucesso!",
+          description: data.mensagem
+        });
+        setIsTokenModalOpen(false);
+        setToken("");
+        setPhoneNumber("");
+        // Navegar de volta ou para página de confirmação
+        setTimeout(() => navigate("/appointment-schedule"), 2000);
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Erro",
+          description: data.mensagem || 'Erro ao confirmar agendamento'
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao confirmar agendamento:', error);
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: 'Erro ao processar agendamento. Tente novamente.'
+      });
     }
   };
 
@@ -388,6 +506,48 @@ const AppointmentTimes = () => {
               disabled={!phoneNumber || isSubmitting}
             >
               {isSubmitting ? "Enviando..." : "Confirmar"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isTokenModalOpen} onOpenChange={setIsTokenModalOpen}>
+        <DialogContent className="max-w-[95vw] w-full sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirmar Código</DialogTitle>
+            <DialogDescription>
+              Informe o código que foi enviado para o WhatsApp
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="token">Código de Confirmação</Label>
+              <Input
+                id="token"
+                type="text"
+                placeholder="Digite o código"
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsTokenModalOpen(false);
+                setToken("");
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleValidateToken}
+              disabled={!token || isSubmitting}
+            >
+              {isSubmitting ? "Validando..." : "Confirmar"}
             </Button>
           </div>
         </DialogContent>
