@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { getApiHeaders } from "@/lib/api-headers";
 
 interface Patient {
@@ -60,7 +61,7 @@ const ExamDetails = () => {
   const [selectedConvenio, setSelectedConvenio] = useState("");
   const [convenios, setConvenios] = useState<Convenio[]>([]);
   const [loadingConvenios, setLoadingConvenios] = useState(true);
-  const [selectedProcedimento, setSelectedProcedimento] = useState("");
+  const [selectedProcedimentos, setSelectedProcedimentos] = useState<number[]>([]);
   const [procedimentos, setProcedimentos] = useState<ProcedimentoItem[]>([]);
   const [loadingProcedimentos, setLoadingProcedimentos] = useState(false);
 
@@ -164,20 +165,30 @@ const ExamDetails = () => {
     }
   }, [selectedConvenio, selectedPatient]);
 
+  const handleProcedimentoToggle = (procedimentoId: number) => {
+    setSelectedProcedimentos(prev => {
+      if (prev.includes(procedimentoId)) {
+        return prev.filter(id => id !== procedimentoId);
+      } else {
+        return [...prev, procedimentoId];
+      }
+    });
+  };
+
   const handleContinue = () => {
     if (!selectedConvenio) {
       alert("Por favor, selecione o convênio");
       return;
     }
     
-    if (!selectedProcedimento) {
-      alert("Por favor, selecione o procedimento");
+    if (selectedProcedimentos.length === 0) {
+      alert("Por favor, selecione pelo menos um exame");
       return;
     }
     
     // TODO: Navigate to exam scheduling
     console.log("Convênio selecionado:", selectedConvenio);
-    console.log("Procedimento selecionado:", selectedProcedimento);
+    console.log("Procedimentos selecionados:", selectedProcedimentos);
     console.log("Paciente:", selectedPatient);
   };
 
@@ -270,30 +281,42 @@ const ExamDetails = () => {
 
                 {selectedConvenio && (
                   <div className="space-y-2">
-                    <Label htmlFor="procedimento">Procedimento</Label>
-                    <Select 
-                      value={selectedProcedimento} 
-                      onValueChange={setSelectedProcedimento} 
-                      disabled={loadingProcedimentos}
-                    >
-                      <SelectTrigger id="procedimento">
-                        <SelectValue placeholder={loadingProcedimentos ? "Carregando..." : "Selecione o procedimento"} />
-                      </SelectTrigger>
-                      <SelectContent>
+                    <Label>Exames Disponíveis</Label>
+                    {loadingProcedimentos ? (
+                      <p className="text-sm text-muted-foreground">Carregando exames...</p>
+                    ) : procedimentos.length > 0 ? (
+                      <div className="space-y-3 max-h-[300px] overflow-y-auto border rounded-md p-3">
                         {procedimentos.map((procedimento) => (
-                          <SelectItem key={procedimento.id} value={procedimento.id.toString()}>
-                            {procedimento.descricao}
-                          </SelectItem>
+                          <div key={procedimento.id} className="flex items-start space-x-3">
+                            <Checkbox
+                              id={`procedimento-${procedimento.id}`}
+                              checked={selectedProcedimentos.includes(procedimento.id)}
+                              onCheckedChange={() => handleProcedimentoToggle(procedimento.id)}
+                            />
+                            <label
+                              htmlFor={`procedimento-${procedimento.id}`}
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
+                            >
+                              {procedimento.descricao}
+                            </label>
+                          </div>
                         ))}
-                      </SelectContent>
-                    </Select>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">Nenhum exame disponível</p>
+                    )}
+                    {selectedProcedimentos.length > 0 && (
+                      <p className="text-sm text-muted-foreground">
+                        {selectedProcedimentos.length} exame(s) selecionado(s)
+                      </p>
+                    )}
                   </div>
                 )}
 
                 <Button 
                   onClick={handleContinue} 
                   className="mt-4 w-full"
-                  disabled={!selectedConvenio || !selectedProcedimento}
+                  disabled={!selectedConvenio || selectedProcedimentos.length === 0}
                 >
                   Continuar
                 </Button>
