@@ -9,6 +9,14 @@ import { getApiHeaders } from "@/lib/api-headers";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface HorarioDisponivel {
   id: number;
@@ -29,6 +37,11 @@ const ExamTimes = () => {
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [availableDates, setAvailableDates] = useState<Date[]>([]);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [selectedHorario, setSelectedHorario] = useState<HorarioDisponivel | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const { toast } = useToast();
 
   const { selectedProfessional, selectedConvenio } = location.state || {};
@@ -157,12 +170,140 @@ const ExamTimes = () => {
   };
 
   const handleSelectTime = (horario: HorarioDisponivel) => {
-    console.log("Horário selecionado:", horario);
-    toast({
-      title: "Horário selecionado",
-      description: `Data: ${horario.data} - Unidade: ${horario.unidade.nome}`
-    });
-    // TODO: Implementar fluxo de confirmação do agendamento
+    setSelectedHorario(horario);
+    setShowConfirmDialog(true);
+  };
+
+  const handleConfirmAgendamento = async () => {
+    if (!selectedHorario || !selectedProfessional) return;
+
+    try {
+      setIsSubmitting(true);
+
+      // Recuperar dados do localStorage
+      const selectedPatientStr = localStorage.getItem("selectedPatientExam");
+      const selectedProcedimentosStr = localStorage.getItem("selectedExamProcedimentos");
+      const titularStr = localStorage.getItem("titular");
+
+      if (!selectedPatientStr || !selectedProcedimentosStr || !titularStr) {
+        toast({
+          title: "Erro",
+          description: "Dados do paciente ou exames não encontrados",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const selectedPatient = JSON.parse(selectedPatientStr);
+      const selectedProcedimentosIds = JSON.parse(selectedProcedimentosStr);
+      const titular = JSON.parse(titularStr);
+
+      // Buscar detalhes completos dos procedimentos selecionados
+      const headers = getApiHeaders();
+      const procedimentosResponse = await fetch(
+        `https://api-portalpaciente-web.samel.com.br/api/Agenda/Procedimento/buscarExamesNaoFeitosPedidosExames/${selectedPatient.id}`,
+        {
+          method: "GET",
+          headers
+        }
+      );
+      const procedimentosData = await procedimentosResponse.json();
+
+      if (!procedimentosData.status || !procedimentosData.dados) {
+        toast({
+          title: "Erro",
+          description: "Erro ao buscar detalhes dos exames",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Flatten all items e filtrar apenas os selecionados
+      const allProcedimentos: any[] = [];
+      procedimentosData.dados.forEach((pedido: any) => {
+        if (pedido.items && Array.isArray(pedido.items)) {
+          allProcedimentos.push(...pedido.items);
+        }
+      });
+
+      const selectedProcedimentosCompletos = allProcedimentos.filter(proc =>
+        selectedProcedimentosIds.includes(proc.id)
+      );
+
+      // Montar o payload
+      const procedimentos = selectedProcedimentosCompletos.map(proc => ({
+        NR_ATENDIMENTO: proc.nr_atendimento,
+        CD_PESSOA_FISICA: selectedPatient.id.toString(),
+        NR_SEQ_PEDIDO: parseInt(proc.nr_seq_pedido),
+        NR_SEQ_PEDIDO_ITEM: proc.NR_SEQ_PEDIDO_ITEM,
+        id: proc.id,
+        CD_MEDICO: proc.CD_MEDICO,
+        NM_MEDICO: proc.NM_MEDICO,
+        DT_SOLICITACAO: proc.DT_SOLICITACAO,
+        descricao: proc.descricao,
+        DS_DADOS_CLINICOS: proc.DS_DADOS_CLINICOS,
+        descricaoPreparo: proc.descricaoPreparo,
+        examesAdicionais: ""
+      }));
+
+      const procedimentos2 = selectedProcedimentosCompletos.map(proc => ({
+        nr_seq_proc_interno: proc.id,
+        nr_seq_pedido: parseInt(proc.nr_seq_pedido)
+      }));
+
+      // Verificar se tem nr_seq_pedido válido
+      const hasValidPedido = procedimentos2.some(p => p.nr_seq_pedido && !isNaN(p.nr_seq_pedido));
+
+      const payload = {
+        idCliente: selectedPatient.id.toString(),
+        idConvenio: parseInt(selectedConvenio),
+        codigoCarteirinha: selectedPatient.codigoCarteirinha || "",
+        idAgenda: selectedHorario.idAgenda,
+        dataAgenda: selectedHorario.data,
+        idEmpresa: titular.titular?.idEmpresa || 0,
+        idMedico: selectedProfessional.id,
+        procedimentos,
+        procedimentos2,
+        ie_pedido_externo: hasValidPedido ? "S" : "N"
+      };
+
+      console.log("Payload do agendamento:", payload);
+
+      const response = await fetch(
+        "https://api-portalpaciente-web.samel.com.br/api/Agenda/Procedimento/ConfirmarAgendamento",
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify(payload)
+        }
+      );
+
+      const data = await response.json();
+      console.log("Resposta da confirmação:", data);
+
+      if (data.sucesso) {
+        setSuccessMessage(data.mensagem);
+        setShowConfirmDialog(false);
+        setShowSuccessDialog(true);
+      } else {
+        toast({
+          title: "Erro ao confirmar agendamento",
+          description: data.mensagem || "Erro ao confirmar o agendamento",
+          variant: "destructive"
+        });
+        setShowConfirmDialog(false);
+      }
+    } catch (error) {
+      console.error("Erro ao confirmar agendamento:", error);
+      toast({
+        title: "Erro",
+        description: "Erro ao confirmar o agendamento",
+        variant: "destructive"
+      });
+      setShowConfirmDialog(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const timesForSelectedDate = getTimesForSelectedDate();
@@ -278,6 +419,91 @@ const ExamTimes = () => {
           )}
         </div>
       </main>
+
+      {/* Modal de Confirmação */}
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmar Agendamento</DialogTitle>
+            <DialogDescription>
+              Deseja confirmar o agendamento do exame com as seguintes informações?
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedHorario && (
+            <div className="space-y-3 py-4">
+              <div>
+                <span className="text-sm font-medium text-muted-foreground">Data e Hora:</span>
+                <p className="text-base font-semibold">{selectedHorario.data}</p>
+              </div>
+              <div>
+                <span className="text-sm font-medium text-muted-foreground">Unidade:</span>
+                <p className="text-base font-semibold">{selectedHorario.unidade.nome}</p>
+              </div>
+              {selectedProfessional && (
+                <>
+                  <div>
+                    <span className="text-sm font-medium text-muted-foreground">Profissional:</span>
+                    <p className="text-base font-semibold">{selectedProfessional.nome}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-muted-foreground">Especialidade:</span>
+                    <p className="text-base font-semibold">{selectedProfessional.dsEspecialidade}</p>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowConfirmDialog(false)}
+              disabled={isSubmitting}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleConfirmAgendamento}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Confirmando..." : "Confirmar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de Sucesso */}
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Agendamento Confirmado!</DialogTitle>
+            <DialogDescription>
+              {successMessage}
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="flex gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowSuccessDialog(false);
+                navigate("/");
+              }}
+            >
+              Menu Principal
+            </Button>
+            <Button
+              onClick={() => {
+                setShowSuccessDialog(false);
+                navigate("/appointments");
+              }}
+            >
+              Ver Agendamentos
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
