@@ -179,6 +179,29 @@ const AppointmentTimes = () => {
     return filteredHorarios;
   };
 
+  const formatPhoneForDisplay = (value: string): string => {
+    const cleaned = value.replace(/\D/g, '');
+    
+    if (cleaned.length <= 2) {
+      return cleaned;
+    } else if (cleaned.length <= 7) {
+      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2)}`;
+    } else if (cleaned.length <= 11) {
+      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7)}`;
+    } else {
+      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7, 11)}`;
+    }
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const cleaned = value.replace(/\D/g, '');
+    
+    if (cleaned.length <= 11) {
+      setPhoneNumber(formatPhoneForDisplay(value));
+    }
+  };
+
   const formatPhoneNumber = (phone: string): string => {
     // Remove todos os caracteres não numéricos
     const cleaned = phone.replace(/\D/g, '');
@@ -486,7 +509,8 @@ const AppointmentTimes = () => {
                 type="tel"
                 placeholder="(00) 00000-0000"
                 value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
+                onChange={handlePhoneChange}
+                maxLength={15}
               />
             </div>
           </div>
