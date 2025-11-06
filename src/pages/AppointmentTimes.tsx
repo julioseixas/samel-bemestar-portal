@@ -321,6 +321,9 @@ const AppointmentTimes = () => {
       const headers = getApiHeaders();
 
       const tipo = selectedHorario.horaEspecial === "N" ? 1 : 2;
+      
+      // Garantir que idCliente seja sempre o id do titular
+      const idTitular = titular.titular?.id || titular.id || "";
 
       const response = await fetch(
         'https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ConfirmarAgendamento2',
@@ -331,7 +334,7 @@ const AppointmentTimes = () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            idCliente: titular.titular?.id || "",
+            idCliente: idTitular,
             idConvenio: selectedConvenio,
             codigoCarteirinha: selectedPatient.codigoCarteirinha || "",
             idAgenda: selectedHorario.idAgenda,
