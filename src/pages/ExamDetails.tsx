@@ -18,6 +18,7 @@ interface Patient {
   codigoCarteirinha?: string;
   idade?: number;
   cdPessoaFisica?: number;
+  idEmpresa?: number;
 }
 
 interface Convenio {

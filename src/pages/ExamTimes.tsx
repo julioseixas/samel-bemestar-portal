@@ -254,13 +254,8 @@ const ExamTimes = () => {
       // Verificar se tem nr_seq_pedido válido
       const hasValidPedido = procedimentos2.some(p => p.nr_seq_pedido && !isNaN(p.nr_seq_pedido));
 
-      // Buscar idEmpresa do titular
-      let idEmpresa = 0;
-      if (titular.titular?.idEmpresa) {
-        idEmpresa = titular.titular.idEmpresa;
-      } else if (titular.idEmpresa) {
-        idEmpresa = titular.idEmpresa;
-      }
+      // Buscar idEmpresa do paciente selecionado
+      const idEmpresa = selectedPatient.idEmpresa || 0;
 
       const payload = {
         idCliente: selectedPatient.id.toString(),

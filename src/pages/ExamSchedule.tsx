@@ -14,6 +14,7 @@ interface Patient {
   sexo?: string;
   codigoCarteirinha?: string;
   dataNascimento?: string;
+  idEmpresa?: number;
 }
 
 const ExamSchedule = () => {
@@ -45,34 +46,36 @@ const ExamSchedule = () => {
           
           const allPatients: Patient[] = [];
           
-          // Adicionar o titular
-          if (firstPatient.clienteContratos && firstPatient.clienteContratos.length > 0) {
-            const titularContrato = firstPatient.clienteContratos[0];
-            allPatients.push({
-              id: firstPatient.cdPessoaFisica || Date.now(),
-              nome: firstPatient.nome,
-              tipo: "Titular",
-              idade: titularContrato.idade,
-              sexo: titularContrato.sexo,
-              codigoCarteirinha: titularContrato.codigoCarteirinha,
-              dataNascimento: titularContrato.dataNascimento
-            });
-            
-            // Adicionar os dependentes
-            if (titularContrato.dependentes && titularContrato.dependentes.length > 0) {
-              titularContrato.dependentes.forEach((dependente: any, index: number) => {
-                allPatients.push({
-                  id: dependente.cdPessoaFisica || Date.now() + index + 1,
-                  nome: dependente.nome,
-                  tipo: "Dependente",
-                  idade: dependente.idade,
-                  sexo: dependente.sexo,
-                  codigoCarteirinha: dependente.codigoCarteirinha,
-                  dataNascimento: dependente.dataNascimento
-                });
+            // Adicionar o titular
+            if (firstPatient.clienteContratos && firstPatient.clienteContratos.length > 0) {
+              const titularContrato = firstPatient.clienteContratos[0];
+              allPatients.push({
+                id: firstPatient.cdPessoaFisica || Date.now(),
+                nome: firstPatient.nome,
+                tipo: "Titular",
+                idade: titularContrato.idade,
+                sexo: titularContrato.sexo,
+                codigoCarteirinha: titularContrato.codigoCarteirinha,
+                dataNascimento: titularContrato.dataNascimento,
+                idEmpresa: titularContrato.idEmpresa
               });
+              
+              // Adicionar os dependentes
+              if (titularContrato.dependentes && titularContrato.dependentes.length > 0) {
+                titularContrato.dependentes.forEach((dependente: any, index: number) => {
+                  allPatients.push({
+                    id: dependente.cdPessoaFisica || Date.now() + index + 1,
+                    nome: dependente.nome,
+                    tipo: "Dependente",
+                    idade: dependente.idade,
+                    sexo: dependente.sexo,
+                    codigoCarteirinha: dependente.codigoCarteirinha,
+                    dataNascimento: dependente.dataNascimento,
+                    idEmpresa: dependente.idEmpresa
+                  });
+                });
+              }
             }
-          }
           
           setPatients(allPatients);
         }
@@ -94,7 +97,8 @@ const ExamSchedule = () => {
       idade: patient.idade,
       sexo: patient.sexo,
       codigoCarteirinha: patient.codigoCarteirinha,
-      dataNascimento: patient.dataNascimento
+      dataNascimento: patient.dataNascimento,
+      idEmpresa: patient.idEmpresa
     };
     
     console.log("Paciente selecionado para exame:", patientData);
