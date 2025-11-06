@@ -62,7 +62,7 @@ const Index = () => {
           {/* Welcome Section */}
           <div className="mb-6 sm:mb-8">
             <h2 className="mb-2 text-xl sm:text-2xl font-bold text-foreground md:text-3xl">
-              Bem-vinda ao seu Portal! 👋
+              Bem-vindo(a) ao seu Portal! 👋
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground md:text-lg">
               Aqui você pode acessar todas as suas informações de saúde de forma simples e rápida.
