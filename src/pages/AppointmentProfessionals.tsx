@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { User } from "lucide-react";
 
 interface Unidade {
@@ -136,10 +137,19 @@ const AppointmentProfessionals = () => {
                 return (
                 <div key={groupIndex} className="space-y-4">
                   {group.combinacao && (
-                    <div>
-                      <Badge variant="secondary" className="text-sm font-medium">
-                        {group.combinacao}
-                      </Badge>
+                    <div className="mb-2">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Badge variant="secondary" className="text-sm font-medium max-w-full truncate cursor-help">
+                              {group.combinacao}
+                            </Badge>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-md">
+                            <p>{group.combinacao}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                   )}
                   
