@@ -99,8 +99,7 @@ const ExamSchedule = () => {
     
     console.log("Paciente selecionado para exame:", patientData);
     localStorage.setItem("selectedPatientExam", JSON.stringify(patientData));
-    // TODO: Navigate to exam details page
-    // navigate("/exam-details");
+    navigate("/exam-details");
   };
 
   return (
