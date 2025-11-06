@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { getApiHeaders } from "@/lib/api-headers";
 
 interface Patient {
@@ -64,6 +65,7 @@ const ExamDetails = () => {
   const [selectedProcedimentos, setSelectedProcedimentos] = useState<number[]>([]);
   const [procedimentos, setProcedimentos] = useState<ProcedimentoItem[]>([]);
   const [loadingProcedimentos, setLoadingProcedimentos] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -175,6 +177,10 @@ const ExamDetails = () => {
     });
   };
 
+  const filteredProcedimentos = procedimentos.filter(procedimento =>
+    procedimento.descricao.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const handleContinue = () => {
     if (!selectedConvenio) {
       alert("Por favor, selecione o convênio");
@@ -280,35 +286,58 @@ const ExamDetails = () => {
                 </div>
 
                 {selectedConvenio && (
-                  <div className="space-y-2">
-                    <Label>Exames Disponíveis</Label>
+                  <div className="space-y-3">
+                    <div>
+                      <Label>Exames Disponíveis</Label>
+                      {procedimentos.length > 0 && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {procedimentos.length} exame(s) disponível(is)
+                        </p>
+                      )}
+                    </div>
+                    
                     {loadingProcedimentos ? (
                       <p className="text-sm text-muted-foreground">Carregando exames...</p>
                     ) : procedimentos.length > 0 ? (
-                      <div className="space-y-3 max-h-[300px] overflow-y-auto border rounded-md p-3">
-                        {procedimentos.map((procedimento) => (
-                          <div key={procedimento.id} className="flex items-start space-x-3">
-                            <Checkbox
-                              id={`procedimento-${procedimento.id}`}
-                              checked={selectedProcedimentos.includes(procedimento.id)}
-                              onCheckedChange={() => handleProcedimentoToggle(procedimento.id)}
-                            />
-                            <label
-                              htmlFor={`procedimento-${procedimento.id}`}
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
-                            >
-                              {procedimento.descricao}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
+                      <>
+                        <Input
+                          type="text"
+                          placeholder="Pesquisar exames..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="w-full"
+                        />
+                        <div className="space-y-3 max-h-[300px] overflow-y-auto border rounded-md p-3">
+                          {filteredProcedimentos.length > 0 ? (
+                            filteredProcedimentos.map((procedimento) => (
+                              <div key={procedimento.id} className="flex items-start space-x-3">
+                                <Checkbox
+                                  id={`procedimento-${procedimento.id}`}
+                                  checked={selectedProcedimentos.includes(procedimento.id)}
+                                  onCheckedChange={() => handleProcedimentoToggle(procedimento.id)}
+                                />
+                                <label
+                                  htmlFor={`procedimento-${procedimento.id}`}
+                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
+                                >
+                                  {procedimento.descricao}
+                                </label>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-sm text-muted-foreground text-center py-4">
+                              Nenhum exame encontrado com "{searchTerm}"
+                            </p>
+                          )}
+                        </div>
+                        {selectedProcedimentos.length > 0 && (
+                          <p className="text-sm font-medium text-primary">
+                            {selectedProcedimentos.length} exame(s) selecionado(s)
+                          </p>
+                        )}
+                      </>
                     ) : (
                       <p className="text-sm text-muted-foreground">Nenhum exame disponível</p>
-                    )}
-                    {selectedProcedimentos.length > 0 && (
-                      <p className="text-sm text-muted-foreground">
-                        {selectedProcedimentos.length} exame(s) selecionado(s)
-                      </p>
                     )}
                   </div>
                 )}
