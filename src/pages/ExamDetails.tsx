@@ -214,11 +214,34 @@ const ExamDetails = () => {
       console.log("Dados dos profissionais:", data.dados);
       
       if (data.sucesso && data.dados) {
+        // Normaliza os dados para sempre ser um array
+        let normalizedData = data.dados;
+        
+        // Se data.dados não é um array, transforma em array
+        if (!Array.isArray(data.dados)) {
+          normalizedData = [data.dados];
+        }
+        
+        // Verifica se cada item do array tem a estrutura correta
+        normalizedData = normalizedData.map((item: any) => {
+          // Se o item não tem a propriedade 'dados', pode ser que seja um profissional direto
+          if (!item.dados && item.idAgenda) {
+            // É um profissional direto, precisa wrappear
+            return {
+              combinacao: item.dsEspecialidade || "Exame",
+              dados: [item]
+            };
+          }
+          return item;
+        });
+        
+        console.log("Dados normalizados:", normalizedData);
+        
         // Save professionals data to localStorage
-        localStorage.setItem("examProfessionals", JSON.stringify(data.dados));
+        localStorage.setItem("examProfessionals", JSON.stringify(normalizedData));
         localStorage.setItem("selectedExamProcedimentos", JSON.stringify(selectedProcedimentos));
         
-        console.log("Dados salvos no localStorage:", data.dados);
+        console.log("Dados salvos no localStorage:", normalizedData);
         
         // Navigate to professionals page
         navigate("/appointment-professionals");
