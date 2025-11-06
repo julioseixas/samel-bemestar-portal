@@ -77,7 +77,7 @@ const ExamResults = () => {
             />
             
             <DashboardCard
-              title="LAUDO DE EXAMES CDI"
+              title="LAUDOS DE EXAMES IMAGEM"
               description="Acesse os laudos de exames do Centro de Diagnóstico por Imagem"
               icon={Activity}
               iconColor="text-primary"

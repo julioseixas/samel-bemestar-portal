@@ -26,7 +26,10 @@ export const DashboardCard = ({
   customButtonColor,
 }: DashboardCardProps) => {
   return (
-    <div className="group flex flex-col rounded-xl sm:rounded-2xl bg-card p-4 sm:p-6 shadow-card transition-all hover:shadow-lg md:p-8">
+    <div 
+      className="group flex flex-col rounded-xl sm:rounded-2xl bg-card p-4 sm:p-6 shadow-card transition-all hover:shadow-lg md:p-8 cursor-pointer"
+      onClick={onClick}
+    >
       <div className="mb-3 sm:mb-4 flex items-start justify-between">
         <div className={cn("rounded-lg sm:rounded-xl bg-accent p-3 sm:p-4", iconColor)}>
           <Icon className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10" />
@@ -42,7 +45,10 @@ export const DashboardCard = ({
       </p>
       
       <Button 
-        onClick={onClick} 
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick?.();
+        }}
         variant={variant}
         size="lg"
         className={cn(
