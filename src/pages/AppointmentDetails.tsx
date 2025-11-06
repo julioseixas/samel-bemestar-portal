@@ -227,17 +227,6 @@ const AppointmentDetails = () => {
               </CardContent>
             </Card>
 
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle className="text-base sm:text-lg text-destructive">DEBUG - Dados do Paciente (JSON)</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <pre className="overflow-auto rounded-md bg-muted p-4 text-xs">
-                  {JSON.stringify(selectedPatient, null, 2)}
-                </pre>
-              </CardContent>
-            </Card>
-
             <Card>
               <CardHeader>
                 <CardTitle className="text-base sm:text-lg">Detalhes da Consulta</CardTitle>
