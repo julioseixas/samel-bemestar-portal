@@ -94,10 +94,10 @@ const ExamTimes = () => {
           setHorarios(data.dados);
           
           // Extrair datas disponíveis
-          // A data está no formato "dd/mm/yyyy hr24:mi:ss"
+          // A data está no formato "YYYY/MM/DD HH:mm:ss"
           const dates = data.dados.map((horario: HorarioDisponivel) => {
             const dateStr = horario.data.split(' ')[0]; // Pegar apenas a parte da data
-            const [day, month, year] = dateStr.split('/');
+            const [year, month, day] = dateStr.split('/');
             const parsedDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
             console.log('Parsing date from API:', horario.data, '-> Date object:', parsedDate.toISOString());
             return parsedDate;
@@ -143,7 +143,7 @@ const ExamTimes = () => {
     
     const filteredHorarios = horarios.filter(horario => {
       const dateStr = horario.data.split(' ')[0];
-      const [day, month, year] = dateStr.split('/');
+      const [year, month, day] = dateStr.split('/');
       const horarioDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
       
       return (
