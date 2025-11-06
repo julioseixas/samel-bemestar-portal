@@ -210,14 +210,20 @@ const ExamDetails = () => {
       
       const data = await response.json();
       
+      console.log("Resposta da API de profissionais:", data);
+      console.log("Dados dos profissionais:", data.dados);
+      
       if (data.sucesso && data.dados) {
         // Save professionals data to localStorage
         localStorage.setItem("examProfessionals", JSON.stringify(data.dados));
         localStorage.setItem("selectedExamProcedimentos", JSON.stringify(selectedProcedimentos));
         
+        console.log("Dados salvos no localStorage:", data.dados);
+        
         // Navigate to professionals page
         navigate("/appointment-professionals");
       } else {
+        console.error("Erro na resposta da API:", data);
         alert(data.mensagem || "Erro ao buscar profissionais disponíveis");
       }
     } catch (error) {

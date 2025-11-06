@@ -60,12 +60,15 @@ const AppointmentProfessionals = () => {
     if (storedProfessionals) {
       try {
         const parsedProfessionals = JSON.parse(storedProfessionals);
+        console.log("Profissionais carregados do localStorage:", parsedProfessionals);
+        console.log("Tipo de dados:", Array.isArray(parsedProfessionals));
         setProfissionaisGroups(parsedProfessionals);
       } catch (error) {
         console.error("Erro ao processar profissionais:", error);
         navigate("/exam-details");
       }
     } else {
+      console.log("Nenhum dado de profissional encontrado no localStorage");
       navigate("/exam-details");
     }
   }, [navigate]);
