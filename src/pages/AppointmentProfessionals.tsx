@@ -154,8 +154,33 @@ const AppointmentProfessionals = () => {
                 
                 return group.dados.map((profissional) => {
                   console.log("Renderizando profissional:", profissional.nome);
+                  
+                  const handleSelectProfessional = () => {
+                    console.log("Profissional selecionado:", profissional);
+                    
+                    // Recuperar o idConvenio do localStorage
+                    const selectedInsurance = localStorage.getItem("selectedInsurance");
+                    
+                    if (!selectedInsurance) {
+                      console.error("ID do convênio não encontrado");
+                      return;
+                    }
+                    
+                    // Navegar para a página de seleção de horários
+                    navigate("/exam-times", {
+                      state: {
+                        selectedProfessional: profissional,
+                        selectedConvenio: selectedInsurance
+                      }
+                    });
+                  };
+                  
                   return (
-                      <Card key={profissional.idAgenda} className="hover:shadow-lg transition-shadow">
+                      <Card 
+                        key={profissional.idAgenda} 
+                        className="hover:shadow-lg transition-shadow cursor-pointer"
+                        onClick={handleSelectProfessional}
+                      >
                         <CardHeader>
                           <div className="flex items-center gap-4">
                             <Avatar className="h-16 w-16">
@@ -219,15 +244,6 @@ const AppointmentProfessionals = () => {
                               {formatEndereco(profissional.unidade)}
                             </p>
                           </div>
-                          <Button 
-                            className="w-full mt-4"
-                            onClick={() => {
-                              console.log("Profissional selecionado:", profissional);
-                              // TODO: Navigate to next step
-                            }}
-                          >
-                            Selecionar Profissional
-                          </Button>
                   </CardContent>
                 </Card>
                   );
