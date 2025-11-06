@@ -91,13 +91,14 @@ const Login = () => {
               const idCliente = decoded.cd_pessoa_fisica || decoded.id;
               
               try {
+                // Aguarda um momento para garantir que o token foi salvo
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
                 const notificacoesResponse = await fetch(
                   "https://api-portalpaciente-web.samel.com.br/api/notificacao/ObterNotificacoesCliente",
                   {
                     method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
+                    headers: getApiHeaders(),
                     body: JSON.stringify({
                       idCliente: idCliente,
                     }),
