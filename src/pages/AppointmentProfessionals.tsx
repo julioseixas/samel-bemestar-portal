@@ -121,7 +121,13 @@ const AppointmentProfessionals = () => {
             </Card>
           ) : (
             <div className="space-y-6">
-              {profissionaisGroups.map((group, groupIndex) => (
+              {profissionaisGroups.map((group, groupIndex) => {
+                // Verifica se o grupo tem dados válidos
+                if (!group.dados || !Array.isArray(group.dados) || group.dados.length === 0) {
+                  return null;
+                }
+                
+                return (
                 <div key={groupIndex}>
                   {group.combinacao && (
                     <div className="mb-4">
@@ -132,7 +138,7 @@ const AppointmentProfessionals = () => {
                   )}
                   
                   <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {group.dados.map((profissional) => (
+                    {group.dados?.map((profissional) => (
                       <Card key={profissional.idAgenda} className="hover:shadow-lg transition-shadow">
                         <CardHeader>
                           <div className="flex items-center gap-4">
@@ -199,7 +205,8 @@ const AppointmentProfessionals = () => {
                     ))}
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
