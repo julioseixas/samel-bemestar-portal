@@ -26,6 +26,32 @@ interface Convenio {
   imagem: string;
 }
 
+interface ProcedimentoItem {
+  NR_ATENDIMENTO: number;
+  CD_PESSOA_FISICA: string;
+  NR_SEQ_PEDIDO: string;
+  NR_SEQ_PEDIDO_ITEM: number;
+  CD_MEDICO: string;
+  DS_DADOS_CLINICOS: string | null;
+  DT_SOLICITACAO: string;
+  NM_MEDICO: string;
+  descricao: string;
+  descricaoPreparo: string;
+  id: number;
+  nm_medico: string;
+  nr_atendimento: number;
+  nr_seq_pedido: string;
+}
+
+interface Procedimento {
+  nr_seq_pedido: string;
+  nr_atendimento: number;
+  ds_dados_clinicos: string | null;
+  cd_medico: string;
+  dt_solicitacao: string;
+  items: ProcedimentoItem[];
+}
+
 const ExamDetails = () => {
   const navigate = useNavigate();
   const [patientName, setPatientName] = useState("Paciente");
@@ -34,6 +60,9 @@ const ExamDetails = () => {
   const [selectedConvenio, setSelectedConvenio] = useState("");
   const [convenios, setConvenios] = useState<Convenio[]>([]);
   const [loadingConvenios, setLoadingConvenios] = useState(true);
+  const [selectedProcedimento, setSelectedProcedimento] = useState("");
+  const [procedimentos, setProcedimentos] = useState<ProcedimentoItem[]>([]);
+  const [loadingProcedimentos, setLoadingProcedimentos] = useState(false);
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -95,14 +124,60 @@ const ExamDetails = () => {
     fetchConvenios();
   }, []);
 
+  useEffect(() => {
+    const fetchProcedimentos = async () => {
+      if (!selectedPatient?.cdPessoaFisica) return;
+      
+      try {
+        setLoadingProcedimentos(true);
+        
+        const headers = getApiHeaders();
+        
+        const response = await fetch(
+          `https://api-portalpaciente-web.samel.com.br/api/Agenda/Procedimento/buscarExamesNaoFeitosPedidosExames/${selectedPatient.cdPessoaFisica}`,
+          {
+            method: "GET",
+            headers
+          }
+        );
+        const data = await response.json();
+        
+        if (data.status && data.dados) {
+          // Flatten all items from all pedidos
+          const allItems: ProcedimentoItem[] = [];
+          data.dados.forEach((pedido: Procedimento) => {
+            if (pedido.items && Array.isArray(pedido.items)) {
+              allItems.push(...pedido.items);
+            }
+          });
+          setProcedimentos(allItems);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar procedimentos:", error);
+      } finally {
+        setLoadingProcedimentos(false);
+      }
+    };
+
+    if (selectedConvenio) {
+      fetchProcedimentos();
+    }
+  }, [selectedConvenio, selectedPatient]);
+
   const handleContinue = () => {
     if (!selectedConvenio) {
       alert("Por favor, selecione o convênio");
       return;
     }
     
-    // TODO: Navigate to exam type selection or scheduling
+    if (!selectedProcedimento) {
+      alert("Por favor, selecione o procedimento");
+      return;
+    }
+    
+    // TODO: Navigate to exam scheduling
     console.log("Convênio selecionado:", selectedConvenio);
+    console.log("Procedimento selecionado:", selectedProcedimento);
     console.log("Paciente:", selectedPatient);
   };
 
@@ -193,10 +268,32 @@ const ExamDetails = () => {
                   </Select>
                 </div>
 
+                {selectedConvenio && (
+                  <div className="space-y-2">
+                    <Label htmlFor="procedimento">Procedimento</Label>
+                    <Select 
+                      value={selectedProcedimento} 
+                      onValueChange={setSelectedProcedimento} 
+                      disabled={loadingProcedimentos}
+                    >
+                      <SelectTrigger id="procedimento">
+                        <SelectValue placeholder={loadingProcedimentos ? "Carregando..." : "Selecione o procedimento"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {procedimentos.map((procedimento) => (
+                          <SelectItem key={procedimento.id} value={procedimento.id.toString()}>
+                            {procedimento.descricao}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
                 <Button 
                   onClick={handleContinue} 
                   className="mt-4 w-full"
-                  disabled={!selectedConvenio}
+                  disabled={!selectedConvenio || !selectedProcedimento}
                 >
                   Continuar
                 </Button>
