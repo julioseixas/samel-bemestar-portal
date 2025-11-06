@@ -63,6 +63,17 @@ const AppointmentProfessionals = () => {
         const parsedProfessionals = JSON.parse(storedProfessionals);
         console.log("Profissionais carregados do localStorage:", parsedProfessionals);
         console.log("Tipo de dados:", Array.isArray(parsedProfessionals));
+        console.log("Quantidade de grupos:", parsedProfessionals.length);
+        
+        // Verifica cada grupo
+        parsedProfessionals.forEach((group: any, index: number) => {
+          console.log(`Grupo ${index}:`, {
+            combinacao: group.combinacao,
+            temDados: !!group.dados,
+            quantidadeProfissionais: group.dados?.length || 0
+          });
+        });
+        
         setProfissionaisGroups(parsedProfessionals);
       } catch (error) {
         console.error("Erro ao processar profissionais:", error);
@@ -126,15 +137,24 @@ const AppointmentProfessionals = () => {
           ) : (
             <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
               {profissionaisGroups.flatMap((group) => {
+                console.log("Verificando grupo:", {
+                  temCombinacao: !!group.combinacao,
+                  temDados: !!group.dados,
+                  ehArray: Array.isArray(group.dados),
+                  tamanho: group.dados?.length
+                });
+                
                 // Verifica se o grupo tem dados válidos
                 if (!group.dados || !Array.isArray(group.dados) || group.dados.length === 0) {
-                  console.log("Grupo sem dados válidos:", group);
+                  console.log("Grupo SEM dados válidos, pulando:", group);
                   return [];
                 }
                 
-                console.log(`Processando grupo:`, group);
+                console.log(`Processando grupo COM dados válidos (${group.dados.length} profissionais):`, group.combinacao);
                 
-                return group.dados.map((profissional) => (
+                return group.dados.map((profissional) => {
+                  console.log("Renderizando profissional:", profissional.nome);
+                  return (
                       <Card key={profissional.idAgenda} className="hover:shadow-lg transition-shadow">
                         <CardHeader>
                           <div className="flex items-center gap-4">
@@ -210,7 +230,8 @@ const AppointmentProfessionals = () => {
                           </Button>
                   </CardContent>
                 </Card>
-                ));
+                  );
+                });
               })}
             </div>
           )}
