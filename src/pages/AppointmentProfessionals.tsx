@@ -124,20 +124,17 @@ const AppointmentProfessionals = () => {
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-8">
-              {profissionaisGroups.map((group, groupIndex) => {
+            <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {profissionaisGroups.flatMap((group) => {
                 // Verifica se o grupo tem dados válidos
                 if (!group.dados || !Array.isArray(group.dados) || group.dados.length === 0) {
                   console.log("Grupo sem dados válidos:", group);
-                  return null;
+                  return [];
                 }
                 
-                console.log(`Renderizando grupo ${groupIndex}:`, group);
+                console.log(`Processando grupo:`, group);
                 
-                return (
-                <div key={groupIndex} className="space-y-4">
-                  <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {group.dados.map((profissional) => (
+                return group.dados.map((profissional) => (
                       <Card key={profissional.idAgenda} className="hover:shadow-lg transition-shadow">
                         <CardHeader>
                           <div className="flex items-center gap-4">
@@ -211,12 +208,9 @@ const AppointmentProfessionals = () => {
                           >
                             Selecionar Profissional
                           </Button>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
-                );
+                  </CardContent>
+                </Card>
+                ));
               })}
             </div>
           )}
