@@ -209,7 +209,11 @@ const ExamDetails = () => {
       <main className="flex-1">
         <div className="container mx-auto px-4 py-4 sm:py-6 md:px-6 md:py-10">
           <div className="mb-4 sm:mb-6">
-            <div className="flex items-center gap-3 mb-3 sm:mb-4">
+            <div className="flex items-center justify-between gap-3 mb-3 sm:mb-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground md:text-3xl">
+                Marcação de Exame
+              </h2>
+              
               <Button
                 variant="outline"
                 onClick={() => navigate("/exam-schedule")}
@@ -218,10 +222,6 @@ const ExamDetails = () => {
               >
                 ← Voltar
               </Button>
-              
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground md:text-3xl">
-                Marcação de Exame
-              </h2>
             </div>
             
             <p className="text-sm sm:text-base text-muted-foreground">
