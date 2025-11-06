@@ -136,23 +136,6 @@ const AppointmentProfessionals = () => {
                 
                 return (
                 <div key={groupIndex} className="space-y-4">
-                  {group.combinacao && (
-                    <div className="mb-2">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Badge variant="secondary" className="text-sm font-medium max-w-full truncate cursor-help">
-                              {group.combinacao}
-                            </Badge>
-                          </TooltipTrigger>
-                          <TooltipContent className="max-w-md">
-                            <p>{group.combinacao}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                  )}
-                  
                   <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {group.dados.map((profissional) => (
                       <Card key={profissional.idAgenda} className="hover:shadow-lg transition-shadow">
@@ -175,6 +158,18 @@ const AppointmentProfessionals = () => {
                           </div>
                         </CardHeader>
                         <CardContent className="space-y-3">
+                          {group.combinacao && (
+                            <div>
+                              <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                                Exames que realiza:
+                              </span>
+                              <div className="mt-1 max-h-24 overflow-y-auto border rounded-md p-2 bg-muted/30">
+                                <p className="text-xs sm:text-sm leading-relaxed">
+                                  {group.combinacao}
+                                </p>
+                              </div>
+                            </div>
+                          )}
                           <div>
                             <span className="text-xs sm:text-sm font-medium text-muted-foreground">
                               Especialidade:
