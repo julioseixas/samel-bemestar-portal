@@ -254,13 +254,21 @@ const ExamTimes = () => {
       // Verificar se tem nr_seq_pedido válido
       const hasValidPedido = procedimentos2.some(p => p.nr_seq_pedido && !isNaN(p.nr_seq_pedido));
 
+      // Buscar idEmpresa do titular
+      let idEmpresa = 0;
+      if (titular.titular?.idEmpresa) {
+        idEmpresa = titular.titular.idEmpresa;
+      } else if (titular.idEmpresa) {
+        idEmpresa = titular.idEmpresa;
+      }
+
       const payload = {
         idCliente: selectedPatient.id.toString(),
         idConvenio: parseInt(selectedConvenio),
         codigoCarteirinha: selectedPatient.codigoCarteirinha || "",
         idAgenda: selectedHorario.idAgenda,
         dataAgenda: selectedHorario.data,
-        idEmpresa: titular.titular?.idEmpresa || 0,
+        idEmpresa: idEmpresa,
         idMedico: selectedProfessional.id,
         procedimentos,
         procedimentos2,
