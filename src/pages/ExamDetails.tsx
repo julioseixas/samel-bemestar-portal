@@ -181,7 +181,7 @@ const ExamDetails = () => {
     procedimento.descricao.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (!selectedConvenio) {
       alert("Por favor, selecione o convênio");
       return;
@@ -192,10 +192,38 @@ const ExamDetails = () => {
       return;
     }
     
-    // TODO: Navigate to exam scheduling
-    console.log("Convênio selecionado:", selectedConvenio);
-    console.log("Procedimentos selecionados:", selectedProcedimentos);
-    console.log("Paciente:", selectedPatient);
+    try {
+      const headers = getApiHeaders();
+      
+      const response = await fetch(
+        'https://api-portalpaciente-web.samel.com.br/api/Agenda/Procedimento/ListarProfissionaisComAgendaDisponivelParaProcedimentos2',
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            idConvenio: parseInt(selectedConvenio),
+            idadeCliente: selectedPatient?.idade || 0,
+            idProcedimentos: selectedProcedimentos
+          })
+        }
+      );
+      
+      const data = await response.json();
+      
+      if (data.sucesso && data.dados) {
+        // Save professionals data to localStorage
+        localStorage.setItem("examProfessionals", JSON.stringify(data.dados));
+        localStorage.setItem("selectedExamProcedimentos", JSON.stringify(selectedProcedimentos));
+        
+        // Navigate to professionals page
+        navigate("/appointment-professionals");
+      } else {
+        alert(data.mensagem || "Erro ao buscar profissionais disponíveis");
+      }
+    } catch (error) {
+      console.error("Erro ao buscar profissionais:", error);
+      alert("Erro ao buscar profissionais disponíveis");
+    }
   };
 
   if (!selectedPatient) {
