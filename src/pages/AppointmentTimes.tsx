@@ -324,6 +324,19 @@ const AppointmentTimes = () => {
       
       // Garantir que idCliente seja sempre o id do titular
       const idTitular = titular.titular?.id || titular.id || "";
+      
+      console.log('🔍 DEBUG - Titular do localStorage:', titular);
+      console.log('🔍 DEBUG - ID do Titular:', idTitular);
+      console.log('🔍 DEBUG - Payload completo:', {
+        idCliente: idTitular,
+        idConvenio: selectedConvenio,
+        codigoCarteirinha: selectedPatient.codigoCarteirinha || "",
+        idAgenda: selectedHorario.idAgenda,
+        dataAgenda: selectedHorario.data,
+        idEmpresa: selectedPatient.idEmpresa || 0,
+        tipo: tipo,
+        idDependente: selectedPatient.id
+      });
 
       const response = await fetch(
         'https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ConfirmarAgendamento2',
