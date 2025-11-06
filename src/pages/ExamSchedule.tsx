@@ -49,6 +49,9 @@ const ExamSchedule = () => {
             // Adicionar o titular
             if (firstPatient.clienteContratos && firstPatient.clienteContratos.length > 0) {
               const titularContrato = firstPatient.clienteContratos[0];
+              console.log("Titular contrato:", titularContrato);
+              console.log("idEmpresa do titular:", titularContrato.idEmpresa);
+              
               allPatients.push({
                 id: firstPatient.cdPessoaFisica || Date.now(),
                 nome: firstPatient.nome,
@@ -63,6 +66,9 @@ const ExamSchedule = () => {
               // Adicionar os dependentes
               if (titularContrato.dependentes && titularContrato.dependentes.length > 0) {
                 titularContrato.dependentes.forEach((dependente: any, index: number) => {
+                  console.log(`Dependente ${index}:`, dependente);
+                  console.log(`idEmpresa do dependente ${index}:`, dependente.idEmpresa);
+                  
                   allPatients.push({
                     id: dependente.cdPessoaFisica || Date.now() + index + 1,
                     nome: dependente.nome,
@@ -102,6 +108,7 @@ const ExamSchedule = () => {
     };
     
     console.log("Paciente selecionado para exame:", patientData);
+    console.log("idEmpresa do paciente:", patient.idEmpresa);
     localStorage.setItem("selectedPatientExam", JSON.stringify(patientData));
     navigate("/exam-details");
   };

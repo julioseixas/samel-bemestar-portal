@@ -198,6 +198,11 @@ const ExamTimes = () => {
       const selectedProcedimentosIds = JSON.parse(selectedProcedimentosStr);
       const titular = JSON.parse(titularStr);
 
+      console.log("=== DEBUG AGENDAMENTO ===");
+      console.log("Paciente selecionado:", selectedPatient);
+      console.log("idEmpresa do paciente:", selectedPatient.idEmpresa);
+      console.log("Titular:", titular);
+
       // Buscar detalhes completos dos procedimentos selecionados
       const headers = getApiHeaders();
       const procedimentosResponse = await fetch(
@@ -256,6 +261,8 @@ const ExamTimes = () => {
 
       // Buscar idEmpresa do paciente selecionado
       const idEmpresa = selectedPatient.idEmpresa || 0;
+      
+      console.log("idEmpresa final que será enviado:", idEmpresa);
 
       const payload = {
         idCliente: selectedPatient.id.toString(),
@@ -269,6 +276,8 @@ const ExamTimes = () => {
         procedimentos2,
         ie_pedido_externo: hasValidPedido ? "S" : "N"
       };
+
+      console.log("Payload completo do agendamento:", payload);
 
       console.log("Payload do agendamento:", payload);
 
