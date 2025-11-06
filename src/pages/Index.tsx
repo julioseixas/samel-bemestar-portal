@@ -106,7 +106,7 @@ const Index = () => {
                 buttonText="Agendar Exame"
                 variant="default"
                 useDashboardColor={true}
-                onClick={() => handleCardClick("Marcar Exame")}
+                onClick={() => navigate("/exam-schedule")}
               />
               
               <DashboardCard
