@@ -240,8 +240,10 @@ const ExamDetails = () => {
         // Save professionals data to localStorage
         localStorage.setItem("examProfessionals", JSON.stringify(normalizedData));
         localStorage.setItem("selectedExamProcedimentos", JSON.stringify(selectedProcedimentos));
+        localStorage.setItem("selectedExamConvenio", selectedConvenio);
         
         console.log("Dados salvos no localStorage:", normalizedData);
+        console.log("Convênio salvo:", selectedConvenio);
         
         // Navigate to professionals page
         navigate("/appointment-professionals");

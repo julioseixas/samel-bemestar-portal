@@ -159,18 +159,20 @@ const AppointmentProfessionals = () => {
                     console.log("Profissional selecionado:", profissional);
                     
                     // Recuperar o idConvenio do localStorage
-                    const selectedInsurance = localStorage.getItem("selectedInsurance");
+                    const selectedConvenio = localStorage.getItem("selectedExamConvenio");
                     
-                    if (!selectedInsurance) {
+                    if (!selectedConvenio) {
                       console.error("ID do convênio não encontrado");
                       return;
                     }
+                    
+                    console.log("ID do convênio recuperado:", selectedConvenio);
                     
                     // Navegar para a página de seleção de horários
                     navigate("/exam-times", {
                       state: {
                         selectedProfessional: profissional,
-                        selectedConvenio: selectedInsurance
+                        selectedConvenio: selectedConvenio
                       }
                     });
                   };
