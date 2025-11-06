@@ -232,9 +232,9 @@ const ExamTimes = () => {
 
       // Montar o payload
       const procedimentos = selectedProcedimentosCompletos.map(proc => ({
-        NR_ATENDIMENTO: proc.nr_atendimento,
+        NR_ATENDIMENTO: proc.NR_ATENDIMENTO || proc.nr_atendimento,
         CD_PESSOA_FISICA: selectedPatient.id.toString(),
-        NR_SEQ_PEDIDO: parseInt(proc.nr_seq_pedido),
+        NR_SEQ_PEDIDO: proc.NR_SEQ_PEDIDO || parseInt(proc.nr_seq_pedido),
         NR_SEQ_PEDIDO_ITEM: proc.NR_SEQ_PEDIDO_ITEM,
         id: proc.id,
         CD_MEDICO: proc.CD_MEDICO,
@@ -248,7 +248,7 @@ const ExamTimes = () => {
 
       const procedimentos2 = selectedProcedimentosCompletos.map(proc => ({
         nr_seq_proc_interno: proc.id,
-        nr_seq_pedido: parseInt(proc.nr_seq_pedido)
+        nr_seq_pedido: proc.NR_SEQ_PEDIDO || parseInt(proc.nr_seq_pedido)
       }));
 
       // Verificar se tem nr_seq_pedido válido
