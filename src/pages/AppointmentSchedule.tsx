@@ -180,17 +180,6 @@ const AppointmentSchedule = () => {
                   </Card>
                 ))}
               </div>
-
-              <Card className="mt-6">
-                <CardHeader>
-                  <CardTitle className="text-base sm:text-lg text-destructive">DEBUG - Lista de Pacientes (JSON)</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <pre className="overflow-auto rounded-md bg-muted p-4 text-xs max-h-96">
-                    {JSON.stringify(patients, null, 2)}
-                  </pre>
-                </CardContent>
-              </Card>
             </>
           )}
         </div>
