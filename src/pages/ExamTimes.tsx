@@ -223,6 +223,12 @@ const ExamTimes = () => {
                     disabled={(date) => !isDateAvailable(date) || date < new Date(new Date().setHours(0, 0, 0, 0))}
                     locale={ptBR}
                     className="rounded-md border"
+                    modifiers={{
+                      available: availableDates
+                    }}
+                    modifiersClassNames={{
+                      available: "bg-primary/20 text-primary font-semibold rounded-full"
+                    }}
                   />
                 </CardContent>
               </Card>
