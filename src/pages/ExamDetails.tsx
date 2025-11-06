@@ -126,7 +126,7 @@ const ExamDetails = () => {
 
   useEffect(() => {
     const fetchProcedimentos = async () => {
-      if (!selectedPatient?.cdPessoaFisica) return;
+      if (!selectedPatient?.id) return;
       
       try {
         setLoadingProcedimentos(true);
@@ -134,7 +134,7 @@ const ExamDetails = () => {
         const headers = getApiHeaders();
         
         const response = await fetch(
-          `https://api-portalpaciente-web.samel.com.br/api/Agenda/Procedimento/buscarExamesNaoFeitosPedidosExames/${selectedPatient.cdPessoaFisica}`,
+          `https://api-portalpaciente-web.samel.com.br/api/Agenda/Procedimento/buscarExamesNaoFeitosPedidosExames/${selectedPatient.id}`,
           {
             method: "GET",
             headers
