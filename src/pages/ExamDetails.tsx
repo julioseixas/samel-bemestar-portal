@@ -307,7 +307,7 @@ const ExamDetails = () => {
                           onChange={(e) => setSearchTerm(e.target.value)}
                           className="w-full"
                         />
-                        <div className="space-y-3 max-h-[300px] overflow-y-auto border rounded-md p-3">
+                        <div className="space-y-3 h-[300px] overflow-y-auto border rounded-md p-3">
                           {filteredProcedimentos.length > 0 ? (
                             filteredProcedimentos.map((procedimento) => (
                               <div key={procedimento.id} className="flex items-start space-x-3">
