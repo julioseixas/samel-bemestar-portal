@@ -123,25 +123,28 @@ const AppointmentProfessionals = () => {
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-8">
               {profissionaisGroups.map((group, groupIndex) => {
                 // Verifica se o grupo tem dados válidos
                 if (!group.dados || !Array.isArray(group.dados) || group.dados.length === 0) {
+                  console.log("Grupo sem dados válidos:", group);
                   return null;
                 }
                 
+                console.log(`Renderizando grupo ${groupIndex}:`, group);
+                
                 return (
-                <div key={groupIndex}>
+                <div key={groupIndex} className="space-y-4">
                   {group.combinacao && (
-                    <div className="mb-4">
-                      <Badge variant="secondary" className="text-sm">
+                    <div>
+                      <Badge variant="secondary" className="text-sm font-medium">
                         {group.combinacao}
                       </Badge>
                     </div>
                   )}
                   
                   <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {group.dados?.map((profissional) => (
+                    {group.dados.map((profissional) => (
                       <Card key={profissional.idAgenda} className="hover:shadow-lg transition-shadow">
                         <CardHeader>
                           <div className="flex items-center gap-4">
