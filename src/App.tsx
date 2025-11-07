@@ -24,6 +24,7 @@ import ExamTimes from "./pages/ExamTimes";
 import ScheduledAppointmentsChoice from "./pages/ScheduledAppointmentsChoice";
 import ScheduledAppointments from "./pages/ScheduledAppointments";
 import ScheduledExams from "./pages/ScheduledExams";
+import TermsToSign from "./pages/TermsToSign";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ const App = () => (
           <Route path="/scheduled-appointments-choice" element={<ScheduledAppointmentsChoice />} />
           <Route path="/scheduled-appointments" element={<ScheduledAppointments />} />
           <Route path="/scheduled-exams" element={<ScheduledExams />} />
+          <Route path="/terms-to-sign" element={<TermsToSign />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

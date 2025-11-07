@@ -160,7 +160,7 @@ const Index = () => {
                 iconColor="text-warning"
                 buttonText="Ver Termos"
                 variant="warning"
-                onClick={() => handleCardClick("Termos para Assinar")}
+                onClick={() => navigate("/terms-to-sign")}
               />
               
               <DashboardCard
