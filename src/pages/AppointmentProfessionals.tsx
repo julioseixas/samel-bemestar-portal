@@ -88,8 +88,8 @@ const AppointmentProfessionals = () => {
   const getAvatarImage = (sexo: string) => {
     const sexoNormalizado = sexo?.trim().toUpperCase();
     return sexoNormalizado === 'F' 
-      ? "https://api.dicebear.com/7.x/avataaars/svg?seed=Sofia&gender=female"
-      : "https://api.dicebear.com/7.x/avataaars/svg?seed=John&gender=male";
+      ? "https://api.dicebear.com/7.x/avataaars/svg?seed=Doctor-Female&backgroundColor=e3f2fd&accessories=prescription02&clothingGraphic=bear&top=shortHair&facialHair=none"
+      : "https://api.dicebear.com/7.x/avataaars/svg?seed=Doctor-Male&backgroundColor=e8f5e9&accessories=prescription02&clothingGraphic=bear&top=shortHair&facialHair=light";
   };
 
   const formatEndereco = (unidade: Unidade) => {
