@@ -589,7 +589,7 @@ const AppointmentTimes = () => {
             <Button
               onClick={() => {
                 setIsSuccessModalOpen(false);
-                navigate("/");
+                navigate("/dashboard");
               }}
               className="w-full"
             >
@@ -599,7 +599,7 @@ const AppointmentTimes = () => {
               variant="outline"
               onClick={() => {
                 setIsSuccessModalOpen(false);
-                navigate("/scheduled-appointments");
+                navigate("/scheduled-appointments-choice");
               }}
               className="w-full"
             >
