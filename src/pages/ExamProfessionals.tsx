@@ -149,7 +149,7 @@ const ExamProfessionals = () => {
                           <div className="flex items-start gap-3">
                             <Avatar className={`h-12 w-12 ${getAvatarColor(profissional.sexo || '')}`}>
                               <AvatarFallback className="text-white font-semibold">
-                                {profissional.nmProfissional.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                                {profissional.nmProfissional?.split(' ').map(n => n[0]).join('').substring(0, 2) || 'PR'}
                               </AvatarFallback>
                             </Avatar>
                             <div className="flex-1">
