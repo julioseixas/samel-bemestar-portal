@@ -3,10 +3,10 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { User } from "lucide-react";
+import { Stethoscope } from "lucide-react";
 
 interface Unidade {
   id: string;
@@ -85,11 +85,11 @@ const AppointmentProfessionals = () => {
     }
   }, [navigate]);
 
-  const getAvatarImage = (sexo: string) => {
+  const getAvatarColor = (sexo: string) => {
     const sexoNormalizado = sexo?.trim().toUpperCase();
     return sexoNormalizado === 'F' 
-      ? "https://api.dicebear.com/7.x/avataaars/svg?seed=Doctor-Female&backgroundColor=e3f2fd&accessories=prescription02&clothingGraphic=bear&top=shortHair&facialHair=none"
-      : "https://api.dicebear.com/7.x/avataaars/svg?seed=Doctor-Male&backgroundColor=e8f5e9&accessories=prescription02&clothingGraphic=bear&top=shortHair&facialHair=light";
+      ? "bg-pink-100 dark:bg-pink-900/30" 
+      : "bg-blue-100 dark:bg-blue-900/30";
   };
 
   const formatEndereco = (unidade: Unidade) => {
@@ -185,12 +185,9 @@ const AppointmentProfessionals = () => {
                       >
                         <CardHeader>
                           <div className="flex items-center gap-4">
-                            <Avatar className="h-16 w-16">
-                              <AvatarImage src={getAvatarImage(profissional.ieSexo)} />
-                              <AvatarFallback>
-                                <User className="h-8 w-8" />
-                              </AvatarFallback>
-                            </Avatar>
+                            <div className={`h-16 w-16 rounded-full flex items-center justify-center ${getAvatarColor(profissional.ieSexo)}`}>
+                              <Stethoscope className="h-8 w-8 text-primary" />
+                            </div>
                             <div className="flex-1">
                               <CardTitle className="text-base sm:text-lg">
                                 {profissional.nome}
