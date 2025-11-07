@@ -55,29 +55,35 @@ const AppointmentSchedule = () => {
           // Adicionar o titular (do clienteContratos)
           if (firstPatient.clienteContratos && firstPatient.clienteContratos.length > 0) {
             const titularContrato = firstPatient.clienteContratos[0];
+            const titularId = titularContrato.id || firstPatient.cdPessoaFisica;
+            const titularCdPessoaFisica = titularContrato.cdPessoaFisica || firstPatient.cdPessoaFisica || titularId;
+            
             allPatients.push({
-              id: titularContrato.id || firstPatient.cdPessoaFisica || Date.now(),
+              id: titularId,
               nome: titularContrato.nome || firstPatient.nome,
               tipo: "Titular",
               idade: titularContrato.idade,
               sexo: titularContrato.sexo,
               codigoCarteirinha: titularContrato.codigoCarteirinha,
               dataNascimento: titularContrato.dataNascimento,
-              cdPessoaFisica: titularContrato.id || firstPatient.cdPessoaFisica
+              cdPessoaFisica: titularCdPessoaFisica
             });
             
             // Adicionar os dependentes
             if (titularContrato.dependentes && titularContrato.dependentes.length > 0) {
-              titularContrato.dependentes.forEach((dependente: any, index: number) => {
+              titularContrato.dependentes.forEach((dependente: any) => {
+                const depId = dependente.id || dependente.cdPessoaFisica;
+                const depCdPessoaFisica = dependente.cdPessoaFisica || dependente.id || depId;
+                
                 allPatients.push({
-                  id: dependente.id || dependente.cdPessoaFisica || Date.now() + index + 1,
+                  id: depId,
                   nome: dependente.nome,
                   tipo: "Dependente",
                   idade: dependente.idade,
                   sexo: dependente.sexo,
                   codigoCarteirinha: dependente.codigoCarteirinha,
                   dataNascimento: dependente.dataNascimento,
-                  cdPessoaFisica: dependente.id || dependente.cdPessoaFisica
+                  cdPessoaFisica: depCdPessoaFisica
                 });
               });
             }
@@ -97,6 +103,9 @@ const AppointmentSchedule = () => {
   }, []);
 
   const handleSelectPatient = async (patient: Patient) => {
+    // Usar cdPessoaFisica como ID principal para APIs
+    const patientApiId = patient.cdPessoaFisica || patient.id;
+    
     const patientData = {
       id: patient.id,
       nome: patient.nome,
@@ -105,13 +114,14 @@ const AppointmentSchedule = () => {
       sexo: patient.sexo,
       codigoCarteirinha: patient.codigoCarteirinha,
       dataNascimento: patient.dataNascimento,
-      cdPessoaFisica: patient.cdPessoaFisica || patient.id
+      cdPessoaFisica: patient.cdPessoaFisica
     };
     
     console.log("Dados do paciente selecionado:", patientData);
+    console.log("ID usado para chamadas de API:", patientApiId);
     localStorage.setItem("selectedPatient", JSON.stringify(patientData));
     
-    // Buscar encaminhamentos do paciente
+    // Buscar encaminhamentos do paciente usando cdPessoaFisica
     try {
       const userToken = localStorage.getItem("user") || "";
       if (!userToken) {
@@ -124,8 +134,10 @@ const AppointmentSchedule = () => {
         "chave-autenticacao": userToken
       };
 
+      console.log(`Buscando encaminhamentos com ID: ${patientApiId}`);
+      
       const response = await fetch(
-        `https://api-portalpaciente-web.samel.com.br/api/Agenda/Encaminhamento/buscarEncaminhamentosPaciente/${patient.id}`,
+        `https://api-portalpaciente-web.samel.com.br/api/Agenda/Encaminhamento/buscarEncaminhamentosPaciente/${patientApiId}`,
         {
           method: "GET",
           headers
@@ -133,14 +145,16 @@ const AppointmentSchedule = () => {
       );
       
       const data = await response.json();
-      console.log("Encaminhamentos do paciente:", data);
+      console.log("Resposta de encaminhamentos:", data);
       
       if (data.status && data.dados && data.dados.length > 0) {
         // Salvar encaminhamentos no localStorage
         localStorage.setItem("patientEncaminhamentos", JSON.stringify(data.dados));
+        console.log(`${data.dados.length} encaminhamento(s) encontrado(s)`);
       } else {
         // Limpar encaminhamentos anteriores
         localStorage.removeItem("patientEncaminhamentos");
+        console.log("Nenhum encaminhamento encontrado");
       }
     } catch (error) {
       console.error("Erro ao buscar encaminhamentos:", error);
