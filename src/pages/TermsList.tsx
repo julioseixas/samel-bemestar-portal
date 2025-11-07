@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ArrowLeft, FileText, Loader2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -22,6 +23,8 @@ const TermsList = () => {
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [terms, setTerms] = useState<Term[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedTerm, setSelectedTerm] = useState<Term | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const patientData = localStorage.getItem("patientData");
@@ -77,9 +80,9 @@ const TermsList = () => {
     }
   };
 
-  const handleTermClick = (termId: number) => {
-    // Navegar para página de visualização/assinatura do termo
-    navigate(`/term-view/${patientId}/${termId}`);
+  const handleTermClick = (term: Term) => {
+    setSelectedTerm(term);
+    setIsModalOpen(true);
   };
 
   return (
@@ -130,7 +133,7 @@ const TermsList = () => {
               <Card 
                 key={term.NR_SEQUENCIA}
                 className="hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => handleTermClick(term.NR_SEQUENCIA)}
+                onClick={() => handleTermClick(term)}
               >
                 <CardHeader>
                   <div className="flex items-start justify-between gap-4">
@@ -139,9 +142,6 @@ const TermsList = () => {
                         <FileText className="h-5 w-5 text-primary" />
                         {term.NM_TERMO}
                       </CardTitle>
-                      <CardDescription className="text-sm">
-                        {term.DS_TERMO}
-                      </CardDescription>
                     </div>
                     <Button variant="outline" size="sm">
                       Visualizar
@@ -152,6 +152,23 @@ const TermsList = () => {
             ))}
           </div>
         )}
+
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogContent className="max-w-[95vw] h-[90vh] flex flex-col p-0">
+            <DialogHeader className="px-6 py-4 border-b">
+              <DialogTitle>{selectedTerm?.NM_TERMO}</DialogTitle>
+            </DialogHeader>
+            <div className="flex-1 overflow-hidden">
+              {selectedTerm && (
+                <iframe
+                  src={selectedTerm.DS_TERMO}
+                  className="w-full h-full"
+                  title="PDF Viewer"
+                />
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );
