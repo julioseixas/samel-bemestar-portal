@@ -2,13 +2,23 @@ import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Calendar, Clock, MapPin, User, TestTube } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, MapPin, User, TestTube, XCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { getApiHeaders } from "@/lib/api-headers";
 import { Skeleton } from "@/components/ui/skeleton";
 import { jwtDecode } from "jwt-decode";
 import { parse, isAfter } from "date-fns";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Agendamento {
   id: number;
@@ -40,6 +50,8 @@ const ScheduledExams = () => {
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [exams, setExams] = useState<Agendamento[]>([]);
   const [loading, setLoading] = useState(true);
+  const [cancelingId, setCancelingId] = useState<number | null>(null);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   useEffect(() => {
     const patientData = localStorage.getItem("patientData");
@@ -168,6 +180,55 @@ const ScheduledExams = () => {
     }
   };
 
+  const handleCancelClick = (examId: number) => {
+    setCancelingId(examId);
+    setShowCancelDialog(true);
+  };
+
+  const handleCancelConfirm = async () => {
+    if (!cancelingId) return;
+
+    try {
+      const response = await fetch(
+        "https://api-portalpaciente-web.samel.com.br/api/Agenda/CancelarAgendamento",
+        {
+          method: "POST",
+          headers: getApiHeaders(),
+          body: JSON.stringify({
+            idAgenda: cancelingId,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.sucesso) {
+        toast({
+          title: "Sucesso",
+          description: "Exame cancelado com sucesso",
+        });
+        // Atualiza a lista removendo o exame cancelado
+        setExams(exams.filter(exam => exam.id !== cancelingId));
+      } else {
+        toast({
+          title: "Erro",
+          description: data.mensagem || "Erro ao cancelar exame",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao cancelar exame:", error);
+      toast({
+        title: "Erro",
+        description: "Erro ao cancelar exame",
+        variant: "destructive",
+      });
+    } finally {
+      setShowCancelDialog(false);
+      setCancelingId(null);
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
@@ -226,6 +287,18 @@ const ScheduledExams = () => {
                         ID: {exam.id}
                       </p>
                     </div>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCancelClick(exam.id);
+                      }}
+                      className="gap-2"
+                    >
+                      <XCircle className="h-4 w-4" />
+                      Cancelar
+                    </Button>
                   </div>
 
                   <div className="grid gap-3 md:grid-cols-2">
@@ -255,6 +328,23 @@ const ScheduledExams = () => {
           </div>
         )}
       </main>
+
+      <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Cancelamento</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja cancelar este exame? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Não, manter exame</AlertDialogCancel>
+            <AlertDialogAction onClick={handleCancelConfirm}>
+              Sim, cancelar exame
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
