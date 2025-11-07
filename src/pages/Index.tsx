@@ -3,7 +3,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AppointmentBanner } from "@/components/AppointmentBanner";
 import { DashboardCard } from "@/components/DashboardCard";
-import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, FolderOpen } from "lucide-react";
+import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, FolderOpen, FileSignature } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
@@ -151,6 +151,16 @@ const Index = () => {
                 variant="default"
                 useDashboardColor={true}
                 onClick={() => navigate("/prescriptions-and-certificates")}
+              />
+              
+              <DashboardCard
+                title="TERMOS PARA ASSINAR"
+                description="Visualize e assine os termos pendentes"
+                icon={FileSignature}
+                iconColor="text-warning"
+                buttonText="Ver Termos"
+                variant="warning"
+                onClick={() => handleCardClick("Termos para Assinar")}
               />
               
               <DashboardCard
