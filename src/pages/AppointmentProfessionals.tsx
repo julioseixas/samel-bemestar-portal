@@ -43,7 +43,12 @@ const AppointmentProfessionals = () => {
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
     const storedProfilePhoto = localStorage.getItem("profilePhoto");
-    const storedProfessionals = localStorage.getItem("examProfessionals");
+    const storedExamProfessionals = localStorage.getItem("examProfessionals");
+    const storedAppointmentProfessionals = localStorage.getItem("appointmentProfessionals");
+
+    console.log("=== CARREGANDO PROFISSIONAIS ===");
+    console.log("Exame profissionais:", !!storedExamProfessionals);
+    console.log("Consulta profissionais:", !!storedAppointmentProfessionals);
 
     if (storedTitular) {
       try {
@@ -57,6 +62,9 @@ const AppointmentProfessionals = () => {
     if (storedProfilePhoto) {
       setProfilePhoto(storedProfilePhoto);
     }
+
+    // Priorizar dados de consulta, depois exame
+    const storedProfessionals = storedAppointmentProfessionals || storedExamProfessionals;
 
     if (storedProfessionals) {
       try {
@@ -77,11 +85,16 @@ const AppointmentProfessionals = () => {
         setProfissionaisGroups(parsedProfessionals);
       } catch (error) {
         console.error("Erro ao processar profissionais:", error);
-        navigate("/exam-details");
+        // Redirecionar para a página correta baseado no tipo de agendamento
+        if (storedAppointmentProfessionals) {
+          navigate("/appointment-details");
+        } else {
+          navigate("/exam-details");
+        }
       }
     } else {
       console.log("Nenhum dado de profissional encontrado no localStorage");
-      navigate("/exam-details");
+      navigate("/appointment-schedule");
     }
   }, [navigate]);
 
@@ -113,7 +126,11 @@ const AppointmentProfessionals = () => {
               
               <Button
                 variant="outline"
-                onClick={() => navigate("/exam-details")}
+                onClick={() => {
+                  // Verificar qual fluxo está ativo
+                  const isAppointment = !!localStorage.getItem("appointmentProfessionals");
+                  navigate(isAppointment ? "/appointment-details" : "/exam-details");
+                }}
                 className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
                 size="sm"
               >
@@ -158,18 +175,25 @@ const AppointmentProfessionals = () => {
                   const handleSelectProfessional = () => {
                     console.log("Profissional selecionado:", profissional);
                     
-                    // Recuperar o idConvenio do localStorage
-                    const selectedConvenio = localStorage.getItem("selectedExamConvenio");
+                    // Verificar qual fluxo está ativo
+                    const isAppointment = !!localStorage.getItem("appointmentProfessionals");
+                    
+                    // Recuperar o idConvenio do localStorage correto
+                    const selectedConvenio = isAppointment 
+                      ? localStorage.getItem("selectedAppointmentConvenio")
+                      : localStorage.getItem("selectedExamConvenio");
                     
                     if (!selectedConvenio) {
                       console.error("ID do convênio não encontrado");
                       return;
                     }
                     
+                    console.log("Tipo de agendamento:", isAppointment ? "Consulta" : "Exame");
                     console.log("ID do convênio recuperado:", selectedConvenio);
                     
-                    // Navegar para a página de seleção de horários
-                    navigate("/exam-times", {
+                    // Navegar para a página correta de seleção de horários
+                    const targetRoute = isAppointment ? "/appointment-times" : "/exam-times";
+                    navigate(targetRoute, {
                       state: {
                         selectedProfessional: profissional,
                         selectedConvenio: selectedConvenio
