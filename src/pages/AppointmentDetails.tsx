@@ -277,13 +277,40 @@ const AppointmentDetails = () => {
       console.log("Resposta da API:", data);
 
       if (data.sucesso && data.dados) {
-        // Salvar os dados no localStorage
-        localStorage.setItem("appointmentProfessionals", JSON.stringify(data.dados));
+        // Buscar descrição da especialidade
+        const especialidadeSelecionada = especialidades.find(e => e.id.toString() === selectedEspecialidade);
+        const dsEspecialidade = especialidadeSelecionada?.descricao || "Especialidade";
+        
+        // Transformar dados da API para o formato esperado pelo componente
+        const profissionaisGroups = [{
+          combinacao: "",
+          dados: data.dados.map((prof: any) => ({
+            idAgenda: prof.idAgenda,
+            dataAgenda: prof.dataAgenda,
+            id: prof.id.toString(),
+            nome: prof.nome,
+            dsEspecialidade: dsEspecialidade,
+            ieSexo: prof.ieSexo,
+            ie_sigla_conselho: prof.ieSiglaConselho,
+            nr_conselho: prof.nrConselho,
+            idsProcedimentos: [],
+            unidade: {
+              id: prof.unidade.id.toString(),
+              descricao: prof.unidade.descricao,
+              logradouro: prof.unidade.logradouro,
+              numeroLogradouro: prof.unidade.numeroLogradouro?.toString(),
+              bairro: prof.unidade.bairro
+            }
+          }))
+        }];
+        
+        // Salvar os dados transformados no localStorage
+        localStorage.setItem("appointmentProfessionals", JSON.stringify(profissionaisGroups));
         localStorage.setItem("selectedAppointmentConvenio", selectedConvenio);
         localStorage.setItem("selectedAppointmentEspecialidade", selectedEspecialidade);
         
         console.log("Dados salvos no localStorage:", {
-          profissionais: data.dados,
+          profissionais: profissionaisGroups,
           convenio: selectedConvenio,
           especialidade: selectedEspecialidade
         });
