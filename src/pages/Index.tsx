@@ -139,7 +139,7 @@ const Index = () => {
                 buttonText="Ver Agendamentos"
                 variant="default"
                 useDashboardColor={true}
-                onClick={() => handleCardClick("Consultas e Exames Agendados")}
+                onClick={() => navigate("/scheduled-appointments-choice")}
               />
               
               <DashboardCard
