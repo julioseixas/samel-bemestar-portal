@@ -8,14 +8,13 @@ import { ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface Patient {
-  id: string | number;
+  id: number;
   nome: string;
   tipo: string;
   idade?: number;
   sexo?: string;
   codigoCarteirinha?: string;
   dataNascimento?: string;
-  cdPessoaFisica?: string | number;
 }
 
 const AppointmentSchedule = () => {
@@ -55,36 +54,28 @@ const AppointmentSchedule = () => {
           // Adicionar o titular (do clienteContratos)
           if (firstPatient.clienteContratos && firstPatient.clienteContratos.length > 0) {
             const titularContrato = firstPatient.clienteContratos[0];
-            const titularId = titularContrato.id || firstPatient.cdPessoaFisica;
-            const titularCdPessoaFisica = titularContrato.cdPessoaFisica || firstPatient.cdPessoaFisica || titularId;
-            
-            allPatients.push({
-              id: titularId,
-              nome: titularContrato.nome || firstPatient.nome,
-              tipo: "Titular",
-              idade: titularContrato.idade,
-              sexo: titularContrato.sexo,
-              codigoCarteirinha: titularContrato.codigoCarteirinha,
-              dataNascimento: titularContrato.dataNascimento,
-              cdPessoaFisica: titularCdPessoaFisica
-            });
+        allPatients.push({
+          id: firstPatient.cdPessoaFisica || Date.now(),
+          nome: firstPatient.nome,
+          tipo: "Titular",
+          idade: titularContrato.idade,
+          sexo: titularContrato.sexo,
+          codigoCarteirinha: titularContrato.codigoCarteirinha,
+          dataNascimento: titularContrato.dataNascimento
+        });
             
             // Adicionar os dependentes
             if (titularContrato.dependentes && titularContrato.dependentes.length > 0) {
-              titularContrato.dependentes.forEach((dependente: any) => {
-                const depId = dependente.id || dependente.cdPessoaFisica;
-                const depCdPessoaFisica = dependente.cdPessoaFisica || dependente.id || depId;
-                
-                allPatients.push({
-                  id: depId,
-                  nome: dependente.nome,
-                  tipo: "Dependente",
-                  idade: dependente.idade,
-                  sexo: dependente.sexo,
-                  codigoCarteirinha: dependente.codigoCarteirinha,
-                  dataNascimento: dependente.dataNascimento,
-                  cdPessoaFisica: depCdPessoaFisica
-                });
+              titularContrato.dependentes.forEach((dependente: any, index: number) => {
+            allPatients.push({
+              id: dependente.cdPessoaFisica || Date.now() + index + 1,
+              nome: dependente.nome,
+              tipo: "Dependente",
+              idade: dependente.idade,
+              sexo: dependente.sexo,
+              codigoCarteirinha: dependente.codigoCarteirinha,
+              dataNascimento: dependente.dataNascimento
+            });
               });
             }
           }
@@ -102,10 +93,7 @@ const AppointmentSchedule = () => {
     }
   }, []);
 
-  const handleSelectPatient = async (patient: Patient) => {
-    // Usar cdPessoaFisica como ID principal para APIs
-    const patientApiId = patient.cdPessoaFisica || patient.id;
-    
+  const handleSelectPatient = (patient: Patient) => {
     const patientData = {
       id: patient.id,
       nome: patient.nome,
@@ -113,55 +101,11 @@ const AppointmentSchedule = () => {
       idade: patient.idade,
       sexo: patient.sexo,
       codigoCarteirinha: patient.codigoCarteirinha,
-      dataNascimento: patient.dataNascimento,
-      cdPessoaFisica: patient.cdPessoaFisica
+      dataNascimento: patient.dataNascimento
     };
     
     console.log("Dados do paciente selecionado:", patientData);
-    console.log("ID usado para chamadas de API:", patientApiId);
     localStorage.setItem("selectedPatient", JSON.stringify(patientData));
-    
-    // Buscar encaminhamentos do paciente usando cdPessoaFisica
-    try {
-      const userToken = localStorage.getItem("user") || "";
-      if (!userToken) {
-        throw new Error("Token de autenticação não encontrado");
-      }
-
-      const headers = {
-        "Content-Type": "application/json",
-        "identificador-dispositivo": "request-android",
-        "chave-autenticacao": userToken
-      };
-
-      console.log(`Buscando encaminhamentos com ID: ${patientApiId}`);
-      
-      const response = await fetch(
-        `https://api-portalpaciente-web.samel.com.br/api/Agenda/Encaminhamento/buscarEncaminhamentosPaciente/${patientApiId}`,
-        {
-          method: "GET",
-          headers
-        }
-      );
-      
-      const data = await response.json();
-      console.log("Resposta de encaminhamentos:", data);
-      
-      if (data.status && data.dados && data.dados.length > 0) {
-        // Salvar encaminhamentos no localStorage
-        localStorage.setItem("patientEncaminhamentos", JSON.stringify(data.dados));
-        console.log(`${data.dados.length} encaminhamento(s) encontrado(s)`);
-      } else {
-        // Limpar encaminhamentos anteriores
-        localStorage.removeItem("patientEncaminhamentos");
-        console.log("Nenhum encaminhamento encontrado");
-      }
-    } catch (error) {
-      console.error("Erro ao buscar encaminhamentos:", error);
-      // Limpar encaminhamentos em caso de erro
-      localStorage.removeItem("patientEncaminhamentos");
-    }
-    
     navigate("/appointment-details");
   };
 

@@ -2,53 +2,50 @@ import { Header } from "@/components/Header";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useNavigate } from "react-router-dom";
-
+import { useNavigate, useLocation } from "react-router-dom";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Stethoscope } from "lucide-react";
+import { getApiHeaders } from "@/lib/api-headers";
+import { User } from "lucide-react";
 
 interface Unidade {
-  id: string;
+  id: number;
   descricao: string;
+  bairro: string;
   logradouro: string;
-  numeroLogradouro?: string;
-  bairro?: string;
+  numeroLogradouro: number;
 }
 
 interface Profissional {
+  id: number;
   idAgenda: number;
   dataAgenda: string;
-  id: string;
-  nome: string;
-  dsEspecialidade: string;
+  dataAgenda2: string;
   ieSexo: string;
-  ie_sigla_conselho: string;
-  nr_conselho: string;
-  idsProcedimentos: number[];
+  ieSiglaConselho: string;
+  nome: string;
+  nomeDeGuerra: string;
+  nrConselho: string;
+  qtVotos: string;
+  rate: string;
+  tipoAgenda: string;
   unidade: Unidade;
-}
-
-interface ProfissionalGroup {
-  combinacao: string;
-  dados: Profissional[];
 }
 
 const AppointmentProfessionals = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
-  const [profissionaisGroups, setProfissionaisGroups] = useState<ProfissionalGroup[]>([]);
+  const [profissionais, setProfissionais] = useState<Profissional[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Dados vindos da tela anterior
+  const { selectedPatient, selectedConvenio, selectedEspecialidade } = location.state || {};
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
     const storedProfilePhoto = localStorage.getItem("profilePhoto");
-    const storedExamProfessionals = localStorage.getItem("examProfessionals");
-    const storedAppointmentProfessionals = localStorage.getItem("appointmentProfessionals");
-
-    console.log("=== CARREGANDO PROFISSIONAIS ===");
-    console.log("Exame profissionais:", !!storedExamProfessionals);
-    console.log("Consulta profissionais:", !!storedAppointmentProfessionals);
 
     if (storedTitular) {
       try {
@@ -63,54 +60,63 @@ const AppointmentProfessionals = () => {
       setProfilePhoto(storedProfilePhoto);
     }
 
-    // Priorizar dados de consulta, depois exame
-    const storedProfessionals = storedAppointmentProfessionals || storedExamProfessionals;
-
-    if (storedProfessionals) {
-      try {
-        const parsedProfessionals = JSON.parse(storedProfessionals);
-        console.log("Profissionais carregados do localStorage:", parsedProfessionals);
-        console.log("Tipo de dados:", Array.isArray(parsedProfessionals));
-        console.log("Quantidade de grupos:", parsedProfessionals.length);
-        
-        // Verifica cada grupo
-        parsedProfessionals.forEach((group: any, index: number) => {
-          console.log(`Grupo ${index}:`, {
-            combinacao: group.combinacao,
-            temDados: !!group.dados,
-            quantidadeProfissionais: group.dados?.length || 0
-          });
-        });
-        
-        setProfissionaisGroups(parsedProfessionals);
-      } catch (error) {
-        console.error("Erro ao processar profissionais:", error);
-        // Redirecionar para a página correta baseado no tipo de agendamento
-        if (storedAppointmentProfessionals) {
-          navigate("/appointment-details");
-        } else {
-          navigate("/exam-details");
-        }
-      }
-    } else {
-      console.log("Nenhum dado de profissional encontrado no localStorage");
-      navigate("/appointment-schedule");
+    if (!selectedPatient || !selectedConvenio || !selectedEspecialidade) {
+      navigate("/appointment-details");
     }
-  }, [navigate]);
+  }, [navigate, selectedPatient, selectedConvenio, selectedEspecialidade]);
 
-  const getAvatarColor = (sexo: string) => {
+  useEffect(() => {
+    const fetchProfissionais = async () => {
+      if (!selectedPatient || !selectedConvenio || !selectedEspecialidade) {
+        return;
+      }
+
+      try {
+        setLoading(true);
+        
+        const params = new URLSearchParams({
+          idConvenio: selectedConvenio,
+          idadeCliente: selectedPatient.idade?.toString() || "0",
+          idEspecialidade: selectedEspecialidade,
+          nomeProfissional: "",
+          idCliente: selectedPatient.id?.toString() || "",
+          sexo: selectedPatient.sexo || ""
+        });
+
+        const headers = getApiHeaders();
+
+        const response = await fetch(
+          `https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ListarProfissionaisComAgendaDisponivel3?${params}`,
+          {
+            method: "GET",
+            headers
+          }
+        );
+        const data = await response.json();
+        
+        if (data.sucesso && data.dados) {
+          setProfissionais(data.dados);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar profissionais:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfissionais();
+  }, [selectedPatient, selectedConvenio, selectedEspecialidade]);
+
+  const getAvatarImage = (sexo: string) => {
     const sexoNormalizado = sexo?.trim().toUpperCase();
     return sexoNormalizado === 'F' 
-      ? "bg-pink-100 dark:bg-pink-900/30" 
-      : "bg-blue-100 dark:bg-blue-900/30";
+      ? "https://api.dicebear.com/7.x/avataaars/svg?seed=Sofia&gender=female"
+      : "https://api.dicebear.com/7.x/avataaars/svg?seed=John&gender=male";
   };
 
-  const formatEndereco = (unidade: Unidade) => {
-    const parts = [unidade.logradouro];
-    if (unidade.numeroLogradouro) parts.push(unidade.numeroLogradouro);
-    if (unidade.bairro) parts.push(unidade.bairro);
-    return parts.join(", ");
-  };
+  if (!selectedPatient) {
+    return null;
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -119,159 +125,100 @@ const AppointmentProfessionals = () => {
       <main className="flex-1">
         <div className="container mx-auto px-4 py-4 sm:py-6 md:px-6 md:py-10">
           <div className="mb-4 sm:mb-6">
-            <div className="flex items-center justify-between gap-3 mb-3 sm:mb-4">
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground md:text-3xl">
-                Profissionais Disponíveis
-              </h2>
-              
-              <Button
-                variant="outline"
-                onClick={() => {
-                  // Verificar qual fluxo está ativo
-                  const isAppointment = !!localStorage.getItem("appointmentProfessionals");
-                  navigate(isAppointment ? "/appointment-details" : "/exam-details");
-                }}
-                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
-                size="sm"
-              >
-                ← Voltar
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              onClick={() => navigate("/appointment-details")}
+              className="mb-3 sm:mb-4 border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
+              size="sm"
+            >
+              ← Voltar
+            </Button>
             
-            <p className="text-sm sm:text-base text-muted-foreground">
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground md:text-3xl">
+              Profissionais Disponíveis
+            </h2>
+            <p className="mt-1 sm:mt-2 text-sm sm:text-base text-muted-foreground">
               Selecione um profissional para continuar o agendamento
             </p>
           </div>
 
-          {profissionaisGroups.length === 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <p className="text-muted-foreground">Carregando profissionais...</p>
+            </div>
+          ) : profissionais.length === 0 ? (
             <Card>
               <CardContent className="py-12">
                 <p className="text-center text-muted-foreground">
-                  Nenhum profissional disponível encontrado.
+                  Nenhum profissional disponível encontrado para esta especialidade.
                 </p>
               </CardContent>
             </Card>
           ) : (
             <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {profissionaisGroups.flatMap((group) => {
-                console.log("Verificando grupo:", {
-                  temCombinacao: !!group.combinacao,
-                  temDados: !!group.dados,
-                  ehArray: Array.isArray(group.dados),
-                  tamanho: group.dados?.length
-                });
-                
-                // Verifica se o grupo tem dados válidos
-                if (!group.dados || !Array.isArray(group.dados) || group.dados.length === 0) {
-                  console.log("Grupo SEM dados válidos, pulando:", group);
-                  return [];
-                }
-                
-                console.log(`Processando grupo COM dados válidos (${group.dados.length} profissionais):`, group.combinacao);
-                
-                return group.dados.map((profissional) => {
-                  console.log("Renderizando profissional:", profissional.nome);
-                  
-                  const handleSelectProfessional = () => {
-                    console.log("Profissional selecionado:", profissional);
-                    
-                    // Verificar qual fluxo está ativo
-                    const isAppointment = !!localStorage.getItem("appointmentProfessionals");
-                    
-                    // Recuperar o idConvenio do localStorage correto
-                    const selectedConvenio = isAppointment 
-                      ? localStorage.getItem("selectedAppointmentConvenio")
-                      : localStorage.getItem("selectedExamConvenio");
-                    
-                    if (!selectedConvenio) {
-                      console.error("ID do convênio não encontrado");
-                      return;
-                    }
-                    
-                    console.log("Tipo de agendamento:", isAppointment ? "Consulta" : "Exame");
-                    console.log("ID do convênio recuperado:", selectedConvenio);
-                    
-                    // Navegar para a página correta de seleção de horários
-                    const targetRoute = isAppointment ? "/appointment-times" : "/exam-times";
-                    navigate(targetRoute, {
-                      state: {
-                        selectedProfessional: profissional,
-                        selectedConvenio: selectedConvenio
-                      }
-                    });
-                  };
-                  
-                  return (
-                      <Card 
-                        key={profissional.idAgenda} 
-                        className="hover:shadow-lg transition-shadow cursor-pointer"
-                        onClick={handleSelectProfessional}
-                      >
-                        <CardHeader>
-                          <div className="flex items-center gap-4">
-                            <div className={`h-16 w-16 rounded-full flex items-center justify-center ${getAvatarColor(profissional.ieSexo)}`}>
-                              <Stethoscope className="h-8 w-8 text-primary" />
-                            </div>
-                            <div className="flex-1">
-                              <CardTitle className="text-base sm:text-lg">
-                                {profissional.nome}
-                              </CardTitle>
-                              <Badge variant="outline" className="mt-1">
-                                {profissional.ie_sigla_conselho} {profissional.nr_conselho}
-                              </Badge>
-                            </div>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                          {group.combinacao && (
-                            <div>
-                              <span className="text-xs sm:text-sm font-medium text-muted-foreground">
-                                Exames que realiza:
-                              </span>
-                              <div className="mt-1 max-h-24 overflow-y-auto border rounded-md p-2 bg-muted/30">
-                                <p className="text-xs sm:text-sm leading-relaxed">
-                                  {group.combinacao}
-                                </p>
-                              </div>
-                            </div>
-                          )}
-                          <div>
-                            <span className="text-xs sm:text-sm font-medium text-muted-foreground">
-                              Especialidade:
-                            </span>
-                            <p className="text-sm sm:text-base font-semibold">
-                              {profissional.dsEspecialidade}
-                            </p>
-                          </div>
-                          <div>
-                            <span className="text-xs sm:text-sm font-medium text-muted-foreground">
-                              Disponível a partir de:
-                            </span>
-                            <p className="text-sm sm:text-base font-semibold">
-                              {profissional.dataAgenda}
-                            </p>
-                          </div>
-                          <div>
-                            <span className="text-xs sm:text-sm font-medium text-muted-foreground">
-                              Unidade:
-                            </span>
-                            <p className="text-sm sm:text-base font-semibold">
-                              {profissional.unidade.descricao}
-                            </p>
-                          </div>
-                          <div>
-                            <span className="text-xs sm:text-sm font-medium text-muted-foreground">
-                              Endereço:
-                            </span>
-                            <p className="text-sm sm:text-base">
-                              {formatEndereco(profissional.unidade)}
-                            </p>
-                          </div>
+              {profissionais.map((profissional) => (
+                <Card key={profissional.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center gap-4">
+                      <Avatar className="h-16 w-16">
+                        <AvatarImage src={getAvatarImage(profissional.ieSexo)} />
+                        <AvatarFallback>
+                          <User className="h-8 w-8" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <CardTitle className="text-base sm:text-lg">
+                          {profissional.nomeDeGuerra || profissional.nome}
+                        </CardTitle>
+                        <Badge variant="outline" className="mt-1">
+                          CRM: {profissional.nrConselho}
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div>
+                      <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                        Disponível a partir de:
+                      </span>
+                      <p className="text-sm sm:text-base font-semibold">
+                        {profissional.dataAgenda2}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                        Unidade:
+                      </span>
+                      <p className="text-sm sm:text-base font-semibold">
+                        {profissional.unidade.descricao}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                        Endereço:
+                      </span>
+                      <p className="text-sm sm:text-base">
+                        {profissional.unidade.logradouro}, {profissional.unidade.numeroLogradouro} - {profissional.unidade.bairro}
+                      </p>
+                    </div>
+                    <Button 
+                      className="w-full mt-4"
+                      onClick={() => {
+                        navigate("/appointment-times", {
+                          state: {
+                            selectedPatient,
+                            selectedConvenio,
+                            selectedEspecialidade,
+                            selectedProfissional: profissional
+                          }
+                        });
+                      }}
+                    >
+                      Selecionar Profissional
+                    </Button>
                   </CardContent>
                 </Card>
-                  );
-                });
-              })}
+              ))}
             </div>
           )}
         </div>

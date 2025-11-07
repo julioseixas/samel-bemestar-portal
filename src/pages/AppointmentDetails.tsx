@@ -6,17 +6,16 @@ import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { getApiHeaders } from "@/lib/api-headers";
 
 interface Patient {
-  id: string | number;
+  id: number;
   nome: string;
   tipo: string;
   sexo?: string;
   codigoCarteirinha?: string;
   idade?: number;
-  cdPessoaFisica?: string | number;
+  cdPessoaFisica?: number;
 }
 
 interface Convenio {
@@ -32,31 +31,6 @@ interface Especialidade {
   descricao: string;
 }
 
-interface Encaminhamento {
-  NR_SEQ_MED_AVALIACAO_PACIENTE: number;
-  CD_PESSOA_FISICA_PACIENTE: string;
-  CD_ESPECIALIDADE: number;
-  CD_ESPECIALIDADE_AVALIACAO: string;
-  CD_MEDICO: string;
-  DS_DESCRICAO: string;
-  DS_ESPECIALIDADE: string;
-  DS_JUSTIFICATIVA: string;
-  DS_OBSERVACAO: string;
-  DT_AVALIACAO_DATE: string;
-  DT_AVALIACAO_STRING: string;
-  DT_LIBERACAO_DATE: string;
-  DT_LIBERACAO_STRING: string;
-  IE_FOI_AGENDADO: string;
-  IE_PACIENTE_FOI_CONSULTADO: string;
-  NM_MEDICO: string;
-  NM_PACIENTE: string;
-  NR_ATENDIMENTO: number;
-  NR_SEQ_MED_AVALIACAO: number;
-  NR_TELEFONE: string | null;
-  descricao: string | null;
-  id: number;
-}
-
 const AppointmentDetails = () => {
   const navigate = useNavigate();
   const [patientName, setPatientName] = useState("Paciente");
@@ -69,8 +43,6 @@ const AppointmentDetails = () => {
   const [loadingConvenios, setLoadingConvenios] = useState(true);
   const [especialidades, setEspecialidades] = useState<Especialidade[]>([]);
   const [loadingEspecialidades, setLoadingEspecialidades] = useState(false);
-  const [encaminhamentos, setEncaminhamentos] = useState<Encaminhamento[]>([]);
-  const [useEncaminhamento, setUseEncaminhamento] = useState(false);
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -101,18 +73,6 @@ const AppointmentDetails = () => {
       }
     } else {
       navigate("/appointment-schedule");
-    }
-
-    // Verificar se existem encaminhamentos salvos
-    const storedEncaminhamentos = localStorage.getItem("patientEncaminhamentos");
-    if (storedEncaminhamentos) {
-      try {
-        const parsedEncaminhamentos = JSON.parse(storedEncaminhamentos);
-        console.log("Encaminhamentos carregados:", parsedEncaminhamentos);
-        setEncaminhamentos(parsedEncaminhamentos);
-      } catch (error) {
-        console.error("Erro ao processar encaminhamentos:", error);
-      }
     }
   }, [navigate]);
 
@@ -147,11 +107,6 @@ const AppointmentDetails = () => {
 
   useEffect(() => {
     const fetchEspecialidades = async () => {
-      // Se usar encaminhamento, não buscar especialidades normais
-      if (useEncaminhamento) {
-        return;
-      }
-
       if (!selectedConvenio || !selectedPatient || !titular) {
         console.log("Dados insuficientes:", { selectedConvenio, selectedPatient, titular });
         return;
@@ -163,27 +118,15 @@ const AppointmentDetails = () => {
         setSelectedEspecialidade("");
 
         const cdDependente = selectedPatient.id?.toString() || "";
-        const nrCarteirinha = selectedPatient.codigoCarteirinha || "";
-        const cdPessoaFisica = selectedPatient.cdPessoaFisica?.toString() || titular.cdPessoaFisica?.toString() || "";
-        
-        console.log("Parâmetros da busca de especialidades:", {
-          idConvenio: selectedConvenio,
-          idadeCliente: selectedPatient.idade?.toString() || "0",
-          cdPessoaFisica,
-          sexo: selectedPatient.sexo || "",
-          descricaoEspecialidade: "",
-          cdDependente,
-          nrCarteirinha
-        });
         
         const params = new URLSearchParams({
           idConvenio: selectedConvenio,
           idadeCliente: selectedPatient.idade?.toString() || "0",
-          cdPessoaFisica,
+          cdPessoaFisica: titular.cdPessoaFisica?.toString() || "",
           sexo: selectedPatient.sexo || "",
           descricaoEspecialidade: "",
           cdDependente: cdDependente,
-          nrCarteirinha: nrCarteirinha
+          nrCarteirinha: selectedPatient.codigoCarteirinha || ""
         });
 
         const headers = getApiHeaders();
@@ -201,8 +144,6 @@ const AppointmentDetails = () => {
         
         if (data.sucesso && data.dados) {
           setEspecialidades(data.dados);
-        } else {
-          console.error("Erro ao buscar especialidades:", data.mensagem);
         }
       } catch (error) {
         console.error("Erro ao buscar especialidades:", error);
@@ -212,92 +153,21 @@ const AppointmentDetails = () => {
     };
 
     fetchEspecialidades();
-  }, [selectedConvenio, selectedPatient, titular, useEncaminhamento]);
+  }, [selectedConvenio, selectedPatient, titular]);
 
-  // Reset especialidade quando trocar o modo de encaminhamento
-  useEffect(() => {
-    setSelectedEspecialidade("");
-  }, [useEncaminhamento]);
-
-  const handleContinue = async () => {
-    console.log("=== INICIANDO BUSCA DE PROFISSIONAIS ===");
-    
+  const handleContinue = () => {
     if (!selectedConvenio || !selectedEspecialidade) {
       alert("Por favor, selecione o convênio e a especialidade");
       return;
     }
-
-    if (!selectedPatient || !titular) {
-      alert("Dados do paciente não encontrados");
-      return;
-    }
-
-    try {
-      const idCliente = selectedPatient.cdPessoaFisica?.toString() || titular.cdPessoaFisica?.toString() || "";
-      const idadeCliente = selectedPatient.idade?.toString() || "0";
-      const sexo = selectedPatient.sexo || "";
-      const cdDependente = selectedPatient.id?.toString() || "";
-      const nrCarteirinha = selectedPatient.codigoCarteirinha || "";
-      
-      console.log("Dados para busca de profissionais:", {
-        idConvenio: selectedConvenio,
-        idadeCliente,
-        idEspecialidade: selectedEspecialidade,
-        nomeProfissional: "",
-        idCliente,
-        sexo,
-        cdDependente,
-        nrCarteirinha
-      });
-
-      const headers = getApiHeaders();
-
-      const params = new URLSearchParams({
-        idConvenio: selectedConvenio,
-        idadeCliente,
-        idEspecialidade: selectedEspecialidade,
-        nomeProfissional: "",
-        idCliente,
-        sexo,
-        cdDependente,
-        nrCarteirinha
-      });
-
-      console.log("URL da requisição:", `https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ListarProfissionaisComAgendaDisponivel3?${params}`);
-
-      const response = await fetch(
-        `https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ListarProfissionaisComAgendaDisponivel3?${params}`,
-        {
-          method: "GET",
-          headers
-        }
-      );
-
-      const data = await response.json();
-      console.log("Resposta da API:", data);
-
-      if (data.sucesso && data.dados) {
-        // Salvar os dados no localStorage
-        localStorage.setItem("appointmentProfessionals", JSON.stringify(data.dados));
-        localStorage.setItem("selectedAppointmentConvenio", selectedConvenio);
-        localStorage.setItem("selectedAppointmentEspecialidade", selectedEspecialidade);
-        
-        console.log("Dados salvos no localStorage:", {
-          profissionais: data.dados,
-          convenio: selectedConvenio,
-          especialidade: selectedEspecialidade
-        });
-        
-        // Navegar para a página de seleção de profissionais
-        navigate("/appointment-professionals");
-      } else {
-        console.error("Erro na resposta da API:", data);
-        alert(data.mensagem || "Nenhum profissional disponível encontrado");
+    
+    navigate("/appointment-professionals", {
+      state: {
+        selectedPatient,
+        selectedConvenio,
+        selectedEspecialidade
       }
-    } catch (error) {
-      console.error("Erro ao buscar profissionais:", error);
-      alert("Erro ao buscar profissionais disponíveis");
-    }
+    });
   };
 
   if (!selectedPatient) {
@@ -387,69 +257,30 @@ const AppointmentDetails = () => {
                   </Select>
                 </div>
 
-                {encaminhamentos.length > 0 && (
-                  <div className="flex items-center space-x-2 p-3 rounded-lg border bg-muted/30">
-                    <Checkbox 
-                      id="encaminhamento" 
-                      checked={useEncaminhamento}
-                      onCheckedChange={(checked) => setUseEncaminhamento(checked === true)}
-                    />
-                    <Label 
-                      htmlFor="encaminhamento" 
-                      className="text-sm font-medium cursor-pointer"
-                    >
-                      Agendar por encaminhamento médico
-                    </Label>
-                  </div>
-                )}
-
                 <div className="space-y-2">
-                  <Label htmlFor="especialidade">
-                    {useEncaminhamento ? "Encaminhamento" : "Especialidade"}
-                  </Label>
-                  {useEncaminhamento ? (
-                    <Select 
-                      value={selectedEspecialidade} 
-                      onValueChange={setSelectedEspecialidade}
-                    >
-                      <SelectTrigger id="especialidade">
-                        <SelectValue placeholder="Selecione o encaminhamento" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {encaminhamentos.map((encaminhamento) => (
-                          <SelectItem 
-                            key={encaminhamento.id} 
-                            value={encaminhamento.CD_ESPECIALIDADE.toString()}
-                          >
-                            {encaminhamento.descricao || encaminhamento.DS_ESPECIALIDADE}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <Select 
-                      value={selectedEspecialidade} 
-                      onValueChange={setSelectedEspecialidade}
-                      disabled={!selectedConvenio || loadingEspecialidades}
-                    >
-                      <SelectTrigger id="especialidade">
-                        <SelectValue placeholder={
-                          loadingEspecialidades 
-                            ? "Carregando..." 
-                            : !selectedConvenio 
-                              ? "Selecione um convênio primeiro"
-                              : "Selecione a especialidade"
-                        } />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {especialidades.map((especialidade) => (
-                          <SelectItem key={especialidade.id} value={especialidade.id.toString()}>
-                            {especialidade.descricao}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
+                  <Label htmlFor="especialidade">Especialidade</Label>
+                  <Select 
+                    value={selectedEspecialidade} 
+                    onValueChange={setSelectedEspecialidade}
+                    disabled={!selectedConvenio || loadingEspecialidades}
+                  >
+                    <SelectTrigger id="especialidade">
+                      <SelectValue placeholder={
+                        loadingEspecialidades 
+                          ? "Carregando..." 
+                          : !selectedConvenio 
+                            ? "Selecione um convênio primeiro"
+                            : "Selecione a especialidade"
+                      } />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {especialidades.map((especialidade) => (
+                        <SelectItem key={especialidade.id} value={especialidade.id.toString()}>
+                          {especialidade.descricao}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <Button 
