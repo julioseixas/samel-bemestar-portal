@@ -205,19 +205,71 @@ const AppointmentDetails = () => {
     setSelectedEspecialidade("");
   }, [useEncaminhamento]);
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
+    console.log("=== INICIANDO BUSCA DE PROFISSIONAIS ===");
+    
     if (!selectedConvenio || !selectedEspecialidade) {
       alert("Por favor, selecione o convênio e a especialidade");
       return;
     }
-    
-    navigate("/appointment-professionals", {
-      state: {
-        selectedPatient,
-        selectedConvenio,
-        selectedEspecialidade
+
+    if (!selectedPatient || !titular) {
+      alert("Dados do paciente não encontrados");
+      return;
+    }
+
+    try {
+      console.log("Dados para busca:", {
+        idConvenio: selectedConvenio,
+        idEspecialidade: selectedEspecialidade,
+        cdPessoaFisica: titular.cdPessoaFisica,
+        idDependente: selectedPatient.id
+      });
+
+      const headers = getApiHeaders();
+
+      const params = new URLSearchParams({
+        idConvenio: selectedConvenio,
+        idEspecialidade: selectedEspecialidade,
+        cdPessoaFisica: titular.cdPessoaFisica?.toString() || "",
+        idDependente: selectedPatient.id?.toString() || ""
+      });
+
+      console.log("URL da requisição:", `https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ListarProfissionaisComAgendaDisponivel?${params}`);
+
+      const response = await fetch(
+        `https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ListarProfissionaisComAgendaDisponivel?${params}`,
+        {
+          method: "GET",
+          headers
+        }
+      );
+
+      const data = await response.json();
+      console.log("Resposta da API:", data);
+
+      if (data.sucesso && data.dados) {
+        // Salvar os dados no localStorage
+        localStorage.setItem("appointmentProfessionals", JSON.stringify(data.dados));
+        localStorage.setItem("selectedAppointmentConvenio", selectedConvenio);
+        localStorage.setItem("selectedAppointmentEspecialidade", selectedEspecialidade);
+        
+        console.log("Dados salvos no localStorage:", {
+          profissionais: data.dados,
+          convenio: selectedConvenio,
+          especialidade: selectedEspecialidade
+        });
+        
+        // Navegar para a página de seleção de profissionais
+        navigate("/appointment-professionals");
+      } else {
+        console.error("Erro na resposta da API:", data);
+        alert(data.mensagem || "Nenhum profissional disponível encontrado");
       }
-    });
+    } catch (error) {
+      console.error("Erro ao buscar profissionais:", error);
+      alert("Erro ao buscar profissionais disponíveis");
+    }
   };
 
   if (!selectedPatient) {
