@@ -49,7 +49,7 @@ const TermsList = () => {
       const headers = getApiHeaders();
       
       const response = await fetch(
-        "http://localhost:3000/api/termos/buscarTermos",
+        "https://api-portalpaciente-web.samel.com.br/api/termos/buscarTermos",
         {
           method: "GET",
           headers,
