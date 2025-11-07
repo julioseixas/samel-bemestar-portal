@@ -25,7 +25,6 @@ const TermsList = () => {
   const [loading, setLoading] = useState(true);
   const [selectedTerm, setSelectedTerm] = useState<Term | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [pdfUrl, setPdfUrl] = useState<string>("");
 
   useEffect(() => {
     const patientData = localStorage.getItem("patientData");
@@ -83,37 +82,7 @@ const TermsList = () => {
 
   const handleTermClick = (term: Term) => {
     setSelectedTerm(term);
-    
-    // Converter base64 para Blob URL
-    try {
-      const base64Data = term.DS_TERMO.split(',')[1];
-      const byteCharacters = atob(base64Data);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      setPdfUrl(url);
-    } catch (error) {
-      console.error("Erro ao processar PDF:", error);
-      toast({
-        description: "Erro ao carregar o PDF",
-        variant: "destructive",
-      });
-    }
-    
     setIsModalOpen(true);
-  };
-
-  // Limpar URL quando fechar o modal
-  const handleCloseModal = (open: boolean) => {
-    setIsModalOpen(open);
-    if (!open && pdfUrl) {
-      URL.revokeObjectURL(pdfUrl);
-      setPdfUrl("");
-    }
   };
 
   return (
@@ -184,7 +153,7 @@ const TermsList = () => {
           </div>
         )}
 
-        <Dialog open={isModalOpen} onOpenChange={handleCloseModal}>
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
           <DialogContent className="max-w-[95vw] h-[90vh] flex flex-col p-0">
             <DialogHeader className="px-6 py-4 border-b">
               <DialogTitle>{selectedTerm?.NM_TERMO}</DialogTitle>
@@ -192,12 +161,12 @@ const TermsList = () => {
                 Visualize o termo de consentimento
               </DialogDescription>
             </DialogHeader>
-            <div className="flex-1 overflow-hidden bg-muted">
-              {pdfUrl && (
-                <embed
-                  src={pdfUrl}
-                  type="application/pdf"
-                  className="w-full h-full"
+            <div className="flex-1 overflow-auto bg-background">
+              {selectedTerm?.DS_TERMO && (
+                <iframe
+                  src={selectedTerm.DS_TERMO}
+                  className="w-full h-full border-0"
+                  title="Visualizar PDF"
                 />
               )}
             </div>
