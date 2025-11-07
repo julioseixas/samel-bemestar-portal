@@ -246,8 +246,8 @@ const ExamDetails = () => {
         console.log("Dados salvos no localStorage:", normalizedData);
         console.log("Convênio salvo:", selectedConvenio);
         
-        // Navigate to professionals page
-        navigate("/appointment-professionals");
+        // Navigate to exam times page
+        navigate("/exam-times");
       } else {
         console.error("Erro na resposta da API:", data);
         alert(data.mensagem || "Erro ao buscar profissionais disponíveis");
