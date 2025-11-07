@@ -195,7 +195,8 @@ const ScheduledAppointments = () => {
           method: "POST",
           headers: getApiHeaders(),
           body: JSON.stringify({
-            idAgenda: cancelingId,
+            idHorarioAgenda: cancelingId,
+            tipoAgendamento: 0
           }),
         }
       );
@@ -204,14 +205,12 @@ const ScheduledAppointments = () => {
 
       if (data.sucesso) {
         toast({
-          title: "Sucesso",
-          description: "Consulta cancelada com sucesso",
+          description: data.mensagem,
         });
         // Atualiza a lista removendo o agendamento cancelado
         setAppointments(appointments.filter(apt => apt.id !== cancelingId));
       } else {
         toast({
-          title: "Erro",
           description: data.mensagem || "Erro ao cancelar consulta",
           variant: "destructive",
         });

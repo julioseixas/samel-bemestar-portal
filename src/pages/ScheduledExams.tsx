@@ -195,7 +195,8 @@ const ScheduledExams = () => {
           method: "POST",
           headers: getApiHeaders(),
           body: JSON.stringify({
-            idAgenda: cancelingId,
+            idHorarioAgenda: cancelingId,
+            tipoAgendamento: 1
           }),
         }
       );
@@ -204,14 +205,12 @@ const ScheduledExams = () => {
 
       if (data.sucesso) {
         toast({
-          title: "Sucesso",
-          description: "Exame cancelado com sucesso",
+          description: data.mensagem,
         });
         // Atualiza a lista removendo o exame cancelado
         setExams(exams.filter(exam => exam.id !== cancelingId));
       } else {
         toast({
-          title: "Erro",
           description: data.mensagem || "Erro ao cancelar exame",
           variant: "destructive",
         });
