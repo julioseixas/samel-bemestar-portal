@@ -46,6 +46,7 @@ const AppointmentTimes = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTokenModalOpen, setIsTokenModalOpen] = useState(false);
   const [token, setToken] = useState("");
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const { toast } = useToast();
 
   const { selectedPatient, selectedConvenio, selectedEspecialidade, selectedProfissional } = location.state || {};
@@ -352,15 +353,10 @@ const AppointmentTimes = () => {
       const data = await response.json();
 
       if (data.sucesso) {
-        toast({
-          title: "Sucesso!",
-          description: data.mensagem
-        });
         setIsTokenModalOpen(false);
         setToken("");
         setPhoneNumber("");
-        // Navegar de volta ou para página de confirmação
-        setTimeout(() => navigate("/appointment-schedule"), 2000);
+        setIsSuccessModalOpen(true);
       } else {
         toast({
           variant: "destructive",
@@ -575,6 +571,39 @@ const AppointmentTimes = () => {
               disabled={!token || isSubmitting}
             >
               {isSubmitting ? "Validando..." : "Confirmar"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isSuccessModalOpen} onOpenChange={setIsSuccessModalOpen}>
+        <DialogContent className="max-w-[95vw] w-full sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-2xl">✅ Consulta Marcada com Sucesso!</DialogTitle>
+            <DialogDescription className="text-center pt-2">
+              Sua consulta foi agendada com sucesso. O que você deseja fazer agora?
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex flex-col gap-3 py-4">
+            <Button
+              onClick={() => {
+                setIsSuccessModalOpen(false);
+                navigate("/");
+              }}
+              className="w-full"
+            >
+              Voltar ao Menu Principal
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsSuccessModalOpen(false);
+                navigate("/scheduled-appointments");
+              }}
+              className="w-full"
+            >
+              Ver Meus Agendamentos
             </Button>
           </div>
         </DialogContent>
