@@ -233,23 +233,28 @@ const AppointmentDetails = () => {
     }
 
     try {
-      const cdPessoaFisica = selectedPatient.cdPessoaFisica?.toString() || titular.cdPessoaFisica?.toString() || "";
-      const idDependente = selectedPatient.id?.toString() || "";
+      const idCliente = selectedPatient.cdPessoaFisica?.toString() || titular.cdPessoaFisica?.toString() || "";
+      const idadeCliente = selectedPatient.idade?.toString() || "0";
+      const sexo = selectedPatient.sexo || "";
       
-      console.log("Dados para busca:", {
+      console.log("Dados para busca de profissionais:", {
         idConvenio: selectedConvenio,
+        idadeCliente,
         idEspecialidade: selectedEspecialidade,
-        cdPessoaFisica,
-        idDependente
+        nomeProfissional: "",
+        idCliente,
+        sexo
       });
 
       const headers = getApiHeaders();
 
       const params = new URLSearchParams({
         idConvenio: selectedConvenio,
+        idadeCliente,
         idEspecialidade: selectedEspecialidade,
-        cdPessoaFisica,
-        idDependente
+        nomeProfissional: "",
+        idCliente,
+        sexo
       });
 
       console.log("URL da requisição:", `https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ListarProfissionaisComAgendaDisponivel?${params}`);
