@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ArrowLeft, FileText, Loader2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -157,13 +157,16 @@ const TermsList = () => {
           <DialogContent className="max-w-[95vw] h-[90vh] flex flex-col p-0">
             <DialogHeader className="px-6 py-4 border-b">
               <DialogTitle>{selectedTerm?.NM_TERMO}</DialogTitle>
+              <DialogDescription>
+                Visualize o termo de consentimento
+              </DialogDescription>
             </DialogHeader>
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 overflow-hidden bg-muted">
               {selectedTerm && (
-                <iframe
+                <embed
                   src={selectedTerm.DS_TERMO}
+                  type="application/pdf"
                   className="w-full h-full"
-                  title="PDF Viewer"
                 />
               )}
             </div>
