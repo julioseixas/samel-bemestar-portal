@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
+import { getApiHeaders } from "@/lib/api-headers";
 import samelLogo from "@/assets/samel-logo.png";
 
 const Login = () => {
@@ -90,13 +91,14 @@ const Login = () => {
               const idCliente = decoded.cd_pessoa_fisica || decoded.id;
               
               try {
+                // Aguarda um momento para garantir que o token foi salvo
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
                 const notificacoesResponse = await fetch(
                   "https://api-portalpaciente-web.samel.com.br/api/notificacao/ObterNotificacoesCliente",
                   {
                     method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
+                    headers: getApiHeaders(),
                     body: JSON.stringify({
                       idCliente: idCliente,
                     }),
@@ -114,17 +116,14 @@ const Login = () => {
 
               // Busca a foto do perfil
               try {
+                // Aguarda um momento para garantir que o token foi salvo
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
                 const fotoResponse = await fetch(
                   "https://api-portalpaciente-web.samel.com.br/api/Cliente/ObterFoto",
                   {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                      "identificador-dispositivo": "request-android",
-                    },
-                    body: JSON.stringify({
-                      idCliente: idCliente,
-                    }),
+                    method: "GET",
+                    headers: getApiHeaders(),
                   }
                 );
 

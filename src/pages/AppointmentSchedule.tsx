@@ -93,7 +93,7 @@ const AppointmentSchedule = () => {
     }
   }, []);
 
-  const handleSelectPatient = (patient: Patient) => {
+  const handleSelectPatient = async (patient: Patient) => {
     const patientData = {
       id: patient.id,
       nome: patient.nome,
@@ -106,6 +106,44 @@ const AppointmentSchedule = () => {
     
     console.log("Dados do paciente selecionado:", patientData);
     localStorage.setItem("selectedPatient", JSON.stringify(patientData));
+    
+    // Buscar encaminhamentos do paciente
+    try {
+      const userToken = localStorage.getItem("user") || "";
+      if (!userToken) {
+        throw new Error("Token de autenticação não encontrado");
+      }
+
+      const headers = {
+        "Content-Type": "application/json",
+        "identificador-dispositivo": "request-android",
+        "chave-autenticacao": userToken
+      };
+
+      const response = await fetch(
+        `https://api-portalpaciente-web.samel.com.br/api/Agenda/Encaminhamento/buscarEncaminhamentosPaciente/${patient.id}`,
+        {
+          method: "GET",
+          headers
+        }
+      );
+      
+      const data = await response.json();
+      console.log("Encaminhamentos do paciente:", data);
+      
+      if (data.status && data.dados && data.dados.length > 0) {
+        // Salvar encaminhamentos no localStorage
+        localStorage.setItem("patientEncaminhamentos", JSON.stringify(data.dados));
+      } else {
+        // Limpar encaminhamentos anteriores
+        localStorage.removeItem("patientEncaminhamentos");
+      }
+    } catch (error) {
+      console.error("Erro ao buscar encaminhamentos:", error);
+      // Limpar encaminhamentos em caso de erro
+      localStorage.removeItem("patientEncaminhamentos");
+    }
+    
     navigate("/appointment-details");
   };
 

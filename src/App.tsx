@@ -19,6 +19,7 @@ import AppointmentProfessionals from "./pages/AppointmentProfessionals";
 import AppointmentTimes from "./pages/AppointmentTimes";
 import ExamSchedule from "./pages/ExamSchedule";
 import ExamDetails from "./pages/ExamDetails";
+import ExamTimes from "./pages/ExamTimes";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
           <Route path="/appointment-times" element={<AppointmentTimes />} />
           <Route path="/exam-schedule" element={<ExamSchedule />} />
           <Route path="/exam-details" element={<ExamDetails />} />
+          <Route path="/exam-times" element={<ExamTimes />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

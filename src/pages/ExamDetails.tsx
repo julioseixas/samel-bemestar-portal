@@ -18,6 +18,7 @@ interface Patient {
   codigoCarteirinha?: string;
   idade?: number;
   cdPessoaFisica?: number;
+  idEmpresa?: number;
 }
 
 interface Convenio {
@@ -181,7 +182,7 @@ const ExamDetails = () => {
     procedimento.descricao.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (!selectedConvenio) {
       alert("Por favor, selecione o convênio");
       return;
@@ -192,10 +193,69 @@ const ExamDetails = () => {
       return;
     }
     
-    // TODO: Navigate to exam scheduling
-    console.log("Convênio selecionado:", selectedConvenio);
-    console.log("Procedimentos selecionados:", selectedProcedimentos);
-    console.log("Paciente:", selectedPatient);
+    try {
+      const headers = getApiHeaders();
+      
+      const response = await fetch(
+        'https://api-portalpaciente-web.samel.com.br/api/Agenda/Procedimento/ListarProfissionaisComAgendaDisponivelParaProcedimentos2',
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            idConvenio: parseInt(selectedConvenio),
+            idadeCliente: selectedPatient?.idade || 0,
+            idProcedimentos: selectedProcedimentos
+          })
+        }
+      );
+      
+      const data = await response.json();
+      
+      console.log("Resposta da API de profissionais:", data);
+      console.log("Dados dos profissionais:", data.dados);
+      
+      if (data.sucesso && data.dados) {
+        // Normaliza os dados para sempre ser um array
+        let normalizedData = data.dados;
+        
+        // Se data.dados não é um array, transforma em array
+        if (!Array.isArray(data.dados)) {
+          normalizedData = [data.dados];
+        }
+        
+        // Verifica se cada item do array tem a estrutura correta
+        normalizedData = normalizedData.map((item: any) => {
+          // Se o item não tem a propriedade 'dados', pode ser que seja um profissional direto
+          if (!item.dados && item.idAgenda) {
+            // É um profissional direto, precisa wrappear
+            return {
+              combinacao: item.dsEspecialidade || "Exame",
+              dados: [item]
+            };
+          }
+          return item;
+        });
+        
+        console.log("Dados normalizados:", normalizedData);
+        
+        // Save professionals data to localStorage
+        localStorage.setItem("examProfessionals", JSON.stringify(normalizedData));
+        localStorage.setItem("selectedExamProcedimentos", JSON.stringify(selectedProcedimentos));
+        localStorage.setItem("selectedExamConvenio", selectedConvenio);
+        
+        console.log("Dados salvos no localStorage:", normalizedData);
+        console.log("Convênio salvo:", selectedConvenio);
+        
+        // Navigate to professionals page
+        navigate("/appointment-professionals");
+      } else {
+        console.error("Erro na resposta da API:", data);
+        alert(data.mensagem || "Erro ao buscar profissionais disponíveis");
+      }
+    } catch (error) {
+      console.error("Erro ao buscar profissionais:", error);
+      alert("Erro ao buscar profissionais disponíveis");
+    }
   };
 
   if (!selectedPatient) {
