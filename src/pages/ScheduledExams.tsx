@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getApiHeaders } from "@/lib/api-headers";
 import { Skeleton } from "@/components/ui/skeleton";
 import { jwtDecode } from "jwt-decode";
+import { parse, isAfter } from "date-fns";
 
 interface Agendamento {
   id: number;
@@ -29,6 +30,7 @@ interface Agendamento {
   procedimentos: any[];
   tipoAgenda: string;
   tipoAgendamento: number;
+  statusAgenda?: string;
 }
 
 const ScheduledExams = () => {
@@ -102,8 +104,25 @@ const ScheduledExams = () => {
       if (data.sucesso && data.dados) {
         // Filtra apenas exames (tipoAgendamento === 1) e não cancelados
         const examsList = data.dados.filter(
-          (agendamento: Agendamento) => 
-            !agendamento.cancelado && agendamento.tipoAgendamento === 1
+          (agendamento: Agendamento) => {
+            // 1. Não mostrar se cancelado
+            if (agendamento.cancelado) return false;
+            
+            // 2. Não mostrar se statusAgenda for "O"
+            if (agendamento.statusAgenda === "O") return false;
+            
+            // 3. Não mostrar se dataAgenda for menor que data atual (mostrar apenas futuros)
+            try {
+              const agendaDate = parse(agendamento.dataAgenda, 'yyyy/MM/dd HH:mm:ss', new Date());
+              if (!isAfter(agendaDate, new Date())) return false;
+            } catch (error) {
+              console.error("Erro ao parsear data:", error);
+              return false;
+            }
+            
+            // Filtrar apenas exames
+            return agendamento.tipoAgendamento === 1;
+          }
         );
         setExams(examsList);
       } else {
