@@ -10,13 +10,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { getApiHeaders } from "@/lib/api-headers";
 
 interface Patient {
-  id: number;
+  id: string | number;
   nome: string;
   tipo: string;
   sexo?: string;
   codigoCarteirinha?: string;
   idade?: number;
-  cdPessoaFisica?: number;
+  cdPessoaFisica?: string | number;
 }
 
 interface Convenio {
@@ -163,15 +163,27 @@ const AppointmentDetails = () => {
         setSelectedEspecialidade("");
 
         const cdDependente = selectedPatient.id?.toString() || "";
+        const nrCarteirinha = selectedPatient.codigoCarteirinha || "";
+        const cdPessoaFisica = selectedPatient.cdPessoaFisica?.toString() || titular.cdPessoaFisica?.toString() || "";
+        
+        console.log("Parâmetros da busca de especialidades:", {
+          idConvenio: selectedConvenio,
+          idadeCliente: selectedPatient.idade?.toString() || "0",
+          cdPessoaFisica,
+          sexo: selectedPatient.sexo || "",
+          descricaoEspecialidade: "",
+          cdDependente,
+          nrCarteirinha
+        });
         
         const params = new URLSearchParams({
           idConvenio: selectedConvenio,
           idadeCliente: selectedPatient.idade?.toString() || "0",
-          cdPessoaFisica: titular.cdPessoaFisica?.toString() || "",
+          cdPessoaFisica,
           sexo: selectedPatient.sexo || "",
           descricaoEspecialidade: "",
           cdDependente: cdDependente,
-          nrCarteirinha: selectedPatient.codigoCarteirinha || ""
+          nrCarteirinha: nrCarteirinha
         });
 
         const headers = getApiHeaders();
@@ -189,6 +201,8 @@ const AppointmentDetails = () => {
         
         if (data.sucesso && data.dados) {
           setEspecialidades(data.dados);
+        } else {
+          console.error("Erro ao buscar especialidades:", data.mensagem);
         }
       } catch (error) {
         console.error("Erro ao buscar especialidades:", error);
@@ -219,11 +233,14 @@ const AppointmentDetails = () => {
     }
 
     try {
+      const cdPessoaFisica = selectedPatient.cdPessoaFisica?.toString() || titular.cdPessoaFisica?.toString() || "";
+      const idDependente = selectedPatient.id?.toString() || "";
+      
       console.log("Dados para busca:", {
         idConvenio: selectedConvenio,
         idEspecialidade: selectedEspecialidade,
-        cdPessoaFisica: titular.cdPessoaFisica,
-        idDependente: selectedPatient.id
+        cdPessoaFisica,
+        idDependente
       });
 
       const headers = getApiHeaders();
@@ -231,8 +248,8 @@ const AppointmentDetails = () => {
       const params = new URLSearchParams({
         idConvenio: selectedConvenio,
         idEspecialidade: selectedEspecialidade,
-        cdPessoaFisica: titular.cdPessoaFisica?.toString() || "",
-        idDependente: selectedPatient.id?.toString() || ""
+        cdPessoaFisica,
+        idDependente
       });
 
       console.log("URL da requisição:", `https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ListarProfissionaisComAgendaDisponivel?${params}`);

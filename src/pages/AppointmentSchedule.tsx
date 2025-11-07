@@ -8,13 +8,14 @@ import { ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface Patient {
-  id: number;
+  id: string | number;
   nome: string;
   tipo: string;
   idade?: number;
   sexo?: string;
   codigoCarteirinha?: string;
   dataNascimento?: string;
+  cdPessoaFisica?: string | number;
 }
 
 const AppointmentSchedule = () => {
@@ -54,28 +55,30 @@ const AppointmentSchedule = () => {
           // Adicionar o titular (do clienteContratos)
           if (firstPatient.clienteContratos && firstPatient.clienteContratos.length > 0) {
             const titularContrato = firstPatient.clienteContratos[0];
-        allPatients.push({
-          id: firstPatient.cdPessoaFisica || Date.now(),
-          nome: firstPatient.nome,
-          tipo: "Titular",
-          idade: titularContrato.idade,
-          sexo: titularContrato.sexo,
-          codigoCarteirinha: titularContrato.codigoCarteirinha,
-          dataNascimento: titularContrato.dataNascimento
-        });
+            allPatients.push({
+              id: titularContrato.id || firstPatient.cdPessoaFisica || Date.now(),
+              nome: titularContrato.nome || firstPatient.nome,
+              tipo: "Titular",
+              idade: titularContrato.idade,
+              sexo: titularContrato.sexo,
+              codigoCarteirinha: titularContrato.codigoCarteirinha,
+              dataNascimento: titularContrato.dataNascimento,
+              cdPessoaFisica: titularContrato.id || firstPatient.cdPessoaFisica
+            });
             
             // Adicionar os dependentes
             if (titularContrato.dependentes && titularContrato.dependentes.length > 0) {
               titularContrato.dependentes.forEach((dependente: any, index: number) => {
-            allPatients.push({
-              id: dependente.cdPessoaFisica || Date.now() + index + 1,
-              nome: dependente.nome,
-              tipo: "Dependente",
-              idade: dependente.idade,
-              sexo: dependente.sexo,
-              codigoCarteirinha: dependente.codigoCarteirinha,
-              dataNascimento: dependente.dataNascimento
-            });
+                allPatients.push({
+                  id: dependente.id || dependente.cdPessoaFisica || Date.now() + index + 1,
+                  nome: dependente.nome,
+                  tipo: "Dependente",
+                  idade: dependente.idade,
+                  sexo: dependente.sexo,
+                  codigoCarteirinha: dependente.codigoCarteirinha,
+                  dataNascimento: dependente.dataNascimento,
+                  cdPessoaFisica: dependente.id || dependente.cdPessoaFisica
+                });
               });
             }
           }
@@ -101,7 +104,8 @@ const AppointmentSchedule = () => {
       idade: patient.idade,
       sexo: patient.sexo,
       codigoCarteirinha: patient.codigoCarteirinha,
-      dataNascimento: patient.dataNascimento
+      dataNascimento: patient.dataNascimento,
+      cdPessoaFisica: patient.cdPessoaFisica || patient.id
     };
     
     console.log("Dados do paciente selecionado:", patientData);
