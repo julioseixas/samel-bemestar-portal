@@ -236,6 +236,8 @@ const AppointmentDetails = () => {
       const idCliente = selectedPatient.cdPessoaFisica?.toString() || titular.cdPessoaFisica?.toString() || "";
       const idadeCliente = selectedPatient.idade?.toString() || "0";
       const sexo = selectedPatient.sexo || "";
+      const cdDependente = selectedPatient.id?.toString() || "";
+      const nrCarteirinha = selectedPatient.codigoCarteirinha || "";
       
       console.log("Dados para busca de profissionais:", {
         idConvenio: selectedConvenio,
@@ -243,7 +245,9 @@ const AppointmentDetails = () => {
         idEspecialidade: selectedEspecialidade,
         nomeProfissional: "",
         idCliente,
-        sexo
+        sexo,
+        cdDependente,
+        nrCarteirinha
       });
 
       const headers = getApiHeaders();
@@ -254,7 +258,9 @@ const AppointmentDetails = () => {
         idEspecialidade: selectedEspecialidade,
         nomeProfissional: "",
         idCliente,
-        sexo
+        sexo,
+        cdDependente,
+        nrCarteirinha
       });
 
       console.log("URL da requisição:", `https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ListarProfissionaisComAgendaDisponivel3?${params}`);
