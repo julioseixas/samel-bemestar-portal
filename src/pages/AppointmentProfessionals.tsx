@@ -43,12 +43,7 @@ const AppointmentProfessionals = () => {
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
     const storedProfilePhoto = localStorage.getItem("profilePhoto");
-    const storedExamProfessionals = localStorage.getItem("examProfessionals");
     const storedAppointmentProfessionals = localStorage.getItem("appointmentProfessionals");
-
-    console.log("=== CARREGANDO PROFISSIONAIS ===");
-    console.log("Exame profissionais:", !!storedExamProfessionals);
-    console.log("Consulta profissionais:", !!storedAppointmentProfessionals);
 
     if (storedTitular) {
       try {
@@ -63,8 +58,8 @@ const AppointmentProfessionals = () => {
       setProfilePhoto(storedProfilePhoto);
     }
 
-    // Priorizar dados de consulta, depois exame
-    const storedProfessionals = storedAppointmentProfessionals || storedExamProfessionals;
+    // Carregar apenas dados de consulta
+    const storedProfessionals = storedAppointmentProfessionals;
 
     if (storedProfessionals) {
       try {
@@ -85,16 +80,21 @@ const AppointmentProfessionals = () => {
         setProfissionaisGroups(parsedProfessionals);
       } catch (error) {
         console.error("Erro ao processar profissionais:", error);
-        // Redirecionar para a página correta baseado no tipo de agendamento
-        if (storedAppointmentProfessionals) {
-          navigate("/appointment-details");
-        } else {
-          navigate("/exam-details");
-        }
+        navigate("/appointment-details");
       }
     } else {
-      console.log("Nenhum dado de profissional encontrado no localStorage");
-      navigate("/appointment-schedule");
+      console.log("Nenhum dado de profissional de consulta encontrado no localStorage");
+      // Detectar contexto e redirecionar apropriadamente
+      const selectedAppointmentConvenio = localStorage.getItem("selectedAppointmentConvenio");
+      const selectedExamConvenio = localStorage.getItem("selectedExamConvenio");
+
+      if (selectedAppointmentConvenio) {
+        navigate("/appointment-details");
+      } else if (selectedExamConvenio) {
+        navigate("/exam-professionals");
+      } else {
+        navigate("/appointment-schedule");
+      }
     }
   }, [navigate]);
 
@@ -126,11 +126,7 @@ const AppointmentProfessionals = () => {
               
               <Button
                 variant="outline"
-                onClick={() => {
-                  // Verificar qual fluxo está ativo
-                  const isAppointment = !!localStorage.getItem("appointmentProfessionals");
-                  navigate(isAppointment ? "/appointment-details" : "/exam-details");
-                }}
+                onClick={() => navigate("/appointment-details")}
                 className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
                 size="sm"
               >
@@ -173,27 +169,20 @@ const AppointmentProfessionals = () => {
                   console.log("Renderizando profissional:", profissional.nome);
                   
                   const handleSelectProfessional = () => {
-                    console.log("Profissional selecionado:", profissional);
+                    console.log("Profissional de consulta selecionado:", profissional);
                     
-                    // Verificar qual fluxo está ativo
-                    const isAppointment = !!localStorage.getItem("appointmentProfessionals");
-                    
-                    // Recuperar o idConvenio do localStorage correto
-                    const selectedConvenio = isAppointment 
-                      ? localStorage.getItem("selectedAppointmentConvenio")
-                      : localStorage.getItem("selectedExamConvenio");
+                    // Recuperar o idConvenio de consulta
+                    const selectedConvenio = localStorage.getItem("selectedAppointmentConvenio");
                     
                     if (!selectedConvenio) {
-                      console.error("ID do convênio não encontrado");
+                      console.error("ID do convênio de consulta não encontrado");
                       return;
                     }
                     
-                    console.log("Tipo de agendamento:", isAppointment ? "Consulta" : "Exame");
-                    console.log("ID do convênio recuperado:", selectedConvenio);
+                    console.log("ID do convênio de consulta recuperado:", selectedConvenio);
                     
-                    // Navegar para a página correta de seleção de horários
-                    const targetRoute = isAppointment ? "/appointment-times" : "/exam-times";
-                    navigate(targetRoute, {
+                    // Navegar para seleção de horários de consulta
+                    navigate("/appointment-times", {
                       state: {
                         selectedProfessional: profissional,
                         selectedConvenio: selectedConvenio
