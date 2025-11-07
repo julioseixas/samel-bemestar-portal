@@ -171,21 +171,48 @@ const AppointmentProfessionals = () => {
                   const handleSelectProfessional = () => {
                     console.log("Profissional de consulta selecionado:", profissional);
                     
-                    // Recuperar o idConvenio de consulta
+                    // Recuperar todos os dados necessários do localStorage
                     const selectedConvenio = localStorage.getItem("selectedAppointmentConvenio");
+                    const selectedEspecialidade = localStorage.getItem("selectedAppointmentEspecialidade");
+                    const storedPatient = localStorage.getItem("selectedPatient");
                     
                     if (!selectedConvenio) {
                       console.error("ID do convênio de consulta não encontrado");
                       return;
                     }
                     
-                    console.log("ID do convênio de consulta recuperado:", selectedConvenio);
+                    if (!selectedEspecialidade) {
+                      console.error("ID da especialidade não encontrado");
+                      return;
+                    }
                     
-                    // Navegar para seleção de horários de consulta
+                    let selectedPatient = null;
+                    if (storedPatient) {
+                      try {
+                        selectedPatient = JSON.parse(storedPatient);
+                      } catch (error) {
+                        console.error("Erro ao recuperar paciente:", error);
+                        return;
+                      }
+                    } else {
+                      console.error("Paciente não encontrado");
+                      return;
+                    }
+                    
+                    console.log("Dados para navegação:", {
+                      selectedPatient,
+                      selectedConvenio,
+                      selectedEspecialidade,
+                      selectedProfissional: profissional
+                    });
+                    
+                    // Navegar para seleção de horários de consulta com todos os dados
                     navigate("/appointment-times", {
                       state: {
-                        selectedProfessional: profissional,
-                        selectedConvenio: selectedConvenio
+                        selectedPatient,
+                        selectedConvenio,
+                        selectedEspecialidade,
+                        selectedProfissional: profissional
                       }
                     });
                   };
