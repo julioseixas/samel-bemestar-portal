@@ -1,7 +1,7 @@
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Calendar, TestTube, ArrowLeft } from "lucide-react";
+import { Calendar, TestTube } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
@@ -33,22 +33,24 @@ const ScheduledAppointmentsChoice = () => {
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
       
       <main className="flex-1 container mx-auto px-4 py-6 md:px-6 md:py-10">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/dashboard")}
-          className="mb-6 gap-2"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Voltar ao Dashboard
-        </Button>
-
-        <div className="mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-            Consultas e Exames Agendados
-          </h1>
-          <p className="text-muted-foreground">
-            Escolha o que deseja visualizar
-          </p>
+        <div className="flex items-center justify-between gap-4 mb-8">
+          <div className="flex-1">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+              Consultas e Exames Agendados
+            </h1>
+            <p className="text-muted-foreground">
+              Escolha o que deseja visualizar
+            </p>
+          </div>
+          
+          <Button
+            variant="outline"
+            onClick={() => navigate("/dashboard")}
+            className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
+            size="sm"
+          >
+            Voltar
+          </Button>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 max-w-4xl">
