@@ -6,21 +6,17 @@ import { DashboardCard } from "@/components/DashboardCard";
 import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, FolderOpen, FileSignature } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
-  const [jwtInfo, setJwtInfo] = useState<any>(null);
 
   useEffect(() => {
     // Carrega os dados do paciente do localStorage
     const patientData = localStorage.getItem("patientData");
     const photo = localStorage.getItem("profilePhoto");
-    const userToken = localStorage.getItem("user");
     
     if (patientData) {
       try {
@@ -33,16 +29,6 @@ const Index = () => {
     
     if (photo) {
       setProfilePhoto(photo);
-    }
-
-    // Decodifica o JWT para mostrar informações técnicas
-    if (userToken) {
-      try {
-        const decoded: any = jwtDecode(userToken);
-        setJwtInfo(decoded);
-      } catch (error) {
-        console.error("Erro ao decodificar JWT:", error);
-      }
     }
   }, []);
 
@@ -206,59 +192,6 @@ const Index = () => {
               />
             </div>
           </div>
-
-          {/* Informações Técnicas do JWT */}
-          {jwtInfo && (
-            <div className="mb-6 sm:mb-8">
-              <Accordion type="single" collapsible className="w-full">
-                <AccordionItem value="jwt-info">
-                  <AccordionTrigger className="text-base sm:text-lg font-semibold">
-                    Informações Técnicas do JWT
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <div className="space-y-2 text-xs sm:text-sm pt-2">
-                      <div className="grid grid-cols-[100px_1fr] sm:grid-cols-[140px_1fr] gap-2">
-                        <span className="font-semibold">Token/Chave:</span>
-                        <span className="font-mono break-all text-xs">{jwtInfo.token || 'N/A'}</span>
-                      </div>
-                      <div className="grid grid-cols-[140px_1fr] gap-2">
-                        <span className="font-semibold">Tipo Beneficiário:</span>
-                        <span>{jwtInfo.tipoBeneficiario}</span>
-                      </div>
-                      <div className="grid grid-cols-[140px_1fr] gap-2">
-                        <span className="font-semibold">Nome:</span>
-                        <span>{jwtInfo.nome}</span>
-                      </div>
-                      <div className="grid grid-cols-[140px_1fr] gap-2">
-                        <span className="font-semibold">ID:</span>
-                        <span>{jwtInfo.id}</span>
-                      </div>
-                      <div className="grid grid-cols-[140px_1fr] gap-2">
-                        <span className="font-semibold">Email:</span>
-                        <span>{jwtInfo.usuario?.email}</span>
-                      </div>
-                      <div className="grid grid-cols-[140px_1fr] gap-2">
-                        <span className="font-semibold">ID Usuário:</span>
-                        <span>{jwtInfo.usuario?.id}</span>
-                      </div>
-                      <div className="grid grid-cols-[140px_1fr] gap-2">
-                        <span className="font-semibold">Rating:</span>
-                        <span>{typeof jwtInfo.rating === 'object' ? JSON.stringify(jwtInfo.rating) : jwtInfo.rating}</span>
-                      </div>
-                      <div className="grid grid-cols-[140px_1fr] gap-2">
-                        <span className="font-semibold">Dependentes:</span>
-                        <span>{jwtInfo.dependentes?.length || 0}</span>
-                      </div>
-                      <div className="grid grid-cols-[140px_1fr] gap-2">
-                        <span className="font-semibold">Contratos:</span>
-                        <span>{jwtInfo.clienteContratos?.length || 0}</span>
-                      </div>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </div>
-          )}
         </div>
       </main>
 
