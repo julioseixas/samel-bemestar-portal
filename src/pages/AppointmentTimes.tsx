@@ -471,10 +471,6 @@ const AppointmentTimes = () => {
                           >
                             Agendar Consulta
                           </Button>
-                          
-                          <p className="text-xs text-center text-muted-foreground">
-                            Este é o primeiro horário disponível para a data selecionada
-                          </p>
                         </div>
                       );
                     })}
