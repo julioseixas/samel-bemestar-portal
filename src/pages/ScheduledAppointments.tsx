@@ -233,16 +233,7 @@ const ScheduledAppointments = () => {
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
       
       <main className="flex-1 container mx-auto px-4 py-6 md:px-6 md:py-10">
-        <div className="flex items-center gap-4 mb-8">
-          <Button
-            variant="outline"
-            onClick={() => navigate("/scheduled-appointments-choice")}
-            className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
-            size="sm"
-          >
-            Voltar
-          </Button>
-          
+        <div className="flex items-center justify-between gap-4 mb-8">
           <div className="flex-1">
             <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
               Consultas Agendadas
@@ -251,6 +242,15 @@ const ScheduledAppointments = () => {
               Visualize todas as suas consultas médicas agendadas
             </p>
           </div>
+          
+          <Button
+            variant="outline"
+            onClick={() => navigate("/scheduled-appointments-choice")}
+            className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
+            size="sm"
+          >
+            Voltar
+          </Button>
         </div>
 
         {loading ? (
