@@ -233,22 +233,24 @@ const ScheduledExams = () => {
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
       
       <main className="flex-1 container mx-auto px-4 py-6 md:px-6 md:py-10">
-        <Button
-          variant="outline"
-          onClick={() => navigate("/scheduled-appointments-choice")}
-          className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
-          size="sm"
-        >
-          Voltar
-        </Button>
-
-        <div className="mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-            Exames Agendados
-          </h1>
-          <p className="text-muted-foreground">
-            Visualize todos os seus exames laboratoriais agendados
-          </p>
+        <div className="flex items-center gap-4 mb-8">
+          <Button
+            variant="outline"
+            onClick={() => navigate("/scheduled-appointments-choice")}
+            className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
+            size="sm"
+          >
+            Voltar
+          </Button>
+          
+          <div className="flex-1">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+              Exames Agendados
+            </h1>
+            <p className="text-muted-foreground">
+              Visualize todos os seus exames laboratoriais agendados
+            </p>
+          </div>
         </div>
 
         {loading ? (
