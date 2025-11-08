@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Calendar, Clock, MapPin, User, TestTube, XCircle } from "lucide-react";
+import { Calendar, Clock, MapPin, User, TestTube, XCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { getApiHeaders } from "@/lib/api-headers";
@@ -234,11 +234,11 @@ const ScheduledExams = () => {
       
       <main className="flex-1 container mx-auto px-4 py-6 md:px-6 md:py-10">
         <Button
-          variant="ghost"
+          variant="outline"
           onClick={() => navigate("/scheduled-appointments-choice")}
-          className="mb-6 gap-2"
+          className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
+          size="sm"
         >
-          <ArrowLeft className="h-4 w-4" />
           Voltar
         </Button>
 
