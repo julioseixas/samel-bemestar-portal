@@ -8,6 +8,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getApiHeaders } from "@/lib/api-headers";
+import DOMPurify from "dompurify";
 
 interface Term {
   NM_TERMO: string;
@@ -161,12 +162,13 @@ const TermsList = () => {
                 Visualize o termo de consentimento
               </DialogDescription>
             </DialogHeader>
-            <div className="flex-1 overflow-auto bg-background">
+            <div className="flex-1 overflow-auto px-6 py-4">
               {selectedTerm?.DS_TERMO && (
-                <iframe
-                  src={selectedTerm.DS_TERMO}
-                  className="w-full h-full border-0"
-                  title="Visualizar PDF"
+                <div 
+                  className="prose prose-sm max-w-none dark:prose-invert"
+                  dangerouslySetInnerHTML={{ 
+                    __html: DOMPurify.sanitize(selectedTerm.DS_TERMO) 
+                  }}
                 />
               )}
             </div>
