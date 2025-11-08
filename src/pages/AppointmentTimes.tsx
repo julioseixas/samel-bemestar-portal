@@ -443,7 +443,7 @@ const AppointmentTimes = () => {
                   <CardContent>
                     <ScrollArea className="h-[60vh]">
                       <div className="space-y-2 pr-4">
-                        {getTimesForSelectedDate().map((horario) => {
+                        {getTimesForSelectedDate().slice(0, 1).map((horario) => {
                           const horarioTime = horario.data2.split(' ')[1]; // Extrai "HH:MM" de "DD/MM/YYYY HH:MM"
                           return (
                             <Button
