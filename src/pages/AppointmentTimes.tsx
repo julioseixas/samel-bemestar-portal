@@ -434,38 +434,58 @@ const AppointmentTimes = () => {
               </Card>
 
               {selectedDate && (
-                <Card>
-                  <CardHeader>
+                <Card className="border-2 border-primary/20">
+                  <CardHeader className="space-y-1">
                     <CardTitle className="text-lg">
-                      Horários - {format(selectedDate, "dd/MM/yyyy", { locale: ptBR })}
+                      Horário Disponível
                     </CardTitle>
+                    <p className="text-sm text-muted-foreground">
+                      {format(selectedDate, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                    </p>
                   </CardHeader>
                   <CardContent>
-                    <ScrollArea className="h-[60vh]">
-                      <div className="space-y-2 pr-4">
-                        {getTimesForSelectedDate().slice(0, 1).map((horario) => {
-                          const horarioTime = horario.data2.split(' ')[1]; // Extrai "HH:MM" de "DD/MM/YYYY HH:MM"
-                          return (
-                            <Button
-                              key={horario.id}
-                              variant="outline"
-                              className="w-full justify-start text-left"
-                              onClick={() => {
-                                setSelectedHorario(horario);
-                                setIsConfirmModalOpen(true);
-                              }}
-                            >
-                              <div className="flex-1">
-                                <div className="font-semibold">{horarioTime}</div>
-                                <div className="text-xs text-muted-foreground">
-                                  {horario.unidade.nome}
-                                </div>
-                              </div>
-                            </Button>
-                          );
-                        })}
+                    {getTimesForSelectedDate().slice(0, 1).map((horario) => {
+                      const horarioTime = horario.data2.split(' ')[1];
+                      return (
+                        <div key={horario.id} className="space-y-6">
+                          <div className="flex flex-col items-center justify-center py-8 space-y-4">
+                            <div className="text-6xl font-bold text-primary">
+                              {horarioTime}
+                            </div>
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                                <circle cx="12" cy="10" r="3"/>
+                              </svg>
+                              <span className="text-sm font-medium">{horario.unidade.nome}</span>
+                            </div>
+                          </div>
+                          
+                          <Button
+                            size="lg"
+                            className="w-full text-base font-semibold"
+                            onClick={() => {
+                              setSelectedHorario(horario);
+                              setIsConfirmModalOpen(true);
+                            }}
+                          >
+                            Agendar Consulta
+                          </Button>
+                          
+                          <p className="text-xs text-center text-muted-foreground">
+                            Este é o primeiro horário disponível para a data selecionada
+                          </p>
+                        </div>
+                      );
+                    })}
+                    
+                    {getTimesForSelectedDate().length === 0 && (
+                      <div className="text-center py-12">
+                        <p className="text-muted-foreground">
+                          Nenhum horário disponível para esta data
+                        </p>
                       </div>
-                    </ScrollArea>
+                    )}
                   </CardContent>
                 </Card>
               )}
