@@ -106,7 +106,7 @@ const ScheduledExams = () => {
           headers: getApiHeaders(),
           body: JSON.stringify({
             pacientes: pacientesIds,
-            tipo: 0
+            tipo: 1
           }),
         }
       );
