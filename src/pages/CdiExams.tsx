@@ -160,7 +160,7 @@ const CdiExams = () => {
                 className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
                 size="sm"
               >
-                voltar
+                ← Voltar
               </Button>
             </div>
 

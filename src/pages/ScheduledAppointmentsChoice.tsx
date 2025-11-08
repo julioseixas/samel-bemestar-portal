@@ -34,7 +34,7 @@ const ScheduledAppointmentsChoice = () => {
       
       <main className="flex-1 container mx-auto px-4 py-6 md:px-6 md:py-10">
         <div className="flex items-center justify-between gap-4 mb-8">
-          <div className="flex-1">
+          <div>
             <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
               Consultas e Exames Agendados
             </h1>
@@ -49,7 +49,7 @@ const ScheduledAppointmentsChoice = () => {
             className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
             size="sm"
           >
-            Voltar
+            ← Voltar
           </Button>
         </div>
 

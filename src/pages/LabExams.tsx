@@ -350,7 +350,7 @@ const LabExams = () => {
                 className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
                 size="sm"
               >
-                voltar
+                ← Voltar
               </Button>
             </CardHeader>
             <CardContent className="p-3 sm:p-6">

@@ -338,19 +338,22 @@ const AppointmentDetails = () => {
       <main className="flex-1">
         <div className="container mx-auto px-4 py-4 sm:py-6 md:px-6 md:py-10">
           <div className="mb-4 sm:mb-6">
-            <Button
-              variant="outline"
-              onClick={() => navigate("/appointment-schedule")}
-              className="mb-3 sm:mb-4 border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
-              size="sm"
-            >
-              ← Voltar
-            </Button>
+            <div className="flex items-center justify-between gap-3 mb-3 sm:mb-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground md:text-3xl">
+                Marcação de Consulta
+              </h2>
+              
+              <Button
+                variant="outline"
+                onClick={() => navigate("/appointment-schedule")}
+                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
+                size="sm"
+              >
+                ← Voltar
+              </Button>
+            </div>
             
-            <h2 className="text-xl sm:text-2xl font-bold text-foreground md:text-3xl">
-              Marcação de Consulta
-            </h2>
-            <p className="mt-1 sm:mt-2 text-sm sm:text-base text-muted-foreground">
+            <p className="text-sm sm:text-base text-muted-foreground">
               Selecione o convênio e a especialidade para a consulta
             </p>
           </div>
