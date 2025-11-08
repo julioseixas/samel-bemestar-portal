@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Calendar } from "@/components/ui/calendar";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { getApiHeaders } from "@/lib/api-headers";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -386,47 +385,65 @@ const ExamTimes = () => {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>
-                    {selectedDate
-                      ? `Horários para ${format(selectedDate, "dd 'de' MMMM", { locale: ptBR })}`
-                      : "Selecione uma data"}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {!selectedDate ? (
-                    <p className="text-center text-muted-foreground py-8">
+              {selectedDate && (
+                <Card className="border-2 border-primary/20">
+                  <CardHeader className="space-y-1">
+                    <CardTitle className="text-lg">
+                      Horário Disponível
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground">
+                      {format(selectedDate, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                    </p>
+                  </CardHeader>
+                  <CardContent>
+                    {timesForSelectedDate.slice(0, 1).map((horario) => {
+                      const timeStr = horario.data.split(' ')[1];
+                      return (
+                        <div key={horario.id} className="space-y-6">
+                          <div className="flex flex-col items-center justify-center py-8 space-y-4">
+                            <div className="text-6xl font-bold text-primary">
+                              {timeStr}
+                            </div>
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                                <circle cx="12" cy="10" r="3"/>
+                              </svg>
+                              <span className="text-sm font-medium">{horario.unidade.nome}</span>
+                            </div>
+                          </div>
+                          
+                          <Button
+                            size="lg"
+                            className="w-full text-base font-semibold"
+                            onClick={() => handleSelectTime(horario)}
+                          >
+                            Agendar Exame
+                          </Button>
+                        </div>
+                      );
+                    })}
+                    
+                    {timesForSelectedDate.length === 0 && (
+                      <div className="text-center py-12">
+                        <p className="text-muted-foreground">
+                          Nenhum horário disponível para esta data
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+              
+              {!selectedDate && (
+                <Card>
+                  <CardContent className="py-12">
+                    <p className="text-center text-muted-foreground">
                       Selecione uma data para ver os horários disponíveis
                     </p>
-                  ) : timesForSelectedDate.length === 0 ? (
-                    <p className="text-center text-muted-foreground py-8">
-                      Nenhum horário disponível para esta data
-                    </p>
-                  ) : (
-                    <ScrollArea className="h-[400px] pr-4">
-                      <div className="space-y-2">
-                        {timesForSelectedDate.map((horario) => {
-                          const timeStr = horario.data.split(' ')[1]; // Pegar a hora
-                          return (
-                            <Button
-                              key={horario.id}
-                              variant="outline"
-                              className="w-full justify-between hover:bg-primary hover:text-primary-foreground"
-                              onClick={() => handleSelectTime(horario)}
-                            >
-                              <span className="font-semibold">{timeStr}</span>
-                              <span className="text-sm text-muted-foreground">
-                                {horario.unidade.nome}
-                              </span>
-                            </Button>
-                          );
-                        })}
-                      </div>
-                    </ScrollArea>
-                  )}
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           )}
         </div>
