@@ -132,25 +132,70 @@ const Signup = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        `https://api-portalpaciente-web.samel.com.br/api/Cliente/Obter/?cpf=${cleanCPF}`,
-        { 
-          method: "GET",
+      // Primeira chamada: Validar identificação positiva
+      const validationResponse = await fetch(
+        "https://api-portalpaciente-web.samel.com.br/api/Cliente/ValidarIdentificacaoPositiva",
+        {
+          method: "POST",
           headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-          }
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            respostaPergunta1: birthDate,
+            respostaPergunta2: cleanCPF,
+          }),
         }
       );
-      
-      const data = await response.json();
-      
-      if (data.sucesso && data.dados) {
-        navigate("/signup/details", { state: { clientData: data.dados, cpf: cleanCPF } });
+
+      const validationData = await validationResponse.json();
+
+      if (!validationData.sucesso) {
+        toast({
+          title: "Erro na validação",
+          description: validationData.mensagem || "Não foi possível validar seus dados. Tente novamente.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const chaveValidacao = validationData.dados?.chaveValidacao;
+
+      if (!chaveValidacao) {
+        toast({
+          title: "Erro na validação",
+          description: "Chave de validação não foi retornada. Tente novamente.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Segunda chamada: Obter dados do cliente com o token
+      const clientResponse = await fetch(
+        `https://api-portalpaciente-web.samel.com.br/api/Cliente/Obter/?cpf=${cleanCPF}`,
+        {
+          method: "GET",
+          headers: {
+            "chave-validacao-identificacao-positiva": chaveValidacao,
+            "Content-Type": "application/json",
+            "identificador-dispositivo": "request-android",
+          },
+        }
+      );
+
+      const clientData = await clientResponse.json();
+
+      if (clientData.sucesso && clientData.dados) {
+        navigate("/signup/details", { 
+          state: { 
+            clientData: clientData.dados, 
+            cpf: cleanCPF,
+            chaveValidacao 
+          } 
+        });
       } else {
         toast({
           title: "Erro ao buscar dados",
-          description: data.mensagem || "Não foi possível buscar seus dados. Tente novamente.",
+          description: clientData.mensagem || "Não foi possível buscar seus dados. Tente novamente.",
           variant: "destructive",
         });
       }
