@@ -88,7 +88,7 @@ const SignupDetails = () => {
         dataNascimento: dataNascimento,
         cpf: cpf.replace(/\D/g, ""),
         sexo: formData.sexo,
-        id: usuarioId,
+        id: clientData.id,
         estadoCivil: formData.estadoCivil,
         nome: formData.nome,
         numeroTelefone: `${formData.dddTelefone}${formData.telefone}`,
@@ -148,7 +148,7 @@ const SignupDetails = () => {
         const formData = form.getValues();
         
         const payload = {
-          id: usuarioId,
+          id: clientData.id,
           cpf: cpf.replace(/\D/g, ""),
           email: formData.email,
           telefone: `${formData.dddTelefone}${formData.telefone}`,
