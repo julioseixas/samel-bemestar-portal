@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import samelLogo from "@/assets/samel-logo.png";
@@ -13,6 +14,10 @@ const Signup = () => {
   const [cpf, setCpf] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [cpfValidated, setCpfValidated] = useState(false);
+  const [validatingCpf, setValidatingCpf] = useState(false);
+  const [showExistingAccountModal, setShowExistingAccountModal] = useState(false);
+  const [existingAccountMessage, setExistingAccountMessage] = useState("");
 
   const formatCPF = (value: string) => {
     const numbers = value.replace(/\D/g, "");
@@ -43,6 +48,47 @@ const Signup = () => {
   const handleBirthDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatDate(e.target.value);
     setBirthDate(formatted);
+  };
+
+  useEffect(() => {
+    const cleanCPF = cpf.replace(/\D/g, "");
+    
+    if (cleanCPF.length === 11 && !cpfValidated) {
+      validateCPF(cleanCPF);
+    } else if (cleanCPF.length < 11) {
+      setCpfValidated(false);
+    }
+  }, [cpf]);
+
+  const validateCPF = async (cleanCPF: string) => {
+    setValidatingCpf(true);
+    try {
+      const response = await fetch(
+        `https://api-portalpaciente-web.samel.com.br/api/Cliente/ValidarCPF2?cpf=${cleanCPF}`,
+        { method: "GET" }
+      );
+      
+      const data = await response.json();
+      
+      if (data.codigo === 1) {
+        setExistingAccountMessage(data.mensagem);
+        setShowExistingAccountModal(true);
+        setCpfValidated(false);
+      } else {
+        setCpfValidated(true);
+        toast({
+          description: "CPF validado com sucesso",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Erro ao validar CPF",
+        description: "Não foi possível conectar ao servidor. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setValidatingCpf(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -137,7 +183,11 @@ const Signup = () => {
                 onChange={handleBirthDateChange}
                 maxLength={10}
                 required
+                disabled={!cpfValidated || validatingCpf}
               />
+              {validatingCpf && (
+                <p className="text-xs text-muted-foreground">Validando CPF...</p>
+              )}
             </div>
 
             <Button type="submit" className="w-full text-sm sm:text-base" disabled={isLoading}>
@@ -187,6 +237,30 @@ const Signup = () => {
           </div>
         </div>
       </div>
+
+      <AlertDialog open={showExistingAccountModal} onOpenChange={setShowExistingAccountModal}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Conta já existe</AlertDialogTitle>
+            <AlertDialogDescription>
+              {existingAccountMessage}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button variant="outline" onClick={() => navigate("/login")}>
+              Voltar para Login
+            </Button>
+            <Button onClick={() => {
+              // TODO: Implementar navegação para recuperação de senha
+              toast({
+                description: "Funcionalidade de recuperação de senha em desenvolvimento",
+              });
+            }}>
+              Recuperar Senha
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
