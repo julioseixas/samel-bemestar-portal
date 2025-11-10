@@ -50,25 +50,25 @@ const Signup = () => {
     setBirthDate(formatted);
   };
 
-  useEffect(() => {
-    const cleanCPF = cpf.replace(/\D/g, "");
-    
-    if (cleanCPF.length === 11 && !cpfValidated) {
-      validateCPF(cleanCPF);
-    } else if (cleanCPF.length < 11) {
-      setCpfValidated(false);
-    }
-  }, [cpf]);
-
   const validateCPF = async (cleanCPF: string) => {
     setValidatingCpf(true);
+    console.log("Validando CPF:", cleanCPF);
+    
     try {
       const response = await fetch(
         `https://api-portalpaciente-web.samel.com.br/api/Cliente/ValidarCPF2?cpf=${cleanCPF}`,
-        { method: "GET" }
+        { 
+          method: "GET",
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+          }
+        }
       );
       
+      console.log("Response status:", response.status);
       const data = await response.json();
+      console.log("Response data:", data);
       
       if (data.codigo === 1) {
         setExistingAccountMessage(data.mensagem);
@@ -81,6 +81,7 @@ const Signup = () => {
         });
       }
     } catch (error) {
+      console.error("Erro ao validar CPF:", error);
       toast({
         title: "Erro ao validar CPF",
         description: "Não foi possível conectar ao servidor. Tente novamente.",
@@ -90,6 +91,16 @@ const Signup = () => {
       setValidatingCpf(false);
     }
   };
+
+  useEffect(() => {
+    const cleanCPF = cpf.replace(/\D/g, "");
+    
+    if (cleanCPF.length === 11 && !cpfValidated && !validatingCpf) {
+      validateCPF(cleanCPF);
+    } else if (cleanCPF.length < 11) {
+      setCpfValidated(false);
+    }
+  }, [cpf, cpfValidated, validatingCpf]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
