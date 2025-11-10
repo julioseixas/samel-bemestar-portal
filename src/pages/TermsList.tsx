@@ -3,7 +3,8 @@ import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ArrowLeft, FileText, Loader2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ArrowLeft, FileText, Loader2, CheckCircle2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -26,6 +27,8 @@ const TermsList = () => {
   const [loading, setLoading] = useState(true);
   const [selectedTerm, setSelectedTerm] = useState<Term | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState<Set<number>>(new Set());
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const patientData = localStorage.getItem("patientData");
@@ -81,9 +84,56 @@ const TermsList = () => {
     }
   };
 
-  const handleTermClick = (term: Term) => {
+  const handleTermClick = (term: Term, event: React.MouseEvent) => {
+    // Prevent opening modal if clicking on checkbox
+    const target = event.target as HTMLElement;
+    if (target.closest('button[role="checkbox"]')) {
+      return;
+    }
     setSelectedTerm(term);
     setIsModalOpen(true);
+  };
+
+  const handleCheckboxChange = (termSequence: number, checked: boolean) => {
+    setAcceptedTerms(prev => {
+      const newSet = new Set(prev);
+      if (checked) {
+        newSet.add(termSequence);
+      } else {
+        newSet.delete(termSequence);
+      }
+      return newSet;
+    });
+  };
+
+  const handleSubmitTerms = async () => {
+    if (acceptedTerms.size === 0) {
+      toast({
+        description: "Por favor, aceite pelo menos um termo",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      // TODO: Implementar chamada de API para salvar termos aceitos
+      toast({
+        description: `${acceptedTerms.size} termo(s) aceito(s) com sucesso`,
+      });
+      
+      // Remove accepted terms from the list
+      setTerms(prev => prev.filter(term => !acceptedTerms.has(term.NR_SEQUENCIA)));
+      setAcceptedTerms(new Set());
+    } catch (error) {
+      console.error("Erro ao submeter termos:", error);
+      toast({
+        description: "Erro ao processar termos aceitos",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -129,29 +179,73 @@ const TermsList = () => {
             </p>
           </Card>
         ) : (
-          <div className="space-y-4">
-            {terms.map((term) => (
-              <Card 
-                key={term.NR_SEQUENCIA}
-                className="hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => handleTermClick(term)}
-              >
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg mb-2 flex items-center gap-2">
-                        <FileText className="h-5 w-5 text-primary" />
-                        {term.NM_TERMO}
-                      </CardTitle>
+          <>
+            <div className="space-y-4">
+              {terms.map((term) => (
+                <Card 
+                  key={term.NR_SEQUENCIA}
+                  className="hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={(e) => handleTermClick(term, e)}
+                >
+                  <CardHeader>
+                    <div className="flex items-start gap-4">
+                      <Checkbox
+                        id={`term-${term.NR_SEQUENCIA}`}
+                        checked={acceptedTerms.has(term.NR_SEQUENCIA)}
+                        onCheckedChange={(checked) => 
+                          handleCheckboxChange(term.NR_SEQUENCIA, checked as boolean)
+                        }
+                        className="mt-1"
+                      />
+                      <div className="flex-1 flex items-start justify-between gap-4">
+                        <label 
+                          htmlFor={`term-${term.NR_SEQUENCIA}`}
+                          className="flex-1 cursor-pointer"
+                        >
+                          <CardTitle className="text-lg mb-2 flex items-center gap-2">
+                            <FileText className="h-5 w-5 text-primary" />
+                            {term.NM_TERMO}
+                          </CardTitle>
+                          <CardDescription>
+                            Clique no checkbox para aceitar ou clique no termo para visualizar
+                          </CardDescription>
+                        </label>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleTermClick(term, e);
+                          }}
+                        >
+                          Visualizar
+                        </Button>
+                      </div>
                     </div>
-                    <Button variant="outline" size="sm">
-                      Visualizar
-                    </Button>
-                  </div>
-                </CardHeader>
-              </Card>
-            ))}
-          </div>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+
+            {acceptedTerms.size > 0 && (
+              <div className="mt-6 flex items-center justify-between bg-primary/10 p-4 rounded-lg border-2 border-primary">
+                <div className="flex items-center gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-primary" />
+                  <span className="font-medium">
+                    {acceptedTerms.size} termo(s) selecionado(s)
+                  </span>
+                </div>
+                <Button 
+                  onClick={handleSubmitTerms}
+                  disabled={submitting}
+                  className="gap-2"
+                >
+                  {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                  Confirmar Aceitação
+                </Button>
+              </div>
+            )}
+          </>
         )}
 
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
