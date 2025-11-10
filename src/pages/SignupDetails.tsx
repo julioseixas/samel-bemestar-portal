@@ -527,7 +527,7 @@ const SignupDetails = () => {
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="justify-between">
+          <AlertDialogFooter className="flex-row justify-between gap-4">
             <AlertDialogCancel>Corrigir</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmCadastro}>Confirmar</AlertDialogAction>
           </AlertDialogFooter>
