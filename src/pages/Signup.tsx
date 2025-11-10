@@ -199,7 +199,7 @@ const Signup = () => {
 
             <Button 
               type="button"
-              variant="ghost" 
+              variant="outline" 
               onClick={() => navigate("/login")} 
               className="w-full flex items-center justify-center gap-2"
             >
