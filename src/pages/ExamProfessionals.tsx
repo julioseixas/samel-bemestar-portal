@@ -191,37 +191,22 @@ const ExamProfessionals = () => {
                               {profissional.dataAgenda}
                             </p>
                           </div>
-                          {Object.keys(profissional.unidade || {}).length > 0 ? (
-                            <>
-                              <div>
-                                <Badge variant="secondary" className="bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20">
-                                  Exame Presencial
-                                </Badge>
-                              </div>
-                              <div>
-                                <span className="text-xs sm:text-sm font-medium text-muted-foreground">
-                                  Unidade:
-                                </span>
-                                <p className="text-sm sm:text-base font-semibold">
-                                  {profissional.unidade.descricao}
-                                </p>
-                              </div>
-                              <div>
-                                <span className="text-xs sm:text-sm font-medium text-muted-foreground">
-                                  Endereço:
-                                </span>
-                                <p className="text-sm sm:text-base">
-                                  {formatEndereco(profissional.unidade)}
-                                </p>
-                              </div>
-                            </>
-                          ) : (
-                            <div>
-                              <Badge variant="secondary" className="bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20">
-                                Exame por Telemedicina
-                              </Badge>
-                            </div>
-                          )}
+                          <div>
+                            <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                              Unidade:
+                            </span>
+                            <p className="text-sm sm:text-base font-semibold">
+                              {profissional.unidade.descricao}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                              Endereço:
+                            </span>
+                            <p className="text-sm sm:text-base">
+                              {formatEndereco(profissional.unidade)}
+                            </p>
+                          </div>
                         </CardContent>
                       </Card>
                     ))}
