@@ -525,7 +525,7 @@ const ExamTimes = () => {
             <Button
               onClick={() => {
                 setShowSuccessDialog(false);
-                navigate("/appointments");
+                navigate("/scheduled-appointments-choice");
               }}
             >
               Ver Agendamentos
