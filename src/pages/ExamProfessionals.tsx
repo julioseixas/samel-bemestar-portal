@@ -7,22 +7,24 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { MapPin } from "lucide-react";
 
 interface Unidade {
-  id: number;
-  endereco: string;
-  complemento: string;
+  id: string;
+  descricao: string;
+  logradouro: string;
+  numeroLogradouro: number;
   bairro: string;
-  numero: string;
 }
 
 interface Profissional {
   idAgenda: number;
-  idProfissional: number;
-  nmProfissional: string;
-  nrConselho: string;
+  dataAgenda: string;
+  id: string;
+  nome: string;
+  ieSexo: string;
   dsEspecialidade: string;
-  dsPrimeiraDataDisponivel: string;
   unidade: Unidade;
-  sexo?: string;
+  ie_sigla_conselho: string;
+  nr_conselho: string;
+  idsProcedimentos: number[];
 }
 
 interface ProfissionalGroup {
@@ -76,9 +78,8 @@ const ExamProfessionals = () => {
   };
 
   const formatEndereco = (unidade: Unidade) => {
-    const parts = [unidade.endereco];
-    if (unidade.numero) parts.push(`nº ${unidade.numero}`);
-    if (unidade.complemento) parts.push(unidade.complemento);
+    const parts = [unidade.logradouro];
+    if (unidade.numeroLogradouro) parts.push(`nº ${unidade.numeroLogradouro}`);
     if (unidade.bairro) parts.push(unidade.bairro);
     return parts.join(', ');
   };
@@ -147,17 +148,17 @@ const ExamProfessionals = () => {
                       >
                         <CardHeader>
                           <div className="flex items-start gap-3">
-                            <Avatar className={`h-12 w-12 ${getAvatarColor(profissional.sexo || '')}`}>
+                            <Avatar className={`h-12 w-12 ${getAvatarColor(profissional.ieSexo || '')}`}>
                               <AvatarFallback className="text-white font-semibold">
-                                {profissional.nmProfissional?.split(' ').map(n => n[0]).join('').substring(0, 2) || 'PR'}
+                                {profissional.nome?.split(' ').map(n => n[0]).join('').substring(0, 2) || 'PR'}
                               </AvatarFallback>
                             </Avatar>
                             <div className="flex-1">
                               <CardTitle className="text-base">
-                                {profissional.nmProfissional}
+                                {profissional.nome}
                               </CardTitle>
                               <p className="text-xs text-muted-foreground mt-1">
-                                {profissional.nrConselho}
+                                {profissional.nr_conselho}
                               </p>
                             </div>
                           </div>
@@ -170,7 +171,7 @@ const ExamProfessionals = () => {
                           <div>
                             <p className="text-xs font-medium text-muted-foreground">Disponibilidade</p>
                             <p className="text-sm font-semibold text-primary">
-                              {new Date(profissional.dsPrimeiraDataDisponivel).toLocaleDateString('pt-BR')}
+                              {profissional.dataAgenda}
                             </p>
                           </div>
                           <div>
