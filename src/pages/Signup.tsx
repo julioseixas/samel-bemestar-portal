@@ -152,15 +152,6 @@ const Signup = () => {
       {/* Left side - Form */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-8 bg-background">
         <div className="w-full max-w-md space-y-6 sm:space-y-8">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate("/login")} 
-            className="mb-4 flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Voltar
-          </Button>
-
           <div className="text-center space-y-2">
             <div className="flex justify-center mb-4">
               <img src={samelLogo} alt="Hospital Samel" className="w-12 h-12 sm:w-16 sm:h-16 object-contain" />
@@ -217,6 +208,15 @@ const Signup = () => {
               </button>
             </div>
           </form>
+
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate("/login")} 
+            className="w-full flex items-center justify-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Voltar
+          </Button>
 
           <div className="pt-6 border-t border-border">
             <p className="text-xs text-center text-muted-foreground">
