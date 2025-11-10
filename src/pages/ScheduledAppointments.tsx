@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Calendar, Clock, MapPin, User, Stethoscope, XCircle } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Calendar, Clock, MapPin, User, Stethoscope, XCircle, Building2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { getApiHeaders } from "@/lib/api-headers";
@@ -275,60 +277,109 @@ const ScheduledAppointments = () => {
             </Button>
           </Card>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {appointments.map((appointment) => (
-              <Card key={appointment.id} className="p-6 hover:shadow-lg transition-shadow">
-                <div className="space-y-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="text-lg font-semibold text-foreground mb-1">
+              <Card key={appointment.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 border-l-4 border-l-primary">
+                <CardHeader className="bg-muted/50 pb-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 space-y-3">
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          Consulta
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">ID: {appointment.id}</span>
+                      </div>
+                      
+                      <h3 className="text-xl font-bold text-foreground">
                         {appointment.descricaoEspecialidade}
                       </h3>
-                      <p className="text-sm text-muted-foreground">
-                        ID: {appointment.id}
-                      </p>
                     </div>
+                    
                     <Button
-                      variant="destructive"
+                      variant="outline"
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleCancelClick(appointment.id);
                       }}
-                      className="gap-2"
+                      className="gap-2 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground shrink-0"
                     >
                       <XCircle className="h-4 w-4" />
                       Cancelar
                     </Button>
                   </div>
+                </CardHeader>
 
-                  <div className="grid gap-3 md:grid-cols-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Calendar className="h-4 w-4 text-primary" />
-                      <span>{formatDate(appointment.dataAgenda)}</span>
+                <CardContent className="pt-6 space-y-5">
+                  {/* Data e Hora */}
+                  <div className="flex flex-wrap gap-6">
+                    <div className="flex items-center gap-3 bg-primary/5 px-4 py-2 rounded-lg">
+                      <div className="bg-primary/10 p-2 rounded-md">
+                        <Calendar className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Data</p>
+                        <p className="text-sm font-semibold">{formatDate(appointment.dataAgenda)}</p>
+                      </div>
                     </div>
-
-                    <div className="flex items-center gap-2 text-sm">
-                      <Clock className="h-4 w-4 text-primary" />
-                      <span>{formatTime(appointment.dataAgenda)}</span>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-sm">
-                      <Stethoscope className="h-4 w-4 text-primary" />
-                      <span>{appointment.nomeProfissional}</span>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-sm">
-                      <User className="h-4 w-4 text-primary" />
-                      <span>{appointment.nomeCliente}</span>
-                    </div>
-
-                    <div className="flex items-start gap-2 text-sm md:col-span-2">
-                      <MapPin className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>{appointment.nomeUnidade}</span>
+                    
+                    <div className="flex items-center gap-3 bg-primary/5 px-4 py-2 rounded-lg">
+                      <div className="bg-primary/10 p-2 rounded-md">
+                        <Clock className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Horário</p>
+                        <p className="text-sm font-semibold">{formatTime(appointment.dataAgenda)}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
+
+                  <Separator />
+
+                  {/* Informações Pessoais */}
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                      Informações
+                    </h4>
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-secondary/50 p-2 rounded-md">
+                          <User className="h-4 w-4 text-secondary-foreground" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Paciente</p>
+                          <p className="text-sm font-medium">{appointment.nomeCliente}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <div className="bg-secondary/50 p-2 rounded-md">
+                          <Stethoscope className="h-4 w-4 text-secondary-foreground" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Profissional</p>
+                          <p className="text-sm font-medium">{appointment.nomeProfissional}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Local */}
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                      Local da Consulta
+                    </h4>
+                    <div className="flex items-start gap-3 bg-accent/50 p-4 rounded-lg">
+                      <Building2 className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">{appointment.nomeUnidade}</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
               </Card>
             ))}
           </div>
