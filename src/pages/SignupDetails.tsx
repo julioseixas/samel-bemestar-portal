@@ -127,59 +127,58 @@ const SignupDetails = () => {
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="dddTelefone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>DDD</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="tel" 
-                          placeholder="92" 
-                          maxLength={2}
-                          {...field}
-                          onChange={(e) => {
-                            const numbers = e.target.value.replace(/\D/g, "").slice(0, 2);
-                            field.onChange(numbers);
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="telefone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Telefone</FormLabel>
-                      <FormControl>
-                        <div className="flex gap-2">
-                          <Input 
-                            value="+55"
-                            disabled
-                            className="w-16 text-center"
-                          />
-                          <Input 
-                            type="tel" 
-                            placeholder="912345678" 
-                            maxLength={9}
-                            className="flex-1"
-                            {...field}
-                            onChange={(e) => {
-                              const numbers = e.target.value.replace(/\D/g, "").slice(0, 9);
-                              field.onChange(numbers);
-                            }}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="md:col-span-2">
+                  <FormLabel>Telefone</FormLabel>
+                  <div className="flex gap-2">
+                    <Input 
+                      value="+55"
+                      disabled
+                      className="w-16 text-center"
+                    />
+                    <FormField
+                      control={form.control}
+                      name="dddTelefone"
+                      render={({ field }) => (
+                        <FormItem className="w-20">
+                          <FormControl>
+                            <Input 
+                              type="tel" 
+                              placeholder="92" 
+                              maxLength={2}
+                              {...field}
+                              onChange={(e) => {
+                                const numbers = e.target.value.replace(/\D/g, "").slice(0, 2);
+                                field.onChange(numbers);
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="telefone"
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <FormControl>
+                            <Input 
+                              type="tel" 
+                              placeholder="912345678" 
+                              maxLength={9}
+                              {...field}
+                              onChange={(e) => {
+                                const numbers = e.target.value.replace(/\D/g, "").slice(0, 9);
+                                field.onChange(numbers);
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
 
                 <FormField
                   control={form.control}
