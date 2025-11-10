@@ -197,6 +197,16 @@ const Signup = () => {
               {isLoading ? "Cadastrando..." : "Cadastrar"}
             </Button>
 
+            <Button 
+              type="button"
+              variant="ghost" 
+              onClick={() => navigate("/login")} 
+              className="w-full flex items-center justify-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Voltar
+            </Button>
+
             <div className="text-center text-xs sm:text-sm text-muted-foreground">
               Já tem uma conta?{" "}
               <button
@@ -208,15 +218,6 @@ const Signup = () => {
               </button>
             </div>
           </form>
-
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate("/login")} 
-            className="w-full flex items-center justify-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Voltar
-          </Button>
 
           <div className="pt-6 border-t border-border">
             <p className="text-xs text-center text-muted-foreground">
