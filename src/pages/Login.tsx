@@ -229,9 +229,13 @@ const Login = () => {
 
             <div className="text-center text-xs sm:text-sm text-muted-foreground">
               Não tem uma conta?{" "}
-              <a href="#" className="text-primary hover:underline font-medium">
+              <button
+                type="button"
+                onClick={() => navigate("/signup")}
+                className="text-primary hover:underline font-medium"
+              >
                 Cadastre-se
-              </a>
+              </button>
             </div>
           </form>
 
