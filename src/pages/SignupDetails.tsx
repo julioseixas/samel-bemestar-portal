@@ -91,7 +91,7 @@ const SignupDetails = () => {
         id: usuarioId,
         estadoCivil: formData.estadoCivil,
         nome: formData.nome,
-        numeroTelefone: `55${formData.dddTelefone}${formData.telefone}`,
+        numeroTelefone: `${formData.dddTelefone}${formData.telefone}`,
         dddTelefone: formData.dddTelefone,
         rg: formData.rg.replace(/\D/g, ""),
         usuario: {
@@ -151,7 +151,7 @@ const SignupDetails = () => {
           id: usuarioId,
           cpf: cpf.replace(/\D/g, ""),
           email: formData.email,
-          telefone: `55${formData.dddTelefone}${formData.telefone}`,
+          telefone: `${formData.dddTelefone}${formData.telefone}`,
           nome: cadastroResponse?.dados?.nome || formData.nome,
           tipo_envio: "EMAIL"
         };
@@ -364,7 +364,17 @@ const SignupDetails = () => {
                       <FormItem>
                         <FormLabel>CEP</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input 
+                            {...field}
+                            maxLength={9}
+                            onChange={(e) => {
+                              let value = e.target.value.replace(/\D/g, "");
+                              if (value.length > 5) {
+                                value = value.slice(0, 5) + "-" + value.slice(5, 8);
+                              }
+                              field.onChange(value);
+                            }}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
