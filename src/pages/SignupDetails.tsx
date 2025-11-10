@@ -43,6 +43,7 @@ const SignupDetails = () => {
   const { clientData, cpf, dataNascimento, usuarioId } = location.state || {};
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showTokenModal, setShowTokenModal] = useState(false);
+  const [showEmailSentModal, setShowEmailSentModal] = useState(false);
   const [cadastroResponse, setCadastroResponse] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -143,14 +144,57 @@ const SignupDetails = () => {
     }
   };
 
-  const handleTokenChoice = (method: "email" | "sms") => {
-    // TODO: Implementar chamada da API para enviar token
-    console.log("Enviar token via:", method);
-    toast({
-      title: "Token enviado!",
-      description: `O código de ativação foi enviado para seu ${method === "email" ? "e-mail" : "telefone"}.`,
-    });
-    navigate("/login");
+  const handleTokenChoice = async (method: "email" | "sms") => {
+    if (method === "email") {
+      try {
+        const formData = form.getValues();
+        
+        const payload = {
+          id: usuarioId,
+          cpf: cpf.replace(/\D/g, ""),
+          email: formData.email,
+          telefone: `55${formData.dddTelefone}${formData.telefone}`,
+          nome: cadastroResponse?.dados?.nome || formData.nome,
+          tipo_envio: "EMAIL"
+        };
+
+        const response = await fetch("https://api-portalpaciente-web.samel.com.br/api/Login/ValidarEmail2", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "identificador-dispositivo": "request-android"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (result.sucesso) {
+          setShowTokenModal(false);
+          setShowEmailSentModal(true);
+        } else {
+          toast({
+            title: "Erro ao enviar e-mail",
+            description: result.mensagem || "Não foi possível enviar o e-mail de validação.",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        toast({
+          title: "Erro ao enviar e-mail",
+          description: "Não foi possível conectar ao servidor. Tente novamente.",
+          variant: "destructive",
+        });
+      }
+    } else {
+      // TODO: Implementar chamada da API para enviar token via SMS
+      console.log("Enviar token via SMS");
+      toast({
+        title: "Token enviado!",
+        description: "O código de ativação foi enviado para seu telefone.",
+      });
+      navigate("/login");
+    }
   };
 
   return (
@@ -515,6 +559,22 @@ const SignupDetails = () => {
             <Button onClick={() => handleTokenChoice("sms")} className="w-full sm:w-auto">
               Enviar por SMS
             </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showEmailSentModal} onOpenChange={setShowEmailSentModal}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>E-mail enviado com sucesso!</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <p>Verifique o e-mail na sua caixa de entrada para confirmarmos sua identidade. Caso não encontre verifique sua caixa de SPAM</p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => navigate("/")}>
+              Voltar ao Menu Principal
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
