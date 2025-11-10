@@ -8,6 +8,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { useState } from "react";
 import samelLogo from "@/assets/samel-logo.png";
 
 const signupSchema = z.object({
@@ -38,7 +40,11 @@ const SignupDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { clientData, cpf } = location.state || {};
+  const { clientData, cpf, dataNascimento, usuarioId } = location.state || {};
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showTokenModal, setShowTokenModal] = useState(false);
+  const [cadastroResponse, setCadastroResponse] = useState<any>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
@@ -68,20 +74,83 @@ const SignupDetails = () => {
   }
 
   const onSubmit = async (data: z.infer<typeof signupSchema>) => {
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmCadastro = async () => {
+    setShowConfirmModal(false);
+    setIsSubmitting(true);
+
     try {
-      // TODO: Implementar chamada à API para finalizar cadastro
-      toast({
-        title: "Cadastro finalizado!",
-        description: "Sua conta foi criada com sucesso",
+      const formData = form.getValues();
+      
+      const payload = {
+        dataNascimento: dataNascimento,
+        cpf: cpf.replace(/\D/g, ""),
+        sexo: formData.sexo,
+        id: usuarioId,
+        estadoCivil: formData.estadoCivil,
+        nome: formData.nome,
+        numeroTelefone: `55${formData.dddTelefone}${formData.telefone}`,
+        dddTelefone: formData.dddTelefone,
+        rg: formData.rg.replace(/\D/g, ""),
+        usuario: {
+          email: formData.email,
+          senha: formData.senha
+        },
+        complementoResidencial: formData.complemento || "",
+        cepResidencial: formData.cep,
+        logradouroResidencial: formData.logradouro,
+        numeroResidencial: Number(formData.numero),
+        bairro: formData.bairro,
+        municipio: formData.municipio,
+        uf: formData.uf
+      };
+
+      const response = await fetch("https://api-portalpaciente-web.samel.com.br/api/Cliente/Cadastrar2", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "identificador-dispositivo": "request-android"
+        },
+        body: JSON.stringify(payload)
       });
-      navigate("/login");
+
+      const result = await response.json();
+
+      if (result.sucesso) {
+        setCadastroResponse(result);
+        toast({
+          title: "Sucesso!",
+          description: result.mensagem,
+        });
+        setShowTokenModal(true);
+      } else {
+        toast({
+          title: "Erro ao finalizar cadastro",
+          description: result.mensagem || "Não foi possível finalizar o cadastro.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       toast({
         title: "Erro ao finalizar cadastro",
         description: "Não foi possível conectar ao servidor. Tente novamente.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
+  };
+
+  const handleTokenChoice = (method: "email" | "sms") => {
+    // TODO: Implementar chamada da API para enviar token
+    console.log("Enviar token via:", method);
+    toast({
+      title: "Token enviado!",
+      description: `O código de ativação foi enviado para seu ${method === "email" ? "e-mail" : "telefone"}.`,
+    });
+    navigate("/login");
   };
 
   return (
@@ -372,8 +441,8 @@ const SignupDetails = () => {
                 />
               </div>
 
-              <Button type="submit" className="w-full text-sm sm:text-base" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? "Finalizando..." : "Finalizar Cadastro"}
+              <Button type="submit" className="w-full text-sm sm:text-base" disabled={isSubmitting}>
+                {isSubmitting ? "Finalizando..." : "Finalizar Cadastro"}
               </Button>
 
               <Button 
@@ -405,6 +474,50 @@ const SignupDetails = () => {
           </div>
         </div>
       </div>
+
+      <AlertDialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar dados de contato</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <p>Por favor, confirme se os dados abaixo estão corretos:</p>
+              <div className="mt-4 space-y-2 text-foreground">
+                <p><strong>E-mail:</strong> {form.getValues("email")}</p>
+                <p><strong>Telefone:</strong> +55 ({form.getValues("dddTelefone")}) {form.getValues("telefone")}</p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Corrigir</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmCadastro}>Confirmar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showTokenModal} onOpenChange={setShowTokenModal}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Escolha como receber o código</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <p>Para ativar sua conta, escolha onde deseja receber o código de ativação:</p>
+              {cadastroResponse?.dados && (
+                <div className="mt-4 space-y-2 text-foreground">
+                  <p><strong>E-mail:</strong> {cadastroResponse.dados.Email}</p>
+                  <p><strong>Telefone:</strong> ({cadastroResponse.dados.dddTele}) {cadastroResponse.dados.Telefone}</p>
+                </div>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <Button onClick={() => handleTokenChoice("email")} className="w-full sm:w-auto">
+              Enviar por E-mail
+            </Button>
+            <Button onClick={() => handleTokenChoice("sms")} className="w-full sm:w-auto">
+              Enviar por SMS
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
