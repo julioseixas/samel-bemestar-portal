@@ -157,16 +157,24 @@ const SignupDetails = () => {
                     <FormItem>
                       <FormLabel>Telefone</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="tel" 
-                          placeholder="912345678" 
-                          maxLength={9}
-                          {...field}
-                          onChange={(e) => {
-                            const numbers = e.target.value.replace(/\D/g, "").slice(0, 9);
-                            field.onChange(numbers);
-                          }}
-                        />
+                        <div className="flex gap-2">
+                          <Input 
+                            value="+55"
+                            disabled
+                            className="w-16 text-center"
+                          />
+                          <Input 
+                            type="tel" 
+                            placeholder="912345678" 
+                            maxLength={9}
+                            className="flex-1"
+                            {...field}
+                            onChange={(e) => {
+                              const numbers = e.target.value.replace(/\D/g, "").slice(0, 9);
+                              field.onChange(numbers);
+                            }}
+                          />
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
