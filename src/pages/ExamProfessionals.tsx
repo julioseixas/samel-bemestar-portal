@@ -3,8 +3,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { MapPin } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Stethoscope } from "lucide-react";
 
 interface Unidade {
   id: string;
@@ -72,16 +72,17 @@ const ExamProfessionals = () => {
   }, [navigate]);
 
   const getAvatarColor = (sexo: string) => {
-    if (sexo?.toUpperCase() === 'M') return 'bg-blue-500';
-    if (sexo?.toUpperCase() === 'F') return 'bg-pink-500';
-    return 'bg-gray-500';
+    const sexoNormalizado = sexo?.trim().toUpperCase();
+    return sexoNormalizado === 'F' 
+      ? "bg-pink-100 dark:bg-pink-900/30" 
+      : "bg-blue-100 dark:bg-blue-900/30";
   };
 
   const formatEndereco = (unidade: Unidade) => {
     const parts = [unidade.logradouro];
     if (unidade.numeroLogradouro) parts.push(`nº ${unidade.numeroLogradouro}`);
     if (unidade.bairro) parts.push(unidade.bairro);
-    return parts.join(', ');
+    return parts.join(", ");
   };
 
   const handleSelectProfessional = (profissional: Profissional) => {
@@ -139,48 +140,88 @@ const ExamProfessionals = () => {
                       {group.combinacao}
                     </h3>
                   )}
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                   <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {group.dados.map((profissional) => (
                       <Card 
                         key={profissional.idAgenda}
-                        className="group cursor-pointer transition-all hover:shadow-lg border-2 hover:border-primary"
+                        className="hover:shadow-lg transition-shadow cursor-pointer"
                         onClick={() => handleSelectProfessional(profissional)}
                       >
                         <CardHeader>
-                          <div className="flex items-start gap-3">
-                            <Avatar className={`h-12 w-12 ${getAvatarColor(profissional.ieSexo || '')}`}>
-                              <AvatarFallback className="text-white font-semibold">
-                                {profissional.nome?.split(' ').map(n => n[0]).join('').substring(0, 2) || 'PR'}
-                              </AvatarFallback>
-                            </Avatar>
+                          <div className="flex items-center gap-4">
+                            <div className={`h-16 w-16 rounded-full flex items-center justify-center ${getAvatarColor(profissional.ieSexo || '')}`}>
+                              <Stethoscope className="h-8 w-8 text-primary" />
+                            </div>
                             <div className="flex-1">
-                              <CardTitle className="text-base">
+                              <CardTitle className="text-base sm:text-lg">
                                 {profissional.nome}
                               </CardTitle>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {profissional.nr_conselho}
-                              </p>
+                              <Badge variant="outline" className="mt-1">
+                                {profissional.ie_sigla_conselho} {profissional.nr_conselho}
+                              </Badge>
                             </div>
                           </div>
                         </CardHeader>
-                        <CardContent className="space-y-2">
+                        <CardContent className="space-y-3">
+                          {group.combinacao && (
+                            <div>
+                              <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                                Exames que realiza:
+                              </span>
+                              <div className="mt-1 max-h-24 overflow-y-auto border rounded-md p-2 bg-muted/30">
+                                <p className="text-xs sm:text-sm leading-relaxed">
+                                  {group.combinacao}
+                                </p>
+                              </div>
+                            </div>
+                          )}
                           <div>
-                            <p className="text-xs font-medium text-muted-foreground">Especialidade</p>
-                            <p className="text-sm">{profissional.dsEspecialidade}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs font-medium text-muted-foreground">Disponibilidade</p>
-                            <p className="text-sm font-semibold text-primary">
-                              {profissional.dataAgenda}
+                            <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                              Especialidade:
+                            </span>
+                            <p className="text-sm sm:text-base font-semibold">
+                              {profissional.dsEspecialidade}
                             </p>
                           </div>
                           <div>
-                            <p className="text-xs font-medium text-muted-foreground mb-1">Unidade</p>
-                            <div className="flex items-start gap-2 text-xs">
-                              <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                              <span>{formatEndereco(profissional.unidade)}</span>
-                            </div>
+                            <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                              Disponível a partir de:
+                            </span>
+                            <p className="text-sm sm:text-base font-semibold">
+                              {profissional.dataAgenda}
+                            </p>
                           </div>
+                          {Object.keys(profissional.unidade || {}).length > 0 ? (
+                            <>
+                              <div>
+                                <Badge variant="secondary" className="bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20">
+                                  Exame Presencial
+                                </Badge>
+                              </div>
+                              <div>
+                                <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                                  Unidade:
+                                </span>
+                                <p className="text-sm sm:text-base font-semibold">
+                                  {profissional.unidade.descricao}
+                                </p>
+                              </div>
+                              <div>
+                                <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                                  Endereço:
+                                </span>
+                                <p className="text-sm sm:text-base">
+                                  {formatEndereco(profissional.unidade)}
+                                </p>
+                              </div>
+                            </>
+                          ) : (
+                            <div>
+                              <Badge variant="secondary" className="bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20">
+                                Exame por Telemedicina
+                              </Badge>
+                            </div>
+                          )}
                         </CardContent>
                       </Card>
                     ))}
