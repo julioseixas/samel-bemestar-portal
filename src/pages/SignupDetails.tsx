@@ -17,6 +17,7 @@ const SignupDetails = () => {
   const [formData, setFormData] = useState({
     nome: clientData?.nome || "",
     email: clientData?.usuario?.email || "",
+    dddTelefone: clientData?.dddTelefone || "",
     telefone: clientData?.numeroTelefone || "",
     rg: clientData?.rg || "",
     sexo: clientData?.sexo || "",
@@ -28,6 +29,8 @@ const SignupDetails = () => {
     bairro: clientData?.bairro || "",
     municipio: clientData?.municipio || "",
     uf: clientData?.uf || "",
+    senha: "",
+    confirmarSenha: "",
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -38,9 +41,31 @@ const SignupDetails = () => {
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    
+    // Máscara para telefone (apenas números, máximo 9 dígitos)
+    if (name === "telefone") {
+      const numbers = value.replace(/\D/g, "").slice(0, 9);
+      setFormData({
+        ...formData,
+        [name]: numbers,
+      });
+      return;
+    }
+
+    // Máscara para DDD (apenas números, máximo 2 dígitos)
+    if (name === "dddTelefone") {
+      const numbers = value.replace(/\D/g, "").slice(0, 2);
+      setFormData({
+        ...formData,
+        [name]: numbers,
+      });
+      return;
+    }
+    
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
   };
 
@@ -114,15 +139,39 @@ const SignupDetails = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="telefone">Telefone</Label>
+                <Label htmlFor="dddTelefone">DDD</Label>
                 <Input
-                  id="telefone"
-                  name="telefone"
+                  id="dddTelefone"
+                  name="dddTelefone"
                   type="tel"
-                  value={formData.telefone}
+                  value={formData.dddTelefone}
                   onChange={handleChange}
+                  placeholder="92"
+                  maxLength={2}
                   required
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="telefone">Telefone</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value="+55"
+                    disabled
+                    className="w-16 text-center"
+                  />
+                  <Input
+                    id="telefone"
+                    name="telefone"
+                    type="tel"
+                    value={formData.telefone}
+                    onChange={handleChange}
+                    placeholder="912345678"
+                    maxLength={9}
+                    required
+                    className="flex-1"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -250,6 +299,30 @@ const SignupDetails = () => {
                   value={formData.uf}
                   onChange={handleChange}
                   maxLength={2}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="senha">Senha</Label>
+                <Input
+                  id="senha"
+                  name="senha"
+                  type="password"
+                  value={formData.senha}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirmarSenha">Confirmar Senha</Label>
+                <Input
+                  id="confirmarSenha"
+                  name="confirmarSenha"
+                  type="password"
+                  value={formData.confirmarSenha}
+                  onChange={handleChange}
                   required
                 />
               </div>
