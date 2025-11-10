@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import samelLogo from "@/assets/samel-logo.png";
@@ -40,6 +41,13 @@ const SignupDetails = () => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData({
+      ...formData,
+      [name]: value,
     });
   };
 
@@ -142,13 +150,24 @@ const SignupDetails = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="estadoCivil">Estado Civil</Label>
-                <Input
-                  id="estadoCivil"
-                  name="estadoCivil"
-                  type="text"
+                <Select
                   value={formData.estadoCivil}
-                  onChange={handleChange}
-                />
+                  onValueChange={(value) => handleSelectChange("estadoCivil", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o estado civil" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">Solteiro</SelectItem>
+                    <SelectItem value="2">Casado</SelectItem>
+                    <SelectItem value="3">Divorciado</SelectItem>
+                    <SelectItem value="4">Desquitado</SelectItem>
+                    <SelectItem value="5">Viúvo</SelectItem>
+                    <SelectItem value="6">Separado</SelectItem>
+                    <SelectItem value="7">Concubinato/União Estável</SelectItem>
+                    <SelectItem value="9">Outros</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">
