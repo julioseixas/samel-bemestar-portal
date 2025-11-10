@@ -139,6 +139,7 @@ const Signup = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "identificador-dispositivo": "request-android",
           },
           body: JSON.stringify({
             respostaPergunta1: birthDate,
