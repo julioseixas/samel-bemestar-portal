@@ -84,8 +84,12 @@ const SignupDetails = () => {
     try {
       const formData = form.getValues();
       
+      // Formatar dataNascimento para yyyy/mm/dd
+      const [day, month, year] = dataNascimento.split('/');
+      const formattedDate = `${year}/${month}/${day}`;
+      
       const payload = {
-        dataNascimento: dataNascimento,
+        dataNascimento: formattedDate,
         cpf: cpf.replace(/\D/g, ""),
         sexo: formData.sexo,
         id: clientData.id,
