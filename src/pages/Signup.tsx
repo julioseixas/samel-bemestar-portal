@@ -71,15 +71,17 @@ const Signup = () => {
       
       const data = await response.json();
       
-      if (data.codigo === 1) {
-        setExistingAccountMessage(data.mensagem);
-        setShowExistingAccountModal(true);
-        setCpfValidated(false);
-      } else {
+      if (data.dados === 5) {
+        // Cliente não tem cadastro, pode prosseguir
         setCpfValidated(true);
         toast({
           description: "CPF validado com sucesso",
         });
+      } else {
+        // Cliente já possui conta
+        setExistingAccountMessage(data.mensagem || "Cliente já possui uma conta ativa. Recupere senha ou realize login");
+        setShowExistingAccountModal(true);
+        setCpfValidated(false);
       }
     } catch (error) {
       toast({
