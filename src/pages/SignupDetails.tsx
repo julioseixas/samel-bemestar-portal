@@ -28,7 +28,6 @@ const signupSchema = z.object({
   complemento: z.string().optional(),
   bairro: z.string().min(1, "Bairro é obrigatório"),
   municipio: z.string().min(1, "Município é obrigatório"),
-  uf: z.string().length(2, "UF deve ter 2 caracteres").min(1, "UF é obrigatório"),
   senha: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
   confirmarSenha: z.string().min(1, "Confirme a senha"),
 }).refine((data) => data.senha === data.confirmarSenha, {
@@ -63,7 +62,6 @@ const SignupDetails = () => {
       complemento: clientData?.complementoResidencial || "",
       bairro: clientData?.bairro || "",
       municipio: clientData?.municipio || "",
-      uf: clientData?.uf || "",
       senha: "",
       confirmarSenha: "",
     },
@@ -104,8 +102,7 @@ const SignupDetails = () => {
         logradouroResidencial: formData.logradouro,
         numeroResidencial: Number(formData.numero),
         bairro: formData.bairro,
-        municipio: formData.municipio,
-        uf: formData.uf
+        municipio: formData.municipio
       };
 
       const response = await fetch("https://api-portalpaciente-web.samel.com.br/api/Cliente/Cadastrar2", {
@@ -436,20 +433,6 @@ const SignupDetails = () => {
                       <FormLabel>Município</FormLabel>
                       <FormControl>
                         <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="uf"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>UF</FormLabel>
-                      <FormControl>
-                        <Input maxLength={2} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
