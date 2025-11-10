@@ -13,7 +13,6 @@ import samelLogo from "@/assets/samel-logo.png";
 const signupSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório"),
   email: z.string().email("E-mail inválido").min(1, "E-mail é obrigatório"),
-  confirmarEmail: z.string().email("E-mail inválido").min(1, "Confirme o e-mail"),
   dddTelefone: z.string().length(2, "DDD deve ter 2 dígitos").min(1, "DDD é obrigatório"),
   telefone: z.string().length(9, "Telefone deve ter 9 dígitos").min(1, "Telefone é obrigatório"),
   rg: z.string().min(1, "RG é obrigatório"),
@@ -31,9 +30,6 @@ const signupSchema = z.object({
 }).refine((data) => data.senha === data.confirmarSenha, {
   message: "As senhas não coincidem",
   path: ["confirmarSenha"],
-}).refine((data) => data.email === data.confirmarEmail, {
-  message: "Os e-mails não coincidem",
-  path: ["confirmarEmail"],
 });
 
 const SignupDetails = () => {
@@ -47,7 +43,6 @@ const SignupDetails = () => {
     defaultValues: {
       nome: clientData?.nome || "",
       email: clientData?.usuario?.email || "",
-      confirmarEmail: "",
       dddTelefone: clientData?.dddTelefone || "",
       telefone: clientData?.numeroTelefone || "",
       rg: clientData?.rg || "",
@@ -122,22 +117,8 @@ const SignupDetails = () => {
                   control={form.control}
                   name="email"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="md:col-span-2">
                       <FormLabel>E-mail</FormLabel>
-                      <FormControl>
-                        <Input type="email" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="confirmarEmail"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirmar E-mail</FormLabel>
                       <FormControl>
                         <Input type="email" {...field} />
                       </FormControl>
