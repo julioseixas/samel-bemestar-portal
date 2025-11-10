@@ -130,18 +130,21 @@ const SignupDetails = () => {
                 />
 
                 <div className="md:col-span-2">
-                  <FormLabel>Telefone</FormLabel>
-                  <div className="flex gap-2">
-                    <Input 
-                      value="+55"
-                      disabled
-                      className="w-16 text-center"
-                    />
+                  <div className="grid grid-cols-[80px_100px_1fr] gap-2">
+                    <div className="space-y-2">
+                      <FormLabel className="text-xs">País</FormLabel>
+                      <Input 
+                        value="+55"
+                        disabled
+                        className="text-center"
+                      />
+                    </div>
                     <FormField
                       control={form.control}
                       name="dddTelefone"
                       render={({ field }) => (
-                        <FormItem className="w-20">
+                        <FormItem>
+                          <FormLabel>DDD</FormLabel>
                           <FormControl>
                             <Input 
                               type="tel" 
@@ -162,7 +165,8 @@ const SignupDetails = () => {
                       control={form.control}
                       name="telefone"
                       render={({ field }) => (
-                        <FormItem className="flex-1">
+                        <FormItem>
+                          <FormLabel>Telefone</FormLabel>
                           <FormControl>
                             <Input 
                               type="tel" 
