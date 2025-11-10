@@ -212,7 +212,7 @@ const SignupDetails = () => {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
               <ScrollArea className="h-[60vh] pr-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-2">
                   <FormField
                     control={form.control}
                     name="nome"
