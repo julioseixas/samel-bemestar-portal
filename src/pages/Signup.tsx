@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ const Signup = () => {
   const [validatingCpf, setValidatingCpf] = useState(false);
   const [showExistingAccountModal, setShowExistingAccountModal] = useState(false);
   const [existingAccountMessage, setExistingAccountMessage] = useState("");
+  const lastValidatedCpf = useRef<string>("");
 
   const formatCPF = (value: string) => {
     const numbers = value.replace(/\D/g, "");
@@ -51,8 +52,10 @@ const Signup = () => {
   };
 
   const validateCPF = async (cleanCPF: string) => {
+    if (lastValidatedCpf.current === cleanCPF) return;
+    
+    lastValidatedCpf.current = cleanCPF;
     setValidatingCpf(true);
-    console.log("Validando CPF:", cleanCPF);
     
     try {
       const response = await fetch(
@@ -66,9 +69,7 @@ const Signup = () => {
         }
       );
       
-      console.log("Response status:", response.status);
       const data = await response.json();
-      console.log("Response data:", data);
       
       if (data.codigo === 1) {
         setExistingAccountMessage(data.mensagem);
@@ -81,7 +82,6 @@ const Signup = () => {
         });
       }
     } catch (error) {
-      console.error("Erro ao validar CPF:", error);
       toast({
         title: "Erro ao validar CPF",
         description: "Não foi possível conectar ao servidor. Tente novamente.",
@@ -95,12 +95,13 @@ const Signup = () => {
   useEffect(() => {
     const cleanCPF = cpf.replace(/\D/g, "");
     
-    if (cleanCPF.length === 11 && !cpfValidated && !validatingCpf) {
+    if (cleanCPF.length === 11 && lastValidatedCpf.current !== cleanCPF) {
       validateCPF(cleanCPF);
     } else if (cleanCPF.length < 11) {
       setCpfValidated(false);
+      lastValidatedCpf.current = "";
     }
-  }, [cpf, cpfValidated, validatingCpf]);
+  }, [cpf]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -257,8 +258,8 @@ const Signup = () => {
               {existingAccountMessage}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <Button variant="outline" onClick={() => navigate("/login")}>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2 sm:justify-between">
+            <Button variant="outline" onClick={() => navigate("/login")} className="w-full sm:w-auto">
               Voltar para Login
             </Button>
             <Button onClick={() => {
@@ -266,7 +267,7 @@ const Signup = () => {
               toast({
                 description: "Funcionalidade de recuperação de senha em desenvolvimento",
               });
-            }}>
+            }} className="w-full sm:w-auto">
               Recuperar Senha
             </Button>
           </AlertDialogFooter>
