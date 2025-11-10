@@ -1,12 +1,40 @@
-import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import samelLogo from "@/assets/samel-logo.png";
+
+const signupSchema = z.object({
+  nome: z.string().min(1, "Nome é obrigatório"),
+  email: z.string().email("E-mail inválido").min(1, "E-mail é obrigatório"),
+  confirmarEmail: z.string().email("E-mail inválido").min(1, "Confirme o e-mail"),
+  dddTelefone: z.string().length(2, "DDD deve ter 2 dígitos").min(1, "DDD é obrigatório"),
+  telefone: z.string().length(9, "Telefone deve ter 9 dígitos").min(1, "Telefone é obrigatório"),
+  rg: z.string().min(1, "RG é obrigatório"),
+  sexo: z.string(),
+  estadoCivil: z.string().min(1, "Estado civil é obrigatório"),
+  cep: z.string().min(1, "CEP é obrigatório"),
+  logradouro: z.string().min(1, "Logradouro é obrigatório"),
+  numero: z.string().min(1, "Número é obrigatório"),
+  complemento: z.string().optional(),
+  bairro: z.string().min(1, "Bairro é obrigatório"),
+  municipio: z.string().min(1, "Município é obrigatório"),
+  uf: z.string().length(2, "UF deve ter 2 caracteres").min(1, "UF é obrigatório"),
+  senha: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
+  confirmarSenha: z.string().min(1, "Confirme a senha"),
+}).refine((data) => data.senha === data.confirmarSenha, {
+  message: "As senhas não coincidem",
+  path: ["confirmarSenha"],
+}).refine((data) => data.email === data.confirmarEmail, {
+  message: "Os e-mails não coincidem",
+  path: ["confirmarEmail"],
+});
 
 const SignupDetails = () => {
   const navigate = useNavigate();
@@ -14,72 +42,35 @@ const SignupDetails = () => {
   const { toast } = useToast();
   const { clientData, cpf } = location.state || {};
 
-  const [formData, setFormData] = useState({
-    nome: clientData?.nome || "",
-    email: clientData?.usuario?.email || "",
-    dddTelefone: clientData?.dddTelefone || "",
-    telefone: clientData?.numeroTelefone || "",
-    rg: clientData?.rg || "",
-    sexo: clientData?.sexo || "",
-    estadoCivil: clientData?.estadoCivil || "",
-    cep: clientData?.cepResidencial || "",
-    logradouro: clientData?.logradouroResidencial || "",
-    numero: clientData?.numeroResidencial || "",
-    complemento: clientData?.complementoResidencial || "",
-    bairro: clientData?.bairro || "",
-    municipio: clientData?.municipio || "",
-    uf: clientData?.uf || "",
-    senha: "",
-    confirmarSenha: "",
+  const form = useForm<z.infer<typeof signupSchema>>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      nome: clientData?.nome || "",
+      email: clientData?.usuario?.email || "",
+      confirmarEmail: "",
+      dddTelefone: clientData?.dddTelefone || "",
+      telefone: clientData?.numeroTelefone || "",
+      rg: clientData?.rg || "",
+      sexo: clientData?.sexo || "",
+      estadoCivil: clientData?.estadoCivil || "",
+      cep: clientData?.cepResidencial || "",
+      logradouro: clientData?.logradouroResidencial || "",
+      numero: clientData?.numeroResidencial || "",
+      complemento: clientData?.complementoResidencial || "",
+      bairro: clientData?.bairro || "",
+      municipio: clientData?.municipio || "",
+      uf: clientData?.uf || "",
+      senha: "",
+      confirmarSenha: "",
+    },
   });
-
-  const [isLoading, setIsLoading] = useState(false);
 
   if (!clientData) {
     navigate("/signup");
     return null;
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    
-    // Máscara para telefone (apenas números, máximo 9 dígitos)
-    if (name === "telefone") {
-      const numbers = value.replace(/\D/g, "").slice(0, 9);
-      setFormData({
-        ...formData,
-        [name]: numbers,
-      });
-      return;
-    }
-
-    // Máscara para DDD (apenas números, máximo 2 dígitos)
-    if (name === "dddTelefone") {
-      const numbers = value.replace(/\D/g, "").slice(0, 2);
-      setFormData({
-        ...formData,
-        [name]: numbers,
-      });
-      return;
-    }
-    
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
+  const onSubmit = async (data: z.infer<typeof signupSchema>) => {
     try {
       // TODO: Implementar chamada à API para finalizar cadastro
       toast({
@@ -93,8 +84,6 @@ const SignupDetails = () => {
         description: "Não foi possível conectar ao servidor. Tente novamente.",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -112,228 +101,298 @@ const SignupDetails = () => {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="nome">Nome Completo</Label>
-                <Input
-                  id="nome"
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
                   name="nome"
-                  type="text"
-                  value={formData.nome}
-                  onChange={handleChange}
-                  required
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel>Nome Completo</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">E-mail</Label>
-                <Input
-                  id="email"
+                <FormField
+                  control={form.control}
                   name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>E-mail</FormLabel>
+                      <FormControl>
+                        <Input type="email" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="dddTelefone">DDD</Label>
-                <Input
-                  id="dddTelefone"
+                <FormField
+                  control={form.control}
+                  name="confirmarEmail"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirmar E-mail</FormLabel>
+                      <FormControl>
+                        <Input type="email" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="dddTelefone"
-                  type="tel"
-                  value={formData.dddTelefone}
-                  onChange={handleChange}
-                  placeholder="92"
-                  maxLength={2}
-                  required
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>DDD</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="tel" 
+                          placeholder="92" 
+                          maxLength={2}
+                          {...field}
+                          onChange={(e) => {
+                            const numbers = e.target.value.replace(/\D/g, "").slice(0, 2);
+                            field.onChange(numbers);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="telefone">Telefone</Label>
-                <Input
-                  id="telefone"
+                <FormField
+                  control={form.control}
                   name="telefone"
-                  type="tel"
-                  value={formData.telefone}
-                  onChange={handleChange}
-                  placeholder="912345678"
-                  maxLength={9}
-                  required
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Telefone</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="tel" 
+                          placeholder="912345678" 
+                          maxLength={9}
+                          {...field}
+                          onChange={(e) => {
+                            const numbers = e.target.value.replace(/\D/g, "").slice(0, 9);
+                            field.onChange(numbers);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="rg">RG</Label>
-                <Input
-                  id="rg"
+                <FormField
+                  control={form.control}
                   name="rg"
-                  type="text"
-                  value={formData.rg}
-                  onChange={handleChange}
-                  required
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>RG</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="sexo">Sexo</Label>
-                <Input
-                  id="sexo"
+                <FormField
+                  control={form.control}
                   name="sexo"
-                  type="text"
-                  value={formData.sexo === "F" ? "Feminino" : "Masculino"}
-                  disabled
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sexo</FormLabel>
+                      <FormControl>
+                        <Input 
+                          value={field.value === "F" ? "Feminino" : "Masculino"}
+                          disabled
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="estadoCivil">Estado Civil</Label>
-                <Select
-                  value={formData.estadoCivil}
-                  onValueChange={(value) => handleSelectChange("estadoCivil", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o estado civil" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">Solteiro</SelectItem>
-                    <SelectItem value="2">Casado</SelectItem>
-                    <SelectItem value="3">Divorciado</SelectItem>
-                    <SelectItem value="4">Desquitado</SelectItem>
-                    <SelectItem value="5">Viúvo</SelectItem>
-                    <SelectItem value="6">Separado</SelectItem>
-                    <SelectItem value="7">Concubinato/União Estável</SelectItem>
-                    <SelectItem value="9">Outros</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                <FormField
+                  control={form.control}
+                  name="estadoCivil"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Estado Civil</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione o estado civil" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="1">Solteiro</SelectItem>
+                          <SelectItem value="2">Casado</SelectItem>
+                          <SelectItem value="3">Divorciado</SelectItem>
+                          <SelectItem value="4">Desquitado</SelectItem>
+                          <SelectItem value="5">Viúvo</SelectItem>
+                          <SelectItem value="6">Separado</SelectItem>
+                          <SelectItem value="7">Concubinato/União Estável</SelectItem>
+                          <SelectItem value="9">Outros</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <div className="space-y-2">
-                <Label htmlFor="cep">CEP</Label>
-                <Input
-                  id="cep"
+                <FormField
+                  control={form.control}
                   name="cep"
-                  type="text"
-                  value={formData.cep}
-                  onChange={handleChange}
-                  required
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>CEP</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="logradouro">Logradouro</Label>
-                <Input
-                  id="logradouro"
+                <FormField
+                  control={form.control}
                   name="logradouro"
-                  type="text"
-                  value={formData.logradouro}
-                  onChange={handleChange}
-                  required
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel>Logradouro</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="numero">Número</Label>
-                <Input
-                  id="numero"
+                <FormField
+                  control={form.control}
                   name="numero"
-                  type="text"
-                  value={formData.numero}
-                  onChange={handleChange}
-                  required
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Número</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="complemento">Complemento</Label>
-                <Input
-                  id="complemento"
+                <FormField
+                  control={form.control}
                   name="complemento"
-                  type="text"
-                  value={formData.complemento}
-                  onChange={handleChange}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Complemento</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="bairro">Bairro</Label>
-                <Input
-                  id="bairro"
+                <FormField
+                  control={form.control}
                   name="bairro"
-                  type="text"
-                  value={formData.bairro}
-                  onChange={handleChange}
-                  required
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Bairro</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="municipio">Município</Label>
-                <Input
-                  id="municipio"
+                <FormField
+                  control={form.control}
                   name="municipio"
-                  type="text"
-                  value={formData.municipio}
-                  onChange={handleChange}
-                  required
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Município</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="uf">UF</Label>
-                <Input
-                  id="uf"
+                <FormField
+                  control={form.control}
                   name="uf"
-                  type="text"
-                  value={formData.uf}
-                  onChange={handleChange}
-                  maxLength={2}
-                  required
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>UF</FormLabel>
+                      <FormControl>
+                        <Input maxLength={2} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="senha">Senha</Label>
-                <Input
-                  id="senha"
+                <FormField
+                  control={form.control}
                   name="senha"
-                  type="password"
-                  value={formData.senha}
-                  onChange={handleChange}
-                  required
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Senha</FormLabel>
+                      <FormControl>
+                        <Input type="password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="confirmarSenha">Confirmar Senha</Label>
-                <Input
-                  id="confirmarSenha"
+                <FormField
+                  control={form.control}
                   name="confirmarSenha"
-                  type="password"
-                  value={formData.confirmarSenha}
-                  onChange={handleChange}
-                  required
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirmar Senha</FormLabel>
+                      <FormControl>
+                        <Input type="password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
-            </div>
 
-            <Button type="submit" className="w-full text-sm sm:text-base" disabled={isLoading}>
-              {isLoading ? "Finalizando..." : "Finalizar Cadastro"}
-            </Button>
+              <Button type="submit" className="w-full text-sm sm:text-base" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Finalizando..." : "Finalizar Cadastro"}
+              </Button>
 
-            <Button 
-              type="button"
-              variant="outline" 
-              onClick={() => navigate("/signup")} 
-              className="w-full flex items-center justify-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Voltar
-            </Button>
-          </form>
+              <Button 
+                type="button"
+                variant="outline" 
+                onClick={() => navigate("/signup")} 
+                className="w-full flex items-center justify-center gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Voltar
+              </Button>
+            </form>
+          </Form>
         </div>
       </div>
 
