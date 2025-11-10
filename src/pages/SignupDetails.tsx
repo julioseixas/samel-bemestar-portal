@@ -527,7 +527,7 @@ const SignupDetails = () => {
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+          <AlertDialogFooter className="justify-between">
             <AlertDialogCancel>Corrigir</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmCadastro}>Confirmar</AlertDialogAction>
           </AlertDialogFooter>
