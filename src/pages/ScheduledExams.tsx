@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Calendar, Clock, MapPin, User, TestTube, XCircle } from "lucide-react";
+import { Calendar, Clock, MapPin, User, TestTube, XCircle, Stethoscope } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { getApiHeaders } from "@/lib/api-headers";
@@ -317,6 +317,18 @@ const ScheduledExams = () => {
                       <User className="h-4 w-4 text-primary" />
                       <span>{exam.nomeCliente}</span>
                     </div>
+
+                    <div className="flex items-center gap-2 text-sm">
+                      <Stethoscope className="h-4 w-4 text-primary" />
+                      <span>{exam.nomeProfissional}</span>
+                    </div>
+
+                    {exam.procedimentos && exam.procedimentos.length > 0 && (
+                      <div className="flex items-center gap-2 text-sm md:col-span-2">
+                        <TestTube className="h-4 w-4 text-primary" />
+                        <span className="font-medium">{exam.procedimentos[0].descricao}</span>
+                      </div>
+                    )}
 
                     <div className="flex items-start gap-2 text-sm md:col-span-2">
                       <MapPin className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
