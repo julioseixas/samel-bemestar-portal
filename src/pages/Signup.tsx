@@ -132,15 +132,31 @@ const Signup = () => {
     setIsLoading(true);
 
     try {
-      // TODO: Implementar chamada à API de cadastro
-      toast({
-        title: "Cadastro realizado!",
-        description: "Sua conta foi criada com sucesso",
-      });
-      navigate("/login");
+      const response = await fetch(
+        `https://api-portalpaciente-web.samel.com.br/api/Cliente/Obter/?cpf=${cleanCPF}`,
+        { 
+          method: "GET",
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+          }
+        }
+      );
+      
+      const data = await response.json();
+      
+      if (data.sucesso && data.dados) {
+        navigate("/signup/details", { state: { clientData: data.dados, cpf: cleanCPF } });
+      } else {
+        toast({
+          title: "Erro ao buscar dados",
+          description: data.mensagem || "Não foi possível buscar seus dados. Tente novamente.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       toast({
-        title: "Erro ao realizar cadastro",
+        title: "Erro ao buscar dados",
         description: "Não foi possível conectar ao servidor. Tente novamente.",
         variant: "destructive",
       });
@@ -195,8 +211,8 @@ const Signup = () => {
               )}
             </div>
 
-            <Button type="submit" className="w-full text-sm sm:text-base" disabled={isLoading}>
-              {isLoading ? "Cadastrando..." : "Cadastrar"}
+            <Button type="submit" className="w-full text-sm sm:text-base" disabled={isLoading || !cpfValidated}>
+              {isLoading ? "Enviando..." : "Enviar"}
             </Button>
 
             <Button 
