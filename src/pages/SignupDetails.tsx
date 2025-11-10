@@ -20,7 +20,7 @@ const signupSchema = z.object({
   estadoCivil: z.string().min(1, "Estado civil é obrigatório"),
   cep: z.string().min(1, "CEP é obrigatório"),
   logradouro: z.string().min(1, "Logradouro é obrigatório"),
-  numero: z.string().min(1, "Número é obrigatório"),
+  numero: z.string().optional(),
   complemento: z.string().optional(),
   bairro: z.string().min(1, "Bairro é obrigatório"),
   municipio: z.string().min(1, "Município é obrigatório"),
