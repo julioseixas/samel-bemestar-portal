@@ -154,24 +154,16 @@ const SignupDetails = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="telefone">Telefone</Label>
-                <div className="flex gap-2">
-                  <Input
-                    value="+55"
-                    disabled
-                    className="w-16 text-center"
-                  />
-                  <Input
-                    id="telefone"
-                    name="telefone"
-                    type="tel"
-                    value={formData.telefone}
-                    onChange={handleChange}
-                    placeholder="912345678"
-                    maxLength={9}
-                    required
-                    className="flex-1"
-                  />
-                </div>
+                <Input
+                  id="telefone"
+                  name="telefone"
+                  type="tel"
+                  value={formData.telefone}
+                  onChange={handleChange}
+                  placeholder="912345678"
+                  maxLength={9}
+                  required
+                />
               </div>
 
               <div className="space-y-2">
