@@ -28,6 +28,7 @@ import ScheduledAppointments from "./pages/ScheduledAppointments";
 import ScheduledExams from "./pages/ScheduledExams";
 import TermsToSign from "./pages/TermsToSign";
 import TermsList from "./pages/TermsList";
+import PersonalData from "./pages/PersonalData";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +64,7 @@ const App = () => (
           <Route path="/scheduled-exams" element={<ScheduledExams />} />
           <Route path="/terms-to-sign" element={<TermsToSign />} />
           <Route path="/terms-list/:patientId" element={<TermsList />} />
+          <Route path="/personal-data" element={<PersonalData />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

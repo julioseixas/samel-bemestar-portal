@@ -72,7 +72,7 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
                 <KeyRound className="mr-2 h-4 w-4" />
                 <span>Atualizar senha</span>
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/personal-data")}>
                 <UserCircle className="mr-2 h-4 w-4" />
                 <span>Ver dados pessoais</span>
               </DropdownMenuItem>
