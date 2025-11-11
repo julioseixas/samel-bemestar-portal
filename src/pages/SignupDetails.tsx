@@ -70,11 +70,22 @@ const SignupDetails = () => {
     },
   });
 
+  // Formatar data de ISO para dd/mm/yyyy
+  const formatDateFromISO = (isoDate: string) => {
+    if (!isoDate) return "";
+    const date = new Date(isoDate);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   // Atualizar o campo de data de nascimento quando carregar
   useEffect(() => {
     if (dataNascimento) {
-      console.log("Data de nascimento recebida:", dataNascimento);
-      form.setValue("dataNascimento", dataNascimento);
+      const formattedDate = formatDateFromISO(dataNascimento);
+      console.log("Data de nascimento recebida:", dataNascimento, "-> formatada:", formattedDate);
+      form.setValue("dataNascimento", formattedDate);
     }
   }, [dataNascimento, form]);
 
