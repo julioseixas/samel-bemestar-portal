@@ -783,11 +783,11 @@ const SignupDetails = () => {
       </AlertDialog>
 
       <AlertDialog open={showSmsTokenModal}>
-        <AlertDialogContent className="max-w-md">
+        <AlertDialogContent className="max-w-[90vw] sm:max-w-md mx-4">
           <AlertDialogHeader>
             <AlertDialogTitle>Validação por SMS</AlertDialogTitle>
             <AlertDialogDescription className="space-y-4">
-              <p>
+              <p className="text-sm">
                 Insira o token enviado para o número{" "}
                 <strong>
                   ({cadastroResponse?.dados?.dddTele || form.getValues("dddTelefone")}) {cadastroResponse?.dados?.Telefone || form.getValues("telefone")}
