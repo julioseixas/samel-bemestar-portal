@@ -49,9 +49,20 @@ export default function PersonalData() {
         const data = JSON.parse(storedData);
         setPatientData(data);
         setEditedData(data);
+        // Se não tiver nome no localStorage, usa o nome dos dados do paciente
+        if (!storedName && data.nome) {
+          setPatientName(data.nome);
+        }
       }
       if (storedName) {
-        setPatientName(storedName);
+        // Garante que estamos usando apenas a string do nome, não um objeto JSON
+        try {
+          const parsedName = JSON.parse(storedName);
+          setPatientName(parsedName.titular?.nome || parsedName.nome || storedName);
+        } catch {
+          // Se não for JSON, usa a string diretamente
+          setPatientName(storedName);
+        }
       }
       if (storedPhoto) {
         setProfilePhoto(storedPhoto);
