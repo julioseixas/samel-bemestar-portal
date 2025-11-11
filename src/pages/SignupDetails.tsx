@@ -256,8 +256,10 @@ const SignupDetails = () => {
         // Para SMS, a resposta tem estrutura diferente
         if (result.status === "sucess") {
           setShowTokenModal(false);
-          setSmsSuccessMessage("Verifique o SMS enviado para o seu número de telefone para obter o token de validação da sua conta.");
-          setShowSmsSuccessModal(true);
+          setShowSmsTokenModal(true);
+          setCountdown(60);
+          setCanResend(false);
+          setSmsToken("");
         } else {
           toast({
             title: "Erro ao enviar SMS",
