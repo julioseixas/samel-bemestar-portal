@@ -40,20 +40,24 @@ export default function PersonalData() {
   const [editedData, setEditedData] = useState<PatientData | null>(null);
 
   useEffect(() => {
-    const storedData = localStorage.getItem("patientData");
-    const storedName = localStorage.getItem("titular");
-    const storedPhoto = localStorage.getItem("profilePhoto");
+    try {
+      const storedData = localStorage.getItem("patientData");
+      const storedName = localStorage.getItem("titular");
+      const storedPhoto = localStorage.getItem("profilePhoto");
 
-    if (storedData) {
-      const data = JSON.parse(storedData);
-      setPatientData(data);
-      setEditedData(data);
-    }
-    if (storedName) {
-      setPatientName(storedName);
-    }
-    if (storedPhoto) {
-      setProfilePhoto(storedPhoto);
+      if (storedData) {
+        const data = JSON.parse(storedData);
+        setPatientData(data);
+        setEditedData(data);
+      }
+      if (storedName) {
+        setPatientName(storedName);
+      }
+      if (storedPhoto) {
+        setProfilePhoto(storedPhoto);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar dados:", error);
     }
   }, []);
 
