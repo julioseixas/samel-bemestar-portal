@@ -253,24 +253,15 @@ const SignupDetails = () => {
 
         const result = await response.json();
 
-        if (result.sucesso || result.status === "success") {
+        // Para SMS, a resposta tem estrutura diferente
+        if (result.status === "sucess") {
           setShowTokenModal(false);
-          setShowSmsTokenModal(true);
-          setCountdown(60);
-          setCanResend(false);
-          setSmsToken("");
-          
-          // Se o retorno tem status "success", mostrar toast específico
-          if (result.status === "success") {
-            toast({
-              title: "SMS enviado!",
-              description: "Verifique o token enviado para o seu número de telefone.",
-            });
-          }
+          setSmsSuccessMessage("Verifique o SMS enviado para o seu número de telefone para obter o token de validação da sua conta.");
+          setShowSmsSuccessModal(true);
         } else {
           toast({
             title: "Erro ao enviar SMS",
-            description: result.mensagem || "Não foi possível enviar o SMS de validação.",
+            description: result.message || "Não foi possível enviar o SMS de validação.",
             variant: "destructive",
           });
         }
@@ -845,14 +836,14 @@ const SignupDetails = () => {
       <AlertDialog open={showSmsSuccessModal} onOpenChange={setShowSmsSuccessModal}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Cadastro concluído com sucesso!</AlertDialogTitle>
+            <AlertDialogTitle>SMS Enviado!</AlertDialogTitle>
             <AlertDialogDescription>
               {smsSuccessMessage}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogAction onClick={() => navigate("/login")}>
-              Ir para o Login
+              Voltar ao Login
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
