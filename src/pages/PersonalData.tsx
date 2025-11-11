@@ -105,15 +105,6 @@ export default function PersonalData() {
     if (!editedData) return;
 
     // Validação básica
-    if (!editedData.email || !editedData.email.includes("@")) {
-      toast({
-        title: "Erro",
-        description: "Por favor, insira um e-mail válido.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     if (!editedData.dddTelefone || editedData.dddTelefone.length < 2) {
       toast({
         title: "Erro",
@@ -132,10 +123,28 @@ export default function PersonalData() {
       return;
     }
 
+    if (!editedData.estadoCivil) {
+      toast({
+        title: "Erro",
+        description: "Por favor, selecione o estado civil.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!editedData.cepResidencial || editedData.cepResidencial.replace(/\D/g, "").length !== 8) {
       toast({
         title: "Erro",
         description: "Por favor, insira um CEP válido.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!editedData.logradouroResidencial) {
+      toast({
+        title: "Erro",
+        description: "Por favor, insira o logradouro.",
         variant: "destructive",
       });
       return;
@@ -150,6 +159,24 @@ export default function PersonalData() {
       return;
     }
 
+    if (!editedData.bairro) {
+      toast({
+        title: "Erro",
+        description: "Por favor, insira o bairro.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!editedData.municipio) {
+      toast({
+        title: "Erro",
+        description: "Por favor, insira o município.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSaving(true);
 
     try {
@@ -159,7 +186,6 @@ export default function PersonalData() {
       }
 
       const payload = {
-        email: editedData.email,
         dddTelefone: editedData.dddTelefone,
         numeroTelefone: editedData.numeroTelefone,
         estadoCivil: editedData.estadoCivil,
@@ -417,15 +443,15 @@ export default function PersonalData() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {!isEditing ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground flex items-center gap-2">
-                        <Mail className="h-4 w-4" />
-                        E-mail
-                      </p>
-                      <p className="text-base font-medium text-foreground">{patientData.email}</p>
-                    </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      E-mail
+                    </p>
+                    <p className="text-base font-medium text-foreground">{patientData.email}</p>
+                  </div>
+                  {!isEditing ? (
                     <div>
                       <p className="text-sm text-muted-foreground flex items-center gap-2">
                         <Phone className="h-4 w-4" />
@@ -435,21 +461,7 @@ export default function PersonalData() {
                         {formatPhone(patientData.dddTelefone, patientData.numeroTelefone)}
                       </p>
                     </div>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="email">E-mail *</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={editedData?.email || ""}
-                        onChange={(e) =>
-                          setEditedData({ ...editedData!, email: e.target.value })
-                        }
-                        placeholder="seu@email.com"
-                      />
-                    </div>
+                  ) : (
                     <div className="grid grid-cols-3 gap-2">
                       <div>
                         <Label htmlFor="ddd">DDD *</Label>
@@ -482,8 +494,8 @@ export default function PersonalData() {
                         />
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </CardContent>
             </Card>
 
