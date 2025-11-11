@@ -787,7 +787,7 @@ const SignupDetails = () => {
       </AlertDialog>
 
       <AlertDialog open={showSmsTokenModal}>
-        <AlertDialogContent className="max-w-[95vw] sm:max-w-md w-full mx-auto overflow-hidden">
+        <AlertDialogContent className="max-w-[95vw] sm:max-w-lg w-full mx-auto overflow-hidden">
           <AlertDialogHeader>
             <AlertDialogTitle>Validação por SMS</AlertDialogTitle>
             <AlertDialogDescription className="space-y-4">
