@@ -305,7 +305,7 @@ const SignupDetails = () => {
 
       const result = await response.json();
 
-      if (result.sucesso) {
+      if (result.status === "sucess") {
         toast({
           title: "SMS reenviado!",
           description: "Um novo código foi enviado para o seu telefone.",
@@ -316,7 +316,7 @@ const SignupDetails = () => {
       } else {
         toast({
           title: "Erro ao reenviar SMS",
-          description: result.mensagem || "Não foi possível reenviar o SMS.",
+          description: result.message || "Não foi possível reenviar o SMS.",
           variant: "destructive",
         });
       }
