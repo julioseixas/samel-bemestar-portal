@@ -109,6 +109,10 @@ export default function PersonalData() {
   const handleSave = async () => {
     if (!editedData) return;
 
+    console.log("=== DEBUG handleSave ===");
+    console.log("patientData original:", patientData);
+    console.log("editedData:", editedData);
+
     // Validação básica
     if (!editedData.dddTelefone || editedData.dddTelefone.length < 2) {
       toast({
@@ -228,6 +232,9 @@ export default function PersonalData() {
         numeroTelefone: editedData.numeroTelefone || patientData?.numeroTelefone || "",
         complementoResidencial: editedData.complementoResidencial || patientData?.complementoResidencial || "",
       };
+
+      console.log("=== Payload sendo enviado para API ===");
+      console.log(payload);
 
       const response = await fetch(
         "https://api-portalpaciente-web.samel.com.br/api/Cliente/Atualizar",
