@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
@@ -16,6 +17,25 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showRecoverPasswordModal, setShowRecoverPasswordModal] = useState(false);
+  const [recoverCpf, setRecoverCpf] = useState("");
+  const [showRecoveryMethodModal, setShowRecoveryMethodModal] = useState(false);
+  const [maskEmail, setMaskEmail] = useState("");
+  const [maskTel, setMaskTel] = useState("");
+  const [showRecoveryResultModal, setShowRecoveryResultModal] = useState(false);
+  const [recoveryResultMessage, setRecoveryResultMessage] = useState("");
+  const [isLoadingRecovery, setIsLoadingRecovery] = useState(false);
+
+  const formatCPF = (value: string) => {
+    const numbers = value.replace(/\D/g, "");
+    if (numbers.length <= 11) {
+      return numbers
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    }
+    return value;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -218,7 +238,14 @@ const Login = () => {
                 <input type="checkbox" className="rounded border-input" />
                 <span className="text-muted-foreground">Lembrar-me</span>
               </label>
-              <a href="#" className="text-primary hover:underline">
+              <a 
+                href="#" 
+                className="text-primary hover:underline"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowRecoverPasswordModal(true);
+                }}
+              >
                 Esqueceu a senha?
               </a>
             </div>
@@ -270,6 +297,210 @@ const Login = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal para informar CPF para recuperação */}
+      <AlertDialog open={showRecoverPasswordModal} onOpenChange={setShowRecoverPasswordModal}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Recuperar Senha</AlertDialogTitle>
+            <AlertDialogDescription>
+              Informe seu CPF para recuperar sua senha.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="recoverCpf">CPF</Label>
+              <Input
+                id="recoverCpf"
+                type="text"
+                placeholder="000.000.000-00"
+                value={recoverCpf}
+                onChange={(e) => setRecoverCpf(formatCPF(e.target.value))}
+                maxLength={14}
+              />
+            </div>
+          </div>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={() => setShowRecoverPasswordModal(false)} className="w-full sm:w-auto">
+              Cancelar
+            </Button>
+            <Button onClick={async () => {
+              const cleanCPF = recoverCpf.replace(/\D/g, "");
+              
+              if (cleanCPF.length !== 11) {
+                toast({
+                  title: "CPF inválido",
+                  description: "Por favor, digite um CPF válido com 11 dígitos",
+                  variant: "destructive",
+                });
+                return;
+              }
+
+              try {
+                const response = await fetch(
+                  "https://api-portalpaciente-web.samel.com.br/api/recuperarSenhav2/RecuperarSenha",
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      nr_cpf: cleanCPF
+                    }),
+                  }
+                );
+
+                const data = await response.json();
+
+                if (data.sucesso) {
+                  setMaskEmail(data.mask_email || "");
+                  setMaskTel(data.mask_tel || "");
+                  setShowRecoverPasswordModal(false);
+                  setShowRecoveryMethodModal(true);
+                } else {
+                  toast({
+                    title: "Erro ao recuperar senha",
+                    description: data.mensagem || "Não foi possível recuperar a senha. Tente novamente.",
+                    variant: "destructive",
+                  });
+                }
+              } catch (error) {
+                toast({
+                  title: "Erro ao recuperar senha",
+                  description: "Não foi possível conectar ao servidor. Tente novamente.",
+                  variant: "destructive",
+                });
+              }
+            }} className="w-full sm:w-auto">
+              Enviar
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Modal para escolher método de recuperação */}
+      <AlertDialog open={showRecoveryMethodModal} onOpenChange={setShowRecoveryMethodModal}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Escolha o método de recuperação</AlertDialogTitle>
+            <AlertDialogDescription>
+              Para onde deseja receber o link de recuperação de senha?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-3 py-4">
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              disabled={isLoadingRecovery}
+              onClick={async () => {
+                const cleanCPF = recoverCpf.replace(/\D/g, "");
+                setIsLoadingRecovery(true);
+                
+                try {
+                  const response = await fetch(
+                    "https://api-portalpaciente-web.samel.com.br/api/Login/EnviarEmailRecuperarSenha2",
+                    {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        cpf: cleanCPF,
+                        tipo_envio: "EMAIL"
+                      }),
+                    }
+                  );
+
+                  const data = await response.json();
+                  setRecoveryResultMessage(data.mensagem || "Link de recuperação enviado para seu e-mail.");
+                  setShowRecoveryMethodModal(false);
+                  setShowRecoveryResultModal(true);
+                } catch (error) {
+                  toast({
+                    title: "Erro ao enviar e-mail",
+                    description: "Não foi possível conectar ao servidor. Tente novamente.",
+                    variant: "destructive",
+                  });
+                } finally {
+                  setIsLoadingRecovery(false);
+                }
+              }}
+            >
+              <div className="text-left">
+                <div className="font-medium">E-mail</div>
+                <div className="text-xs text-muted-foreground">{maskEmail}</div>
+              </div>
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              disabled={isLoadingRecovery}
+              onClick={async () => {
+                const cleanCPF = recoverCpf.replace(/\D/g, "");
+                setIsLoadingRecovery(true);
+                
+                try {
+                  const response = await fetch(
+                    "https://api-portalpaciente-web.samel.com.br/api/Login/EnviarEmailRecuperarSenha2",
+                    {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        cpf: cleanCPF,
+                        tipo_envio: "SMS"
+                      }),
+                    }
+                  );
+
+                  const data = await response.json();
+                  setRecoveryResultMessage(data.mensagem || "Link de recuperação enviado para seu telefone.");
+                  setShowRecoveryMethodModal(false);
+                  setShowRecoveryResultModal(true);
+                } catch (error) {
+                  toast({
+                    title: "Erro ao enviar SMS",
+                    description: "Não foi possível conectar ao servidor. Tente novamente.",
+                    variant: "destructive",
+                  });
+                } finally {
+                  setIsLoadingRecovery(false);
+                }
+              }}
+            >
+              <div className="text-left">
+                <div className="font-medium">SMS</div>
+                <div className="text-xs text-muted-foreground">{maskTel}</div>
+              </div>
+            </Button>
+
+            {isLoadingRecovery && (
+              <p className="text-sm text-center text-muted-foreground">Enviando...</p>
+            )}
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Modal de resultado da recuperação */}
+      <AlertDialog open={showRecoveryResultModal} onOpenChange={setShowRecoveryResultModal}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Recuperação de senha</AlertDialogTitle>
+            <AlertDialogDescription>
+              {recoveryResultMessage}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button onClick={() => {
+              setShowRecoveryResultModal(false);
+            }} className="w-full sm:w-auto">
+              OK
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
