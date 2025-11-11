@@ -13,6 +13,7 @@ import { User, Mail, Phone, MapPin, Calendar, Heart, FileText, Edit, Save, X } f
 import { getApiHeaders } from "@/lib/api-headers";
 
 interface PatientData {
+  id?: string;
   nome: string;
   cpf: string;
   dataNascimento: string;
@@ -31,6 +32,7 @@ interface PatientData {
   complementoResidencial?: string;
   bairro: string;
   municipio: string;
+  estado?: string;
 }
 
 export default function PersonalData() {
@@ -180,6 +182,15 @@ export default function PersonalData() {
       return;
     }
 
+    if (!editedData.estado) {
+      toast({
+        title: "Erro",
+        description: "Por favor, insira o estado.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSaving(true);
 
     try {
@@ -188,22 +199,39 @@ export default function PersonalData() {
         throw new Error("Token não encontrado");
       }
 
+      // Formatar data de nascimento para DD/MM/YYYY
+      const formatDateToBR = (dateString: string) => {
+        if (dateString.includes("/")) return dateString;
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+      };
+
       const payload = {
+        nome: editedData.nome,
+        dataNascimento: formatDateToBR(editedData.dataNascimento),
         dddTelefone: editedData.dddTelefone,
-        numeroTelefone: editedData.numeroTelefone,
+        cpf: editedData.cpf.replace(/\D/g, ""),
         estadoCivil: editedData.estadoCivil,
-        cepResidencial: editedData.cepResidencial,
-        logradouroResidencial: editedData.logradouroResidencial,
-        numeroResidencial: editedData.numeroResidencial,
-        complementoResidencial: editedData.complementoResidencial || "",
+        rg: editedData.rg,
+        sexo: editedData.sexo,
+        estado: editedData.estado,
+        cidade: editedData.municipio,
         bairro: editedData.bairro,
-        municipio: editedData.municipio,
+        logradouroResidencial: editedData.logradouroResidencial,
+        cepResidencial: editedData.cepResidencial,
+        id: editedData.id || patientData?.id || "",
+        numeroResidencial: parseInt(editedData.numeroResidencial),
+        numeroTelefone: editedData.numeroTelefone,
+        complementoResidencial: editedData.complementoResidencial || "",
       };
 
       const response = await fetch(
-        "https://api-portalpaciente-web.samel.com.br/api/Cliente/AtualizarDados",
+        "https://api-portalpaciente-web.samel.com.br/api/Cliente/Atualizar",
         {
-          method: "POST",
+          method: "PUT",
           headers: getApiHeaders(),
           body: JSON.stringify(payload),
         }
@@ -218,14 +246,14 @@ export default function PersonalData() {
         localStorage.setItem("patientData", JSON.stringify(updatedData));
 
         toast({
-          title: "Dados atualizados!",
-          description: "Suas informações foram atualizadas com sucesso.",
+          title: "Sucesso!",
+          description: result.mensagem || "Suas informações foram atualizadas com sucesso.",
         });
 
         setIsEditing(false);
       } else {
         toast({
-          title: "Erro ao atualizar",
+          title: "Erro",
           description: result.mensagem || "Não foi possível atualizar seus dados.",
           variant: "destructive",
         });
@@ -543,9 +571,14 @@ export default function PersonalData() {
                         <p className="text-base font-medium text-foreground">{patientData.municipio}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">CEP</p>
-                        <p className="text-base font-medium text-foreground">{patientData.cepResidencial}</p>
+                        <p className="text-sm text-muted-foreground">Estado</p>
+                        <p className="text-base font-medium text-foreground">{patientData.estado || "-"}</p>
                       </div>
+                    </div>
+                    <Separator />
+                    <div>
+                      <p className="text-sm text-muted-foreground">CEP</p>
+                      <p className="text-base font-medium text-foreground">{patientData.cepResidencial}</p>
                     </div>
                   </>
                 ) : (
@@ -609,7 +642,7 @@ export default function PersonalData() {
                         />
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-3 gap-2">
                       <div>
                         <Label htmlFor="bairro">Bairro *</Label>
                         <Input
@@ -630,6 +663,18 @@ export default function PersonalData() {
                             setEditedData({ ...editedData!, municipio: e.target.value })
                           }
                           placeholder="Cidade"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="estado">Estado *</Label>
+                        <Input
+                          id="estado"
+                          value={editedData?.estado || ""}
+                          onChange={(e) =>
+                            setEditedData({ ...editedData!, estado: e.target.value })
+                          }
+                          placeholder="AM"
+                          maxLength={2}
                         />
                       </div>
                     </div>
