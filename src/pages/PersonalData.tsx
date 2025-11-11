@@ -192,7 +192,7 @@ export default function PersonalData() {
     }
 
     // Estado é opcional - usa o valor original se não foi editado
-    if (!editedData.estado && !patientData?.estado) {
+    if (!editedData.estado && !patientData?.estado && !patientData?.UF) {
       toast({
         title: "Erro",
         description: "Por favor, insira o estado.",
@@ -227,7 +227,7 @@ export default function PersonalData() {
         estadoCivil: editedData.estadoCivil || patientData?.estadoCivil || "",
         rg: editedData.rg || patientData?.rg || "",
         sexo: editedData.sexo || patientData?.sexo || "",
-        estado: editedData.estado || patientData?.estado || "",
+        estado: editedData.estado || patientData?.estado || patientData?.UF || "",
         cidade: editedData.municipio || patientData?.municipio || "",
         bairro: editedData.bairro || patientData?.bairro || "",
         logradouroResidencial: editedData.logradouroResidencial || patientData?.logradouroResidencial || "",
@@ -688,6 +688,8 @@ export default function PersonalData() {
                           }
                           placeholder="AM"
                           maxLength={2}
+                          disabled
+                          className="bg-muted cursor-not-allowed"
                         />
                       </div>
                     </div>
