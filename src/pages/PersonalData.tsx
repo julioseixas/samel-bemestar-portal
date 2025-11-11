@@ -33,6 +33,7 @@ interface PatientData {
   bairro: string;
   municipio: string;
   estado?: string;
+  UF?: string; // API retorna o estado nesta chave
 }
 
 export default function PersonalData() {
@@ -53,6 +54,10 @@ export default function PersonalData() {
 
       if (storedData) {
         const data = JSON.parse(storedData);
+        // Mapear UF para estado se necessário
+        if (data.UF && !data.estado) {
+          data.estado = data.UF;
+        }
         setPatientData(data);
         setEditedData(data);
         // Se não tiver nome no localStorage, usa o nome dos dados do paciente
