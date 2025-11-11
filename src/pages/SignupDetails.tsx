@@ -74,15 +74,19 @@ const SignupDetails = () => {
   }
 
   const onSubmit = async (data: z.infer<typeof signupSchema>) => {
+    console.log("onSubmit chamado");
     setShowConfirmModal(true);
   };
 
   const handleConfirmCadastro = async () => {
+    console.log("handleConfirmCadastro INICIADO");
     setShowConfirmModal(false);
     setIsSubmitting(true);
 
     try {
+      console.log("Iniciando chamada da API...");
       const formData = form.getValues();
+      console.log("Form data:", formData);
       
       // Formatar dataNascimento para yyyy/mm/dd
       let formattedDate = dataNascimento;
@@ -127,6 +131,7 @@ const SignupDetails = () => {
         body: JSON.stringify(payload)
       });
 
+      console.log("Response status:", response.status);
       const result = await response.json();
       console.log("Resposta da API:", result);
 
