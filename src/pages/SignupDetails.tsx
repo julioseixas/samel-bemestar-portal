@@ -253,12 +253,20 @@ const SignupDetails = () => {
 
         const result = await response.json();
 
-        if (result.sucesso) {
+        if (result.sucesso || result.status === "success") {
           setShowTokenModal(false);
           setShowSmsTokenModal(true);
           setCountdown(60);
           setCanResend(false);
           setSmsToken("");
+          
+          // Se o retorno tem status "success", mostrar toast específico
+          if (result.status === "success") {
+            toast({
+              title: "SMS enviado!",
+              description: "Verifique o token enviado para o seu número de telefone.",
+            });
+          }
         } else {
           toast({
             title: "Erro ao enviar SMS",
