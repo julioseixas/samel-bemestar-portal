@@ -85,8 +85,14 @@ const SignupDetails = () => {
       const formData = form.getValues();
       
       // Formatar dataNascimento para yyyy/mm/dd
-      const [day, month, year] = dataNascimento.split('/');
-      const formattedDate = `${year}/${month}/${day}`;
+      let formattedDate = dataNascimento;
+      if (dataNascimento.includes('/')) {
+        const parts = dataNascimento.split('/');
+        // Se está no formato dd/mm/yyyy
+        if (parts[0].length <= 2) {
+          formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+      }
       
       const payload = {
         dataNascimento: formattedDate,
@@ -110,6 +116,8 @@ const SignupDetails = () => {
         municipio: formData.municipio
       };
 
+      console.log("Payload enviado:", payload);
+
       const response = await fetch("https://api-portalpaciente-web.samel.com.br/api/Cliente/Cadastrar2", {
         method: "POST",
         headers: {
@@ -120,6 +128,7 @@ const SignupDetails = () => {
       });
 
       const result = await response.json();
+      console.log("Resposta da API:", result);
 
       if (result.sucesso) {
         setCadastroResponse(result);
@@ -136,6 +145,7 @@ const SignupDetails = () => {
         });
       }
     } catch (error) {
+      console.error("Erro ao cadastrar:", error);
       toast({
         title: "Erro ao finalizar cadastro",
         description: "Não foi possível conectar ao servidor. Tente novamente.",
