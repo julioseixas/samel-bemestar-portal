@@ -46,6 +46,8 @@ const SignupDetails = () => {
   const [showTokenModal, setShowTokenModal] = useState(false);
   const [showEmailSentModal, setShowEmailSentModal] = useState(false);
   const [showSmsTokenModal, setShowSmsTokenModal] = useState(false);
+  const [showSmsSuccessModal, setShowSmsSuccessModal] = useState(false);
+  const [smsSuccessMessage, setSmsSuccessMessage] = useState("");
   const [cadastroResponse, setCadastroResponse] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [smsToken, setSmsToken] = useState("");
@@ -332,12 +334,41 @@ const SignupDetails = () => {
       return;
     }
 
-    // TODO: Adicionar chamada à API para validar o token
-    toast({
-      title: "Token validado!",
-      description: "Sua conta foi ativada com sucesso.",
-    });
-    navigate("/login");
+    try {
+      const payload = {
+        id: clientData.id,
+        ds_token: smsToken
+      };
+
+      const response = await fetch("https://api-portalpaciente-web.samel.com.br/api/Login/ConfimarTokenSMS", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "identificador-dispositivo": "request-android"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+
+      if (result.sucesso) {
+        setSmsSuccessMessage(result.mensagem);
+        setShowSmsTokenModal(false);
+        setShowSmsSuccessModal(true);
+      } else {
+        toast({
+          title: "Erro ao validar token",
+          description: result.mensagem || "Token inválido. Tente novamente.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Erro ao validar token",
+        description: "Não foi possível conectar ao servidor. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -799,6 +830,22 @@ const SignupDetails = () => {
             >
               Confirmar Token
             </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showSmsSuccessModal} onOpenChange={setShowSmsSuccessModal}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cadastro concluído com sucesso!</AlertDialogTitle>
+            <AlertDialogDescription>
+              {smsSuccessMessage}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => navigate("/login")}>
+              Ir para o Login
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
