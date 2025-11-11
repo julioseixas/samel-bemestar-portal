@@ -10,7 +10,7 @@ import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import samelLogo from "@/assets/samel-logo.png";
 
 const signupSchema = z.object({
@@ -69,6 +69,14 @@ const SignupDetails = () => {
       confirmarSenha: "",
     },
   });
+
+  // Atualizar o campo de data de nascimento quando carregar
+  useEffect(() => {
+    if (dataNascimento) {
+      console.log("Data de nascimento recebida:", dataNascimento);
+      form.setValue("dataNascimento", dataNascimento);
+    }
+  }, [dataNascimento, form]);
 
   if (!clientData) {
     navigate("/signup");
