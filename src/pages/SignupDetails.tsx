@@ -15,6 +15,7 @@ import samelLogo from "@/assets/samel-logo.png";
 
 const signupSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório"),
+  dataNascimento: z.string().min(1, "Data de nascimento é obrigatória"),
   email: z.string().email("E-mail inválido").min(1, "E-mail é obrigatório"),
   dddTelefone: z.string().length(2, "DDD deve ter 2 dígitos").min(1, "DDD é obrigatório"),
   telefone: z.string().length(9, "Telefone deve ter 9 dígitos").min(1, "Telefone é obrigatório"),
@@ -51,6 +52,7 @@ const SignupDetails = () => {
     resolver: zodResolver(signupSchema),
     defaultValues: {
       nome: clientData?.nome || "",
+      dataNascimento: dataNascimento || "",
       email: clientData?.usuario?.email || "",
       dddTelefone: clientData?.dddTelefone || "",
       telefone: clientData?.numeroTelefone || "",
@@ -80,18 +82,6 @@ const SignupDetails = () => {
 
   const handleConfirmCadastro = async () => {
     console.log("handleConfirmCadastro INICIADO");
-    console.log("dataNascimento:", dataNascimento);
-    console.log("cpf:", cpf);
-    console.log("clientData:", clientData);
-    
-    if (!dataNascimento || !cpf || !clientData) {
-      toast({
-        title: "Erro",
-        description: "Dados incompletos. Por favor, volte e preencha todos os campos.",
-        variant: "destructive",
-      });
-      return;
-    }
     
     setShowConfirmModal(false);
     setIsSubmitting(true);
@@ -102,9 +92,9 @@ const SignupDetails = () => {
       console.log("Form data:", formData);
       
       // Formatar dataNascimento para yyyy/mm/dd
-      let formattedDate = dataNascimento;
-      if (dataNascimento.includes('/')) {
-        const parts = dataNascimento.split('/');
+      let formattedDate = formData.dataNascimento;
+      if (formData.dataNascimento.includes('/')) {
+        const parts = formData.dataNascimento.split('/');
         // Se está no formato dd/mm/yyyy
         if (parts[0].length <= 2) {
           formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
@@ -253,6 +243,34 @@ const SignupDetails = () => {
                         <FormLabel>Nome Completo</FormLabel>
                         <FormControl>
                           <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="dataNascimento"
+                    render={({ field }) => (
+                      <FormItem className="md:col-span-2">
+                        <FormLabel>Data de Nascimento</FormLabel>
+                        <FormControl>
+                          <Input 
+                            {...field}
+                            placeholder="DD/MM/AAAA"
+                            maxLength={10}
+                            onChange={(e) => {
+                              let value = e.target.value.replace(/\D/g, "");
+                              if (value.length >= 2) {
+                                value = value.slice(0, 2) + "/" + value.slice(2);
+                              }
+                              if (value.length >= 5) {
+                                value = value.slice(0, 5) + "/" + value.slice(5, 9);
+                              }
+                              field.onChange(value);
+                            }}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
