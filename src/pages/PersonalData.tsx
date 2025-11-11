@@ -19,7 +19,10 @@ interface PatientData {
   sexo: string;
   estadoCivil: string;
   rg: string;
-  email: string;
+  usuario?: {
+    email?: string;
+    id?: number;
+  };
   dddTelefone: string;
   numeroTelefone: string;
   cepResidencial: string;
@@ -449,7 +452,9 @@ export default function PersonalData() {
                       <Mail className="h-4 w-4" />
                       E-mail
                     </p>
-                    <p className="text-base font-medium text-foreground">{patientData.email}</p>
+                    <p className="text-base font-medium text-foreground">
+                      {patientData.usuario?.email || "Não informado"}
+                    </p>
                   </div>
                   {!isEditing ? (
                     <div>
