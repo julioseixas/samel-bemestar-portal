@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { User, Mail, Phone, MapPin, Calendar, Heart, FileText, Edit, Save, X } from "lucide-react";
 import { getApiHeaders } from "@/lib/api-headers";
@@ -161,6 +162,7 @@ export default function PersonalData() {
         email: editedData.email,
         dddTelefone: editedData.dddTelefone,
         numeroTelefone: editedData.numeroTelefone,
+        estadoCivil: editedData.estadoCivil,
         cepResidencial: editedData.cepResidencial,
         logradouroResidencial: editedData.logradouroResidencial,
         numeroResidencial: editedData.numeroResidencial,
@@ -235,6 +237,19 @@ export default function PersonalData() {
       default:
         return sexo;
     }
+  };
+
+  const getEstadoCivilLabel = (estadoCivil: string) => {
+    const mapping: Record<string, string> = {
+      "1": "Solteiro",
+      "2": "Casado",
+      "3": "Divorciado",
+      "4": "Desquitado",
+      "5": "Viúvo",
+      "6": "Separado",
+      "7": "Concubinato/União Estável"
+    };
+    return mapping[estadoCivil] || estadoCivil;
   };
 
   if (!patientData) {
@@ -340,22 +355,56 @@ export default function PersonalData() {
                   </div>
                 </div>
                 <Separator />
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground flex items-center gap-2">
-                      <Heart className="h-4 w-4" />
-                      Estado Civil
-                    </p>
-                    <p className="text-base font-medium text-foreground">{patientData.estadoCivil}</p>
+                {!isEditing ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground flex items-center gap-2">
+                        <Heart className="h-4 w-4" />
+                        Estado Civil
+                      </p>
+                      <p className="text-base font-medium text-foreground">{getEstadoCivilLabel(patientData.estadoCivil)}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground flex items-center gap-2">
+                        <FileText className="h-4 w-4" />
+                        RG
+                      </p>
+                      <p className="text-base font-medium text-foreground">{patientData.rg}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground flex items-center gap-2">
-                      <FileText className="h-4 w-4" />
-                      RG
-                    </p>
-                    <p className="text-base font-medium text-foreground">{patientData.rg}</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="estadoCivil">Estado Civil *</Label>
+                      <Select
+                        value={editedData?.estadoCivil || ""}
+                        onValueChange={(value) =>
+                          setEditedData({ ...editedData!, estadoCivil: value })
+                        }
+                      >
+                        <SelectTrigger id="estadoCivil">
+                          <SelectValue placeholder="Selecione o estado civil" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1">Solteiro</SelectItem>
+                          <SelectItem value="2">Casado</SelectItem>
+                          <SelectItem value="3">Divorciado</SelectItem>
+                          <SelectItem value="4">Desquitado</SelectItem>
+                          <SelectItem value="5">Viúvo</SelectItem>
+                          <SelectItem value="6">Separado</SelectItem>
+                          <SelectItem value="7">Concubinato/União Estável</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground flex items-center gap-2">
+                        <FileText className="h-4 w-4" />
+                        RG
+                      </p>
+                      <p className="text-base font-medium text-foreground">{patientData.rg}</p>
+                    </div>
                   </div>
-                </div>
+                )}
               </CardContent>
             </Card>
 
