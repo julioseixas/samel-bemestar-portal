@@ -48,11 +48,25 @@ const SignupDetails = () => {
   const [cadastroResponse, setCadastroResponse] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Formatar data de ISO para dd/mm/yyyy ANTES do useForm
+  const formatarData = (isoString: string) => {
+    if (!isoString) return "";
+    const data = new Date(isoString);
+    const dia = String(data.getDate()).padStart(2, '0');
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
+    const ano = data.getFullYear();
+    return `${dia}/${mes}/${ano}`;
+  };
+
+  // Formatar a data ANTES de passar para defaultValues
+  const dataFormatada = dataNascimento ? formatarData(dataNascimento) : "";
+  console.log("Data de nascimento recebida:", dataNascimento, "-> formatada:", dataFormatada);
+
   const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
       nome: clientData?.nome || "",
-      dataNascimento: dataNascimento || "",
+      dataNascimento: dataFormatada,
       email: clientData?.usuario?.email || "",
       dddTelefone: clientData?.dddTelefone || "",
       telefone: clientData?.numeroTelefone || "",
@@ -69,25 +83,6 @@ const SignupDetails = () => {
       confirmarSenha: "",
     },
   });
-
-  // Formatar data de ISO para dd/mm/yyyy
-  const formatarData = (isoString: string) => {
-    if (!isoString) return "";
-    const data = new Date(isoString);
-    const dia = String(data.getDate()).padStart(2, '0');
-    const mes = String(data.getMonth() + 1).padStart(2, '0');
-    const ano = data.getFullYear();
-    return `${dia}/${mes}/${ano}`;
-  };
-
-  // Atualizar o campo de data de nascimento quando carregar
-  useEffect(() => {
-    if (dataNascimento) {
-      const formattedDate = formatarData(dataNascimento);
-      console.log("Data de nascimento recebida:", dataNascimento, "-> formatada:", formattedDate);
-      form.setValue("dataNascimento", formattedDate);
-    }
-  }, [dataNascimento, form]);
 
   if (!clientData) {
     navigate("/signup");
