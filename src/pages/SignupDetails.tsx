@@ -94,10 +94,12 @@ const SignupDetails = () => {
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (showSmsTokenModal && countdown > 0) {
+      console.log("Countdown ativo:", countdown);
       timer = setTimeout(() => {
         setCountdown(countdown - 1);
       }, 1000);
     } else if (countdown === 0) {
+      console.log("Countdown zerado, habilitando reenvio");
       setCanResend(true);
     }
     return () => clearTimeout(timer);
@@ -255,11 +257,13 @@ const SignupDetails = () => {
 
         // Para SMS, a resposta tem estrutura diferente
         if (result.status === "sucess") {
+          console.log("SMS enviado com sucesso, abrindo modal de token");
           setShowTokenModal(false);
           setShowSmsTokenModal(true);
           setCountdown(60);
           setCanResend(false);
           setSmsToken("");
+          console.log("Modal SMS aberto, countdown iniciado em 60");
         } else {
           toast({
             title: "Erro ao enviar SMS",
