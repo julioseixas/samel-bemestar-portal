@@ -787,13 +787,13 @@ const SignupDetails = () => {
       </AlertDialog>
 
       <AlertDialog open={showSmsTokenModal}>
-        <AlertDialogContent className="max-w-[90vw] sm:max-w-md mx-4">
+        <AlertDialogContent className="max-w-[95vw] sm:max-w-md w-full mx-auto overflow-hidden">
           <AlertDialogHeader>
             <AlertDialogTitle>Validação por SMS</AlertDialogTitle>
             <AlertDialogDescription className="space-y-4">
-              <p className="text-sm">
+              <p className="text-sm break-words">
                 Insira o token enviado para o número{" "}
-                <strong>
+                <strong className="break-all">
                   ({cadastroResponse?.dados?.dddTele || form.getValues("dddTelefone")}) {cadastroResponse?.dados?.Telefone || form.getValues("telefone")}
                 </strong>{" "}
                 para validarmos a sua conta, verifique na sua caixa de mensagens.
