@@ -533,11 +533,13 @@ const SignupDetails = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar dados de contato</AlertDialogTitle>
-            <AlertDialogDescription className="space-y-2">
-              <p>Por favor, confirme se os dados abaixo estão corretos:</p>
-              <div className="mt-4 space-y-2 text-foreground">
-                <p><strong>E-mail:</strong> {form.getValues("email")}</p>
-                <p><strong>Telefone:</strong> +55 ({form.getValues("dddTelefone")}) {form.getValues("telefone")}</p>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2">
+                <p>Por favor, confirme se os dados abaixo estão corretos:</p>
+                <div className="mt-4 space-y-2 text-foreground">
+                  <p><strong>E-mail:</strong> {form.getValues("email")}</p>
+                  <p><strong>Telefone:</strong> +55 ({form.getValues("dddTelefone")}) {form.getValues("telefone")}</p>
+                </div>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
