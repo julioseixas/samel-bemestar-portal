@@ -210,22 +210,22 @@ export default function PersonalData() {
       };
 
       const payload = {
-        nome: editedData.nome,
-        dataNascimento: formatDateToBR(editedData.dataNascimento),
-        dddTelefone: editedData.dddTelefone,
-        cpf: editedData.cpf.replace(/\D/g, ""),
-        estadoCivil: editedData.estadoCivil,
-        rg: editedData.rg,
-        sexo: editedData.sexo,
-        estado: editedData.estado,
-        cidade: editedData.municipio,
-        bairro: editedData.bairro,
-        logradouroResidencial: editedData.logradouroResidencial,
-        cepResidencial: editedData.cepResidencial,
+        nome: editedData.nome || patientData?.nome || "",
+        dataNascimento: formatDateToBR(editedData.dataNascimento || patientData?.dataNascimento || ""),
+        dddTelefone: editedData.dddTelefone || patientData?.dddTelefone || "",
+        cpf: (editedData.cpf || patientData?.cpf || "").replace(/\D/g, ""),
+        estadoCivil: editedData.estadoCivil || patientData?.estadoCivil || "",
+        rg: editedData.rg || patientData?.rg || "",
+        sexo: editedData.sexo || patientData?.sexo || "",
+        estado: editedData.estado || patientData?.estado || "",
+        cidade: editedData.municipio || patientData?.municipio || "",
+        bairro: editedData.bairro || patientData?.bairro || "",
+        logradouroResidencial: editedData.logradouroResidencial || patientData?.logradouroResidencial || "",
+        cepResidencial: editedData.cepResidencial || patientData?.cepResidencial || "",
         id: editedData.id || patientData?.id || "",
-        numeroResidencial: parseInt(editedData.numeroResidencial),
-        numeroTelefone: editedData.numeroTelefone,
-        complementoResidencial: editedData.complementoResidencial || "",
+        numeroResidencial: parseInt(editedData.numeroResidencial || patientData?.numeroResidencial || "0"),
+        numeroTelefone: editedData.numeroTelefone || patientData?.numeroTelefone || "",
+        complementoResidencial: editedData.complementoResidencial || patientData?.complementoResidencial || "",
       };
 
       const response = await fetch(
