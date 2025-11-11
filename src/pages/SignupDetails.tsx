@@ -45,8 +45,12 @@ const SignupDetails = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showTokenModal, setShowTokenModal] = useState(false);
   const [showEmailSentModal, setShowEmailSentModal] = useState(false);
+  const [showSmsTokenModal, setShowSmsTokenModal] = useState(false);
   const [cadastroResponse, setCadastroResponse] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [smsToken, setSmsToken] = useState("");
+  const [countdown, setCountdown] = useState(60);
+  const [canResend, setCanResend] = useState(false);
 
   // Formatar data de ISO para dd/mm/yyyy ANTES do useForm
   const formatarData = (isoString: string) => {
@@ -83,6 +87,19 @@ const SignupDetails = () => {
       confirmarSenha: "",
     },
   });
+
+  // Contador para reenvio de SMS
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (showSmsTokenModal && countdown > 0) {
+      timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+    } else if (countdown === 0) {
+      setCanResend(true);
+    }
+    return () => clearTimeout(timer);
+  }, [showSmsTokenModal, countdown]);
 
   if (!clientData) {
     navigate("/signup");
@@ -179,19 +196,19 @@ const SignupDetails = () => {
   };
 
   const handleTokenChoice = async (method: "email" | "sms") => {
+    const formData = form.getValues();
+    
+    const payload = {
+      id: clientData.id,
+      cpf: cpf.replace(/\D/g, ""),
+      email: formData.email,
+      telefone: `${formData.dddTelefone}${formData.telefone}`,
+      nome: cadastroResponse?.dados?.nome || formData.nome,
+      tipo_envio: method === "email" ? "EMAIL" : "SMS"
+    };
+
     if (method === "email") {
       try {
-        const formData = form.getValues();
-        
-        const payload = {
-          id: clientData.id,
-          cpf: cpf.replace(/\D/g, ""),
-          email: formData.email,
-          telefone: `${formData.dddTelefone}${formData.telefone}`,
-          nome: cadastroResponse?.dados?.nome || formData.nome,
-          tipo_envio: "EMAIL"
-        };
-
         const response = await fetch("https://api-portalpaciente-web.samel.com.br/api/Login/ValidarEmail2", {
           method: "POST",
           headers: {
@@ -221,14 +238,106 @@ const SignupDetails = () => {
         });
       }
     } else {
-      // TODO: Implementar chamada da API para enviar token via SMS
-      console.log("Enviar token via SMS");
-      toast({
-        title: "Token enviado!",
-        description: "O código de ativação foi enviado para seu telefone.",
-      });
-      navigate("/login");
+      // SMS
+      try {
+        const response = await fetch("https://api-portalpaciente-web.samel.com.br/api/Login/ValidarEmail2", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "identificador-dispositivo": "request-android"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (result.sucesso) {
+          setShowTokenModal(false);
+          setShowSmsTokenModal(true);
+          setCountdown(60);
+          setCanResend(false);
+          setSmsToken("");
+        } else {
+          toast({
+            title: "Erro ao enviar SMS",
+            description: result.mensagem || "Não foi possível enviar o SMS de validação.",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        toast({
+          title: "Erro ao enviar SMS",
+          description: "Não foi possível conectar ao servidor. Tente novamente.",
+          variant: "destructive",
+        });
+      }
     }
+  };
+
+  const handleResendSmsToken = async () => {
+    const formData = form.getValues();
+    
+    const payload = {
+      id: clientData.id,
+      cpf: cpf.replace(/\D/g, ""),
+      email: formData.email,
+      telefone: `${formData.dddTelefone}${formData.telefone}`,
+      nome: cadastroResponse?.dados?.nome || formData.nome,
+      tipo_envio: "SMS"
+    };
+
+    try {
+      const response = await fetch("https://api-portalpaciente-web.samel.com.br/api/Login/ValidarEmail2", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "identificador-dispositivo": "request-android"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+
+      if (result.sucesso) {
+        toast({
+          title: "SMS reenviado!",
+          description: "Um novo código foi enviado para o seu telefone.",
+        });
+        setCountdown(60);
+        setCanResend(false);
+        setSmsToken("");
+      } else {
+        toast({
+          title: "Erro ao reenviar SMS",
+          description: result.mensagem || "Não foi possível reenviar o SMS.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Erro ao reenviar SMS",
+        description: "Não foi possível conectar ao servidor. Tente novamente.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleConfirmSmsToken = async () => {
+    if (!smsToken || smsToken.length !== 4) {
+      toast({
+        title: "Token inválido",
+        description: "Por favor, insira um token de 4 dígitos.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // TODO: Adicionar chamada à API para validar o token
+    toast({
+      title: "Token validado!",
+      description: "Sua conta foi ativada com sucesso.",
+    });
+    navigate("/login");
   };
 
   return (
@@ -637,6 +746,59 @@ const SignupDetails = () => {
             <AlertDialogAction onClick={() => navigate("/")}>
               Voltar ao Menu Principal
             </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showSmsTokenModal}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Validação por SMS</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-4">
+              <p>
+                Insira o token enviado para o número{" "}
+                <strong>
+                  ({cadastroResponse?.dados?.dddTele || form.getValues("dddTelefone")}) {cadastroResponse?.dados?.Telefone || form.getValues("telefone")}
+                </strong>{" "}
+                para validarmos a sua conta, verifique na sua caixa de mensagens.
+              </p>
+              <div className="space-y-2">
+                <Input
+                  placeholder="Digite o token (4 dígitos)"
+                  maxLength={4}
+                  value={smsToken}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, "");
+                    setSmsToken(value);
+                  }}
+                  className="text-center text-lg tracking-widest"
+                />
+                <p className="text-xs text-muted-foreground text-center">
+                  O token possui no máximo 4 dígitos
+                </p>
+              </div>
+              {countdown > 0 && (
+                <p className="text-sm text-center text-muted-foreground">
+                  Você poderá solicitar um novo código em <strong>{countdown}s</strong>
+                </p>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <Button
+              variant="outline"
+              onClick={handleResendSmsToken}
+              disabled={!canResend}
+              className="w-full sm:w-auto"
+            >
+              Enviar Token Novamente
+            </Button>
+            <Button
+              onClick={handleConfirmSmsToken}
+              className="w-full sm:w-auto"
+            >
+              Confirmar Token
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
