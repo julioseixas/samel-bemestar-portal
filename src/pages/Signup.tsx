@@ -26,6 +26,7 @@ const Signup = () => {
   const [maskTel, setMaskTel] = useState("");
   const [showRecoveryResultModal, setShowRecoveryResultModal] = useState(false);
   const [recoveryResultMessage, setRecoveryResultMessage] = useState("");
+  const [isLoadingRecovery, setIsLoadingRecovery] = useState(false);
 
   const formatCPF = (value: string) => {
     const numbers = value.replace(/\D/g, "");
@@ -438,8 +439,10 @@ const Signup = () => {
             <Button 
               variant="outline" 
               className="w-full justify-start"
+              disabled={isLoadingRecovery}
               onClick={async () => {
                 const cleanCPF = recoverCpf.replace(/\D/g, "");
+                setIsLoadingRecovery(true);
                 
                 try {
                   const response = await fetch(
@@ -466,6 +469,8 @@ const Signup = () => {
                     description: "Não foi possível conectar ao servidor. Tente novamente.",
                     variant: "destructive",
                   });
+                } finally {
+                  setIsLoadingRecovery(false);
                 }
               }}
             >
@@ -478,8 +483,10 @@ const Signup = () => {
             <Button 
               variant="outline" 
               className="w-full justify-start"
+              disabled={isLoadingRecovery}
               onClick={async () => {
                 const cleanCPF = recoverCpf.replace(/\D/g, "");
+                setIsLoadingRecovery(true);
                 
                 try {
                   const response = await fetch(
@@ -506,6 +513,8 @@ const Signup = () => {
                     description: "Não foi possível conectar ao servidor. Tente novamente.",
                     variant: "destructive",
                   });
+                } finally {
+                  setIsLoadingRecovery(false);
                 }
               }}
             >
@@ -514,6 +523,10 @@ const Signup = () => {
                 <div className="text-xs text-muted-foreground">{maskTel}</div>
               </div>
             </Button>
+
+            {isLoadingRecovery && (
+              <p className="text-sm text-center text-muted-foreground">Enviando...</p>
+            )}
           </div>
         </AlertDialogContent>
       </AlertDialog>
