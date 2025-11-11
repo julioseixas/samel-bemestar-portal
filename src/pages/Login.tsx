@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
 import { getApiHeaders } from "@/lib/api-headers";
@@ -390,7 +390,7 @@ const Login = () => {
           <div className="space-y-3 py-4">
             <Button 
               variant="outline" 
-              className="w-full justify-start"
+              className="w-full justify-start h-auto py-4"
               disabled={isLoadingRecovery}
               onClick={async () => {
                 const cleanCPF = recoverCpf.replace(/\D/g, "");
@@ -426,7 +426,7 @@ const Login = () => {
                 }
               }}
             >
-              <div className="text-left">
+              <div className="text-left flex-1">
                 <div className="font-medium">E-mail</div>
                 <div className="text-xs text-muted-foreground">{maskEmail}</div>
               </div>
@@ -434,7 +434,7 @@ const Login = () => {
             
             <Button 
               variant="outline" 
-              className="w-full justify-start"
+              className="w-full justify-start h-auto py-4"
               disabled={isLoadingRecovery}
               onClick={async () => {
                 const cleanCPF = recoverCpf.replace(/\D/g, "");
@@ -470,14 +470,17 @@ const Login = () => {
                 }
               }}
             >
-              <div className="text-left">
+              <div className="text-left flex-1">
                 <div className="font-medium">SMS</div>
                 <div className="text-xs text-muted-foreground">{maskTel}</div>
               </div>
             </Button>
 
             {isLoadingRecovery && (
-              <p className="text-sm text-center text-muted-foreground">Enviando...</p>
+              <div className="flex items-center justify-center gap-2 py-4 text-sm text-primary">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Enviando...</span>
+              </div>
             )}
           </div>
         </AlertDialogContent>
