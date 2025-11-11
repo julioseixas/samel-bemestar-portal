@@ -182,7 +182,8 @@ export default function PersonalData() {
       return;
     }
 
-    if (!editedData.estado) {
+    // Estado é opcional - usa o valor original se não foi editado
+    if (!editedData.estado && !patientData?.estado) {
       toast({
         title: "Erro",
         description: "Por favor, insira o estado.",
