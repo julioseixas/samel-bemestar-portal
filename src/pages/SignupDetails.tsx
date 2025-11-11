@@ -80,6 +80,19 @@ const SignupDetails = () => {
 
   const handleConfirmCadastro = async () => {
     console.log("handleConfirmCadastro INICIADO");
+    console.log("dataNascimento:", dataNascimento);
+    console.log("cpf:", cpf);
+    console.log("clientData:", clientData);
+    
+    if (!dataNascimento || !cpf || !clientData) {
+      toast({
+        title: "Erro",
+        description: "Dados incompletos. Por favor, volte e preencha todos os campos.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setShowConfirmModal(false);
     setIsSubmitting(true);
 
