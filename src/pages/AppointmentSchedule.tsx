@@ -31,10 +31,15 @@ const AppointmentSchedule = () => {
 
     if (storedTitular) {
       try {
-        const parsedTitular = JSON.parse(storedTitular);
-        setPatientName(parsedTitular.titular?.nome || "Paciente");
+        // Tentar fazer parse se for JSON, senão usar como string direta
+        const parsedTitular = storedTitular.startsWith('{') 
+          ? JSON.parse(storedTitular) 
+          : { nome: storedTitular };
+        setPatientName(parsedTitular.titular?.nome || parsedTitular.nome || "Paciente");
       } catch (error) {
         console.error("Erro ao processar titular:", error);
+        // Se der erro, usar como string
+        setPatientName(storedTitular);
       }
     }
 
@@ -46,48 +51,48 @@ const AppointmentSchedule = () => {
         console.log(parsedList);
         console.log("=====================================");
         
-        if (parsedList.listAllPacient && parsedList.listAllPacient.length > 0) {
-          const firstPatient = parsedList.listAllPacient[0];
-          
-          // Array para armazenar todos os pacientes
-          const allPatients: Patient[] = [];
-          
-          // Adicionar o titular (do clienteContratos)
-          if (firstPatient.clienteContratos && firstPatient.clienteContratos.length > 0) {
-            const titularContrato = firstPatient.clienteContratos[0];
-            const titularId = titularContrato.id || firstPatient.cdPessoaFisica;
-            const titularCdPessoaFisica = titularContrato.cdPessoaFisica || firstPatient.cdPessoaFisica || titularId;
-            
-            allPatients.push({
-              id: titularId,
-              nome: titularContrato.nome || firstPatient.nome,
-              tipo: "Titular",
-              idade: titularContrato.idade,
-              sexo: titularContrato.sexo,
-              codigoCarteirinha: titularContrato.codigoCarteirinha,
-              dataNascimento: titularContrato.dataNascimento,
-              cdPessoaFisica: titularCdPessoaFisica
-            });
-            
-            // Adicionar os dependentes
-            if (titularContrato.dependentes && titularContrato.dependentes.length > 0) {
-              titularContrato.dependentes.forEach((dependente: any) => {
-                const depId = dependente.id || dependente.cdPessoaFisica;
-                const depCdPessoaFisica = dependente.cdPessoaFisica || dependente.id || depId;
-                
-                allPatients.push({
-                  id: depId,
-                  nome: dependente.nome,
-                  tipo: "Dependente",
-                  idade: dependente.idade,
-                  sexo: dependente.sexo,
-                  codigoCarteirinha: dependente.codigoCarteirinha,
-                  dataNascimento: dependente.dataNascimento,
-                  cdPessoaFisica: depCdPessoaFisica
-                });
+        // Array para armazenar todos os pacientes
+        const allPatients: Patient[] = [];
+        
+        // Verificar se parsedList é array direto ou objeto com listAllPacient
+        const patientList = Array.isArray(parsedList) 
+          ? parsedList 
+          : parsedList.listAllPacient || [];
+        
+        if (patientList.length > 0) {
+          patientList.forEach((patient: any) => {
+            // Adicionar titular
+            if (patient.tipoBeneficiario === "Titular" || patient.tipo === "Titular") {
+              const titularId = patient.id || patient.cdPessoaFisica;
+              
+              allPatients.push({
+                id: titularId,
+                nome: patient.nome,
+                tipo: "Titular",
+                idade: patient.idade,
+                sexo: patient.sexo,
+                codigoCarteirinha: patient.codigoCarteirinha,
+                dataNascimento: patient.dataNascimento,
+                cdPessoaFisica: patient.cdPessoaFisica || titularId
               });
             }
-          }
+            
+            // Adicionar dependente
+            if (patient.tipoBeneficiario === "Dependente" || patient.tipo === "Dependente") {
+              const depId = patient.id || patient.cdPessoaFisica;
+              
+              allPatients.push({
+                id: depId,
+                nome: patient.nome,
+                tipo: "Dependente",
+                idade: patient.idade,
+                sexo: patient.sexo,
+                codigoCarteirinha: patient.codigoCarteirinha,
+                dataNascimento: patient.dataNascimento,
+                cdPessoaFisica: patient.cdPessoaFisica || depId
+              });
+            }
+          });
           
           console.log("Todos os pacientes carregados:", allPatients);
           setPatients(allPatients);
