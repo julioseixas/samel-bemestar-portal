@@ -39,6 +39,64 @@ const Index = () => {
     });
   };
 
+  const handleAppointmentSchedule = () => {
+    const listToSchedule = localStorage.getItem("listToSchedule");
+    
+    if (listToSchedule) {
+      try {
+        const data = JSON.parse(listToSchedule);
+        const hasDependents = data.Dependente && data.Dependente.length > 0;
+        
+        if (hasDependents) {
+          navigate("/appointment-schedule");
+        } else {
+          // Seleciona automaticamente o titular
+          const titular = data.Titular;
+          if (titular) {
+            localStorage.setItem("selectedPatient", JSON.stringify(titular));
+            navigate("/appointment-details");
+          } else {
+            navigate("/appointment-schedule");
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao processar dados:", error);
+        navigate("/appointment-schedule");
+      }
+    } else {
+      navigate("/appointment-schedule");
+    }
+  };
+
+  const handleExamSchedule = () => {
+    const listToSchedule = localStorage.getItem("listToSchedule");
+    
+    if (listToSchedule) {
+      try {
+        const data = JSON.parse(listToSchedule);
+        const hasDependents = data.Dependente && data.Dependente.length > 0;
+        
+        if (hasDependents) {
+          navigate("/exam-schedule");
+        } else {
+          // Seleciona automaticamente o titular
+          const titular = data.Titular;
+          if (titular) {
+            localStorage.setItem("selectedPatientExam", JSON.stringify(titular));
+            navigate("/exam-details");
+          } else {
+            navigate("/exam-schedule");
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao processar dados:", error);
+        navigate("/exam-schedule");
+      }
+    } else {
+      navigate("/exam-schedule");
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
@@ -82,7 +140,7 @@ const Index = () => {
                 buttonText="Agendar Consulta"
                 variant="default"
                 useDashboardColor={true}
-                onClick={() => navigate("/appointment-schedule")}
+                onClick={handleAppointmentSchedule}
               />
               
               <DashboardCard
@@ -93,7 +151,7 @@ const Index = () => {
                 buttonText="Agendar Exame"
                 variant="default"
                 useDashboardColor={true}
-                onClick={() => navigate("/exam-schedule")}
+                onClick={handleExamSchedule}
               />
               
               <DashboardCard
