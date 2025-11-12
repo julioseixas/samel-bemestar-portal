@@ -75,7 +75,7 @@ const Index = () => {
             <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {/* Linha 1 - Ações principais */}
               <DashboardCard
-                title="MARCAR CONSULTA"
+                title="AGENDAR CONSULTA"
                 description="Agende uma nova consulta com nossos especialistas"
                 icon={Calendar}
                 iconColor="text-primary"
@@ -86,7 +86,7 @@ const Index = () => {
               />
               
               <DashboardCard
-                title="MARCAR EXAME"
+                title="AGENDAR EXAME"
                 description="Solicite e agende seus exames laboratoriais"
                 icon={ClipboardPlus}
                 iconColor="text-primary"
@@ -97,7 +97,7 @@ const Index = () => {
               />
               
               <DashboardCard
-                title="VER CONSULTAS / EXAMES AGENDADOS"
+                title="MEUS AGENDAMENTOS"
                 description="Visualize todos os seus agendamentos"
                 icon={CalendarCheck}
                 iconColor="text-primary"
@@ -109,7 +109,7 @@ const Index = () => {
               
               {/* Linha 2 - Ações secundárias */}
               <DashboardCard
-                title="REALIZAR CHECK-IN NA TELEMEDICINA"
+                title="ENTRAR NA CONSULTA ONLINE"
                 description="Faça check-in para sua consulta online"
                 icon={Video}
                 iconColor="text-success"
@@ -120,7 +120,7 @@ const Index = () => {
               />
               
               <DashboardCard
-                title="MEU PRONTUÁRIO"
+                title="HISTÓRICO MÉDICO"
                 description="Acesse seu histórico médico completo"
                 icon={FolderOpen}
                 iconColor="text-primary"
@@ -131,7 +131,7 @@ const Index = () => {
               />
               
               <DashboardCard
-                title="VER RESULTADOS DE EXAMES"
+                title="MEUS RESULTADOS"
                 description="Consulte os resultados dos seus exames"
                 icon={TestTube}
                 iconColor="text-success"
@@ -143,7 +143,7 @@ const Index = () => {
               
               {/* Linha 3 - Documentos e receitas */}
               <DashboardCard
-                title="VER RECEITAS E ATESTADOS"
+                title="MINHAS RECEITAS E ATESTADOS"
                 description="Acesse suas receitas médicas e atestados"
                 icon={Pill}
                 iconColor="text-primary"
@@ -154,7 +154,7 @@ const Index = () => {
               />
               
               <DashboardCard
-                title="RENOVAÇÃO DE RECEITA"
+                title="RENOVAR RECEITA"
                 description="Solicite a renovação das suas receitas"
                 icon={RefreshCw}
                 iconColor="text-primary"
@@ -165,7 +165,7 @@ const Index = () => {
               />
               
               <DashboardCard
-                title="MINHA INTERNAÇÃO"
+                title="ACOMPANHAMENTO DA INTERNAÇÃO"
                 description="Acompanhe informações sobre sua internação"
                 icon={Bed}
                 iconColor="text-warning"
@@ -176,7 +176,7 @@ const Index = () => {
               
               {/* Linha 4 - Administrativo e suporte */}
               <DashboardCard
-                title="TERMOS PARA ASSINAR"
+                title="ASSINAR DOCUMENTOS"
                 description="Visualize e assine os termos pendentes"
                 icon={FileSignature}
                 iconColor="text-warning"
@@ -186,7 +186,7 @@ const Index = () => {
               />
               
               <DashboardCard
-                title="CHATBOT SAMEL"
+                title="FALAR COM ASSISTENTE"
                 description="Converse com nosso assistente virtual"
                 icon={MessageCircle}
                 iconColor="text-primary"
