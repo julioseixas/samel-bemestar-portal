@@ -45,13 +45,16 @@ const Index = () => {
     if (listToSchedule) {
       try {
         const data = JSON.parse(listToSchedule);
-        const hasDependents = data.Dependente && data.Dependente.length > 0;
+        
+        // Verifica se há dependentes através do array clienteContratos
+        // Se clienteContratos.length > 1, existem dependentes
+        const hasDependents = data[0]?.clienteContratos && data[0].clienteContratos.length > 1;
         
         if (hasDependents) {
           navigate("/appointment-schedule");
         } else {
           // Seleciona automaticamente o titular
-          const titular = data.Titular;
+          const titular = data[0];
           if (titular) {
             localStorage.setItem("selectedPatient", JSON.stringify(titular));
             navigate("/appointment-details");
