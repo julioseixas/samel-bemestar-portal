@@ -118,7 +118,7 @@ const Login = () => {
 
             // Armazena os dados estruturados no localStorage
             localStorage.setItem('listToSchedule', JSON.stringify(listAllPacient));
-            localStorage.setItem('titular', titular.nome || 'Paciente');
+            localStorage.setItem('titular', JSON.stringify(titular));
             localStorage.setItem('rating', titular.rating?.toString() || '0');
             
             // Armazena o JWT original para uso posterior
