@@ -349,8 +349,8 @@ const AppointmentDetails = () => {
                   const listToSchedule = localStorage.getItem("listToSchedule");
                   if (listToSchedule) {
                     try {
-                      const data = JSON.parse(listToSchedule);
-                      const listAllPacient = data.listAllPacient || [];
+                      // listToSchedule JÁ É o array listAllPacient
+                      const listAllPacient = JSON.parse(listToSchedule);
                       const hasDependents = listAllPacient.length > 1;
                       navigate(hasDependents ? "/appointment-schedule" : "/dashboard");
                     } catch (error) {

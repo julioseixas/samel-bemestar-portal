@@ -44,19 +44,19 @@ const Index = () => {
     
     if (listToSchedule) {
       try {
-        const data = JSON.parse(listToSchedule);
+        // listToSchedule JÁ É o array listAllPacient
+        const listAllPacient = JSON.parse(listToSchedule);
         
         // Verifica se há dependentes através do array listAllPacient
         // Se listAllPacient.length === 1, só tem o titular
         // Se listAllPacient.length > 1, existem dependentes
-        const listAllPacient = data.listAllPacient || [];
         const hasDependents = listAllPacient.length > 1;
         
         if (hasDependents) {
           navigate("/appointment-schedule");
         } else {
           // Seleciona automaticamente o titular
-          const titular = data[0];
+          const titular = listAllPacient[0];
           if (titular) {
             localStorage.setItem("selectedPatient", JSON.stringify(titular));
             navigate("/appointment-details");
