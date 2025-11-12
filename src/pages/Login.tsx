@@ -69,11 +69,15 @@ const Login = () => {
           try {
             const decoded = jwtDecode(data.dados2) as any;
 
-            // Monta o objeto do titular
+            // Pega os dados completos do titular de clienteContratos[0]
+            const titularCompleto = decoded.clienteContratos?.[0] || {};
+            
+            // Monta o objeto do titular com todos os dados necessários
             const titular = {
+              ...titularCompleto,
               tipoBeneficiario: decoded.tipoBeneficiario,
               nome: decoded.nome,
-              cdPessoaFisica: decoded.id,
+              cdPessoaFisica: decoded.cd_pessoa_fisica || decoded.id,
               email: decoded.usuario?.email,
               idUsuario: decoded.usuario?.id,
               clienteContratos: decoded.clienteContratos,
