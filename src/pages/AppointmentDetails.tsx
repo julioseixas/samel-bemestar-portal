@@ -80,8 +80,8 @@ const AppointmentDetails = () => {
     if (storedTitular) {
       try {
         const parsedTitular = JSON.parse(storedTitular);
-        setPatientName(parsedTitular.titular?.nome || "Paciente");
-        setTitular(parsedTitular.titular);
+        setPatientName(parsedTitular.nome || "Paciente");
+        setTitular(parsedTitular);
       } catch (error) {
         console.error("Erro ao processar titular:", error);
       }
@@ -152,8 +152,8 @@ const AppointmentDetails = () => {
         return;
       }
 
-      if (!selectedConvenio || !selectedPatient || !titular) {
-        console.log("Dados insuficientes:", { selectedConvenio, selectedPatient, titular });
+      if (!selectedConvenio || !selectedPatient) {
+        console.log("Dados insuficientes:", { selectedConvenio, selectedPatient });
         return;
       }
 
@@ -164,7 +164,7 @@ const AppointmentDetails = () => {
 
         const cdDependente = selectedPatient.id?.toString() || "";
         const nrCarteirinha = selectedPatient.codigoCarteirinha || "";
-        const cdPessoaFisica = selectedPatient.cdPessoaFisica?.toString() || titular.cdPessoaFisica?.toString() || "";
+        const cdPessoaFisica = selectedPatient.cdPessoaFisica?.toString() || titular?.cdPessoaFisica?.toString() || "";
         
         console.log("Parâmetros da busca de especialidades:", {
           idConvenio: selectedConvenio,
@@ -212,7 +212,7 @@ const AppointmentDetails = () => {
     };
 
     fetchEspecialidades();
-  }, [selectedConvenio, selectedPatient, titular, useEncaminhamento]);
+  }, [selectedConvenio, selectedPatient, useEncaminhamento]);
 
   // Reset especialidade quando trocar o modo de encaminhamento
   useEffect(() => {
@@ -227,13 +227,13 @@ const AppointmentDetails = () => {
       return;
     }
 
-    if (!selectedPatient || !titular) {
+    if (!selectedPatient) {
       alert("Dados do paciente não encontrados");
       return;
     }
 
     try {
-      const idCliente = selectedPatient.cdPessoaFisica?.toString() || titular.cdPessoaFisica?.toString() || "";
+      const idCliente = selectedPatient.cdPessoaFisica?.toString() || titular?.cdPessoaFisica?.toString() || "";
       const idadeCliente = selectedPatient.idade?.toString() || "0";
       const sexo = selectedPatient.sexo || "";
       const cdDependente = selectedPatient.id?.toString() || "";
