@@ -46,9 +46,11 @@ const Index = () => {
       try {
         const data = JSON.parse(listToSchedule);
         
-        // Verifica se há dependentes através do array clienteContratos
-        // Se clienteContratos.length > 1, existem dependentes
-        const hasDependents = data[0]?.clienteContratos && data[0].clienteContratos.length > 1;
+        // Verifica se há dependentes através do array listAllPacient
+        // Se listAllPacient.length === 1, só tem o titular
+        // Se listAllPacient.length > 1, existem dependentes
+        const listAllPacient = data.listAllPacient || [];
+        const hasDependents = listAllPacient.length > 1;
         
         if (hasDependents) {
           navigate("/appointment-schedule");

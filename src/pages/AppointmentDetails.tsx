@@ -350,7 +350,8 @@ const AppointmentDetails = () => {
                   if (listToSchedule) {
                     try {
                       const data = JSON.parse(listToSchedule);
-                      const hasDependents = data[0]?.clienteContratos && data[0].clienteContratos.length > 1;
+                      const listAllPacient = data.listAllPacient || [];
+                      const hasDependents = listAllPacient.length > 1;
                       navigate(hasDependents ? "/appointment-schedule" : "/dashboard");
                     } catch (error) {
                       console.error("Erro ao verificar dependentes:", error);
