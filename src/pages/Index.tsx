@@ -73,6 +73,7 @@ const Index = () => {
             </h3>
             
             <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {/* Linha 1 - Ações principais */}
               <DashboardCard
                 title="MARCAR CONSULTA"
                 description="Agende uma nova consulta com nossos especialistas"
@@ -96,16 +97,17 @@ const Index = () => {
               />
               
               <DashboardCard
-                title="MEU PRONTUÁRIO"
-                description="Acesse seu histórico médico completo"
-                icon={FolderOpen}
+                title="VER CONSULTAS / EXAMES AGENDADOS"
+                description="Visualize todos os seus agendamentos"
+                icon={CalendarCheck}
                 iconColor="text-primary"
-                buttonText="Ver Prontuário"
+                buttonText="Ver Agendamentos"
                 variant="default"
                 useDashboardColor={true}
-                onClick={() => handleCardClick("Meu Prontuário")}
+                onClick={() => navigate("/scheduled-appointments-choice")}
               />
               
+              {/* Linha 2 - Ações secundárias */}
               <DashboardCard
                 title="REALIZAR CHECK-IN NA TELEMEDICINA"
                 description="Faça check-in para sua consulta online"
@@ -118,35 +120,14 @@ const Index = () => {
               />
               
               <DashboardCard
-                title="VER CONSULTAS / EXAMES AGENDADOS"
-                description="Visualize todos os seus agendamentos"
-                icon={CalendarCheck}
+                title="MEU PRONTUÁRIO"
+                description="Acesse seu histórico médico completo"
+                icon={FolderOpen}
                 iconColor="text-primary"
-                buttonText="Ver Agendamentos"
+                buttonText="Ver Prontuário"
                 variant="default"
                 useDashboardColor={true}
-                onClick={() => navigate("/scheduled-appointments-choice")}
-              />
-              
-              <DashboardCard
-                title="VER RECEITAS E ATESTADOS"
-                description="Acesse suas receitas médicas e atestados"
-                icon={Pill}
-                iconColor="text-primary"
-                buttonText="Ver Receitas"
-                variant="default"
-                useDashboardColor={true}
-                onClick={() => navigate("/prescriptions-and-certificates")}
-              />
-              
-              <DashboardCard
-                title="TERMOS PARA ASSINAR"
-                description="Visualize e assine os termos pendentes"
-                icon={FileSignature}
-                iconColor="text-warning"
-                buttonText="Ver Termos"
-                variant="warning"
-                onClick={() => navigate("/terms-to-sign")}
+                onClick={() => handleCardClick("Meu Prontuário")}
               />
               
               <DashboardCard
@@ -160,14 +141,16 @@ const Index = () => {
                 onClick={() => navigate("/exam-results")}
               />
               
+              {/* Linha 3 - Documentos e receitas */}
               <DashboardCard
-                title="MINHA INTERNAÇÃO"
-                description="Acompanhe informações sobre sua internação"
-                icon={Bed}
-                iconColor="text-warning"
-                buttonText="Ver Internação"
-                variant="warning"
-                onClick={() => handleCardClick("Minha Internação")}
+                title="VER RECEITAS E ATESTADOS"
+                description="Acesse suas receitas médicas e atestados"
+                icon={Pill}
+                iconColor="text-primary"
+                buttonText="Ver Receitas"
+                variant="default"
+                useDashboardColor={true}
+                onClick={() => navigate("/prescriptions-and-certificates")}
               />
               
               <DashboardCard
@@ -179,6 +162,27 @@ const Index = () => {
                 variant="default"
                 useDashboardColor={true}
                 onClick={() => handleCardClick("Renovação de Receita")}
+              />
+              
+              <DashboardCard
+                title="MINHA INTERNAÇÃO"
+                description="Acompanhe informações sobre sua internação"
+                icon={Bed}
+                iconColor="text-warning"
+                buttonText="Ver Internação"
+                variant="warning"
+                onClick={() => handleCardClick("Minha Internação")}
+              />
+              
+              {/* Linha 4 - Administrativo e suporte */}
+              <DashboardCard
+                title="TERMOS PARA ASSINAR"
+                description="Visualize e assine os termos pendentes"
+                icon={FileSignature}
+                iconColor="text-warning"
+                buttonText="Ver Termos"
+                variant="warning"
+                onClick={() => navigate("/terms-to-sign")}
               />
               
               <DashboardCard
