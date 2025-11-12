@@ -31,7 +31,12 @@ export const DashboardCard = ({
       onClick={onClick}
     >
       <div className="mb-3 sm:mb-4 flex items-start justify-between">
-        <div className={cn("rounded-lg sm:rounded-xl bg-accent p-3 sm:p-4", iconColor)}>
+        <div className={cn(
+          "rounded-lg sm:rounded-xl p-3 sm:p-4",
+          iconColor,
+          // Background específico para destructive
+          iconColor.includes("destructive") ? "bg-destructive/10" : "bg-accent"
+        )}>
           <Icon className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10" />
         </div>
       </div>
