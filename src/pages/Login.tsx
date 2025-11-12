@@ -106,6 +106,23 @@ const Login = () => {
             // Armazena também os dados completos decodificados para referência
             localStorage.setItem("patientData", JSON.stringify(decoded));
 
+            // LOGS PARA DEBUG - Estrutura completa dos dados
+            console.log("=== DADOS DECODIFICADOS DO JWT ===");
+            console.log(decoded);
+            console.log("=====================================");
+            
+            console.log("=== OBJETO TITULAR ===");
+            console.log(titular);
+            console.log("======================");
+            
+            console.log("=== LISTA COMPLETA (listAllPacient) ===");
+            console.log(listAllPacient);
+            console.log("========================================");
+            
+            console.log("=== OBJETO COMPLETO listToSchedule ===");
+            console.log(JSON.parse(localStorage.getItem('listToSchedule') || '[]'));
+            console.log("=====================================");
+
             // Busca as notificações do paciente
             if (decoded.cd_pessoa_fisica || decoded.id) {
               const idCliente = decoded.cd_pessoa_fisica || decoded.id;
