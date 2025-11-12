@@ -345,7 +345,21 @@ const AppointmentDetails = () => {
               
               <Button
                 variant="outline"
-                onClick={() => navigate("/appointment-schedule")}
+                onClick={() => {
+                  const listToSchedule = localStorage.getItem("listToSchedule");
+                  if (listToSchedule) {
+                    try {
+                      const data = JSON.parse(listToSchedule);
+                      const hasDependents = data[0]?.clienteContratos && data[0].clienteContratos.length > 1;
+                      navigate(hasDependents ? "/appointment-schedule" : "/dashboard");
+                    } catch (error) {
+                      console.error("Erro ao verificar dependentes:", error);
+                      navigate("/dashboard");
+                    }
+                  } else {
+                    navigate("/dashboard");
+                  }
+                }}
                 className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
                 size="sm"
               >
