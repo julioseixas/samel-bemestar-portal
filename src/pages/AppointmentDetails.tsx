@@ -77,9 +77,15 @@ const AppointmentDetails = () => {
     const storedProfilePhoto = localStorage.getItem("profilePhoto");
     const storedSelectedPatient = localStorage.getItem("selectedPatient");
 
+    console.log("=== DEBUG APPOINTMENT DETAILS - CARREGAMENTO ===");
+    console.log("storedSelectedPatient (raw):", storedSelectedPatient);
+    console.log("storedTitular (raw):", storedTitular);
+
     if (storedTitular) {
       try {
         const parsedTitular = JSON.parse(storedTitular);
+        console.log("parsedTitular:", parsedTitular);
+        console.log("parsedTitular.cdPessoaFisica:", parsedTitular.cdPessoaFisica);
         setPatientName(parsedTitular.nome || "Paciente");
         setTitular(parsedTitular);
       } catch (error) {
@@ -94,12 +100,15 @@ const AppointmentDetails = () => {
     if (storedSelectedPatient) {
       try {
         const parsedPatient = JSON.parse(storedSelectedPatient);
+        console.log("parsedPatient:", parsedPatient);
+        console.log("parsedPatient.cdPessoaFisica:", parsedPatient.cdPessoaFisica);
         setSelectedPatient(parsedPatient);
       } catch (error) {
         console.error("Erro ao processar paciente selecionado:", error);
         navigate("/appointment-schedule");
       }
     } else {
+      console.log("selectedPatient não encontrado no localStorage!");
       navigate("/appointment-schedule");
     }
 
@@ -114,6 +123,8 @@ const AppointmentDetails = () => {
         console.error("Erro ao processar encaminhamentos:", error);
       }
     }
+
+    console.log("================================================");
   }, [navigate]);
 
   useEffect(() => {
@@ -166,6 +177,10 @@ const AppointmentDetails = () => {
         const nrCarteirinha = selectedPatient.codigoCarteirinha || "";
         const cdPessoaFisica = selectedPatient.cdPessoaFisica?.toString() || titular?.cdPessoaFisica?.toString() || "";
         
+        console.log("=== BUSCANDO ESPECIALIDADES ===");
+        console.log("selectedPatient completo:", selectedPatient);
+        console.log("titular completo:", titular);
+        console.log("cdPessoaFisica extraído:", cdPessoaFisica);
         console.log("Parâmetros da busca de especialidades:", {
           idConvenio: selectedConvenio,
           idadeCliente: selectedPatient.idade?.toString() || "0",
@@ -175,6 +190,7 @@ const AppointmentDetails = () => {
           cdDependente,
           nrCarteirinha
         });
+        console.log("================================");
         
         const params = new URLSearchParams({
           idConvenio: selectedConvenio,

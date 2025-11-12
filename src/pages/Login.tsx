@@ -72,23 +72,36 @@ const Login = () => {
             // Pega os dados completos do titular de clienteContratos[0]
             const titularCompleto = decoded.clienteContratos?.[0] || {};
             
+            // Garante que o cdPessoaFisica seja extraído corretamente
+            const cdPessoaFisica = decoded.cdPessoaFisica || 
+                                   decoded.cd_pessoa_fisica || 
+                                   titularCompleto.cdPessoaFisica || 
+                                   titularCompleto.cd_pessoa_fisica || 
+                                   decoded.id;
+            
             // Monta o objeto do titular com todos os dados necessários
             const titular = {
               ...titularCompleto,
-              tipoBeneficiario: decoded.tipoBeneficiario,
-              nome: decoded.nome,
-              cdPessoaFisica: decoded.cdPessoaFisica || decoded.cd_pessoa_fisica || decoded.id,
-              id: decoded.id,
-              codigoCarteirinha: decoded.codigoCarteirinha || null,
-              idade: decoded.idade,
-              sexo: decoded.sexo,
-              email: decoded.usuario?.email || decoded.email,
-              idUsuario: decoded.usuario?.id,
+              tipoBeneficiario: decoded.tipoBeneficiario || titularCompleto.tipoBeneficiario,
+              nome: decoded.nome || titularCompleto.nome,
+              id: decoded.id || titularCompleto.id,
+              codigoCarteirinha: decoded.codigoCarteirinha || titularCompleto.codigoCarteirinha || null,
+              idade: decoded.idade || titularCompleto.idade,
+              sexo: decoded.sexo || titularCompleto.sexo,
+              email: decoded.usuario?.email || decoded.email || titularCompleto.email,
+              idUsuario: decoded.usuario?.id || titularCompleto.idUsuario,
               clienteContratos: decoded.clienteContratos,
-              ieGravida: decoded.ieGravida,
-              rating: decoded.rating,
-              tipo: "Titular"
+              ieGravida: decoded.ieGravida || titularCompleto.ieGravida,
+              rating: decoded.rating || titularCompleto.rating,
+              tipo: "Titular",
+              // Garante que cdPessoaFisica seja sempre definido corretamente
+              cdPessoaFisica: cdPessoaFisica
             };
+            
+            console.log("=== TITULAR CONSTRUÍDO NO LOGIN ===");
+            console.log("cdPessoaFisica final:", cdPessoaFisica);
+            console.log("Objeto titular completo:", titular);
+            console.log("===================================");
 
             // Lista unificada de pacientes (titular + dependentes)
             const listAllPacient: any[] = [titular];
