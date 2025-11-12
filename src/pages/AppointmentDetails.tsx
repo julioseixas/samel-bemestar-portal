@@ -173,14 +173,22 @@ const AppointmentDetails = () => {
         setEspecialidades([]);
         setSelectedEspecialidade("");
 
-        const cdDependente = selectedPatient.id?.toString() || "";
-        const nrCarteirinha = selectedPatient.codigoCarteirinha || "";
         const cdPessoaFisica = selectedPatient.cdPessoaFisica?.toString() || titular?.cdPessoaFisica?.toString() || "";
+        
+        // Se for titular (tipo === "Titular"), cdDependente deve ser vazio
+        // Se for dependente, deve ser o ID do dependente
+        const isTitular = selectedPatient.tipo === "Titular";
+        const cdDependente = isTitular ? "" : (selectedPatient.id?.toString() || "");
+        
+        // Garante que nrCarteirinha seja string, mesmo que null
+        const nrCarteirinha = selectedPatient.codigoCarteirinha?.toString() || "";
         
         console.log("=== BUSCANDO ESPECIALIDADES ===");
         console.log("selectedPatient completo:", selectedPatient);
-        console.log("titular completo:", titular);
+        console.log("É titular?", isTitular);
         console.log("cdPessoaFisica extraído:", cdPessoaFisica);
+        console.log("cdDependente:", cdDependente);
+        console.log("nrCarteirinha:", nrCarteirinha);
         console.log("Parâmetros da busca de especialidades:", {
           idConvenio: selectedConvenio,
           idadeCliente: selectedPatient.idade?.toString() || "0",
@@ -252,8 +260,11 @@ const AppointmentDetails = () => {
       const idCliente = selectedPatient.cdPessoaFisica?.toString() || titular?.cdPessoaFisica?.toString() || "";
       const idadeCliente = selectedPatient.idade?.toString() || "0";
       const sexo = selectedPatient.sexo || "";
-      const cdDependente = selectedPatient.id?.toString() || "";
-      const nrCarteirinha = selectedPatient.codigoCarteirinha || "";
+      
+      // Se for titular, cdDependente vazio; se for dependente, ID do dependente
+      const isTitular = selectedPatient.tipo === "Titular";
+      const cdDependente = isTitular ? "" : (selectedPatient.id?.toString() || "");
+      const nrCarteirinha = selectedPatient.codigoCarteirinha?.toString() || "";
       
       console.log("Dados para busca de profissionais:", {
         idConvenio: selectedConvenio,
