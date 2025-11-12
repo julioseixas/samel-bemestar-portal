@@ -30,20 +30,19 @@ export const DashboardCard = ({
       className="group flex flex-col rounded-xl sm:rounded-2xl bg-card p-4 sm:p-6 shadow-card transition-all hover:shadow-lg md:p-8 cursor-pointer"
       onClick={onClick}
     >
-      <div className="mb-3 sm:mb-4 flex items-start justify-between">
+      <div className="mb-3 sm:mb-4 flex items-center gap-3">
         <div className={cn(
-          "rounded-lg sm:rounded-xl p-3 sm:p-4",
+          "rounded-lg p-2 sm:p-2.5 flex-shrink-0",
           iconColor,
           // Background específico para destructive
           iconColor.includes("destructive") ? "bg-destructive/10" : "bg-accent"
         )}>
-          <Icon className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10" />
+          <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
         </div>
+        <h3 className="text-sm sm:text-base font-semibold text-foreground md:text-lg flex-1">
+          {title}
+        </h3>
       </div>
-      
-      <h3 className="mb-2 text-base sm:text-xl font-semibold text-foreground md:text-2xl">
-        {title}
-      </h3>
       
       <p className="mb-4 sm:mb-6 flex-1 text-xs sm:text-sm text-muted-foreground md:text-base">
         {description}
