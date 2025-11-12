@@ -3,7 +3,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AppointmentBanner } from "@/components/AppointmentBanner";
 import { DashboardCard } from "@/components/DashboardCard";
-import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, FolderOpen, FileSignature } from "lucide-react";
+import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, FolderOpen, FileSignature, CalendarX } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -104,6 +104,16 @@ const Index = () => {
                 buttonText="Ver Agendamentos"
                 variant="default"
                 useDashboardColor={true}
+                onClick={() => navigate("/scheduled-appointments-choice")}
+              />
+              
+              <DashboardCard
+                title="CANCELAR AGENDAMENTO"
+                description="Cancele suas consultas ou exames agendados"
+                icon={CalendarX}
+                iconColor="text-destructive"
+                buttonText="Cancelar"
+                variant="destructive"
                 onClick={() => navigate("/scheduled-appointments-choice")}
               />
               
