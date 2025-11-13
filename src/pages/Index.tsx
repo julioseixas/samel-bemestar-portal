@@ -7,12 +7,18 @@ import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshC
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
+import { jwtDecode } from "jwt-decode";
+import { getApiHeaders } from "@/lib/api-headers";
+import { parse, isAfter, format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const welcomeSectionRef = useRef<HTMLDivElement>(null);
   const bannerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
@@ -34,7 +40,119 @@ const Index = () => {
     if (photo) {
       setProfilePhoto(photo);
     }
+
+    // Busca consultas e exames agendados
+    fetchAppointments();
   }, []);
+
+  const fetchAppointments = async () => {
+    try {
+      const userToken = localStorage.getItem("userToken");
+      if (!userToken) return;
+
+      const decoded: any = jwtDecode(userToken);
+      const pacientesIds = [parseInt(decoded.id)];
+      
+      if (decoded.dependentes && Array.isArray(decoded.dependentes)) {
+        decoded.dependentes.forEach((dep: any) => {
+          if (dep.id) pacientesIds.push(parseInt(dep.id));
+        });
+      }
+
+      // Busca consultas (tipo 0)
+      const consultasResponse = await fetch(
+        "https://api-portalpaciente-web.samel.com.br/api/Agenda/ListarAgendamentos2",
+        {
+          method: "POST",
+          headers: getApiHeaders(),
+          body: JSON.stringify({ pacientes: pacientesIds, tipo: 0 }),
+        }
+      );
+
+      // Busca exames (tipo 1)
+      const examesResponse = await fetch(
+        "https://api-portalpaciente-web.samel.com.br/api/Agenda/ListarAgendamentos2",
+        {
+          method: "POST",
+          headers: getApiHeaders(),
+          body: JSON.stringify({ pacientes: pacientesIds, tipo: 1 }),
+        }
+      );
+
+      const consultasData = await consultasResponse.json();
+      const examesData = await examesResponse.json();
+
+      const allAppointments = [];
+
+      // Processa consultas
+      if (consultasData.sucesso && consultasData.dados) {
+        const consultas = consultasData.dados.filter((ag: any) => {
+          if (ag.cancelado || ag.statusAgenda === "O") return false;
+          try {
+            const agendaDate = parse(ag.dataAgenda, 'yyyy/MM/dd HH:mm:ss', new Date());
+            return isAfter(agendaDate, new Date()) && ag.tipoAgendamento !== 1;
+          } catch {
+            return false;
+          }
+        }).map((ag: any) => ({ ...ag, tipo: 'consulta' }));
+        
+        allAppointments.push(...consultas);
+      }
+
+      // Processa exames
+      if (examesData.sucesso && examesData.dados) {
+        const exames = examesData.dados.filter((ag: any) => {
+          if (ag.cancelado || ag.statusAgenda === "O") return false;
+          try {
+            const agendaDate = parse(ag.dataAgenda, 'yyyy/MM/dd HH:mm:ss', new Date());
+            return isAfter(agendaDate, new Date()) && ag.tipoAgendamento === 1;
+          } catch {
+            return false;
+          }
+        }).map((ag: any) => ({ ...ag, tipo: 'exame' }));
+        
+        allAppointments.push(...exames);
+      }
+
+      // Ordena por data
+      allAppointments.sort((a, b) => {
+        const dateA = parse(a.dataAgenda, 'yyyy/MM/dd HH:mm:ss', new Date());
+        const dateB = parse(b.dataAgenda, 'yyyy/MM/dd HH:mm:ss', new Date());
+        return dateA.getTime() - dateB.getTime();
+      });
+
+      setAppointments(allAppointments);
+    } catch (error) {
+      console.error("Erro ao buscar agendamentos:", error);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    try {
+      const date = parse(dateString, 'yyyy/MM/dd HH:mm:ss', new Date());
+      const formatted = format(date, "EEEE, dd 'de' MMMM", { locale: ptBR });
+      return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+    } catch {
+      return dateString;
+    }
+  };
+
+  const formatTime = (dateString: string) => {
+    try {
+      const date = parse(dateString, 'yyyy/MM/dd HH:mm:ss', new Date());
+      return format(date, "HH:mm");
+    } catch {
+      return "";
+    }
+  };
+
+  const handlePrevious = () => {
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : appointments.length - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev < appointments.length - 1 ? prev + 1 : 0));
+  };
 
   useEffect(() => {
     // Animações GSAP na montagem do componente
@@ -184,15 +302,27 @@ const Index = () => {
           </div>
 
           {/* Next Appointment Banner */}
-          <div ref={bannerRef} className="mb-6 sm:mb-8 md:mb-12">
-            <AppointmentBanner
-              date="Quinta-feira, 15 de Janeiro"
-              time="14:30"
-              doctor="Dr. João Santos"
-              specialty="Cardiologia"
-              location="Hospital Samel - Unidade Chapada, Bloco B, 3º andar, Sala 305"
-            />
-          </div>
+          {appointments.length > 0 && (
+            <div ref={bannerRef} className="mb-6 sm:mb-8 md:mb-12">
+              <AppointmentBanner
+                date={formatDate(appointments[currentIndex].dataAgenda)}
+                time={formatTime(appointments[currentIndex].dataAgenda)}
+                doctor={appointments[currentIndex].nomeProfissional}
+                specialty={appointments[currentIndex].tipo === 'consulta' ? appointments[currentIndex].especialidade : 
+                  appointments[currentIndex].procedimentos?.[0]?.descricao || 'Exame'}
+                location={appointments[currentIndex].unidade?.nome && appointments[currentIndex].unidade?.endereco 
+                  ? `${appointments[currentIndex].unidade.nome} - ${appointments[currentIndex].unidade.endereco}` 
+                  : 'Telemedicina'}
+                appointmentId={appointments[currentIndex].id}
+                onCancel={fetchAppointments}
+                showNavigation={appointments.length > 1}
+                onPrevious={handlePrevious}
+                onNext={handleNext}
+                currentIndex={currentIndex}
+                totalItems={appointments.length}
+              />
+            </div>
+          )}
 
           {/* Dashboard Cards Grid */}
           <div className="mb-6 sm:mb-8">
