@@ -94,19 +94,11 @@ const Login = () => {
               ieGravida: decoded.ieGravida || titularCompleto.ieGravida,
               rating: decoded.rating || titularCompleto.rating,
               tipo: "Titular",
-              // Garante que cdPessoaFisica seja sempre definido corretamente
               cdPessoaFisica: cdPessoaFisica
             };
             
-            console.log("=== TITULAR CONSTRUÍDO NO LOGIN ===");
-            console.log("cdPessoaFisica final:", cdPessoaFisica);
-            console.log("Objeto titular completo:", titular);
-            console.log("===================================");
-
-            // Lista unificada de pacientes (titular + dependentes)
             const listAllPacient: any[] = [titular];
 
-            // Adiciona os dependentes se existirem
             if (decoded.dependentes && decoded.dependentes.length > 0) {
               decoded.dependentes.forEach((dependente: any) => {
                 listAllPacient.push({
@@ -115,36 +107,15 @@ const Login = () => {
                 });
               });
             }
-
-            // Armazena os dados estruturados no localStorage
+            
             localStorage.setItem('listToSchedule', JSON.stringify(listAllPacient));
             localStorage.setItem('titular', JSON.stringify(titular));
             localStorage.setItem('rating', titular.rating?.toString() || '0');
             
-            // Armazena o JWT original para uso posterior
             localStorage.setItem('user', data.dados2);
 
-            // Armazena também os dados completos decodificados para referência
             localStorage.setItem("patientData", JSON.stringify(decoded));
 
-            // LOGS PARA DEBUG - Estrutura completa dos dados
-            console.log("=== DADOS DECODIFICADOS DO JWT ===");
-            console.log(decoded);
-            console.log("=====================================");
-            
-            console.log("=== OBJETO TITULAR ===");
-            console.log(titular);
-            console.log("======================");
-            
-            console.log("=== LISTA COMPLETA (listAllPacient) ===");
-            console.log(listAllPacient);
-            console.log("========================================");
-            
-            console.log("=== OBJETO COMPLETO listToSchedule ===");
-            console.log(JSON.parse(localStorage.getItem('listToSchedule') || '[]'));
-            console.log("=====================================");
-
-            // Busca as notificações do paciente
             if (decoded.cd_pessoa_fisica || decoded.id) {
               const idCliente = decoded.cd_pessoa_fisica || decoded.id;
               

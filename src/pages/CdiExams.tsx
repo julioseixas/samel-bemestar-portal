@@ -120,11 +120,8 @@ const CdiExams = () => {
   };
 
   const handleViewExam = (exam: CdiExam) => {
-    console.log("👆 Clique no botão Ver Exames CDI detectado!");
-    console.log("📋 Exame selecionado:", exam);
     setSelectedExam(exam);
     setDialogOpen(true);
-    console.log("✅ Estado atualizado: dialogOpen = true");
   };
 
   // Cálculos de paginação

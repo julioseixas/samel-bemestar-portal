@@ -56,12 +56,8 @@ const ExamSchedule = () => {
         
         if (patientList.length > 0) {
           patientList.forEach((patient: any) => {
-            // Adicionar titular
             if (patient.tipoBeneficiario === "Titular" || patient.tipo === "Titular") {
               const titularId = patient.id || patient.cdPessoaFisica || Date.now();
-              
-              console.log("Titular:", patient);
-              console.log("idEmpresa do titular:", patient.idEmpresa);
               
               allPatients.push({
                 id: titularId,
@@ -75,12 +71,8 @@ const ExamSchedule = () => {
               });
             }
             
-            // Adicionar dependente
             if (patient.tipoBeneficiario === "Dependente" || patient.tipo === "Dependente") {
               const depId = patient.id || patient.cdPessoaFisica || Date.now();
-              
-              console.log("Dependente:", patient);
-              console.log("idEmpresa do dependente:", patient.idEmpresa);
               
               allPatients.push({
                 id: depId,
@@ -119,8 +111,6 @@ const ExamSchedule = () => {
       idEmpresa: patient.idEmpresa
     };
     
-    console.log("Paciente selecionado para exame:", patientData);
-    console.log("idEmpresa do paciente:", patient.idEmpresa);
     localStorage.setItem("selectedPatientExam", JSON.stringify(patientData));
     navigate("/exam-details");
   };
