@@ -100,6 +100,16 @@ const Index = () => {
           // Seleciona automaticamente o titular
           const titular = listAllPacient[0];
           if (titular) {
+            // Validar se o titular possui código de carteirinha
+            if (!titular.codigoCarteirinha || titular.codigoCarteirinha.trim() === '') {
+              toast({
+                variant: "destructive",
+                title: "Plano não encontrado",
+                description: "Seu cadastro não possui um plano de saúde ativo. Entre em contato com a Samel."
+              });
+              return;
+            }
+            
             localStorage.setItem("selectedPatient", JSON.stringify(titular));
             navigate("/appointment-details");
           } else {
@@ -120,15 +130,28 @@ const Index = () => {
     
     if (listToSchedule) {
       try {
-        const data = JSON.parse(listToSchedule);
-        const hasDependents = data.Dependente && data.Dependente.length > 0;
+        // listToSchedule JÁ É o array listAllPacient
+        const listAllPacient = JSON.parse(listToSchedule);
+        
+        // Verifica se há dependentes através do array listAllPacient
+        const hasDependents = listAllPacient.length > 1;
         
         if (hasDependents) {
           navigate("/exam-schedule");
         } else {
           // Seleciona automaticamente o titular
-          const titular = data.Titular;
+          const titular = listAllPacient[0];
           if (titular) {
+            // Validar se o titular possui código de carteirinha
+            if (!titular.codigoCarteirinha || titular.codigoCarteirinha.trim() === '') {
+              toast({
+                variant: "destructive",
+                title: "Plano não encontrado",
+                description: "Seu cadastro não possui um plano de saúde ativo. Entre em contato com a Samel."
+              });
+              return;
+            }
+            
             localStorage.setItem("selectedPatientExam", JSON.stringify(titular));
             navigate("/exam-details");
           } else {

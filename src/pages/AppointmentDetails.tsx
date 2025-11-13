@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getApiHeaders } from "@/lib/api-headers";
+import { useToast } from "@/hooks/use-toast";
 
 interface Patient {
   id: string | number;
@@ -59,6 +60,7 @@ interface Encaminhamento {
 
 const AppointmentDetails = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
@@ -165,6 +167,18 @@ const AppointmentDetails = () => {
 
       if (!selectedConvenio || !selectedPatient) {
         console.log("Dados insuficientes:", { selectedConvenio, selectedPatient });
+        return;
+      }
+
+      // Validação de segurança: verificar se o paciente tem carteirinha válida
+      if (!selectedPatient.codigoCarteirinha || selectedPatient.codigoCarteirinha.trim() === '') {
+        console.error("ERRO: Paciente sem código de carteirinha válido");
+        toast({
+          variant: "destructive",
+          title: "Erro de validação",
+          description: "Paciente sem plano de saúde ativo. Retornando à seleção de pacientes."
+        });
+        navigate("/appointment-schedule");
         return;
       }
 

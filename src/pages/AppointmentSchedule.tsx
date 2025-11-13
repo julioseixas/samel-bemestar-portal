@@ -4,8 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
-
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Patient {
   id: string | number;
@@ -23,6 +31,7 @@ const AppointmentSchedule = () => {
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [patients, setPatients] = useState<Patient[]>([]);
+  const [showNoHealthPlanDialog, setShowNoHealthPlanDialog] = useState(false);
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -108,6 +117,15 @@ const AppointmentSchedule = () => {
   }, []);
 
   const handleSelectPatient = async (patient: Patient) => {
+    console.log("Paciente selecionado para consulta:", patient);
+    
+    // Validar se o paciente possui código de carteirinha
+    if (!patient.codigoCarteirinha || patient.codigoCarteirinha.trim() === '') {
+      console.warn("Paciente sem código de carteirinha:", patient);
+      setShowNoHealthPlanDialog(true);
+      return;
+    }
+    
     // Usar cdPessoaFisica como ID principal para APIs
     const patientApiId = patient.cdPessoaFisica || patient.id;
     
@@ -245,6 +263,23 @@ const AppointmentSchedule = () => {
           )}
         </div>
       </main>
+
+      {/* Alert Dialog para paciente sem plano */}
+      <AlertDialog open={showNoHealthPlanDialog} onOpenChange={setShowNoHealthPlanDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Paciente sem plano ativo</AlertDialogTitle>
+            <AlertDialogDescription>
+              O paciente selecionado não possui um plano de saúde ativo. Por favor, selecione outro beneficiário ou entre em contato com a Samel para mais informações.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setShowNoHealthPlanDialog(false)}>
+              Entendi
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
