@@ -330,13 +330,6 @@ const AppointmentTimes = () => {
       // Buscar idEmpresa do selectedPatient
       const idEmpresa = selectedPatientData.idEmpresa || titular.titular?.idEmpresa || 0;
 
-      console.log("=== DEBUG CONFIRMAR AGENDAMENTO ===");
-      console.log("idCliente (cdPessoaFisica do titular):", idTitular);
-      console.log("idEmpresa:", idEmpresa);
-      console.log("selectedPatient completo:", selectedPatientData);
-      console.log("titular completo:", titular);
-      console.log("===================================");
-
       const response = await fetch(
         'https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ConfirmarAgendamento2',
         {
