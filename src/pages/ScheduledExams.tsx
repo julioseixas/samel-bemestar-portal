@@ -406,7 +406,11 @@ const ScheduledExams = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isCanceling}>Não, manter exame</AlertDialogCancel>
-            <AlertDialogAction onClick={handleCancelConfirm} disabled={isCanceling}>
+            <Button 
+              onClick={handleCancelConfirm} 
+              disabled={isCanceling}
+              variant="destructive"
+            >
               {isCanceling ? (
                 <span className="flex items-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -415,7 +419,7 @@ const ScheduledExams = () => {
               ) : (
                 "Sim, cancelar exame"
               )}
-            </AlertDialogAction>
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
