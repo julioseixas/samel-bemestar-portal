@@ -27,7 +27,7 @@ export const DashboardCard = ({
 }: DashboardCardProps) => {
   return (
     <div 
-      className="group flex flex-col rounded-xl sm:rounded-2xl bg-card p-4 sm:p-6 shadow-card transition-all duration-300 hover:shadow-lg hover:scale-[1.02] hover:-translate-y-1 md:p-8 cursor-pointer"
+      className="group h-full flex flex-col rounded-xl sm:rounded-2xl bg-card p-4 sm:p-6 shadow-card transition-all duration-300 hover:shadow-lg hover:scale-[1.02] hover:-translate-y-1 md:p-8 cursor-pointer"
       onClick={onClick}
     >
       <div className="mb-3 sm:mb-4 flex items-start justify-between">
