@@ -48,33 +48,49 @@ export const AppointmentBanner = ({
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [direction, setDirection] = useState<'next' | 'prev' | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const prevIndexRef = useRef(currentIndex);
   const { toast } = useToast();
 
-  // Animação GSAP ao trocar de slide
+  // Detecta direção do movimento
+  useEffect(() => {
+    if (prevIndexRef.current !== currentIndex) {
+      if (currentIndex > prevIndexRef.current || (prevIndexRef.current === totalItems - 1 && currentIndex === 0)) {
+        setDirection('next');
+      } else {
+        setDirection('prev');
+      }
+      prevIndexRef.current = currentIndex;
+    }
+  }, [currentIndex, totalItems]);
+
+  // Animação GSAP ao trocar de slide - efeito de deslizar
   useEffect(() => {
     if (!contentRef.current) return;
 
     const ctx = gsap.context(() => {
+      // Define de onde vem baseado na direção
+      const fromX = direction === 'next' ? 100 : direction === 'prev' ? -100 : 100;
+      
+      // Anima entrada do novo slide com deslizamento
       gsap.fromTo(
         contentRef.current,
         {
+          x: fromX,
           opacity: 0,
-          x: 50,
-          scale: 0.95,
         },
         {
-          opacity: 1,
           x: 0,
-          scale: 1,
+          opacity: 1,
           duration: 0.6,
-          ease: "power2.out",
+          ease: "power3.out",
         }
       );
     });
 
     return () => ctx.revert();
-  }, [currentIndex]);
+  }, [currentIndex, direction]);
 
   // Auto-play carrossel
   useEffect(() => {
@@ -82,7 +98,7 @@ export const AppointmentBanner = ({
 
     const interval = setInterval(() => {
       onNext?.();
-    }, 5000); // Troca a cada 5 segundos
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [showNavigation, isPaused, onNext, totalItems]);
