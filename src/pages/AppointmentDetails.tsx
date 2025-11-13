@@ -274,6 +274,16 @@ const AppointmentDetails = () => {
       const data = await response.json();
 
       if (data.sucesso && data.dados) {
+        // Verificar se o array de profissionais está vazio
+        if (data.dados.length === 0) {
+          toast({
+            variant: "destructive",
+            title: "Nenhum profissional disponível",
+            description: "Não há profissionais disponíveis para a especialidade selecionada no momento."
+          });
+          return;
+        }
+
         // Buscar descrição da especialidade
         const especialidadeSelecionada = especialidades.find(e => e.id.toString() === selectedEspecialidade);
         const dsEspecialidade = especialidadeSelecionada?.descricao || "Especialidade";
@@ -309,11 +319,19 @@ const AppointmentDetails = () => {
         navigate("/appointment-professionals");
       } else {
         console.error("Erro na resposta da API:", data);
-        alert(data.mensagem || "Nenhum profissional disponível encontrado");
+        toast({
+          variant: "destructive",
+          title: "Erro",
+          description: data.mensagem || "Nenhum profissional disponível encontrado"
+        });
       }
     } catch (error) {
       console.error("Erro ao buscar profissionais:", error);
-      alert("Erro ao buscar profissionais disponíveis");
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Erro ao buscar profissionais disponíveis"
+      });
     }
   };
 
