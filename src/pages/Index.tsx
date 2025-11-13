@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AppointmentBanner } from "@/components/AppointmentBanner";
@@ -6,12 +6,16 @@ import { DashboardCard } from "@/components/DashboardCard";
 import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, FolderOpen, FileSignature, CalendarX } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import gsap from "gsap";
 
 const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const welcomeSectionRef = useRef<HTMLDivElement>(null);
+  const bannerRef = useRef<HTMLDivElement>(null);
+  const cardsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Carrega os dados do paciente do localStorage
@@ -30,6 +34,44 @@ const Index = () => {
     if (photo) {
       setProfilePhoto(photo);
     }
+  }, []);
+
+  useEffect(() => {
+    // Animações GSAP na montagem do componente
+    const ctx = gsap.context(() => {
+      // Animação da seção de boas-vindas
+      gsap.from(welcomeSectionRef.current, {
+        opacity: 0,
+        y: -30,
+        duration: 0.8,
+        ease: "power3.out"
+      });
+
+      // Animação do banner
+      gsap.from(bannerRef.current, {
+        opacity: 0,
+        scale: 0.95,
+        duration: 0.6,
+        delay: 0.2,
+        ease: "back.out(1.2)"
+      });
+
+      // Animação em cascata dos cards
+      const cards = cardsRef.current?.querySelectorAll('[data-card]');
+      if (cards) {
+        gsap.from(cards, {
+          opacity: 0,
+          y: 50,
+          scale: 0.9,
+          duration: 0.5,
+          stagger: 0.08,
+          delay: 0.4,
+          ease: "power2.out"
+        });
+      }
+    });
+
+    return () => ctx.revert();
   }, []);
 
   const handleCardClick = (feature: string) => {
@@ -109,7 +151,7 @@ const Index = () => {
       <main className="flex-1">
         <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:px-6 md:py-10">
           {/* Welcome Section */}
-          <div className="mb-6 sm:mb-8">
+          <div ref={welcomeSectionRef} className="mb-6 sm:mb-8">
             <h2 className="mb-2 text-xl sm:text-2xl font-bold text-foreground md:text-3xl">
               Bem-vindo(a) ao seu Portal! 👋
             </h2>
@@ -119,7 +161,7 @@ const Index = () => {
           </div>
 
           {/* Next Appointment Banner */}
-          <div className="mb-6 sm:mb-8 md:mb-12">
+          <div ref={bannerRef} className="mb-6 sm:mb-8 md:mb-12">
             <AppointmentBanner
               date="Quinta-feira, 15 de Janeiro"
               time="14:30"
@@ -135,10 +177,11 @@ const Index = () => {
               O que você deseja fazer?
             </h3>
             
-            <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            <div ref={cardsRef} className="grid gap-4 sm:gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {/* Linha 1 - Ações principais */}
-              <DashboardCard
-                title="AGENDAR CONSULTA"
+              <div data-card>
+                <DashboardCard
+                  title="AGENDAR CONSULTA"
                 description="Agende uma nova consulta com nossos especialistas"
                 icon={Calendar}
                 iconColor="text-primary"
@@ -146,9 +189,11 @@ const Index = () => {
                 variant="default"
                 useDashboardColor={true}
                 onClick={handleAppointmentSchedule}
-              />
+                />
+              </div>
               
-              <DashboardCard
+              <div data-card>
+                <DashboardCard
                 title="AGENDAR EXAME"
                 description="Solicite e agende seus exames laboratoriais"
                 icon={ClipboardPlus}
@@ -157,9 +202,11 @@ const Index = () => {
                 variant="default"
                 useDashboardColor={true}
                 onClick={handleExamSchedule}
-              />
+                />
+              </div>
               
-              <DashboardCard
+              <div data-card>
+                <DashboardCard
                 title="MEUS AGENDAMENTOS"
                 description="Visualize todos os seus agendamentos"
                 icon={CalendarCheck}
@@ -168,9 +215,11 @@ const Index = () => {
                 variant="default"
                 useDashboardColor={true}
                 onClick={() => navigate("/scheduled-appointments-choice")}
-              />
+                />
+              </div>
               
-              <DashboardCard
+              <div data-card>
+                <DashboardCard
                 title="CANCELAR AGENDAMENTO"
                 description="Cancele suas consultas ou exames agendados"
                 icon={CalendarX}
@@ -178,10 +227,12 @@ const Index = () => {
                 buttonText="Cancelar"
                 variant="destructive"
                 onClick={() => navigate("/scheduled-appointments-choice")}
-              />
+                />
+              </div>
               
               {/* Linha 2 - Ações secundárias */}
-              <DashboardCard
+              <div data-card>
+                <DashboardCard
                 title="ENTRAR NA CONSULTA ONLINE"
                 description="Faça check-in para sua consulta online"
                 icon={Video}
@@ -190,9 +241,11 @@ const Index = () => {
                 variant="success"
                 useDashboardColor={true}
                 onClick={() => handleCardClick("Check-in Telemedicina")}
-              />
+                />
+              </div>
               
-              <DashboardCard
+              <div data-card>
+                <DashboardCard
                 title="PEDIDOS DE EXAME"
                 description="Acesse seu histórico médico completo"
                 icon={FolderOpen}
@@ -201,9 +254,11 @@ const Index = () => {
                 variant="default"
                 useDashboardColor={true}
                 onClick={() => handleCardClick("Meu Prontuário")}
-              />
+                />
+              </div>
               
-              <DashboardCard
+              <div data-card>
+                <DashboardCard
                 title="MEUS RESULTADOS"
                 description="Consulte os resultados dos seus exames"
                 icon={TestTube}
@@ -212,10 +267,12 @@ const Index = () => {
                 variant="success"
                 useDashboardColor={true}
                 onClick={() => navigate("/exam-results")}
-              />
+                />
+              </div>
               
               {/* Linha 3 - Documentos e receitas */}
-              <DashboardCard
+              <div data-card>
+                <DashboardCard
                 title="MINHAS RECEITAS E ATESTADOS"
                 description="Acesse suas receitas médicas e atestados"
                 icon={Pill}
@@ -224,9 +281,11 @@ const Index = () => {
                 variant="default"
                 useDashboardColor={true}
                 onClick={() => navigate("/prescriptions-and-certificates")}
-              />
+                />
+              </div>
               
-              <DashboardCard
+              <div data-card>
+                <DashboardCard
                 title="RENOVAR RECEITA"
                 description="Solicite a renovação das suas receitas"
                 icon={RefreshCw}
@@ -235,9 +294,11 @@ const Index = () => {
                 variant="default"
                 useDashboardColor={true}
                 onClick={() => handleCardClick("Renovação de Receita")}
-              />
+                />
+              </div>
               
-              <DashboardCard
+              <div data-card>
+                <DashboardCard
                 title="ACOMPANHAMENTO DA INTERNAÇÃO"
                 description="Acompanhe informações sobre sua internação"
                 icon={Bed}
@@ -245,10 +306,12 @@ const Index = () => {
                 buttonText="Ver Internação"
                 variant="warning"
                 onClick={() => handleCardClick("Minha Internação")}
-              />
+                />
+              </div>
               
               {/* Linha 4 - Administrativo e suporte */}
-              <DashboardCard
+              <div data-card>
+                <DashboardCard
                 title="ASSINAR DOCUMENTOS"
                 description="Visualize e assine os termos pendentes"
                 icon={FileSignature}
@@ -256,9 +319,11 @@ const Index = () => {
                 buttonText="Ver Termos"
                 variant="warning"
                 onClick={() => navigate("/terms-to-sign")}
-              />
+                />
+              </div>
               
-              <DashboardCard
+              <div data-card>
+                <DashboardCard
                 title="FALAR COM ASSISTENTE"
                 description="Converse com nosso assistente virtual"
                 icon={MessageCircle}
@@ -266,7 +331,8 @@ const Index = () => {
                 buttonText="Iniciar Chat"
                 variant="outline"
                 onClick={() => handleCardClick("Chatbot Samel")}
-              />
+                />
+              </div>
             </div>
           </div>
         </div>
