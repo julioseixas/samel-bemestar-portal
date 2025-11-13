@@ -41,8 +41,23 @@ const Index = () => {
       setProfilePhoto(photo);
     }
 
-    // Busca consultas e exames agendados
-    fetchAppointments();
+    // Verifica se há dados de agendamentos do login
+    const savedAppointmentsData = localStorage.getItem("appointmentsData");
+    if (savedAppointmentsData) {
+      try {
+        const { consultas, exames } = JSON.parse(savedAppointmentsData);
+        processAppointments(consultas, exames);
+        // Remove os dados após processar
+        localStorage.removeItem("appointmentsData");
+      } catch (error) {
+        console.error("Erro ao processar agendamentos salvos:", error);
+      }
+    }
+
+    // Busca consultas e exames agendados se não houver dados salvos
+    if (!savedAppointmentsData) {
+      fetchAppointments();
+    }
 
     // Atualiza quando a página recebe foco novamente
     const handleVisibilityChange = () => {
@@ -57,6 +72,51 @@ const Index = () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
+
+  const processAppointments = (consultasData: any, examesData: any) => {
+    const allAppointments = [];
+
+    // Processa consultas
+    if (consultasData.sucesso && consultasData.dados) {
+      const consultas = consultasData.dados.filter((ag: any) => {
+        if (ag.cancelado) return false;
+        if (ag.statusAgenda === "O" || ag.statusAgenda === "C") return false;
+        try {
+          const agendaDate = parse(ag.dataAgenda, 'yyyy/MM/dd HH:mm:ss', new Date());
+          return isAfter(agendaDate, new Date()) && ag.tipoAgendamento !== 1;
+        } catch {
+          return false;
+        }
+      }).map((ag: any) => ({ ...ag, tipo: 'consulta' }));
+      
+      allAppointments.push(...consultas);
+    }
+
+    // Processa exames
+    if (examesData.sucesso && examesData.dados) {
+      const exames = examesData.dados.filter((ag: any) => {
+        if (ag.cancelado) return false;
+        if (ag.statusAgenda === "O" || ag.statusAgenda === "C") return false;
+        try {
+          const agendaDate = parse(ag.dataAgenda, 'yyyy/MM/dd HH:mm:ss', new Date());
+          return isAfter(agendaDate, new Date()) && ag.tipoAgendamento === 1;
+        } catch {
+          return false;
+        }
+      }).map((ag: any) => ({ ...ag, tipo: 'exame' }));
+      
+      allAppointments.push(...exames);
+    }
+
+    // Ordena por data
+    allAppointments.sort((a, b) => {
+      const dateA = parse(a.dataAgenda, 'yyyy/MM/dd HH:mm:ss', new Date());
+      const dateB = parse(b.dataAgenda, 'yyyy/MM/dd HH:mm:ss', new Date());
+      return dateA.getTime() - dateB.getTime();
+    });
+
+    setAppointments(allAppointments);
+  };
 
   const fetchAppointments = async () => {
     try {
@@ -95,48 +155,7 @@ const Index = () => {
       const consultasData = await consultasResponse.json();
       const examesData = await examesResponse.json();
 
-      const allAppointments = [];
-
-      // Processa consultas
-      if (consultasData.sucesso && consultasData.dados) {
-        const consultas = consultasData.dados.filter((ag: any) => {
-          if (ag.cancelado) return false;
-          if (ag.statusAgenda === "O" || ag.statusAgenda === "C") return false;
-          try {
-            const agendaDate = parse(ag.dataAgenda, 'yyyy/MM/dd HH:mm:ss', new Date());
-            return isAfter(agendaDate, new Date()) && ag.tipoAgendamento !== 1;
-          } catch {
-            return false;
-          }
-        }).map((ag: any) => ({ ...ag, tipo: 'consulta' }));
-        
-        allAppointments.push(...consultas);
-      }
-
-      // Processa exames
-      if (examesData.sucesso && examesData.dados) {
-        const exames = examesData.dados.filter((ag: any) => {
-          if (ag.cancelado) return false;
-          if (ag.statusAgenda === "O" || ag.statusAgenda === "C") return false;
-          try {
-            const agendaDate = parse(ag.dataAgenda, 'yyyy/MM/dd HH:mm:ss', new Date());
-            return isAfter(agendaDate, new Date()) && ag.tipoAgendamento === 1;
-          } catch {
-            return false;
-          }
-        }).map((ag: any) => ({ ...ag, tipo: 'exame' }));
-        
-        allAppointments.push(...exames);
-      }
-
-      // Ordena por data
-      allAppointments.sort((a, b) => {
-        const dateA = parse(a.dataAgenda, 'yyyy/MM/dd HH:mm:ss', new Date());
-        const dateB = parse(b.dataAgenda, 'yyyy/MM/dd HH:mm:ss', new Date());
-        return dateA.getTime() - dateB.getTime();
-      });
-
-      setAppointments(allAppointments);
+      processAppointments(consultasData, examesData);
     } catch (error) {
       console.error("Erro ao buscar agendamentos:", error);
     }

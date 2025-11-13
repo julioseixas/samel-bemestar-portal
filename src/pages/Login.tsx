@@ -164,6 +164,49 @@ const Login = () => {
               } catch (fotoError) {
                 console.error("Erro ao buscar foto de perfil:", fotoError);
               }
+
+              // Busca agendamentos (consultas e exames)
+              try {
+                const decoded: any = jwtDecode(data.dados2);
+                const pacientesIds = [parseInt(decoded.id)];
+                
+                if (decoded.dependentes && Array.isArray(decoded.dependentes)) {
+                  decoded.dependentes.forEach((dep: any) => {
+                    if (dep.id) pacientesIds.push(parseInt(dep.id));
+                  });
+                }
+
+                // Busca consultas e exames em paralelo
+                const [consultasResponse, examesResponse] = await Promise.all([
+                  fetch(
+                    "https://api-portalpaciente-web.samel.com.br/api/Agenda/ListarAgendamentos2",
+                    {
+                      method: "POST",
+                      headers: getApiHeaders(),
+                      body: JSON.stringify({ pacientes: pacientesIds, tipo: 0 }),
+                    }
+                  ),
+                  fetch(
+                    "https://api-portalpaciente-web.samel.com.br/api/Agenda/ListarAgendamentos2",
+                    {
+                      method: "POST",
+                      headers: getApiHeaders(),
+                      body: JSON.stringify({ pacientes: pacientesIds, tipo: 1 }),
+                    }
+                  )
+                ]);
+
+                const consultasData = await consultasResponse.json();
+                const examesData = await examesResponse.json();
+
+                // Salva os dados brutos para o dashboard processar
+                localStorage.setItem("appointmentsData", JSON.stringify({
+                  consultas: consultasData,
+                  exames: examesData
+                }));
+              } catch (appointmentsError) {
+                console.error("Erro ao buscar agendamentos:", appointmentsError);
+              }
             }
           } catch (jwtError) {
             console.error("Erro ao processar JWT:", jwtError);
