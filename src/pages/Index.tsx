@@ -188,6 +188,10 @@ const Index = () => {
     setCurrentIndex((prev) => (prev < appointments.length - 1 ? prev + 1 : 0));
   };
 
+  const handleGoToIndex = (index: number) => {
+    setCurrentIndex(index);
+  };
+
   useEffect(() => {
     // Animações GSAP na montagem do componente
     const ctx = gsap.context(() => {
@@ -354,6 +358,7 @@ const Index = () => {
                 showNavigation={appointments.length > 1}
                 onPrevious={handlePrevious}
                 onNext={handleNext}
+                onGoToIndex={handleGoToIndex}
                 currentIndex={currentIndex}
                 totalItems={appointments.length}
               />

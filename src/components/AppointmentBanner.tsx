@@ -1,6 +1,6 @@
 import { Calendar, Clock, MapPin, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { getApiHeaders } from "@/lib/api-headers";
 import {
@@ -24,6 +24,7 @@ interface AppointmentBannerProps {
   showNavigation?: boolean;
   onPrevious?: () => void;
   onNext?: () => void;
+  onGoToIndex?: (index: number) => void;
   currentIndex?: number;
   totalItems?: number;
 }
@@ -39,12 +40,25 @@ export const AppointmentBanner = ({
   showNavigation = false,
   onPrevious,
   onNext,
+  onGoToIndex,
   currentIndex = 0,
   totalItems = 1,
 }: AppointmentBannerProps) => {
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const { toast } = useToast();
+
+  // Auto-play carrossel
+  useEffect(() => {
+    if (!showNavigation || isPaused || totalItems <= 1) return;
+
+    const interval = setInterval(() => {
+      onNext?.();
+    }, 5000); // Troca a cada 5 segundos
+
+    return () => clearInterval(interval);
+  }, [showNavigation, isPaused, onNext, totalItems]);
 
   const handleCancelConfirm = async () => {
     if (!appointmentId) return;
@@ -93,36 +107,44 @@ export const AppointmentBanner = ({
 
   return (
     <>
-      <div className="rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary to-primary-hover p-4 sm:p-6 text-primary-foreground shadow-card md:p-8 relative">
-        {/* Navigation arrows */}
-        {showNavigation && (
-          <>
-            <button
-              onClick={onPrevious}
-              className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-primary-foreground/20 hover:bg-primary-foreground/30 transition-colors z-10"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button
-              onClick={onNext}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-primary-foreground/20 hover:bg-primary-foreground/30 transition-colors z-10"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-          </>
-        )}
-
-        <div className="mb-3 sm:mb-4 flex items-center gap-2 justify-between">
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
-            <span className="text-xs sm:text-sm font-medium md:text-base">Próximo Agendamento</span>
-          </div>
+      <div 
+        className="rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary to-primary-hover p-4 sm:p-6 text-primary-foreground shadow-card md:p-8 relative overflow-hidden"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+      >
+        {/* Content wrapper com animação */}
+        <div className="animate-fade-in" key={`banner-${currentIndex}`}>
+          {/* Navigation arrows */}
           {showNavigation && (
-            <span className="text-xs sm:text-sm opacity-80">
-              {currentIndex + 1}/{totalItems}
-            </span>
+            <>
+              <button
+                onClick={onPrevious}
+                className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-primary-foreground/20 hover:bg-primary-foreground/30 transition-all hover:scale-110 z-10"
+                aria-label="Agendamento anterior"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button
+                onClick={onNext}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-primary-foreground/20 hover:bg-primary-foreground/30 transition-all hover:scale-110 z-10"
+                aria-label="Próximo agendamento"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </>
           )}
-        </div>
+
+          <div className="mb-3 sm:mb-4 flex items-center gap-2 justify-between">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="text-xs sm:text-sm font-medium md:text-base">Próximo Agendamento</span>
+            </div>
+            {showNavigation && (
+              <span className="text-xs sm:text-sm opacity-80">
+                {currentIndex + 1}/{totalItems}
+              </span>
+            )}
+          </div>
         
         <div className="mb-4 sm:mb-6 space-y-2 sm:space-y-3">
           <div>
@@ -168,6 +190,25 @@ export const AppointmentBanner = ({
           >
             Como Chegar
           </Button>
+        </div>
+
+        {/* Indicadores (dots) */}
+        {showNavigation && totalItems > 1 && (
+          <div className="flex justify-center gap-2 mt-4">
+            {Array.from({ length: totalItems }).map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => onGoToIndex?.(idx)}
+                className={`h-2 rounded-full transition-all ${
+                  idx === currentIndex 
+                    ? 'w-6 bg-primary-foreground' 
+                    : 'w-2 bg-primary-foreground/40 hover:bg-primary-foreground/60'
+                }`}
+                aria-label={`Ir para agendamento ${idx + 1}`}
+              />
+            ))}
+          </div>
+        )}
         </div>
       </div>
 
