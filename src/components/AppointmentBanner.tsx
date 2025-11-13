@@ -1,8 +1,9 @@
 import { Calendar, Clock, MapPin, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { getApiHeaders } from "@/lib/api-headers";
+import gsap from "gsap";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -47,7 +48,33 @@ export const AppointmentBanner = ({
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  // Animação GSAP ao trocar de slide
+  useEffect(() => {
+    if (!contentRef.current) return;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        contentRef.current,
+        {
+          opacity: 0,
+          x: 50,
+          scale: 0.95,
+        },
+        {
+          opacity: 1,
+          x: 0,
+          scale: 1,
+          duration: 0.6,
+          ease: "power2.out",
+        }
+      );
+    });
+
+    return () => ctx.revert();
+  }, [currentIndex]);
 
   // Auto-play carrossel
   useEffect(() => {
@@ -112,8 +139,8 @@ export const AppointmentBanner = ({
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
-        {/* Content wrapper com animação */}
-        <div className="animate-fade-in" key={`banner-${currentIndex}`}>
+        {/* Content wrapper com animação GSAP */}
+        <div ref={contentRef}>
           {/* Navigation arrows */}
           {showNavigation && (
             <>
