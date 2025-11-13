@@ -27,21 +27,21 @@ export const DashboardCard = ({
 }: DashboardCardProps) => {
   return (
     <div 
-      className="group flex flex-col rounded-xl sm:rounded-2xl bg-card p-4 sm:p-6 shadow-card transition-all hover:shadow-lg md:p-8 cursor-pointer"
+      className="group flex flex-col rounded-xl sm:rounded-2xl bg-card p-4 sm:p-6 shadow-card transition-all duration-300 hover:shadow-lg hover:scale-[1.02] hover:-translate-y-1 md:p-8 cursor-pointer"
       onClick={onClick}
     >
       <div className="mb-3 sm:mb-4 flex items-start justify-between">
         <div className={cn(
-          "rounded-lg sm:rounded-xl p-3 sm:p-4",
+          "rounded-lg sm:rounded-xl p-3 sm:p-4 transition-all duration-300 group-hover:scale-110",
           iconColor,
           // Backgrounds específicos para cada variante com melhor contraste
-          iconColor.includes("destructive") ? "bg-destructive/10" :
-          iconColor.includes("success") ? "bg-success/10" :
-          iconColor.includes("warning") ? "bg-warning/20" :
-          iconColor.includes("primary") ? "bg-primary/10" :
-          "bg-accent/50"
+          iconColor.includes("destructive") ? "bg-destructive/10 group-hover:bg-destructive/20" :
+          iconColor.includes("success") ? "bg-success/10 group-hover:bg-success/20" :
+          iconColor.includes("warning") ? "bg-warning/20 group-hover:bg-warning/30" :
+          iconColor.includes("primary") ? "bg-primary/10 group-hover:bg-primary/20" :
+          "bg-accent/50 group-hover:bg-accent/70"
         )}>
-          <Icon className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10" />
+          <Icon className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 transition-transform duration-300 group-hover:rotate-6" />
         </div>
       </div>
       
@@ -61,7 +61,7 @@ export const DashboardCard = ({
         variant={variant}
         size="lg"
         className={cn(
-          "w-full text-sm sm:text-base",
+          "w-full text-sm sm:text-base transition-all duration-300 group-hover:translate-y-0.5",
           useDashboardColor && "bg-[hsl(var(--dashboard-button))] text-[hsl(var(--dashboard-button-foreground))] hover:bg-[hsl(var(--dashboard-button))]/90"
         )}
         style={customButtonColor ? { backgroundColor: customButtonColor, color: 'white' } : undefined}
