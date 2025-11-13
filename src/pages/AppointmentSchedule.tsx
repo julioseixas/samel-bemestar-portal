@@ -56,14 +56,8 @@ const AppointmentSchedule = () => {
       try {
         const parsedList = JSON.parse(storedListToSchedule);
         
-        console.log("=== OBJETO COMPLETO listToSchedule ===");
-        console.log(parsedList);
-        console.log("=====================================");
-        
-        // Array para armazenar todos os pacientes
         const allPatients: Patient[] = [];
         
-        // Verificar se parsedList é array direto ou objeto com listAllPacient
         const patientList = Array.isArray(parsedList) 
           ? parsedList 
           : parsedList.listAllPacient || [];
@@ -103,7 +97,6 @@ const AppointmentSchedule = () => {
             }
           });
           
-          console.log("Todos os pacientes carregados:", allPatients);
           setPatients(allPatients);
         }
       } catch (error) {
@@ -117,16 +110,11 @@ const AppointmentSchedule = () => {
   }, []);
 
   const handleSelectPatient = async (patient: Patient) => {
-    console.log("Paciente selecionado para consulta:", patient);
-    
-    // Validar se o paciente possui código de carteirinha
     if (!patient.codigoCarteirinha || patient.codigoCarteirinha.trim() === '') {
-      console.warn("Paciente sem código de carteirinha:", patient);
       setShowNoHealthPlanDialog(true);
       return;
     }
     
-    // Usar cdPessoaFisica como ID principal para APIs
     const patientApiId = patient.cdPessoaFisica || patient.id;
     
     const patientData = {
@@ -140,11 +128,8 @@ const AppointmentSchedule = () => {
       cdPessoaFisica: patient.cdPessoaFisica
     };
     
-    console.log("Dados do paciente selecionado:", patientData);
-    console.log("ID usado para chamadas de API:", patientApiId);
     localStorage.setItem("selectedPatient", JSON.stringify(patientData));
     
-    // Buscar encaminhamentos do paciente usando cdPessoaFisica
     try {
       const userToken = localStorage.getItem("user") || "";
       if (!userToken) {
@@ -157,8 +142,6 @@ const AppointmentSchedule = () => {
         "chave-autenticacao": userToken
       };
 
-      console.log(`Buscando encaminhamentos com ID: ${patientApiId}`);
-      
       const response = await fetch(
         `https://api-portalpaciente-web.samel.com.br/api/Agenda/Encaminhamento/buscarEncaminhamentosPaciente/${patientApiId}`,
         {
@@ -168,16 +151,11 @@ const AppointmentSchedule = () => {
       );
       
       const data = await response.json();
-      console.log("Resposta de encaminhamentos:", data);
       
       if (data.status && data.dados && data.dados.length > 0) {
-        // Salvar encaminhamentos no localStorage
         localStorage.setItem("patientEncaminhamentos", JSON.stringify(data.dados));
-        console.log(`${data.dados.length} encaminhamento(s) encontrado(s)`);
       } else {
-        // Limpar encaminhamentos anteriores
         localStorage.removeItem("patientEncaminhamentos");
-        console.log("Nenhum encaminhamento encontrado");
       }
     } catch (error) {
       console.error("Erro ao buscar encaminhamentos:", error);

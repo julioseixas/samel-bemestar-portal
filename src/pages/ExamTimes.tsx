@@ -89,8 +89,6 @@ const ExamTimes = () => {
 
         const headers = getApiHeaders();
 
-        console.log("Chamando API com parâmetros:", params.toString());
-
         const response = await fetch(
           `https://api-portalpaciente-web.samel.com.br/api/Agenda/Procedimento/ListarHorariosDisponiveisParaProcedimentos3?${params}`,
           {
@@ -100,22 +98,16 @@ const ExamTimes = () => {
         );
         const data = await response.json();
         
-        console.log("Resposta da API:", data);
-        
         if (data.sucesso && data.dados) {
           setHorarios(data.dados);
           
-          // Extrair datas disponíveis
-          // A data está no formato "YYYY/MM/DD HH:mm:ss"
           const dates = data.dados.map((horario: HorarioDisponivel) => {
-            const dateStr = horario.data.split(' ')[0]; // Pegar apenas a parte da data
+            const dateStr = horario.data.split(' ')[0];
             const [year, month, day] = dateStr.split('/');
             const parsedDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-            console.log('Parsing date from API:', horario.data, '-> Date object:', parsedDate.toISOString());
             return parsedDate;
           });
           
-          console.log('Available dates array:', dates.map(d => d.toISOString()));
           setAvailableDates(dates);
         } else {
           toast({
@@ -197,12 +189,6 @@ const ExamTimes = () => {
       const selectedProcedimentosIds = JSON.parse(selectedProcedimentosStr);
       const titular = JSON.parse(titularStr);
 
-      console.log("=== DEBUG AGENDAMENTO ===");
-      console.log("Paciente selecionado:", selectedPatient);
-      console.log("idEmpresa do paciente:", selectedPatient.idEmpresa);
-      console.log("Titular:", titular);
-
-      // Buscar detalhes completos dos procedimentos selecionados
       const headers = getApiHeaders();
       const procedimentosResponse = await fetch(
         `https://api-portalpaciente-web.samel.com.br/api/Agenda/Procedimento/buscarExamesNaoFeitosPedidosExames/${selectedPatient.id}`,
@@ -258,10 +244,7 @@ const ExamTimes = () => {
       // Verificar se tem nr_seq_pedido válido
       const hasValidPedido = procedimentos2.some(p => p.nr_seq_pedido && !isNaN(p.nr_seq_pedido));
 
-      // Buscar idEmpresa do paciente selecionado
       const idEmpresa = selectedPatient.idEmpresa || 0;
-      
-      console.log("idEmpresa final que será enviado:", idEmpresa);
 
       const payload = {
         idCliente: selectedPatient.id.toString(),
@@ -276,10 +259,6 @@ const ExamTimes = () => {
         ie_pedido_externo: hasValidPedido ? "S" : "N"
       };
 
-      console.log("Payload completo do agendamento:", payload);
-
-      console.log("Payload do agendamento:", payload);
-
       const response = await fetch(
         "https://api-portalpaciente-web.samel.com.br/api/Agenda/Procedimento/ConfirmarAgendamento",
         {
@@ -290,7 +269,6 @@ const ExamTimes = () => {
       );
 
       const data = await response.json();
-      console.log("Resposta da confirmação:", data);
 
       if (data.sucesso) {
         setSuccessMessage(data.mensagem);

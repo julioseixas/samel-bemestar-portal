@@ -64,9 +64,7 @@ const SignupDetails = () => {
     return `${dia}/${mes}/${ano}`;
   };
 
-  // Formatar a data ANTES de passar para defaultValues
   const dataFormatada = dataNascimento ? formatarData(dataNascimento) : "";
-  console.log("Data de nascimento recebida:", dataNascimento, "-> formatada:", dataFormatada);
 
   const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
@@ -90,16 +88,13 @@ const SignupDetails = () => {
     },
   });
 
-  // Contador para reenvio de SMS
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (showSmsTokenModal && countdown > 0) {
-      console.log("Countdown ativo:", countdown);
       timer = setTimeout(() => {
         setCountdown(countdown - 1);
       }, 1000);
     } else if (countdown === 0) {
-      console.log("Countdown zerado, habilitando reenvio");
       setCanResend(true);
     }
     return () => clearTimeout(timer);
@@ -111,20 +106,15 @@ const SignupDetails = () => {
   }
 
   const onSubmit = async (data: z.infer<typeof signupSchema>) => {
-    console.log("onSubmit chamado");
     setShowConfirmModal(true);
   };
 
   const handleConfirmCadastro = async () => {
-    console.log("handleConfirmCadastro INICIADO");
-    
     setShowConfirmModal(false);
     setIsSubmitting(true);
 
     try {
-      console.log("Iniciando chamada da API...");
       const formData = form.getValues();
-      console.log("Form data:", formData);
       
       // Formatar dataNascimento para yyyy/mm/dd
       let formattedDate = formData.dataNascimento;
@@ -158,8 +148,6 @@ const SignupDetails = () => {
         municipio: formData.municipio
       };
 
-      console.log("Payload enviado:", payload);
-
       const response = await fetch("https://api-portalpaciente-web.samel.com.br/api/Cliente/Cadastrar2", {
         method: "POST",
         headers: {
@@ -169,9 +157,7 @@ const SignupDetails = () => {
         body: JSON.stringify(payload)
       });
 
-      console.log("Response status:", response.status);
       const result = await response.json();
-      console.log("Resposta da API:", result);
 
       if (result.sucesso) {
         setCadastroResponse(result);
@@ -255,15 +241,12 @@ const SignupDetails = () => {
 
         const result = await response.json();
 
-        // Para SMS, a resposta tem estrutura diferente
         if (result.status === "sucess") {
-          console.log("SMS enviado com sucesso, abrindo modal de token");
           setShowTokenModal(false);
           setShowSmsTokenModal(true);
           setCountdown(60);
           setCanResend(false);
           setSmsToken("");
-          console.log("Modal SMS aberto, countdown iniciado em 60");
         } else {
           toast({
             title: "Erro ao enviar SMS",

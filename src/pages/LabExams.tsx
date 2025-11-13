@@ -234,11 +234,8 @@ const LabExams = () => {
   };
 
   const handleViewDetails = (exam: LabExam) => {
-    console.log("👆 Clique no botão Ver Exames detectado!");
-    console.log("📋 Exame selecionado:", exam);
     setSelectedExam(exam);
     setDialogOpen(true);
-    console.log("✅ Estado atualizado: dialogOpen = true");
   };
 
   // Cálculos de paginação

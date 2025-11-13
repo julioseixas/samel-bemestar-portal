@@ -86,10 +86,6 @@ const AppointmentTimes = () => {
           horarioDate.getFullYear() === selectedDate.getFullYear()
         );
       });
-      
-      console.log('📅 Data selecionada:', format(selectedDate, "dd/MM/yyyy", { locale: ptBR }));
-      console.log('⏰ Horários disponíveis:', filteredHorarios);
-      console.log('📋 Total de horários:', filteredHorarios.length);
     }
   }, [selectedDate, horarios]);
 
@@ -124,17 +120,13 @@ const AppointmentTimes = () => {
         if (data.sucesso && data.dados) {
           setHorarios(data.dados);
           
-          // Extrair datas disponíveis
           const dates = data.dados.map((horario: HorarioDisponivel) => {
-            // data2 está no formato "04/12/2025 11:24" (DD/MM/YYYY)
-            const dateStr = horario.data2.split(' ')[0]; // Pegar apenas a parte da data
+            const dateStr = horario.data2.split(' ')[0];
             const [day, month, year] = dateStr.split('/');
             const parsedDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-            console.log('Parsing date from API:', horario.data2, '-> Date object:', parsedDate.toISOString());
             return parsedDate;
           });
           
-          console.log('Available dates array:', dates.map(d => d.toISOString()));
           setAvailableDates(dates);
         }
       } catch (error) {
@@ -155,7 +147,6 @@ const AppointmentTimes = () => {
         return availableString === dateString;
       }
     );
-    console.log('Checking date:', dateString, 'Available:', isAvailable, 'Total available dates:', availableDates.length);
     return isAvailable;
   };
 
@@ -173,9 +164,6 @@ const AppointmentTimes = () => {
         horarioDate.getFullYear() === selectedDate.getFullYear()
       );
     });
-    
-    console.log('Data selecionada:', format(selectedDate, "dd/MM/yyyy", { locale: ptBR }));
-    console.log('Horários disponíveis para esta data:', JSON.stringify(filteredHorarios, null, 2));
     
     return filteredHorarios;
   };

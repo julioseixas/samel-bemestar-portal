@@ -136,28 +136,12 @@ const AppointmentProfessionals = () => {
           ) : (
             <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
               {profissionaisGroups.flatMap((group) => {
-                console.log("Verificando grupo:", {
-                  temCombinacao: !!group.combinacao,
-                  temDados: !!group.dados,
-                  ehArray: Array.isArray(group.dados),
-                  tamanho: group.dados?.length
-                });
-                
-                // Verifica se o grupo tem dados válidos
                 if (!group.dados || !Array.isArray(group.dados) || group.dados.length === 0) {
-                  console.log("Grupo SEM dados válidos, pulando:", group);
                   return [];
                 }
                 
-                console.log(`Processando grupo COM dados válidos (${group.dados.length} profissionais):`, group.combinacao);
-                
                 return group.dados.map((profissional) => {
-                  console.log("Renderizando profissional:", profissional.nome);
-                  
                   const handleSelectProfessional = () => {
-                    console.log("Profissional de consulta selecionado:", profissional);
-                    
-                    // Recuperar todos os dados necessários do localStorage
                     const selectedConvenio = localStorage.getItem("selectedAppointmentConvenio");
                     const selectedEspecialidade = localStorage.getItem("selectedAppointmentEspecialidade");
                     const storedPatient = localStorage.getItem("selectedPatient");
@@ -185,14 +169,6 @@ const AppointmentProfessionals = () => {
                       return;
                     }
                     
-                    console.log("Dados para navegação:", {
-                      selectedPatient,
-                      selectedConvenio,
-                      selectedEspecialidade,
-                      selectedProfissional: profissional
-                    });
-                    
-                    // Navegar para seleção de horários de consulta com todos os dados
                     navigate("/appointment-times", {
                       state: {
                         selectedPatient,

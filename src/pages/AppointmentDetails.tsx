@@ -79,15 +79,9 @@ const AppointmentDetails = () => {
     const storedProfilePhoto = localStorage.getItem("profilePhoto");
     const storedSelectedPatient = localStorage.getItem("selectedPatient");
 
-    console.log("=== DEBUG APPOINTMENT DETAILS - CARREGAMENTO ===");
-    console.log("storedSelectedPatient (raw):", storedSelectedPatient);
-    console.log("storedTitular (raw):", storedTitular);
-
     if (storedTitular) {
       try {
         const parsedTitular = JSON.parse(storedTitular);
-        console.log("parsedTitular:", parsedTitular);
-        console.log("parsedTitular.cdPessoaFisica:", parsedTitular.cdPessoaFisica);
         setPatientName(parsedTitular.nome || "Paciente");
         setTitular(parsedTitular);
       } catch (error) {
@@ -192,26 +186,9 @@ const AppointmentDetails = () => {
       // cdDependente deve SEMPRE ser o ID do paciente selecionado
       const cdDependente = selectedPatient.id?.toString() || "";
         
-        // Garante que nrCarteirinha seja string, mesmo que null
-        const nrCarteirinha = selectedPatient.codigoCarteirinha?.toString() || "";
-        
-        console.log("=== BUSCANDO ESPECIALIDADES ===");
-        console.log("selectedPatient completo:", selectedPatient);
-        console.log("cdPessoaFisica extraído:", cdPessoaFisica);
-        console.log("cdDependente:", cdDependente);
-        console.log("nrCarteirinha:", nrCarteirinha);
-        console.log("Parâmetros da busca de especialidades:", {
-          idConvenio: selectedConvenio,
-          idadeCliente: selectedPatient.idade?.toString() || "0",
-          cdPessoaFisica,
-          sexo: selectedPatient.sexo || "",
-          descricaoEspecialidade: "",
-          cdDependente,
-          nrCarteirinha
-        });
-        console.log("================================");
-        
-        const params = new URLSearchParams({
+      const nrCarteirinha = selectedPatient.codigoCarteirinha?.toString() || "";
+      
+      const params = new URLSearchParams({
           idConvenio: selectedConvenio,
           idadeCliente: selectedPatient.idade?.toString() || "0",
           cdPessoaFisica,
@@ -329,13 +306,6 @@ const AppointmentDetails = () => {
         localStorage.setItem("selectedAppointmentConvenio", selectedConvenio);
         localStorage.setItem("selectedAppointmentEspecialidade", selectedEspecialidade);
         
-        console.log("Dados salvos no localStorage:", {
-          profissionais: profissionaisGroups,
-          convenio: selectedConvenio,
-          especialidade: selectedEspecialidade
-        });
-        
-        // Navegar para a página de seleção de profissionais
         navigate("/appointment-professionals");
       } else {
         console.error("Erro na resposta da API:", data);
