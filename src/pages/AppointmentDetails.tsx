@@ -104,6 +104,22 @@ const AppointmentDetails = () => {
         const parsedPatient = JSON.parse(storedSelectedPatient);
         console.log("parsedPatient:", parsedPatient);
         console.log("parsedPatient.cdPessoaFisica:", parsedPatient.cdPessoaFisica);
+        
+        // LOG DESTACADO DO PACIENTE SELECIONADO
+        console.log("╔════════════════════════════════════════════════════════╗");
+        console.log("║     PACIENTE SELECIONADO NA ROTA /appointment-details  ║");
+        console.log("╚════════════════════════════════════════════════════════╝");
+        console.log("📋 Dados completos do paciente:", parsedPatient);
+        console.log("👤 Nome:", parsedPatient.nome);
+        console.log("🆔 ID:", parsedPatient.id);
+        console.log("🏷️ Tipo:", parsedPatient.tipo);
+        console.log("💳 Código Carteirinha:", parsedPatient.codigoCarteirinha);
+        console.log("🔑 CD Pessoa Física:", parsedPatient.cdPessoaFisica);
+        console.log("👶 Idade:", parsedPatient.idade);
+        console.log("⚧️ Sexo:", parsedPatient.sexo);
+        console.log("🎂 Data Nascimento:", parsedPatient.dataNascimento);
+        console.log("════════════════════════════════════════════════════════");
+        
         setSelectedPatient(parsedPatient);
       } catch (error) {
         console.error("Erro ao processar paciente selecionado:", error);
