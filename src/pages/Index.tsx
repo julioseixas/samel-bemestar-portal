@@ -259,9 +259,9 @@ const Index = () => {
                 title="ENTRAR NA CONSULTA ONLINE"
                 description="Faça check-in para sua consulta online"
                 icon={Video}
-                iconColor="text-success"
+                iconColor="text-primary"
                 buttonText="Fazer Check-in"
-                variant="success"
+                variant="default"
                 useDashboardColor={true}
                 onClick={() => handleCardClick("Check-in Telemedicina")}
                 />
@@ -285,9 +285,9 @@ const Index = () => {
                 title="MEUS RESULTADOS"
                 description="Consulte os resultados dos seus exames"
                 icon={TestTube}
-                iconColor="text-success"
+                iconColor="text-primary"
                 buttonText="Ver Resultados"
-                variant="success"
+                variant="default"
                 useDashboardColor={true}
                 onClick={() => navigate("/exam-results")}
                 />
