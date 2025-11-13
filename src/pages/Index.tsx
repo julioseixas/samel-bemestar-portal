@@ -41,23 +41,8 @@ const Index = () => {
       setProfilePhoto(photo);
     }
 
-    // Verifica se há dados de agendamentos do login
-    const savedAppointmentsData = localStorage.getItem("appointmentsData");
-    if (savedAppointmentsData) {
-      try {
-        const { consultas, exames } = JSON.parse(savedAppointmentsData);
-        processAppointments(consultas, exames);
-        // Remove os dados após processar
-        localStorage.removeItem("appointmentsData");
-      } catch (error) {
-        console.error("Erro ao processar agendamentos salvos:", error);
-      }
-    }
-
-    // Busca consultas e exames agendados se não houver dados salvos
-    if (!savedAppointmentsData) {
-      fetchAppointments();
-    }
+    // Sempre busca consultas e exames agendados para garantir dados atualizados
+    fetchAppointments();
 
     // Atualiza quando a página recebe foco novamente
     const handleVisibilityChange = () => {
