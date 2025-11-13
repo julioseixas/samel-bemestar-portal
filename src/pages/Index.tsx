@@ -177,7 +177,7 @@ const Index = () => {
               O que você deseja fazer?
             </h3>
             
-            <div ref={cardsRef} className="grid gap-4 sm:gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            <div ref={cardsRef} className="grid gap-4 sm:gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 items-stretch auto-rows-fr">
               {/* Linha 1 - Ações principais */}
               <div data-card>
                 <DashboardCard
