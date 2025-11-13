@@ -189,27 +189,57 @@ export const AppointmentBanner = ({
             )}
           </div>
         
-        <div className="mb-4 sm:mb-6 space-y-2 sm:space-y-3">
+        <div className="space-y-4">
+          {/* Nome do Exame/Consulta - Destaque Principal */}
           <div>
-            <p className="text-xl sm:text-2xl font-bold md:text-3xl capitalize">{date}</p>
-            <div className="mt-1 flex items-center gap-2">
-              <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
-              <p className="text-base sm:text-lg md:text-xl">{time}</p>
+            <p className="text-2xl sm:text-3xl md:text-4xl font-bold">{specialty}</p>
+          </div>
+
+          <div className="border-t border-primary-foreground/20 pt-4 space-y-3">
+            {/* Data e Horário */}
+            <div className="flex flex-wrap gap-4">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
+                <div>
+                  <p className="text-xs opacity-80">Data</p>
+                  <p className="text-sm sm:text-base font-semibold capitalize">{date}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 sm:h-5 sm:w-5" />
+                <div>
+                  <p className="text-xs opacity-80">Horário</p>
+                  <p className="text-sm sm:text-base font-semibold">{time}</p>
+                </div>
+              </div>
             </div>
-          </div>
-          
-          <div className="border-t border-primary-foreground/20 pt-2 sm:pt-3">
-            <p className="text-sm sm:text-base font-semibold md:text-lg">{doctor}</p>
-            <p className="text-xs sm:text-sm text-primary-foreground/90">{specialty}</p>
-          </div>
-          
-          <div className="flex items-start gap-2">
-            <MapPin className="mt-1 h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-            <p className="text-xs sm:text-sm text-primary-foreground/90">{location}</p>
+
+            {/* Profissional */}
+            <div className="flex items-center gap-2">
+              <div className="bg-primary-foreground/20 p-1.5 rounded-md">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-xs opacity-80">Profissional</p>
+                <p className="text-sm sm:text-base font-semibold">{doctor}</p>
+              </div>
+            </div>
+
+            {/* Local */}
+            <div className="flex items-start gap-2">
+              <MapPin className="h-4 w-4 sm:h-5 sm:w-5 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-xs opacity-80">Local</p>
+                <p className="text-sm sm:text-base font-semibold">{location}</p>
+              </div>
+            </div>
           </div>
         </div>
         
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4 border-t border-primary-foreground/20">
           <Button 
             variant="destructive" 
             size="lg"
