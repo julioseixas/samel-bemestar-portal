@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, Clock, MapPin, User, Stethoscope, XCircle, Building2 } from "lucide-react";
+import { Calendar, Clock, MapPin, User, Stethoscope, XCircle, Building2, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { getApiHeaders } from "@/lib/api-headers";
@@ -401,7 +401,14 @@ const ScheduledAppointments = () => {
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isCanceling}>Não, manter consulta</AlertDialogCancel>
             <AlertDialogAction onClick={handleCancelConfirm} disabled={isCanceling}>
-              {isCanceling ? "Cancelando..." : "Sim, cancelar consulta"}
+              {isCanceling ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Cancelando...
+                </span>
+              ) : (
+                "Sim, cancelar consulta"
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
