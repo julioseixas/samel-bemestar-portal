@@ -223,13 +223,6 @@ export const AppointmentBanner = ({
                       size="lg"
                       className="flex-1 border-2 border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary text-sm sm:text-base"
                     >
-                      Reagendar
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      className="flex-1 border-2 border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary text-sm sm:text-base"
-                    >
                       Como Chegar
                     </Button>
                   </div>
