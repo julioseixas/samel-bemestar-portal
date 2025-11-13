@@ -54,6 +54,7 @@ const ScheduledAppointments = () => {
   const [loading, setLoading] = useState(true);
   const [cancelingId, setCancelingId] = useState<number | null>(null);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [isCanceling, setIsCanceling] = useState(false);
 
   useEffect(() => {
     const patientData = localStorage.getItem("patientData");
@@ -190,6 +191,8 @@ const ScheduledAppointments = () => {
   const handleCancelConfirm = async () => {
     if (!cancelingId) return;
 
+    setIsCanceling(true);
+
     try {
       const response = await fetch(
         "https://api-portalpaciente-web.samel.com.br/api/Agenda/CancelarAgendamento",
@@ -225,6 +228,7 @@ const ScheduledAppointments = () => {
         variant: "destructive",
       });
     } finally {
+      setIsCanceling(false);
       setShowCancelDialog(false);
       setCancelingId(null);
     }
@@ -395,9 +399,9 @@ const ScheduledAppointments = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Não, manter consulta</AlertDialogCancel>
-            <AlertDialogAction onClick={handleCancelConfirm}>
-              Sim, cancelar consulta
+            <AlertDialogCancel disabled={isCanceling}>Não, manter consulta</AlertDialogCancel>
+            <AlertDialogAction onClick={handleCancelConfirm} disabled={isCanceling}>
+              {isCanceling ? "Cancelando..." : "Sim, cancelar consulta"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
