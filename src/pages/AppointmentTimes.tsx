@@ -319,12 +319,23 @@ const AppointmentTimes = () => {
 
     try {
       const titular = JSON.parse(localStorage.getItem("titular") || "{}");
+      const selectedPatientData = JSON.parse(localStorage.getItem("selectedPatient") || "{}");
       const headers = getApiHeaders();
 
       const tipo = selectedHorario.horaEspecial === "N" ? 1 : 2;
       
       // Usar cdPessoaFisica do titular como idCliente
-      const idTitular = titular.titular?.cdPessoaFisica || "";
+      const idTitular = titular.titular?.cdPessoaFisica || selectedPatientData.cdPessoaFisica || "";
+      
+      // Buscar idEmpresa do selectedPatient
+      const idEmpresa = selectedPatientData.idEmpresa || titular.titular?.idEmpresa || 0;
+
+      console.log("=== DEBUG CONFIRMAR AGENDAMENTO ===");
+      console.log("idCliente (cdPessoaFisica do titular):", idTitular);
+      console.log("idEmpresa:", idEmpresa);
+      console.log("selectedPatient completo:", selectedPatientData);
+      console.log("titular completo:", titular);
+      console.log("===================================");
 
       const response = await fetch(
         'https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ConfirmarAgendamento2',
@@ -340,7 +351,7 @@ const AppointmentTimes = () => {
             codigoCarteirinha: selectedPatient.codigoCarteirinha || "",
             idAgenda: selectedHorario.idAgenda,
             dataAgenda: selectedHorario.data,
-            idEmpresa: selectedPatient.idEmpresa || 0,
+            idEmpresa: idEmpresa,
             procedimentos: [],
             tipo: tipo,
             idDependente: selectedPatient.id,
