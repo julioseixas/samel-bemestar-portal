@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { getApiHeaders } from "@/lib/api-headers";
+import { useToast } from "@/hooks/use-toast";
 
 interface Patient {
   id: number;
@@ -57,6 +58,7 @@ interface Procedimento {
 
 const ExamDetails = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
@@ -189,7 +191,11 @@ const ExamDetails = () => {
     }
     
     if (selectedProcedimentos.length === 0) {
-      alert("Por favor, selecione pelo menos um exame");
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Por favor, selecione pelo menos um exame"
+      });
       return;
     }
     
@@ -239,11 +245,19 @@ const ExamDetails = () => {
         navigate("/exam-professionals");
       } else {
         console.error("Erro na resposta da API:", data);
-        alert(data.mensagem || "Erro ao buscar profissionais disponíveis");
+        toast({
+          variant: "destructive",
+          title: "Erro",
+          description: data.mensagem || "Erro ao buscar profissionais disponíveis"
+        });
       }
     } catch (error) {
       console.error("Erro ao buscar profissionais:", error);
-      alert("Erro ao buscar profissionais disponíveis");
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Erro ao buscar profissionais disponíveis"
+      });
     }
   };
 
