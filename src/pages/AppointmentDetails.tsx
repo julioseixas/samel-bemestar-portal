@@ -102,23 +102,6 @@ const AppointmentDetails = () => {
     if (storedSelectedPatient) {
       try {
         const parsedPatient = JSON.parse(storedSelectedPatient);
-        console.log("parsedPatient:", parsedPatient);
-        console.log("parsedPatient.cdPessoaFisica:", parsedPatient.cdPessoaFisica);
-        
-        // LOG DESTACADO DO PACIENTE SELECIONADO
-        console.log("╔════════════════════════════════════════════════════════╗");
-        console.log("║     PACIENTE SELECIONADO NA ROTA /appointment-details  ║");
-        console.log("╚════════════════════════════════════════════════════════╝");
-        console.log("📋 Dados completos do paciente:", parsedPatient);
-        console.log("👤 Nome:", parsedPatient.nome);
-        console.log("🆔 ID:", parsedPatient.id);
-        console.log("🏷️ Tipo:", parsedPatient.tipo);
-        console.log("💳 Código Carteirinha:", parsedPatient.codigoCarteirinha);
-        console.log("🔑 CD Pessoa Física:", parsedPatient.cdPessoaFisica);
-        console.log("👶 Idade:", parsedPatient.idade);
-        console.log("⚧️ Sexo:", parsedPatient.sexo);
-        console.log("🎂 Data Nascimento:", parsedPatient.dataNascimento);
-        console.log("════════════════════════════════════════════════════════");
         
         setSelectedPatient(parsedPatient);
       } catch (error) {
@@ -126,7 +109,6 @@ const AppointmentDetails = () => {
         navigate("/appointment-schedule");
       }
     } else {
-      console.log("selectedPatient não encontrado no localStorage!");
       navigate("/appointment-schedule");
     }
 
@@ -135,14 +117,11 @@ const AppointmentDetails = () => {
     if (storedEncaminhamentos) {
       try {
         const parsedEncaminhamentos = JSON.parse(storedEncaminhamentos);
-        console.log("Encaminhamentos carregados:", parsedEncaminhamentos);
         setEncaminhamentos(parsedEncaminhamentos);
       } catch (error) {
         console.error("Erro ao processar encaminhamentos:", error);
       }
     }
-
-    console.log("================================================");
   }, [navigate]);
 
   useEffect(() => {
@@ -188,11 +167,9 @@ const AppointmentDetails = () => {
       }
 
       if (!selectedConvenio || !selectedPatient) {
-        console.log("Dados insuficientes:", { selectedConvenio, selectedPatient });
         return;
       }
 
-      // Validação de segurança: verificar se o paciente tem carteirinha válida
       if (!selectedPatient.codigoCarteirinha || selectedPatient.codigoCarteirinha.trim() === '') {
         console.error("ERRO: Paciente sem código de carteirinha válido");
         toast({
@@ -251,13 +228,11 @@ const AppointmentDetails = () => {
           {
             method: "GET",
             headers: headers
-          }
-        );
-        const data = await response.json();
-        
-        console.log("Resposta especialidades:", data);
-        
-        if (data.sucesso && data.dados) {
+        }
+      );
+      const data = await response.json();
+      
+      if (data.sucesso && data.dados) {
           setEspecialidades(data.dados);
         } else {
           console.error("Erro ao buscar especialidades:", data.mensagem);
@@ -278,8 +253,6 @@ const AppointmentDetails = () => {
   }, [useEncaminhamento]);
 
   const handleContinue = async () => {
-    console.log("=== INICIANDO BUSCA DE PROFISSIONAIS ===");
-    
     if (!selectedConvenio || !selectedEspecialidade) {
       alert("Por favor, selecione o convênio e a especialidade");
       return;
@@ -300,17 +273,6 @@ const AppointmentDetails = () => {
       const cdDependente = selectedPatient.id?.toString() || "";
       const nrCarteirinha = selectedPatient.codigoCarteirinha?.toString() || "";
       
-      console.log("Dados para busca de profissionais:", {
-        idConvenio: selectedConvenio,
-        idadeCliente,
-        idEspecialidade: selectedEspecialidade,
-        nomeProfissional: "",
-        idCliente,
-        sexo,
-        cdDependente,
-        nrCarteirinha
-      });
-
       const headers = getApiHeaders();
 
       const params = new URLSearchParams({
@@ -324,8 +286,6 @@ const AppointmentDetails = () => {
         nrCarteirinha
       });
 
-      console.log("URL da requisição:", `https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ListarProfissionaisComAgendaDisponivel3?${params}`);
-
       const response = await fetch(
         `https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ListarProfissionaisComAgendaDisponivel3?${params}`,
         {
@@ -335,7 +295,6 @@ const AppointmentDetails = () => {
       );
 
       const data = await response.json();
-      console.log("Resposta da API:", data);
 
       if (data.sucesso && data.dados) {
         // Buscar descrição da especialidade

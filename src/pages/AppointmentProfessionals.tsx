@@ -64,18 +64,6 @@ const AppointmentProfessionals = () => {
     if (storedProfessionals) {
       try {
         const parsedProfessionals = JSON.parse(storedProfessionals);
-        console.log("Profissionais carregados do localStorage:", parsedProfessionals);
-        console.log("Tipo de dados:", Array.isArray(parsedProfessionals));
-        console.log("Quantidade de grupos:", parsedProfessionals.length);
-        
-        // Verifica cada grupo
-        parsedProfessionals.forEach((group: any, index: number) => {
-          console.log(`Grupo ${index}:`, {
-            combinacao: group.combinacao,
-            temDados: !!group.dados,
-            quantidadeProfissionais: group.dados?.length || 0
-          });
-        });
         
         setProfissionaisGroups(parsedProfessionals);
       } catch (error) {
@@ -83,8 +71,6 @@ const AppointmentProfessionals = () => {
         navigate("/appointment-details");
       }
     } else {
-      console.log("Nenhum dado de profissional de consulta encontrado no localStorage");
-      // Detectar contexto e redirecionar apropriadamente
       const selectedAppointmentConvenio = localStorage.getItem("selectedAppointmentConvenio");
       const selectedExamConvenio = localStorage.getItem("selectedExamConvenio");
 

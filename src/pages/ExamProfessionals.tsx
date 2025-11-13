@@ -59,14 +59,12 @@ const ExamProfessionals = () => {
     if (storedExamProfessionals) {
       try {
         const parsedProfessionals = JSON.parse(storedExamProfessionals);
-        console.log("Profissionais de exames carregados:", parsedProfessionals);
         setProfissionaisGroups(parsedProfessionals);
       } catch (error) {
         console.error("Erro ao processar profissionais de exames:", error);
         navigate("/exam-details");
       }
     } else {
-      console.log("Nenhum profissional de exame encontrado");
       navigate("/exam-schedule");
     }
   }, [navigate]);
@@ -86,8 +84,6 @@ const ExamProfessionals = () => {
   };
 
   const handleSelectProfessional = (profissional: Profissional) => {
-    console.log("Profissional selecionado:", profissional);
-    
     const selectedConvenio = localStorage.getItem("selectedExamConvenio");
     
     localStorage.setItem("selectedExamProfessional", JSON.stringify(profissional));
