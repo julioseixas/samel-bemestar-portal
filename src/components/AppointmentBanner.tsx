@@ -65,28 +65,16 @@ export const AppointmentBanner = ({
     }
   }, [currentIndex, totalItems]);
 
-  // Animação GSAP ao trocar de slide - efeito de slide real
+  // Animação GSAP ao trocar de slide - efeito de slide suave
   useEffect(() => {
     if (!contentRef.current) return;
 
     const ctx = gsap.context(() => {
-      // Define de onde vem e para onde vai baseado na direção
+      // Define de onde vem baseado na direção
       const fromX = direction === 'next' ? '100%' : direction === 'prev' ? '-100%' : '100%';
-      const toX = direction === 'next' ? '-100%' : direction === 'prev' ? '100%' : '-100%';
       
-      // Timeline para coordenar saída e entrada
-      const tl = gsap.timeline();
-      
-      // Primeiro: slide atual sai
-      tl.to(contentRef.current, {
-        x: toX,
-        opacity: 0.3,
-        duration: 0.8,
-        ease: "power2.inOut",
-      });
-      
-      // Depois: novo slide entra
-      tl.fromTo(
+      // Anima entrada do novo slide de forma suave
+      gsap.fromTo(
         contentRef.current,
         {
           x: fromX,
@@ -95,10 +83,9 @@ export const AppointmentBanner = ({
         {
           x: 0,
           opacity: 1,
-          duration: 0.8,
-          ease: "power2.inOut",
-        },
-        "-=0.4" // Overlap de 0.4s para transição mais fluida
+          duration: 1.2,
+          ease: "power2.out",
+        }
       );
     });
 
