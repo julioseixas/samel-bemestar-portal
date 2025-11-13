@@ -229,36 +229,36 @@ const Index = () => {
   useEffect(() => {
     // Animações GSAP na montagem do componente
     const ctx = gsap.context(() => {
-      // Animação da seção de boas-vindas
+      // Animação da seção de boas-vindas - mais suave
       gsap.from(welcomeSectionRef.current, {
         opacity: 0,
-        y: -30,
-        duration: 0.8,
-        ease: "power3.out"
+        y: -20,
+        duration: 1,
+        ease: "power2.out"
       });
 
-      // Animação do banner (apenas se houver agendamentos)
+      // Animação do banner (apenas se houver agendamentos) - mais suave
       if (appointments.length > 0 && bannerRef.current) {
         gsap.from(bannerRef.current, {
           opacity: 0,
-          scale: 0.95,
-          duration: 0.6,
-          delay: 0.2,
-          ease: "back.out(1.2)"
+          scale: 0.98,
+          duration: 0.8,
+          delay: 0.3,
+          ease: "power2.out"
         });
       }
 
-      // Animação em cascata dos cards
+      // Animação em cascata dos cards - mais suave e gradual
       const cards = cardsRef.current?.querySelectorAll('[data-card]');
       if (cards) {
         gsap.from(cards, {
           opacity: 0,
-          y: 50,
-          scale: 0.9,
-          duration: 0.5,
-          stagger: 0.08,
-          delay: 0.4,
-          ease: "power2.out"
+          y: 30,
+          scale: 0.95,
+          duration: 0.7,
+          stagger: 0.06,
+          delay: 0.5,
+          ease: "power1.out"
         });
       }
     });
