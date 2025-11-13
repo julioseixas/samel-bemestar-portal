@@ -45,6 +45,13 @@ export const AppointmentBanner = ({
       
       <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
         <Button 
+          variant="destructive" 
+          size="lg"
+          className="flex-1 text-sm sm:text-base"
+        >
+          Cancelar Consulta
+        </Button>
+        <Button 
           variant="outline" 
           size="lg"
           className="flex-1 border-2 border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary text-sm sm:text-base"
