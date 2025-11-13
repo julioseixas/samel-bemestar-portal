@@ -429,6 +429,12 @@ const AppointmentTimes = () => {
                     disabled={(date) => !isDateAvailable(date)}
                     locale={ptBR}
                     className="rounded-md border pointer-events-auto"
+                    modifiers={{
+                      available: availableDates
+                    }}
+                    modifiersClassNames={{
+                      available: "bg-primary/20 text-primary font-semibold rounded-full"
+                    }}
                   />
                 </CardContent>
               </Card>
