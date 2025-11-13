@@ -193,7 +193,8 @@ const AppointmentDetails = () => {
         setEspecialidades([]);
         setSelectedEspecialidade("");
 
-        const cdPessoaFisica = selectedPatient.cdPessoaFisica?.toString() || titular?.cdPessoaFisica?.toString() || "";
+        // IMPORTANTE: cdPessoaFisica deve SEMPRE ser o do titular
+        const cdPessoaFisica = titular?.cdPessoaFisica?.toString() || "";
         
         // Se for titular (tipo === "Titular"), cdDependente deve ser vazio
         // Se for dependente, deve ser o ID do dependente
@@ -277,7 +278,8 @@ const AppointmentDetails = () => {
     }
 
     try {
-      const idCliente = selectedPatient.cdPessoaFisica?.toString() || titular?.cdPessoaFisica?.toString() || "";
+      // IMPORTANTE: idCliente deve SEMPRE ser o cdPessoaFisica do titular
+      const idCliente = titular?.cdPessoaFisica?.toString() || "";
       const idadeCliente = selectedPatient.idade?.toString() || "0";
       const sexo = selectedPatient.sexo || "";
       
