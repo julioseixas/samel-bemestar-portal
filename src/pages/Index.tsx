@@ -230,6 +230,18 @@ const Index = () => {
               
               <div data-card>
                 <DashboardCard
+                title="CANCELAR AGENDAMENTO"
+                description="Cancele suas consultas ou exames agendados"
+                icon={CalendarX}
+                iconColor="text-destructive"
+                buttonText="Cancelar"
+                variant="destructive"
+                onClick={() => navigate("/scheduled-appointments-choice")}
+                />
+              </div>
+              
+              <div data-card>
+                <DashboardCard
                 title="MEUS AGENDAMENTOS"
                 description="Visualize todos os seus agendamentos"
                 icon={CalendarCheck}
@@ -237,18 +249,6 @@ const Index = () => {
                 buttonText="Ver Agendamentos"
                 variant="default"
                 useDashboardColor={true}
-                onClick={() => navigate("/scheduled-appointments-choice")}
-                />
-              </div>
-              
-              <div data-card>
-                <DashboardCard
-                title="CANCELAR AGENDAMENTO"
-                description="Cancele suas consultas ou exames agendados"
-                icon={CalendarX}
-                iconColor="text-destructive"
-                buttonText="Cancelar"
-                variant="destructive"
                 onClick={() => navigate("/scheduled-appointments-choice")}
                 />
               </div>
