@@ -24,6 +24,7 @@ interface Patient {
   codigoCarteirinha?: string;
   dataNascimento?: string;
   cdPessoaFisica?: string | number;
+  idEmpresa?: string | number;
 }
 
 const AppointmentSchedule = () => {
@@ -125,7 +126,8 @@ const AppointmentSchedule = () => {
       sexo: patient.sexo,
       codigoCarteirinha: patient.codigoCarteirinha,
       dataNascimento: patient.dataNascimento,
-      cdPessoaFisica: patient.cdPessoaFisica
+      cdPessoaFisica: patient.cdPessoaFisica,
+      idEmpresa: patient.idEmpresa
     };
     
     localStorage.setItem("selectedPatient", JSON.stringify(patientData));
