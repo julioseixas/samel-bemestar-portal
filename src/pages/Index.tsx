@@ -348,11 +348,10 @@ const Index = () => {
                 date={formatDate(appointments[currentIndex].dataAgenda)}
                 time={formatTime(appointments[currentIndex].dataAgenda)}
                 doctor={appointments[currentIndex].nomeProfissional}
-                specialty={appointments[currentIndex].tipo === 'consulta' ? appointments[currentIndex].especialidade : 
-                  appointments[currentIndex].procedimentos?.[0]?.descricao || 'Exame'}
-                location={appointments[currentIndex].unidade?.nome && appointments[currentIndex].unidade?.endereco 
-                  ? `${appointments[currentIndex].unidade.nome} - ${appointments[currentIndex].unidade.endereco}` 
-                  : 'Telemedicina'}
+                specialty={appointments[currentIndex].tipo === 'consulta' 
+                  ? appointments[currentIndex].descricaoEspecialidade || appointments[currentIndex].especialidade
+                  : appointments[currentIndex].procedimentos?.[0]?.descricao || 'Exame'}
+                location={appointments[currentIndex].nomeUnidade || 'Telemedicina'}
                 appointmentId={appointments[currentIndex].id}
                 onCancel={fetchAppointments}
                 showNavigation={appointments.length > 1}
