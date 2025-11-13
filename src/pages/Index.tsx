@@ -193,7 +193,7 @@ const Index = () => {
               />
               
               <DashboardCard
-                title="HISTÓRICO MÉDICO"
+                title="PEDIDOS DE EXAME"
                 description="Acesse seu histórico médico completo"
                 icon={FolderOpen}
                 iconColor="text-primary"
