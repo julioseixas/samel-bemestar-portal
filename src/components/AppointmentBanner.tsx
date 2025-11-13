@@ -65,7 +65,7 @@ export const AppointmentBanner = ({
     }
   }, [currentIndex, totalItems]);
 
-  // Animação GSAP ao trocar de slide - efeito de deslizar
+  // Animação GSAP ao trocar de slide - efeito de deslizar mais lento
   useEffect(() => {
     if (!contentRef.current) return;
 
@@ -73,7 +73,7 @@ export const AppointmentBanner = ({
       // Define de onde vem baseado na direção
       const fromX = direction === 'next' ? 100 : direction === 'prev' ? -100 : 100;
       
-      // Anima entrada do novo slide com deslizamento
+      // Anima entrada do novo slide com deslizamento bem mais lento
       gsap.fromTo(
         contentRef.current,
         {
@@ -83,8 +83,8 @@ export const AppointmentBanner = ({
         {
           x: 0,
           opacity: 1,
-          duration: 0.6,
-          ease: "power3.out",
+          duration: 1.5,
+          ease: "power1.inOut",
         }
       );
     });
