@@ -61,35 +61,57 @@ const Index = () => {
   const processAppointments = (consultasData: any, examesData: any) => {
     const allAppointments = [];
 
+    console.log("Processando agendamentos:", { consultasData, examesData });
+
     // Processa consultas
     if (consultasData.sucesso && consultasData.dados) {
       const consultas = consultasData.dados.filter((ag: any) => {
-        if (ag.cancelado) return false;
-        if (ag.statusAgenda === "O" || ag.statusAgenda === "C") return false;
+        if (ag.cancelado) {
+          console.log("Consulta cancelada:", ag.id);
+          return false;
+        }
+        if (ag.statusAgenda === "O" || ag.statusAgenda === "C") {
+          console.log("Consulta com status O/C:", ag.id, ag.statusAgenda);
+          return false;
+        }
         try {
           const agendaDate = parse(ag.dataAgenda, 'yyyy/MM/dd HH:mm:ss', new Date());
-          return isAfter(agendaDate, new Date()) && ag.tipoAgendamento !== 1;
-        } catch {
+          const isFuture = isAfter(agendaDate, new Date());
+          console.log("Consulta data:", ag.id, ag.dataAgenda, "Futura:", isFuture);
+          return isFuture && ag.tipoAgendamento !== 1;
+        } catch (error) {
+          console.error("Erro ao processar data da consulta:", ag.id, error);
           return false;
         }
       }).map((ag: any) => ({ ...ag, tipo: 'consulta' }));
       
+      console.log("Consultas filtradas:", consultas.length);
       allAppointments.push(...consultas);
     }
 
     // Processa exames
     if (examesData.sucesso && examesData.dados) {
       const exames = examesData.dados.filter((ag: any) => {
-        if (ag.cancelado) return false;
-        if (ag.statusAgenda === "O" || ag.statusAgenda === "C") return false;
+        if (ag.cancelado) {
+          console.log("Exame cancelado:", ag.id);
+          return false;
+        }
+        if (ag.statusAgenda === "O" || ag.statusAgenda === "C") {
+          console.log("Exame com status O/C:", ag.id, ag.statusAgenda);
+          return false;
+        }
         try {
           const agendaDate = parse(ag.dataAgenda, 'yyyy/MM/dd HH:mm:ss', new Date());
-          return isAfter(agendaDate, new Date()) && ag.tipoAgendamento === 1;
-        } catch {
+          const isFuture = isAfter(agendaDate, new Date());
+          console.log("Exame data:", ag.id, ag.dataAgenda, "Futuro:", isFuture);
+          return isFuture && ag.tipoAgendamento === 1;
+        } catch (error) {
+          console.error("Erro ao processar data do exame:", ag.id, error);
           return false;
         }
       }).map((ag: any) => ({ ...ag, tipo: 'exame' }));
       
+      console.log("Exames filtrados:", exames.length);
       allAppointments.push(...exames);
     }
 
@@ -100,6 +122,7 @@ const Index = () => {
       return dateA.getTime() - dateB.getTime();
     });
 
+    console.log("Total de agendamentos futuros:", allAppointments.length, allAppointments);
     setAppointments(allAppointments);
   };
 
