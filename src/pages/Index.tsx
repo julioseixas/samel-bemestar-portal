@@ -135,7 +135,7 @@ const Index = () => {
   const fetchAppointments = async () => {
     console.log("🔄 fetchAppointments iniciado");
     try {
-      const userToken = localStorage.getItem("userToken");
+      const userToken = localStorage.getItem("user"); // Corrigido para usar a chave correta
       console.log("🔑 Token encontrado:", !!userToken);
       
       if (!userToken) {
