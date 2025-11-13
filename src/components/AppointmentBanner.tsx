@@ -20,6 +20,7 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
+import { MapDialog } from "@/components/MapDialog";
 
 interface AppointmentBannerProps {
   appointments: Array<{
@@ -42,6 +43,8 @@ export const AppointmentBanner = ({
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<number | undefined>();
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [isPaused, setIsPaused] = useState(false);
+  const [showMapDialog, setShowMapDialog] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState("");
   const { toast } = useToast();
 
   // Auto-play carousel
@@ -58,6 +61,11 @@ export const AppointmentBanner = ({
   const handleCancelClick = (appointmentId?: number) => {
     setSelectedAppointmentId(appointmentId);
     setShowCancelDialog(true);
+  };
+
+  const handleMapClick = (location: string) => {
+    setSelectedLocation(location);
+    setShowMapDialog(true);
   };
 
   const handleCancelConfirm = async () => {
@@ -222,6 +230,7 @@ export const AppointmentBanner = ({
                       variant="outline"
                       size="lg"
                       className="flex-1 border-2 border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary text-sm sm:text-base"
+                      onClick={() => handleMapClick(appointment.location)}
                     >
                       Como Chegar
                     </Button>
@@ -268,6 +277,12 @@ export const AppointmentBanner = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <MapDialog
+        open={showMapDialog}
+        onOpenChange={setShowMapDialog}
+        location={selectedLocation}
+      />
     </>
   );
 };
