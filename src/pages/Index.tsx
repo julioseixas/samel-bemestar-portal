@@ -43,6 +43,19 @@ const Index = () => {
 
     // Busca consultas e exames agendados
     fetchAppointments();
+
+    // Atualiza quando a página recebe foco novamente
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchAppointments();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   const fetchAppointments = async () => {
@@ -87,7 +100,8 @@ const Index = () => {
       // Processa consultas
       if (consultasData.sucesso && consultasData.dados) {
         const consultas = consultasData.dados.filter((ag: any) => {
-          if (ag.cancelado || ag.statusAgenda === "O") return false;
+          if (ag.cancelado) return false;
+          if (ag.statusAgenda === "O" || ag.statusAgenda === "C") return false;
           try {
             const agendaDate = parse(ag.dataAgenda, 'yyyy/MM/dd HH:mm:ss', new Date());
             return isAfter(agendaDate, new Date()) && ag.tipoAgendamento !== 1;
@@ -102,7 +116,8 @@ const Index = () => {
       // Processa exames
       if (examesData.sucesso && examesData.dados) {
         const exames = examesData.dados.filter((ag: any) => {
-          if (ag.cancelado || ag.statusAgenda === "O") return false;
+          if (ag.cancelado) return false;
+          if (ag.statusAgenda === "O" || ag.statusAgenda === "C") return false;
           try {
             const agendaDate = parse(ag.dataAgenda, 'yyyy/MM/dd HH:mm:ss', new Date());
             return isAfter(agendaDate, new Date()) && ag.tipoAgendamento === 1;
@@ -165,14 +180,16 @@ const Index = () => {
         ease: "power3.out"
       });
 
-      // Animação do banner
-      gsap.from(bannerRef.current, {
-        opacity: 0,
-        scale: 0.95,
-        duration: 0.6,
-        delay: 0.2,
-        ease: "back.out(1.2)"
-      });
+      // Animação do banner (apenas se houver agendamentos)
+      if (appointments.length > 0 && bannerRef.current) {
+        gsap.from(bannerRef.current, {
+          opacity: 0,
+          scale: 0.95,
+          duration: 0.6,
+          delay: 0.2,
+          ease: "back.out(1.2)"
+        });
+      }
 
       // Animação em cascata dos cards
       const cards = cardsRef.current?.querySelectorAll('[data-card]');
@@ -190,7 +207,7 @@ const Index = () => {
     });
 
     return () => ctx.revert();
-  }, []);
+  }, [appointments]);
 
   const handleCardClick = (feature: string) => {
     toast({
