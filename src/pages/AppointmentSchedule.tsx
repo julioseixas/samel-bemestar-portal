@@ -77,7 +77,8 @@ const AppointmentSchedule = () => {
                 sexo: patient.sexo,
                 codigoCarteirinha: patient.codigoCarteirinha,
                 dataNascimento: patient.dataNascimento,
-                cdPessoaFisica: patient.cdPessoaFisica || titularId
+                cdPessoaFisica: patient.cdPessoaFisica || titularId,
+                idEmpresa: patient.idEmpresa
               });
             }
             
@@ -93,7 +94,8 @@ const AppointmentSchedule = () => {
                 sexo: patient.sexo,
                 codigoCarteirinha: patient.codigoCarteirinha,
                 dataNascimento: patient.dataNascimento,
-                cdPessoaFisica: patient.cdPessoaFisica || depId
+                cdPessoaFisica: patient.cdPessoaFisica || depId,
+                idEmpresa: patient.idEmpresa
               });
             }
           });
