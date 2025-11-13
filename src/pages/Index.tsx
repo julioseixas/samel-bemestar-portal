@@ -18,7 +18,6 @@ const Index = () => {
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [appointments, setAppointments] = useState<any[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
   const welcomeSectionRef = useRef<HTMLDivElement>(null);
   const bannerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
@@ -214,16 +213,17 @@ const Index = () => {
     }
   };
 
-  const handlePrevious = () => {
-    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : appointments.length - 1));
-  };
-
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev < appointments.length - 1 ? prev + 1 : 0));
-  };
-
-  const handleGoToIndex = (index: number) => {
-    setCurrentIndex(index);
+  const formatAppointmentsForBanner = () => {
+    return appointments.map(appointment => ({
+      date: formatDate(appointment.dataAgenda),
+      time: formatTime(appointment.dataAgenda),
+      doctor: appointment.nomeProfissional,
+      specialty: appointment.tipo === 'consulta' 
+        ? appointment.descricaoEspecialidade || appointment.especialidade
+        : appointment.procedimentos?.[0]?.descricao || 'Exame',
+      location: appointment.nomeUnidade || 'Telemedicina',
+      appointmentId: appointment.id,
+    }));
   };
 
   useEffect(() => {
@@ -379,21 +379,8 @@ const Index = () => {
           {appointments.length > 0 && (
             <div ref={bannerRef} className="mb-6 sm:mb-8 md:mb-12">
               <AppointmentBanner
-                date={formatDate(appointments[currentIndex].dataAgenda)}
-                time={formatTime(appointments[currentIndex].dataAgenda)}
-                doctor={appointments[currentIndex].nomeProfissional}
-                specialty={appointments[currentIndex].tipo === 'consulta' 
-                  ? appointments[currentIndex].descricaoEspecialidade || appointments[currentIndex].especialidade
-                  : appointments[currentIndex].procedimentos?.[0]?.descricao || 'Exame'}
-                location={appointments[currentIndex].nomeUnidade || 'Telemedicina'}
-                appointmentId={appointments[currentIndex].id}
+                appointments={formatAppointmentsForBanner()}
                 onCancel={fetchAppointments}
-                showNavigation={appointments.length > 1}
-                onPrevious={handlePrevious}
-                onNext={handleNext}
-                onGoToIndex={handleGoToIndex}
-                currentIndex={currentIndex}
-                totalItems={appointments.length}
               />
             </div>
           )}
