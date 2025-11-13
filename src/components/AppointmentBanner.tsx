@@ -20,6 +20,7 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
+import { MapDialog } from "./MapDialog";
 
 interface AppointmentBannerProps {
   appointments: Array<{
@@ -42,6 +43,8 @@ export const AppointmentBanner = ({
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<number | undefined>();
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [isPaused, setIsPaused] = useState(false);
+  const [showMapDialog, setShowMapDialog] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState("");
   const { toast } = useToast();
 
   // Auto-play carousel
