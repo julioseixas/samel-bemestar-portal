@@ -225,6 +225,10 @@ export const AppointmentBanner = ({
                       variant="outline"
                       size="lg"
                       className="flex-1 border-2 border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary text-sm sm:text-base"
+                      onClick={() => {
+                        setSelectedLocation(appointment.location);
+                        setShowMapDialog(true);
+                      }}
                     >
                       Como Chegar
                     </Button>
@@ -271,6 +275,12 @@ export const AppointmentBanner = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <MapDialog
+        isOpen={showMapDialog}
+        onClose={() => setShowMapDialog(false)}
+        location={selectedLocation}
+      />
     </>
   );
 };
