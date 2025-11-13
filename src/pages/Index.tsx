@@ -352,7 +352,8 @@ const Index = () => {
                 icon={MessageCircle}
                 iconColor="text-primary"
                 buttonText="Iniciar Chat"
-                variant="outline"
+                variant="default"
+                useDashboardColor={true}
                 onClick={() => handleCardClick("Chatbot Samel")}
                 />
               </div>
