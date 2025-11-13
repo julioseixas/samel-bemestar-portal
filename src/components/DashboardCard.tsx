@@ -34,8 +34,12 @@ export const DashboardCard = ({
         <div className={cn(
           "rounded-lg sm:rounded-xl p-3 sm:p-4",
           iconColor,
-          // Background específico para destructive
-          iconColor.includes("destructive") ? "bg-destructive/10" : "bg-accent"
+          // Backgrounds específicos para cada variante com melhor contraste
+          iconColor.includes("destructive") ? "bg-destructive/10" :
+          iconColor.includes("success") ? "bg-success/10" :
+          iconColor.includes("warning") ? "bg-warning/10" :
+          iconColor.includes("primary") ? "bg-primary/10" :
+          "bg-accent/50"
         )}>
           <Icon className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10" />
         </div>
