@@ -24,16 +24,21 @@ const Index = () => {
   const cardsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    console.log("🚀 Index montado - iniciando carregamento");
+    
     // Carrega os dados do paciente do localStorage
     const patientData = localStorage.getItem("patientData");
     const photo = localStorage.getItem("profilePhoto");
+    
+    console.log("📦 Dados do localStorage:", { patientData: !!patientData, photo: !!photo });
     
     if (patientData) {
       try {
         const data = JSON.parse(patientData);
         setPatientName(data.nome || "Paciente");
+        console.log("✅ Nome do paciente carregado:", data.nome);
       } catch (error) {
-        console.error("Erro ao carregar dados do paciente:", error);
+        console.error("❌ Erro ao carregar dados do paciente:", error);
       }
     }
     
@@ -42,6 +47,7 @@ const Index = () => {
     }
 
     // Sempre busca consultas e exames agendados para garantir dados atualizados
+    console.log("📞 Chamando fetchAppointments...");
     fetchAppointments();
 
     // Atualiza quando a página recebe foco novamente
@@ -127,20 +133,31 @@ const Index = () => {
   };
 
   const fetchAppointments = async () => {
+    console.log("🔄 fetchAppointments iniciado");
     try {
       const userToken = localStorage.getItem("userToken");
-      if (!userToken) return;
+      console.log("🔑 Token encontrado:", !!userToken);
+      
+      if (!userToken) {
+        console.log("⚠️ Sem token - abortando fetchAppointments");
+        return;
+      }
 
       const decoded: any = jwtDecode(userToken);
       const pacientesIds = [parseInt(decoded.id)];
+      
+      console.log("👤 IDs de pacientes:", pacientesIds);
       
       if (decoded.dependentes && Array.isArray(decoded.dependentes)) {
         decoded.dependentes.forEach((dep: any) => {
           if (dep.id) pacientesIds.push(parseInt(dep.id));
         });
       }
+      
+      console.log("👨‍👩‍👧‍👦 Total de IDs (titular + dependentes):", pacientesIds);
 
       // Busca consultas (tipo 0)
+      console.log("📞 Buscando consultas...");
       const consultasResponse = await fetch(
         "https://api-portalpaciente-web.samel.com.br/api/Agenda/ListarAgendamentos2",
         {
@@ -151,6 +168,7 @@ const Index = () => {
       );
 
       // Busca exames (tipo 1)
+      console.log("📞 Buscando exames...");
       const examesResponse = await fetch(
         "https://api-portalpaciente-web.samel.com.br/api/Agenda/ListarAgendamentos2",
         {
@@ -160,8 +178,16 @@ const Index = () => {
         }
       );
 
+      console.log("✅ Respostas recebidas - processando...");
       const consultasData = await consultasResponse.json();
       const examesData = await examesResponse.json();
+      
+      console.log("📊 Dados recebidos:", {
+        consultasSucesso: consultasData.sucesso,
+        consultasCount: consultasData.dados?.length,
+        examesSucesso: examesData.sucesso,
+        examesCount: examesData.dados?.length
+      });
 
       processAppointments(consultasData, examesData);
     } catch (error) {
