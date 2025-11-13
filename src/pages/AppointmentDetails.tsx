@@ -209,20 +209,17 @@ const AppointmentDetails = () => {
         setEspecialidades([]);
         setSelectedEspecialidade("");
 
-        // IMPORTANTE: cdPessoaFisica deve SEMPRE ser o do titular
-        const cdPessoaFisica = titular?.cdPessoaFisica?.toString() || "";
-        
-        // Se for titular (tipo === "Titular"), cdDependente deve ser vazio
-        // Se for dependente, deve ser o ID do dependente
-        const isTitular = selectedPatient.tipo === "Titular";
-        const cdDependente = isTitular ? "" : (selectedPatient.id?.toString() || "");
+      // IMPORTANTE: cdPessoaFisica deve SEMPRE ser o do titular
+      const cdPessoaFisica = titular?.cdPessoaFisica?.toString() || "";
+      
+      // cdDependente deve SEMPRE ser o ID do paciente selecionado
+      const cdDependente = selectedPatient.id?.toString() || "";
         
         // Garante que nrCarteirinha seja string, mesmo que null
         const nrCarteirinha = selectedPatient.codigoCarteirinha?.toString() || "";
         
         console.log("=== BUSCANDO ESPECIALIDADES ===");
         console.log("selectedPatient completo:", selectedPatient);
-        console.log("É titular?", isTitular);
         console.log("cdPessoaFisica extraído:", cdPessoaFisica);
         console.log("cdDependente:", cdDependente);
         console.log("nrCarteirinha:", nrCarteirinha);
@@ -299,9 +296,8 @@ const AppointmentDetails = () => {
       const idadeCliente = selectedPatient.idade?.toString() || "0";
       const sexo = selectedPatient.sexo || "";
       
-      // Se for titular, cdDependente vazio; se for dependente, ID do dependente
-      const isTitular = selectedPatient.tipo === "Titular";
-      const cdDependente = isTitular ? "" : (selectedPatient.id?.toString() || "");
+      // cdDependente deve SEMPRE ser o ID do paciente selecionado
+      const cdDependente = selectedPatient.id?.toString() || "";
       const nrCarteirinha = selectedPatient.codigoCarteirinha?.toString() || "";
       
       console.log("Dados para busca de profissionais:", {
