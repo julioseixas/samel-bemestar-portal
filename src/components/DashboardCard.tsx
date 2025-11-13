@@ -37,7 +37,7 @@ export const DashboardCard = ({
           // Backgrounds específicos para cada variante com melhor contraste
           iconColor.includes("destructive") ? "bg-destructive/10" :
           iconColor.includes("success") ? "bg-success/10" :
-          iconColor.includes("warning") ? "bg-warning/10" :
+          iconColor.includes("warning") ? "bg-warning/20" :
           iconColor.includes("primary") ? "bg-primary/10" :
           "bg-accent/50"
         )}>
