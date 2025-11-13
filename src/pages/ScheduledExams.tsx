@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, Clock, MapPin, User, TestTube, XCircle, Stethoscope, Building2 } from "lucide-react";
+import { Calendar, Clock, MapPin, User, TestTube, XCircle, Stethoscope, Building2, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { getApiHeaders } from "@/lib/api-headers";
@@ -53,6 +53,7 @@ const ScheduledExams = () => {
   const [exams, setExams] = useState<Agendamento[]>([]);
   const [loading, setLoading] = useState(true);
   const [cancelingId, setCancelingId] = useState<number | null>(null);
+  const [isCanceling, setIsCanceling] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   useEffect(() => {
@@ -190,6 +191,8 @@ const ScheduledExams = () => {
   const handleCancelConfirm = async () => {
     if (!cancelingId) return;
 
+    setIsCanceling(true);
+
     try {
       const response = await fetch(
         "https://api-portalpaciente-web.samel.com.br/api/Agenda/CancelarAgendamento",
@@ -225,6 +228,7 @@ const ScheduledExams = () => {
         variant: "destructive",
       });
     } finally {
+      setIsCanceling(false);
       setShowCancelDialog(false);
       setCancelingId(null);
     }
@@ -401,9 +405,16 @@ const ScheduledExams = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Não, manter exame</AlertDialogCancel>
-            <AlertDialogAction onClick={handleCancelConfirm}>
-              Sim, cancelar exame
+            <AlertDialogCancel disabled={isCanceling}>Não, manter exame</AlertDialogCancel>
+            <AlertDialogAction onClick={handleCancelConfirm} disabled={isCanceling}>
+              {isCanceling ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Cancelando...
+                </span>
+              ) : (
+                "Sim, cancelar exame"
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
