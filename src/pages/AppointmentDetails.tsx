@@ -147,6 +147,12 @@ const AppointmentDetails = () => {
         
         if (data.sucesso && data.dados) {
           setConvenios(data.dados);
+          
+          // Verificar se existe convênio com id 19 e selecionar automaticamente
+          const convenioSamel = data.dados.find((convenio: Convenio) => convenio.id === 19);
+          if (convenioSamel) {
+            setSelectedConvenio("19");
+          }
         }
       } catch (error) {
         console.error("Erro ao buscar convênios:", error);
