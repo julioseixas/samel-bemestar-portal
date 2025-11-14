@@ -30,6 +30,7 @@ interface AppointmentBannerProps {
     specialty: string;
     location: string;
     appointmentId?: number;
+    tipoAgendamento?: number;
   }>;
   onCancel?: () => void;
 }
@@ -41,6 +42,7 @@ export const AppointmentBanner = ({
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<number | undefined>();
+  const [selectedAppointmentType, setSelectedAppointmentType] = useState<number | undefined>();
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [isPaused, setIsPaused] = useState(false);
   const [showMapDialog, setShowMapDialog] = useState(false);
@@ -58,8 +60,9 @@ export const AppointmentBanner = ({
     return () => clearInterval(interval);
   }, [carouselApi, isPaused, appointments.length]);
 
-  const handleCancelClick = (appointmentId?: number) => {
+  const handleCancelClick = (appointmentId?: number, tipoAgendamento?: number) => {
     setSelectedAppointmentId(appointmentId);
+    setSelectedAppointmentType(tipoAgendamento);
     setShowCancelDialog(true);
   };
 
@@ -69,20 +72,22 @@ export const AppointmentBanner = ({
   };
 
   const handleCancelConfirm = async () => {
-    if (!selectedAppointmentId) return;
+    if (!selectedAppointmentId || selectedAppointmentType === undefined) return;
 
     setIsCanceling(true);
 
     try {
+      // Monta o body de acordo com o tipo de agendamento
+      const requestBody = selectedAppointmentType === 1 
+        ? { idAgendaExame: selectedAppointmentId } // Exame
+        : { idAgenda: selectedAppointmentId, justificativa: "Cancelamento via portal do paciente" }; // Consulta
+
       const response = await fetch(
         "https://api-portalpaciente-web.samel.com.br/api/Agenda/CancelarAgendamento",
         {
           method: "POST",
           headers: getApiHeaders(),
-          body: JSON.stringify({
-            idAgenda: selectedAppointmentId,
-            justificativa: "Cancelamento via portal do paciente"
-          }),
+          body: JSON.stringify(requestBody),
         }
       );
 
@@ -221,7 +226,7 @@ export const AppointmentBanner = ({
                       variant="destructive"
                       size="lg"
                       className="flex-1 text-sm sm:text-base"
-                      onClick={() => handleCancelClick(appointment.appointmentId)}
+                      onClick={() => handleCancelClick(appointment.appointmentId, appointment.tipoAgendamento)}
                       disabled={isCanceling}
                     >
                       Cancelar Agendamento

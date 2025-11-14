@@ -223,6 +223,7 @@ const Index = () => {
         : appointment.procedimentos?.[0]?.descricao || 'Exame',
       location: appointment.nomeUnidade || 'Telemedicina',
       appointmentId: appointment.id,
+      tipoAgendamento: appointment.tipoAgendamento,
     }));
   };
 
