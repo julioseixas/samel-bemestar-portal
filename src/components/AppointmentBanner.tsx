@@ -254,7 +254,7 @@ export const AppointmentBanner = ({
       </div>
 
       <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-md">
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar Cancelamento</AlertDialogTitle>
             <AlertDialogDescription>
