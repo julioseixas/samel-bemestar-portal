@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -5,7 +6,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Navigation } from "lucide-react";
+import { toast } from "sonner";
 
 interface MapDialogProps {
   open: boolean;
@@ -14,12 +16,54 @@ interface MapDialogProps {
 }
 
 export const MapDialog = ({ open, onOpenChange, location }: MapDialogProps) => {
+  const [showRoute, setShowRoute] = useState(false);
+  const [userLocation, setUserLocation] = useState<string>("");
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-  console.log('API Key carregada:', apiKey ? 'Presente' : 'Ausente', apiKey?.substring(0, 10) + '...');
   const encodedLocation = encodeURIComponent(location);
-  const embedUrl = `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodedLocation}`;
+  
+  const embedUrl = showRoute && userLocation
+    ? `https://www.google.com/maps/embed/v1/directions?key=${apiKey}&origin=${encodeURIComponent(userLocation)}&destination=${encodedLocation}&mode=driving`
+    : `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodedLocation}`;
+  
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodedLocation}`;
-  console.log('URL do embed:', embedUrl);
+
+  const handleShowRoute = () => {
+    if (showRoute) {
+      setShowRoute(false);
+      return;
+    }
+
+    setIsLoadingLocation(true);
+    
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const coords = `${position.coords.latitude},${position.coords.longitude}`;
+          setUserLocation(coords);
+          setShowRoute(true);
+          setIsLoadingLocation(false);
+          toast.success("Rota calculada!");
+        },
+        (error) => {
+          setIsLoadingLocation(false);
+          toast.error("Não foi possível obter sua localização. Verifique as permissões.");
+          console.error("Erro ao obter localização:", error);
+        }
+      );
+    } else {
+      setIsLoadingLocation(false);
+      toast.error("Seu navegador não suporta geolocalização.");
+    }
+  };
+
+  useEffect(() => {
+    if (!open) {
+      setShowRoute(false);
+      setUserLocation("");
+    }
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -50,13 +94,23 @@ export const MapDialog = ({ open, onOpenChange, location }: MapDialogProps) => {
         </div>
 
         <div className="shrink-0 px-6 py-4 border-t bg-card flex justify-between gap-2">
-          <Button
-            variant="outline"
-            onClick={() => window.open(directionsUrl, "_blank")}
-          >
-            <ExternalLink className="h-4 w-4 mr-2" />
-            Abrir no Google Maps
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={handleShowRoute}
+              disabled={isLoadingLocation}
+            >
+              <Navigation className="h-4 w-4 mr-2" />
+              {isLoadingLocation ? "Obtendo localização..." : showRoute ? "Ver Local" : "Ver Rota"}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => window.open(directionsUrl, "_blank")}
+            >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Abrir no Google Maps
+            </Button>
+          </div>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Fechar
           </Button>
