@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getApiHeaders } from "@/lib/api-headers";
 import {
   AlertDialog,
+  AlertDialogAction,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -254,10 +255,10 @@ export const AppointmentBanner = ({
       </div>
 
       <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
-        <AlertDialogContent className="max-w-[90vw] sm:max-w-md mx-4">
+        <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar Cancelamento</AlertDialogTitle>
-            <AlertDialogDescription className="whitespace-normal break-words">
+            <AlertDialogDescription>
               Tem certeza que deseja cancelar este agendamento? Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -265,10 +266,10 @@ export const AppointmentBanner = ({
             <AlertDialogCancel disabled={isCanceling}>
               Não, manter agendamento
             </AlertDialogCancel>
-            <Button
+            <AlertDialogAction
               onClick={handleCancelConfirm}
               disabled={isCanceling}
-              variant="destructive"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {isCanceling ? (
                 <span className="flex items-center gap-2">
@@ -278,7 +279,7 @@ export const AppointmentBanner = ({
               ) : (
                 "Sim, cancelar agendamento"
               )}
-            </Button>
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
