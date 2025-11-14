@@ -27,6 +27,15 @@ export const MapDialog = ({ open, onOpenChange, location }: MapDialogProps) => {
     ? `https://www.google.com/maps/embed/v1/directions?key=${apiKey}&origin=${encodeURIComponent(userLocation)}&destination=${encodedLocation}&mode=driving`
     : `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodedLocation}`;
   
+  // Log da URL para debug
+  if (showRoute && userLocation) {
+    console.log("🗺️ URL de rota gerada:", {
+      origin: userLocation,
+      destination: location,
+      url: embedUrl
+    });
+  }
+  
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodedLocation}`;
 
   const handleShowRoute = () => {
@@ -41,15 +50,29 @@ export const MapDialog = ({ open, onOpenChange, location }: MapDialogProps) => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const coords = `${position.coords.latitude},${position.coords.longitude}`;
+          console.log("📍 Localização capturada:", {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            accuracy: position.coords.accuracy,
+            timestamp: new Date(position.timestamp).toLocaleString()
+          });
           setUserLocation(coords);
           setShowRoute(true);
           setIsLoadingLocation(false);
-          toast.success("Rota calculada!");
+          toast.success(`Rota calculada! Precisão: ${Math.round(position.coords.accuracy)}m`);
         },
         (error) => {
           setIsLoadingLocation(false);
+          console.error("❌ Erro ao obter localização:", {
+            code: error.code,
+            message: error.message
+          });
           toast.error("Não foi possível obter sua localização. Verifique as permissões.");
-          console.error("Erro ao obter localização:", error);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
         }
       );
     } else {
