@@ -15,9 +15,11 @@ interface MapDialogProps {
 
 export const MapDialog = ({ open, onOpenChange, location }: MapDialogProps) => {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+  console.log('API Key carregada:', apiKey ? 'Presente' : 'Ausente', apiKey?.substring(0, 10) + '...');
   const encodedLocation = encodeURIComponent(location);
   const embedUrl = `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodedLocation}`;
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodedLocation}`;
+  console.log('URL do embed:', embedUrl);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
