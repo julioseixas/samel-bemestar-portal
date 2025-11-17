@@ -234,7 +234,7 @@ const Index = () => {
       gsap.from(welcomeSectionRef.current, {
         opacity: 0,
         y: -10,
-        duration: 0.4,
+        duration: 0.6,
         ease: "power2.out"
       });
 
@@ -243,8 +243,8 @@ const Index = () => {
         gsap.from(bannerRef.current, {
           opacity: 0,
           scale: 0.99,
-          duration: 0.5,
-          delay: 0.1,
+          duration: 0.7,
+          delay: 0.2,
           ease: "power2.out"
         });
       }
@@ -256,9 +256,9 @@ const Index = () => {
           opacity: 0,
           y: 15,
           scale: 0.98,
-          duration: 0.4,
-          stagger: 0.05,
-          delay: 0.2,
+          duration: 0.6,
+          stagger: 0.08,
+          delay: 0.3,
           ease: "power2.out"
         });
       }
