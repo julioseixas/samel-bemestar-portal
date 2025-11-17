@@ -46,8 +46,7 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
             <img src={samelLogo} alt="Hospital Samel" className="h-full w-full object-contain" />
           </div>
           <div>
-            <h1 className="text-base sm:text-xl font-bold text-primary md:text-2xl">Hospital Samel</h1>
-            <p className="text-[10px] sm:text-xs text-muted-foreground md:text-sm">Portal do Paciente</p>
+            <h1 className="text-base sm:text-xl font-bold text-primary md:text-2xl">Portal do Paciente</h1>
           </div>
         </div>
         
