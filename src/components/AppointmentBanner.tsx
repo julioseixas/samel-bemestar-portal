@@ -48,7 +48,6 @@ export const AppointmentBanner = ({
   const [isPaused, setIsPaused] = useState(false);
   const [showMapDialog, setShowMapDialog] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState("");
-  const [selectedUnitName, setSelectedUnitName] = useState("");
   const { toast } = useToast();
 
   // Auto-play carousel
@@ -68,9 +67,8 @@ export const AppointmentBanner = ({
     setShowCancelDialog(true);
   };
 
-  const handleMapClick = (appointment: any) => {
-    setSelectedLocation(appointment.location);
-    setSelectedUnitName(appointment.specialty); // Use specialty as unit identifier
+  const handleMapClick = (location: string) => {
+    setSelectedLocation(location);
     setShowMapDialog(true);
   };
 
@@ -238,7 +236,7 @@ export const AppointmentBanner = ({
                       variant="outline"
                       size="lg"
                       className="flex-1 border-2 border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary text-sm sm:text-base"
-                      onClick={() => handleMapClick(appointment)}
+                      onClick={() => handleMapClick(appointment.location)}
                     >
                       Como Chegar
                     </Button>
@@ -290,7 +288,6 @@ export const AppointmentBanner = ({
         open={showMapDialog}
         onOpenChange={setShowMapDialog}
         location={selectedLocation}
-        unitName={selectedUnitName}
       />
     </>
   );

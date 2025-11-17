@@ -9,9 +9,9 @@ export const Footer = () => {
           <div>
             <div className="mb-4 flex items-center gap-2">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden">
-                <img src={samelLogo} alt="Portal do Paciente" className="h-full w-full object-contain" />
+                <img src={samelLogo} alt="Hospital Samel" className="h-full w-full object-contain" />
               </div>
-              <span className="text-lg font-bold text-primary">Portal do Paciente</span>
+              <span className="text-lg font-bold text-primary">Hospital Samel</span>
             </div>
             <p className="text-sm text-muted-foreground">
               Cuidando da sua saúde com excelência e dedicação.

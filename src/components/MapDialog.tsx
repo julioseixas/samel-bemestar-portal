@@ -13,22 +13,15 @@ interface MapDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   location: string;
-  unitName?: string;
 }
 
-export const MapDialog = ({ open, onOpenChange, location, unitName }: MapDialogProps) => {
+export const MapDialog = ({ open, onOpenChange, location }: MapDialogProps) => {
   const [showRoute, setShowRoute] = useState(false);
   const [userLocation, setUserLocation] = useState<string>("");
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-  
-  // Construir endereço mais preciso incluindo o nome da unidade e cidade
-  const fullAddress = unitName 
-    ? `${unitName}, ${location}, Manaus, Amazonas, Brasil`
-    : `${location}, Manaus, Amazonas, Brasil`;
-  
-  const encodedLocation = encodeURIComponent(fullAddress);
+  const encodedLocation = encodeURIComponent(location);
   
   const embedUrl = showRoute && userLocation
     ? `https://www.google.com/maps/embed/v1/directions?key=${apiKey}&origin=${encodeURIComponent(userLocation)}&destination=${encodedLocation}&mode=driving`
@@ -87,10 +80,7 @@ export const MapDialog = ({ open, onOpenChange, location, unitName }: MapDialogP
       <DialogContent className="max-w-[95vw] w-full h-[90vh] flex flex-col p-0">
         <DialogHeader className="px-6 py-4 border-b bg-card shrink-0">
           <DialogTitle className="text-xl">Como Chegar</DialogTitle>
-          {unitName && (
-            <p className="text-sm font-semibold text-foreground mt-2">{unitName}</p>
-          )}
-          <p className="text-sm text-muted-foreground">{location}</p>
+          <p className="text-sm text-muted-foreground mt-2">{location}</p>
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden">
