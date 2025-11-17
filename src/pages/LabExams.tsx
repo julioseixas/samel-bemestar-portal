@@ -135,8 +135,13 @@ const LabExams = () => {
         const clientIds: number[] = [];
         const patientsList: Patient[] = [];
         
-        if (parsedList.listAllPacient && parsedList.listAllPacient.length > 0) {
-          parsedList.listAllPacient.forEach((paciente: any) => {
+        // Aceita listToSchedule como array direto OU objeto com listAllPacient
+        const patientList = Array.isArray(parsedList) 
+          ? parsedList 
+          : parsedList.listAllPacient || [];
+        
+        if (patientList.length > 0) {
+          patientList.forEach((paciente: any) => {
             // Monta a lista de pacientes para a tabela de progressão
             patientsList.push({
               id: paciente.cdPessoaFisica || paciente.id,

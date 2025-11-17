@@ -88,8 +88,14 @@ const CertificatesList = () => {
         const parsedList = JSON.parse(storedListToSchedule);
         const clientIds: number[] = [];
         
-        if (parsedList.listAllPacient && parsedList.listAllPacient.length > 0) {
-          parsedList.listAllPacient.forEach((paciente: any) => {
+        // Aceita listToSchedule como array direto OU objeto com listAllPacient
+        const patientList = Array.isArray(parsedList) 
+          ? parsedList 
+          : parsedList.listAllPacient || [];
+        
+        if (patientList.length > 0) {
+          patientList.forEach((paciente: any) => {
+            // Pega o ID do titular (de clienteContratos)
             if (paciente.clienteContratos && paciente.clienteContratos.length > 0) {
               paciente.clienteContratos.forEach((contrato: any) => {
                 if (contrato.id) {
@@ -98,6 +104,7 @@ const CertificatesList = () => {
               });
             }
             
+            // Pega o ID do dependente diretamente se existir
             if (paciente.tipo === "Dependente" && paciente.id) {
               clientIds.push(Number(paciente.id));
             }
