@@ -33,6 +33,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { CertificateReportView } from "@/components/CertificateReportView";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface Certificate {
   nr_atendimento: number;
@@ -489,22 +495,55 @@ const CertificatesList = () => {
           </div>
 
           <div className="shrink-0 px-3 sm:px-6 py-3 sm:py-4 border-t bg-card flex justify-end gap-2 print:hidden">
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)} size="icon" className="h-9 w-9">
-              <span className="sr-only">Fechar</span>
-              <span className="text-lg">✕</span>
-            </Button>
-            <Button variant="outline" onClick={handleDownload} size="icon" className="h-9 w-9">
-              <Download className="h-4 w-4" />
-              <span className="sr-only">Baixar PDF</span>
-            </Button>
-            <Button variant="outline" onClick={handleShareWhatsApp} size="icon" className="h-9 w-9">
-              <Share2 className="h-4 w-4" />
-              <span className="sr-only">Compartilhar</span>
-            </Button>
-            <Button onClick={handlePrint} size="icon" className="h-9 w-9">
-              <Printer className="h-4 w-4" />
-              <span className="sr-only">Imprimir</span>
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" onClick={() => setIsDialogOpen(false)} size="icon" className="h-9 w-9">
+                    <span className="sr-only">Fechar</span>
+                    <span className="text-lg">✕</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Fechar</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" onClick={handleDownload} size="icon" className="h-9 w-9">
+                    <Download className="h-4 w-4" />
+                    <span className="sr-only">Baixar PDF</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Baixar PDF</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" onClick={handleShareWhatsApp} size="icon" className="h-9 w-9">
+                    <Share2 className="h-4 w-4" />
+                    <span className="sr-only">Compartilhar</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Compartilhar</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button onClick={handlePrint} size="icon" className="h-9 w-9">
+                    <Printer className="h-4 w-4" />
+                    <span className="sr-only">Imprimir</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Imprimir</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </DialogContent>
       </Dialog>
