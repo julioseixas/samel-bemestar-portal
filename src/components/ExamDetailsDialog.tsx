@@ -33,6 +33,12 @@ import { jwtDecode } from "jwt-decode";
 import { ExamReportView } from "@/components/ExamReportView";
 import html2pdf from "html2pdf.js";
 import samelLogo from "@/assets/samel-logo.png";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ExamDetail {
   nrSequenciaLaudoPaciente: number;
@@ -726,22 +732,55 @@ export function ExamDetailsDialog({
           </div>
 
           <div className="shrink-0 px-3 sm:px-6 py-3 sm:py-4 border-t bg-card flex justify-end gap-2 print:hidden">
-            <Button variant="outline" onClick={() => setSelectedExam(null)} size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
-              <span className="sr-only">Fechar</span>
-              <span className="text-base sm:text-lg">✕</span>
-            </Button>
-            <Button variant="outline" onClick={handleDownloadReport} size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
-              <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              <span className="sr-only">Baixar PDF</span>
-            </Button>
-            <Button variant="outline" onClick={() => handleShareWhatsApp()} size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
-              <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              <span className="sr-only">Compartilhar</span>
-            </Button>
-            <Button onClick={handlePrintReport} size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
-              <Printer className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              <span className="sr-only">Imprimir</span>
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" onClick={() => setSelectedExam(null)} size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
+                    <span className="sr-only">Fechar</span>
+                    <span className="text-base sm:text-lg">✕</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Fechar</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" onClick={handleDownloadReport} size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
+                    <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <span className="sr-only">Baixar PDF</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Baixar PDF</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" onClick={() => handleShareWhatsApp()} size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
+                    <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <span className="sr-only">Compartilhar</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Compartilhar</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button onClick={handlePrintReport} size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
+                    <Printer className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <span className="sr-only">Imprimir</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Imprimir</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </DialogContent>
       </Dialog>
@@ -783,30 +822,63 @@ export function ExamDetailsDialog({
           </div>
 
           <div className="shrink-0 px-3 sm:px-6 py-3 sm:py-4 border-t bg-card flex justify-end gap-2 print:hidden">
-            <Button variant="outline" onClick={() => {
-              setViewingMultiple(false);
-              setSelectedExamIndexes(new Set());
-            }} size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
-              <span className="sr-only">Fechar</span>
-              <span className="text-base sm:text-lg">✕</span>
-            </Button>
-            <Button variant="outline" onClick={handleDownloadMultipleReports} size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
-              <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              <span className="sr-only">Baixar PDFs</span>
-            </Button>
-            <Button variant="outline" onClick={() => {
-              const selectedExams = getSelectedExams();
-              if (selectedExams.length > 0) {
-                handleShareWhatsApp(selectedExams[0]);
-              }
-            }} size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
-              <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              <span className="sr-only">Compartilhar</span>
-            </Button>
-            <Button onClick={handlePrintReport} size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
-              <Printer className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              <span className="sr-only">Imprimir</span>
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" onClick={() => {
+                    setViewingMultiple(false);
+                    setSelectedExamIndexes(new Set());
+                  }} size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
+                    <span className="sr-only">Fechar</span>
+                    <span className="text-base sm:text-lg">✕</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Fechar</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" onClick={handleDownloadMultipleReports} size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
+                    <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <span className="sr-only">Baixar PDFs</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Baixar PDFs</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" onClick={() => {
+                    const selectedExams = getSelectedExams();
+                    if (selectedExams.length > 0) {
+                      handleShareWhatsApp(selectedExams[0]);
+                    }
+                  }} size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
+                    <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <span className="sr-only">Compartilhar</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Compartilhar</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button onClick={handlePrintReport} size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
+                    <Printer className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <span className="sr-only">Imprimir</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Imprimir</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </DialogContent>
       </Dialog>
