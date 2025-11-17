@@ -20,6 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Pagination,
   PaginationContent,
+  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -308,6 +309,40 @@ const CertificatesList = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const maxVisible = 5; // Número máximo de páginas visíveis
+    
+    if (totalPages <= maxVisible) {
+      // Se tiver poucas páginas, mostra todas
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    
+    // Sempre mostra primeira página
+    pages.push(1);
+    
+    if (currentPage > 3) {
+      pages.push('ellipsis-start');
+    }
+    
+    // Páginas ao redor da página atual
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+    
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    
+    if (currentPage < totalPages - 2) {
+      pages.push('ellipsis-end');
+    }
+    
+    // Sempre mostra última página
+    pages.push(totalPages);
+    
+    return pages;
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
@@ -392,15 +427,19 @@ const CertificatesList = () => {
                             />
                           </PaginationItem>
                           
-                          {[...Array(totalPages)].map((_, i) => (
-                            <PaginationItem key={i}>
-                              <PaginationLink
-                                onClick={() => handlePageChange(i + 1)}
-                                isActive={currentPage === i + 1}
-                                className="cursor-pointer"
-                              >
-                                {i + 1}
-                              </PaginationLink>
+                          {getPageNumbers().map((page, i) => (
+                            <PaginationItem key={`${page}-${i}`}>
+                              {typeof page === 'number' ? (
+                                <PaginationLink
+                                  onClick={() => handlePageChange(page)}
+                                  isActive={currentPage === page}
+                                  className="cursor-pointer"
+                                >
+                                  {page}
+                                </PaginationLink>
+                              ) : (
+                                <PaginationEllipsis />
+                              )}
                             </PaginationItem>
                           ))}
                           
