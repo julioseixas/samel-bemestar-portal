@@ -45,20 +45,21 @@ const ExamResults = () => {
       
       <main className="flex-1">
         <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:px-6 md:py-10">
-          <Button
-            variant="outline"
-            onClick={() => navigate("/dashboard")}
-            className="mb-4 sm:mb-6 border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
-            size="sm"
-          >
-            <ArrowLeft className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-            Voltar ao Dashboard
-          </Button>
-
           <div className="mb-6 sm:mb-8">
-            <h2 className="mb-2 text-xl sm:text-2xl font-bold text-foreground md:text-3xl">
-              Resultado de Exames
-            </h2>
+            <div className="flex flex-col sm:flex-row items-center justify-between mb-2 gap-2">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground md:text-3xl">
+                Resultado de Exames
+              </h2>
+              <Button
+                variant="outline"
+                onClick={() => navigate("/dashboard")}
+                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
+                size="sm"
+              >
+                <ArrowLeft className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                Voltar ao Dashboard
+              </Button>
+            </div>
             <p className="text-sm sm:text-base text-muted-foreground md:text-lg">
               Selecione o tipo de exame que deseja visualizar
             </p>
