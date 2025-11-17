@@ -230,36 +230,36 @@ const Index = () => {
   useEffect(() => {
     // Animações GSAP na montagem do componente
     const ctx = gsap.context(() => {
-      // Animação da seção de boas-vindas - muito lenta
+      // Animação da seção de boas-vindas
       gsap.from(welcomeSectionRef.current, {
         opacity: 0,
         y: -10,
-        duration: 2,
-        ease: "power1.inOut"
+        duration: 0.4,
+        ease: "power2.out"
       });
 
-      // Animação do banner (apenas se houver agendamentos) - muito lenta
+      // Animação do banner (apenas se houver agendamentos)
       if (appointments.length > 0 && bannerRef.current) {
         gsap.from(bannerRef.current, {
           opacity: 0,
           scale: 0.99,
-          duration: 1.8,
-          delay: 0.5,
-          ease: "power1.inOut"
+          duration: 0.5,
+          delay: 0.1,
+          ease: "power2.out"
         });
       }
 
-      // Animação em cascata dos cards - muito lenta e gradual
+      // Animação em cascata dos cards
       const cards = cardsRef.current?.querySelectorAll('[data-card]');
       if (cards) {
         gsap.from(cards, {
           opacity: 0,
           y: 15,
           scale: 0.98,
-          duration: 1.5,
-          stagger: 0.15,
-          delay: 0.8,
-          ease: "power1.inOut"
+          duration: 0.4,
+          stagger: 0.05,
+          delay: 0.2,
+          ease: "power2.out"
         });
       }
     });
