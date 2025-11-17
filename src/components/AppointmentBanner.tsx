@@ -257,29 +257,33 @@ export const AppointmentBanner = ({
       </div>
 
       <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
-        <AlertDialogContent className="max-w-md sm:max-w-lg">
+        <AlertDialogContent className="max-w-[95vw] sm:max-w-md mx-4">
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar Cancelamento</AlertDialogTitle>
             <AlertDialogDescription className="whitespace-normal break-words">
               Tem certeza que deseja cancelar este agendamento? Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isCanceling}>
-              Não, manter agendamento
+          <AlertDialogFooter className="gap-2 flex-col sm:flex-row">
+            <AlertDialogCancel disabled={isCanceling} className="w-full sm:w-auto">
+              <span className="sm:hidden">Manter</span>
+              <span className="hidden sm:inline">Não, manter agendamento</span>
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleCancelConfirm}
               disabled={isCanceling}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto"
             >
               {isCanceling ? (
-                <span className="flex items-center gap-2">
+                <span className="flex items-center gap-2 justify-center">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Cancelando...
                 </span>
               ) : (
-                "Sim, cancelar agendamento"
+                <>
+                  <span className="sm:hidden">Cancelar</span>
+                  <span className="hidden sm:inline">Sim, cancelar agendamento</span>
+                </>
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
