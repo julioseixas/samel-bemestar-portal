@@ -1,6 +1,6 @@
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2, Eye } from "lucide-react";
+import { Eye, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -13,10 +13,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Pagination,
   PaginationContent,
+  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -191,27 +192,55 @@ const ImageExamRequests = () => {
     setIsDetailDialogOpen(true);
   };
 
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const maxVisible = 5;
+    
+    if (totalPages <= maxVisible) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    
+    pages.push(1);
+    
+    if (currentPage > 3) {
+      pages.push('ellipsis-start');
+    }
+    
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+    
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    
+    if (currentPage < totalPages - 2) {
+      pages.push('ellipsis-end');
+    }
+    
+    pages.push(totalPages);
+    
+    return pages;
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
       
-      <main className="flex-1 bg-background">
-        <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 md:px-6 md:py-10">
-          <div className="mb-8 flex items-center justify-between">
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-              Pedidos de Exames de Imagem
-            </h1>
-            <Button
-              variant="outline"
-              onClick={() => navigate("/exam-request-choice")}
-              className="border-border text-foreground hover:bg-accent hover:text-accent-foreground"
-              size="sm"
-            >
-              ← Voltar
-            </Button>
-          </div>
-
-          {loading ? (
+      <main className="flex-1">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:px-6 md:py-10">
+          <Card>
+            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 p-3 sm:p-6">
+              <CardTitle className="text-lg sm:text-2xl">Pedidos de Exames de Imagem</CardTitle>
+              <Button
+                variant="outline"
+                onClick={() => navigate("/exam-request-choice")}
+                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
+                size="sm"
+              >
+                ← Voltar
+              </Button>
+            </CardHeader>
+            <CardContent className="p-3 sm:p-6">{loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
@@ -223,35 +252,34 @@ const ImageExamRequests = () => {
             </div>
           ) : (
             <>
-              <div className="rounded-lg border border-border bg-card overflow-hidden">
+              <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
                 <Table>
-                  <TableHeader>
-                    <TableRow className="border-b border-border hover:bg-transparent">
-                      <TableHead className="text-muted-foreground font-medium">Data</TableHead>
-                      <TableHead className="text-muted-foreground font-medium">Paciente</TableHead>
-                      <TableHead className="text-muted-foreground font-medium">Profissional</TableHead>
-                      <TableHead className="text-muted-foreground font-medium">Especialidade</TableHead>
-                      <TableHead className="text-muted-foreground font-medium">Status</TableHead>
-                      <TableHead className="text-muted-foreground font-medium text-center">Ver</TableHead>
+                  <TableHeader className="sticky top-0 bg-card z-10">
+                    <TableRow>
+                      <TableHead>Data</TableHead>
+                      <TableHead>Paciente</TableHead>
+                      <TableHead>Profissional</TableHead>
+                      <TableHead>Especialidade</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Ver</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {currentRequests.map((request, index) => (
                       <TableRow 
                         key={`${request.nrAtendimento}-${index}`}
-                        className="border-b border-border hover:bg-accent/50 transition-colors"
+                        className="hover:bg-muted/50"
                       >
                         <TableCell className="font-medium">{formatDate(request.dataEntrada)}</TableCell>
                         <TableCell>{request.nomeCliente}</TableCell>
                         <TableCell>{request.nomeProfissional}</TableCell>
                         <TableCell>{request.dsEspecialidade}</TableCell>
                         <TableCell>{request.dsStatus}</TableCell>
-                        <TableCell className="text-center">
+                        <TableCell className="text-right">
                           <Button
-                            variant="ghost"
                             size="icon"
+                            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-9 w-9"
                             onClick={() => handleViewDetails(request)}
-                            className="h-9 w-9 rounded-full bg-success/20 hover:bg-success/30 text-success"
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
@@ -263,70 +291,37 @@ const ImageExamRequests = () => {
               </div>
 
               {totalPages > 1 && (
-                <div className="mt-8 flex justify-center">
+                <div className="mt-6">
                   <Pagination>
-                    <PaginationContent className="gap-1">
+                    <PaginationContent>
                       <PaginationItem>
-                        <PaginationPrevious
+                        <PaginationPrevious 
                           onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                          className={`cursor-pointer border-border ${
-                            currentPage === 1 ? "pointer-events-none opacity-50" : "hover:bg-accent"
-                          }`}
-                        >
-                          Anterior
-                        </PaginationPrevious>
+                          className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        />
                       </PaginationItem>
                       
-                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                        let pageNum;
-                        if (totalPages <= 5) {
-                          pageNum = i + 1;
-                        } else if (currentPage <= 3) {
-                          pageNum = i + 1;
-                        } else if (currentPage >= totalPages - 2) {
-                          pageNum = totalPages - 4 + i;
-                        } else {
-                          pageNum = currentPage - 2 + i;
-                        }
-                        return (
-                          <PaginationItem key={pageNum}>
+                      {getPageNumbers().map((page, i) => (
+                        <PaginationItem key={`${page}-${i}`}>
+                          {typeof page === 'number' ? (
                             <PaginationLink
-                              onClick={() => handlePageChange(pageNum)}
-                              isActive={currentPage === pageNum}
-                              className="cursor-pointer border-border hover:bg-accent"
+                              onClick={() => handlePageChange(page)}
+                              isActive={currentPage === page}
+                              className="cursor-pointer"
                             >
-                              {pageNum}
+                              {page}
                             </PaginationLink>
-                          </PaginationItem>
-                        );
-                      })}
-                      
-                      {totalPages > 5 && currentPage < totalPages - 2 && (
-                        <PaginationItem>
-                          <span className="px-2">...</span>
+                          ) : (
+                            <PaginationEllipsis />
+                          )}
                         </PaginationItem>
-                      )}
-                      
-                      {totalPages > 5 && currentPage < totalPages - 2 && (
-                        <PaginationItem>
-                          <PaginationLink
-                            onClick={() => handlePageChange(totalPages)}
-                            className="cursor-pointer border-border hover:bg-accent"
-                          >
-                            {totalPages}
-                          </PaginationLink>
-                        </PaginationItem>
-                      )}
+                      ))}
                       
                       <PaginationItem>
-                        <PaginationNext
+                        <PaginationNext 
                           onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-                          className={`cursor-pointer border-border ${
-                            currentPage === totalPages ? "pointer-events-none opacity-50" : "hover:bg-accent"
-                          }`}
-                        >
-                          Próximo
-                        </PaginationNext>
+                          className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        />
                       </PaginationItem>
                     </PaginationContent>
                   </Pagination>
@@ -334,6 +329,8 @@ const ImageExamRequests = () => {
               )}
             </>
           )}
+            </CardContent>
+          </Card>
         </div>
       </main>
 
