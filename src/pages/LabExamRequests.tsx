@@ -1,10 +1,11 @@
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { Eye, Loader2 } from "lucide-react";
+import { Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { getApiHeaders } from "@/lib/api-headers";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -240,16 +241,24 @@ const LabExamRequests = () => {
                 ← Voltar
               </Button>
             </CardHeader>
-            <CardContent className="p-3 sm:p-6">{loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : requests.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">
-                Nenhum pedido de exame laboratorial encontrado
-              </p>
-            </div>
+            <CardContent className="p-3 sm:p-6">
+              {loading ? (
+                <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
+                  <div className="space-y-4">
+                    {[...Array(10)].map((_, i) => (
+                      <div key={i} className="flex items-center space-x-4">
+                        <Skeleton className="h-12 w-[180px]" />
+                        <Skeleton className="h-12 flex-1" />
+                        <Skeleton className="h-12 w-[200px]" />
+                        <Skeleton className="h-10 w-10 rounded-full" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : requests.length === 0 ? (
+                <div className="flex items-center justify-center py-8">
+                  <p className="text-muted-foreground">Nenhum pedido de exame laboratorial encontrado.</p>
+                </div>
           ) : (
             <>
               <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
