@@ -1,6 +1,6 @@
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -22,6 +22,12 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface ExamRequest {
   nrAtendimento: number;
@@ -50,6 +56,8 @@ const ImageExamRequests = () => {
   const [requests, setRequests] = useState<ExamRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedRequest, setSelectedRequest] = useState<ExamRequest | null>(null);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -178,30 +186,29 @@ const ImageExamRequests = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleViewDetails = (request: ExamRequest) => {
+    setSelectedRequest(request);
+    setIsDetailDialogOpen(true);
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
       
-      <main className="flex-1">
-        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:px-6 md:py-10">
-          <div className="mb-6 sm:mb-8">
-            <div className="flex flex-col sm:flex-row items-center justify-between mb-2 gap-2">
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground md:text-3xl">
-                Pedidos de Exames de Imagem
-              </h2>
-              <Button
-                variant="outline"
-                onClick={() => navigate("/exam-request-choice")}
-                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
-                size="sm"
-              >
-                <ArrowLeft className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                Voltar
-              </Button>
-            </div>
-            <p className="text-sm sm:text-base text-muted-foreground md:text-lg">
-              Visualize seus pedidos de exames de imagem
-            </p>
+      <main className="flex-1 bg-background">
+        <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 md:px-6 md:py-10">
+          <div className="mb-8 flex items-center justify-between">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+              Pedidos de Exames de Imagem
+            </h1>
+            <Button
+              variant="outline"
+              onClick={() => navigate("/exam-request-choice")}
+              className="border-border text-foreground hover:bg-accent hover:text-accent-foreground"
+              size="sm"
+            >
+              ← Voltar
+            </Button>
           </div>
 
           {loading ? (
@@ -216,65 +223,110 @@ const ImageExamRequests = () => {
             </div>
           ) : (
             <>
-              <ScrollArea className="w-full">
-                <div className="rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Data</TableHead>
-                        <TableHead>Paciente</TableHead>
-                        <TableHead>Médico</TableHead>
-                        <TableHead>Especialidade</TableHead>
-                        <TableHead>Detalhes</TableHead>
-                        <TableHead>Status</TableHead>
+              <div className="rounded-lg border border-border bg-card overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-b border-border hover:bg-transparent">
+                      <TableHead className="text-muted-foreground font-medium">Data</TableHead>
+                      <TableHead className="text-muted-foreground font-medium">Paciente</TableHead>
+                      <TableHead className="text-muted-foreground font-medium">Profissional</TableHead>
+                      <TableHead className="text-muted-foreground font-medium">Especialidade</TableHead>
+                      <TableHead className="text-muted-foreground font-medium">Status</TableHead>
+                      <TableHead className="text-muted-foreground font-medium text-center">Ver</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {currentRequests.map((request, index) => (
+                      <TableRow 
+                        key={`${request.nrAtendimento}-${index}`}
+                        className="border-b border-border hover:bg-accent/50 transition-colors"
+                      >
+                        <TableCell className="font-medium">{formatDate(request.dataEntrada)}</TableCell>
+                        <TableCell>{request.nomeCliente}</TableCell>
+                        <TableCell>{request.nomeProfissional}</TableCell>
+                        <TableCell>{request.dsEspecialidade}</TableCell>
+                        <TableCell>{request.dsStatus}</TableCell>
+                        <TableCell className="text-center">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleViewDetails(request)}
+                            className="h-9 w-9 rounded-full bg-success/20 hover:bg-success/30 text-success"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
                       </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {currentRequests.map((request, index) => (
-                        <TableRow key={`${request.nrAtendimento}-${index}`}>
-                          <TableCell>{formatDate(request.dataEntrada)}</TableCell>
-                          <TableCell>{request.nomeCliente}</TableCell>
-                          <TableCell>{request.nomeProfissional}</TableCell>
-                          <TableCell>{request.dsEspecialidade}</TableCell>
-                          <TableCell className="max-w-xs truncate">
-                            {request.retornoDadosMobile || "-"}
-                          </TableCell>
-                          <TableCell>{request.dsStatus}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </ScrollArea>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
 
               {totalPages > 1 && (
-                <div className="mt-6 flex justify-center">
+                <div className="mt-8 flex justify-center">
                   <Pagination>
-                    <PaginationContent>
+                    <PaginationContent className="gap-1">
                       <PaginationItem>
                         <PaginationPrevious
                           onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                          className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                        />
+                          className={`cursor-pointer border-border ${
+                            currentPage === 1 ? "pointer-events-none opacity-50" : "hover:bg-accent"
+                          }`}
+                        >
+                          Anterior
+                        </PaginationPrevious>
                       </PaginationItem>
                       
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                        <PaginationItem key={page}>
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let pageNum;
+                        if (totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (currentPage <= 3) {
+                          pageNum = i + 1;
+                        } else if (currentPage >= totalPages - 2) {
+                          pageNum = totalPages - 4 + i;
+                        } else {
+                          pageNum = currentPage - 2 + i;
+                        }
+                        return (
+                          <PaginationItem key={pageNum}>
+                            <PaginationLink
+                              onClick={() => handlePageChange(pageNum)}
+                              isActive={currentPage === pageNum}
+                              className="cursor-pointer border-border hover:bg-accent"
+                            >
+                              {pageNum}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      })}
+                      
+                      {totalPages > 5 && currentPage < totalPages - 2 && (
+                        <PaginationItem>
+                          <span className="px-2">...</span>
+                        </PaginationItem>
+                      )}
+                      
+                      {totalPages > 5 && currentPage < totalPages - 2 && (
+                        <PaginationItem>
                           <PaginationLink
-                            onClick={() => handlePageChange(page)}
-                            isActive={currentPage === page}
-                            className="cursor-pointer"
+                            onClick={() => handlePageChange(totalPages)}
+                            className="cursor-pointer border-border hover:bg-accent"
                           >
-                            {page}
+                            {totalPages}
                           </PaginationLink>
                         </PaginationItem>
-                      ))}
+                      )}
                       
                       <PaginationItem>
                         <PaginationNext
                           onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-                          className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                        />
+                          className={`cursor-pointer border-border ${
+                            currentPage === totalPages ? "pointer-events-none opacity-50" : "hover:bg-accent"
+                          }`}
+                        >
+                          Próximo
+                        </PaginationNext>
                       </PaginationItem>
                     </PaginationContent>
                   </Pagination>
@@ -284,6 +336,52 @@ const ImageExamRequests = () => {
           )}
         </div>
       </main>
+
+      <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Detalhes do Pedido</DialogTitle>
+          </DialogHeader>
+          {selectedRequest && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Data</p>
+                  <p className="font-medium">{formatDate(selectedRequest.dataEntrada)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Status</p>
+                  <p className="font-medium">{selectedRequest.dsStatus}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Paciente</p>
+                  <p className="font-medium">{selectedRequest.nomeCliente}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Profissional</p>
+                  <p className="font-medium">{selectedRequest.nomeProfissional}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Especialidade</p>
+                  <p className="font-medium">{selectedRequest.dsEspecialidade}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Setor</p>
+                  <p className="font-medium">{selectedRequest.dsSetor || "-"}</p>
+                </div>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground mb-2">Detalhes</p>
+                <div className="rounded-md bg-muted p-4">
+                  <p className="text-sm whitespace-pre-wrap">
+                    {selectedRequest.retornoDadosMobile || "Nenhum detalhe disponível"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
