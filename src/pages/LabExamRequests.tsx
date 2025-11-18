@@ -455,68 +455,68 @@ const LabExamRequests = () => {
       </main>
 
       <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Pedido de Exame Laboratorial</DialogTitle>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col">
+          <DialogHeader className="border-b pb-4">
+            <DialogTitle className="text-xl">Pedido de Exame Laboratorial</DialogTitle>
           </DialogHeader>
-          {selectedRequest && (
-            <>
+          <div className="flex-1 overflow-y-auto">
+            {selectedRequest && (
               <ExamRequestView examData={selectedRequest} />
-              <DialogFooter className="flex flex-row justify-end gap-2 sm:gap-3">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={handleDownloadPDF}
-                        className="h-9 w-9"
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Baixar PDF</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={handleShare}
-                        className="h-9 w-9"
-                      >
-                        <Share2 className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Compartilhar</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={handlePrint}
-                        className="h-9 w-9"
-                      >
-                        <Printer className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Imprimir</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </DialogFooter>
-            </>
-          )}
+            )}
+          </div>
+          <DialogFooter className="border-t pt-4 flex flex-row justify-end gap-2 sm:gap-3">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleDownloadPDF}
+                    className="h-9 w-9"
+                  >
+                    <Download className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Baixar PDF</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleShare}
+                    className="h-9 w-9"
+                  >
+                    <Share2 className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Compartilhar</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handlePrint}
+                    className="h-9 w-9"
+                  >
+                    <Printer className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Imprimir</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
