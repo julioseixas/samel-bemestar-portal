@@ -33,7 +33,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { ExamRequestView } from "@/components/ExamRequestView";
-import { Download, Share2, Printer } from "lucide-react";
+import { Download, Share2, Printer, X } from "lucide-react";
 import html2pdf from "html2pdf.js";
 import {
   Tooltip,
@@ -465,14 +465,23 @@ const LabExamRequests = () => {
             )}
           </div>
           <DialogFooter className="border-t pt-4 flex flex-row justify-between gap-2 sm:gap-3">
-            <Button
-              variant="outline"
-              onClick={() => setIsDetailDialogOpen(false)}
-              className="text-xs sm:text-sm"
-              size="sm"
-            >
-              Fechar
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setIsDetailDialogOpen(false)}
+                    className="h-9 w-9"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Fechar</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <div className="flex gap-2 sm:gap-3">
               <TooltipProvider>
                 <Tooltip>
