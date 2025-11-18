@@ -14,6 +14,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface ExamRequest {
   nrAtendimento: number;
@@ -41,6 +49,8 @@ const LabExamRequests = () => {
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [requests, setRequests] = useState<ExamRequest[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const patientData = localStorage.getItem("patientData");
@@ -158,6 +168,16 @@ const LabExamRequests = () => {
     }
   };
 
+  const totalPages = Math.ceil(requests.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentRequests = requests.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
@@ -195,36 +215,72 @@ const LabExamRequests = () => {
               </p>
             </div>
           ) : (
-            <ScrollArea className="w-full">
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Data</TableHead>
-                      <TableHead>Paciente</TableHead>
-                      <TableHead>Médico</TableHead>
-                      <TableHead>Especialidade</TableHead>
-                      <TableHead>Detalhes</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {requests.map((request, index) => (
-                      <TableRow key={`${request.nrAtendimento}-${index}`}>
-                        <TableCell>{formatDate(request.dataEntrada)}</TableCell>
-                        <TableCell>{request.nomeCliente}</TableCell>
-                        <TableCell>{request.nomeProfissional}</TableCell>
-                        <TableCell>{request.dsEspecialidade}</TableCell>
-                        <TableCell className="max-w-xs truncate">
-                          {request.retornoDadosMobile || "-"}
-                        </TableCell>
-                        <TableCell>{request.dsStatus}</TableCell>
+            <>
+              <ScrollArea className="w-full">
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Data</TableHead>
+                        <TableHead>Paciente</TableHead>
+                        <TableHead>Médico</TableHead>
+                        <TableHead>Especialidade</TableHead>
+                        <TableHead>Detalhes</TableHead>
+                        <TableHead>Status</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </ScrollArea>
+                    </TableHeader>
+                    <TableBody>
+                      {currentRequests.map((request, index) => (
+                        <TableRow key={`${request.nrAtendimento}-${index}`}>
+                          <TableCell>{formatDate(request.dataEntrada)}</TableCell>
+                          <TableCell>{request.nomeCliente}</TableCell>
+                          <TableCell>{request.nomeProfissional}</TableCell>
+                          <TableCell>{request.dsEspecialidade}</TableCell>
+                          <TableCell className="max-w-xs truncate">
+                            {request.retornoDadosMobile || "-"}
+                          </TableCell>
+                          <TableCell>{request.dsStatus}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </ScrollArea>
+
+              {totalPages > 1 && (
+                <div className="mt-6 flex justify-center">
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                          className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        />
+                      </PaginationItem>
+                      
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <PaginationItem key={page}>
+                          <PaginationLink
+                            onClick={() => handlePageChange(page)}
+                            isActive={currentPage === page}
+                            className="cursor-pointer"
+                          >
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      ))}
+                      
+                      <PaginationItem>
+                        <PaginationNext
+                          onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                          className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>
