@@ -81,10 +81,8 @@ const PrescriptionRenewalDetails = () => {
   }, [navigate]);
 
   useEffect(() => {
-    if (selectedPatient) {
-      fetchConvenios();
-    }
-  }, [selectedPatient]);
+    fetchConvenios();
+  }, []);
 
   useEffect(() => {
     if (selectedConvenio && selectedPatient) {
@@ -93,28 +91,24 @@ const PrescriptionRenewalDetails = () => {
   }, [selectedConvenio, selectedPatient]);
 
   const fetchConvenios = async () => {
-    if (!selectedPatient?.codigoCarteirinha) return;
-
     try {
       setLoadingConvenios(true);
       const headers = getApiHeaders();
       const response = await fetch(
-        `https://api-portalpaciente-web.samel.com.br/api/Convenio/ListarConveniosDisponiveis?codigoCarteirinha=${selectedPatient.codigoCarteirinha}`,
-        { headers }
+        'https://api-portalpaciente-web.samel.com.br/api/Convenio/ListarConvenios',
+        {
+          method: "GET",
+          headers
+        }
       );
-
-      if (!response.ok) {
-        throw new Error("Erro ao buscar convênios");
-      }
-
       const data = await response.json();
-
+      
       if (data.sucesso && data.dados) {
         setConvenios(data.dados);
         
-        const convenio19 = data.dados.find((c: Convenio) => c.id === 19);
-        if (convenio19) {
-          setSelectedConvenio(convenio19.id.toString());
+        const convenioSamel = data.dados.find((convenio: Convenio) => convenio.id === 19);
+        if (convenioSamel) {
+          setSelectedConvenio("19");
         }
       }
     } catch (error) {
