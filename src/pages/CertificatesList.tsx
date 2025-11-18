@@ -142,7 +142,8 @@ const CertificatesList = () => {
     }
 
     // Verificar se o dispositivo suporta compartilhamento
-    setCanShare(typeof navigator !== 'undefined' && typeof navigator.share === 'function');
+    const hasShareSupport = 'share' in navigator && typeof navigator.share === 'function';
+    setCanShare(hasShareSupport);
   }, []);
 
   const fetchCertificates = async (clientIds: number[]) => {
