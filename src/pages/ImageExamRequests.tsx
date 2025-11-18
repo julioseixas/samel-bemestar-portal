@@ -71,6 +71,7 @@ const ImageExamRequests = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRequest, setSelectedRequest] = useState<ExamRequest | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [canShare, setCanShare] = useState(false);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -89,6 +90,9 @@ const ImageExamRequests = () => {
     if (photo) {
       setProfilePhoto(photo);
     }
+
+    // Verificar se o dispositivo suporta compartilhamento
+    setCanShare(typeof navigator !== 'undefined' && typeof navigator.share === 'function');
   }, []);
 
   useEffect(() => {
@@ -500,23 +504,25 @@ const ImageExamRequests = () => {
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={handleShare}
-                      className="h-9 w-9"
-                    >
-                      <Share2 className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Compartilhar</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              {canShare && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleShare}
+                        className="h-9 w-9"
+                      >
+                        <Share2 className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Compartilhar</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>

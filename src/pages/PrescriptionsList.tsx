@@ -74,6 +74,7 @@ const PrescriptionsList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedPrescription, setSelectedPrescription] = useState<Prescription | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [canShare, setCanShare] = useState(false);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -139,6 +140,9 @@ const PrescriptionsList = () => {
     if (storedProfilePhoto) {
       setProfilePhoto(storedProfilePhoto);
     }
+
+    // Verificar se o dispositivo suporta compartilhamento
+    setCanShare(typeof navigator !== 'undefined' && typeof navigator.share === 'function');
   }, []);
 
   const fetchPrescriptions = async (clientIds: number[]) => {
@@ -520,17 +524,19 @@ const PrescriptionsList = () => {
                 </TooltipContent>
               </Tooltip>
 
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="outline" onClick={handleShareWhatsApp} size="icon" className="h-9 w-9">
-                    <Share2 className="h-4 w-4" />
-                    <span className="sr-only">Compartilhar</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Compartilhar</p>
-                </TooltipContent>
-              </Tooltip>
+              {canShare && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" onClick={handleShareWhatsApp} size="icon" className="h-9 w-9">
+                      <Share2 className="h-4 w-4" />
+                      <span className="sr-only">Compartilhar</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Compartilhar</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
 
               <Tooltip>
                 <TooltipTrigger asChild>
