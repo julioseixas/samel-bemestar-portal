@@ -80,17 +80,15 @@ export const AppointmentBanner = ({
     setIsCanceling(true);
 
     try {
-      // Monta o body de acordo com o tipo de agendamento
-      const requestBody = selectedAppointmentType === 1 
-        ? { idAgendaExame: selectedAppointmentId } // Exame
-        : { idAgenda: selectedAppointmentId, justificativa: "Cancelamento via portal do paciente" }; // Consulta
-
       const response = await fetch(
         "https://api-portalpaciente-web.samel.com.br/api/Agenda/CancelarAgendamento",
         {
           method: "POST",
           headers: getApiHeaders(),
-          body: JSON.stringify(requestBody),
+          body: JSON.stringify({
+            idHorarioAgenda: selectedAppointmentId,
+            tipoAgendamento: selectedAppointmentType
+          }),
         }
       );
 
