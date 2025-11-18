@@ -1,11 +1,17 @@
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
+import { Eye, Hourglass, Beaker } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { getApiHeaders } from "@/lib/api-headers";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Table,
   TableBody,
@@ -223,6 +229,39 @@ const ImageExamRequests = () => {
     return pages;
   };
 
+  const getStatusIcon = (status: string) => {
+    if (status === "Pendente") {
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center justify-center">
+                <Hourglass className="h-5 w-5 text-warning animate-pulse" />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{status}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="flex items-center justify-center">
+              <Beaker className="h-5 w-5 text-success" />
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{status}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
@@ -259,45 +298,57 @@ const ImageExamRequests = () => {
                 <div className="flex items-center justify-center py-8">
                   <p className="text-muted-foreground">Nenhum pedido de exame de imagem encontrado.</p>
                 </div>
-          ) : (
-            <>
-              <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
-                <Table>
-                  <TableHeader className="sticky top-0 bg-card z-10">
-                    <TableRow>
-                      <TableHead>Data</TableHead>
-                      <TableHead>Paciente</TableHead>
-                      <TableHead>Profissional</TableHead>
-                      <TableHead>Especialidade</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Ver</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {currentRequests.map((request, index) => (
-                      <TableRow 
-                        key={`${request.nrAtendimento}-${index}`}
-                        className="hover:bg-muted/50"
-                      >
-                        <TableCell className="font-medium">{formatDate(request.dataEntrada)}</TableCell>
-                        <TableCell>{request.nomeCliente}</TableCell>
-                        <TableCell>{request.nomeProfissional}</TableCell>
-                        <TableCell>{request.dsEspecialidade}</TableCell>
-                        <TableCell>{request.dsStatus}</TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            size="icon"
-                            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-9 w-9"
-                            onClick={() => handleViewDetails(request)}
+              ) : (
+                <>
+                  <div className="mb-4 flex items-center gap-6 text-sm text-muted-foreground border-b pb-3">
+                    <div className="flex items-center gap-2">
+                      <Hourglass className="h-4 w-4 text-warning animate-pulse" />
+                      <span>Pendente</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Beaker className="h-4 w-4 text-success" />
+                      <span>Coletado</span>
+                    </div>
+                  </div>
+                  <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
+                    <Table>
+                      <TableHeader className="sticky top-0 bg-card z-10">
+                        <TableRow>
+                          <TableHead>Data</TableHead>
+                          <TableHead>Paciente</TableHead>
+                          <TableHead>Profissional</TableHead>
+                          <TableHead>Especialidade</TableHead>
+                          <TableHead className="text-center">Status</TableHead>
+                          <TableHead className="text-right">Ver</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {currentRequests.map((request, index) => (
+                          <TableRow 
+                            key={`${request.nrAtendimento}-${index}`}
+                            className="hover:bg-muted/50"
                           >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+                            <TableCell className="font-medium">{formatDate(request.dataEntrada)}</TableCell>
+                            <TableCell>{request.nomeCliente}</TableCell>
+                            <TableCell>{request.nomeProfissional}</TableCell>
+                            <TableCell>{request.dsEspecialidade}</TableCell>
+                            <TableCell className="text-center">
+                              {getStatusIcon(request.dsStatus)}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button
+                                size="icon"
+                                className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-9 w-9"
+                                onClick={() => handleViewDetails(request)}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
 
               {totalPages > 1 && (
                 <div className="mt-6">
