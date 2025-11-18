@@ -455,8 +455,8 @@ const LabExamRequests = () => {
       </main>
 
       <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
-        <DialogContent className="max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col">
-          <DialogHeader className="border-b pb-4">
+        <DialogContent className="max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col p-4">
+          <DialogHeader className="border-b pb-3">
             <DialogTitle className="text-xl">Pedido de Exame Laboratorial</DialogTitle>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto">
@@ -464,7 +464,7 @@ const LabExamRequests = () => {
               <ExamRequestView examData={selectedRequest} />
             )}
           </div>
-          <DialogFooter className="border-t pt-4 flex flex-row justify-between gap-2 sm:gap-3">
+          <DialogFooter className="border-t pt-3 flex flex-row justify-between gap-2 sm:gap-3">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
