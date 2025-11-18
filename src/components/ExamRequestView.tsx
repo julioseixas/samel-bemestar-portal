@@ -16,16 +16,6 @@ interface ExamRequestViewProps {
 }
 
 export function ExamRequestView({ examData }: ExamRequestViewProps) {
-  const formatDate = (dateString: string) => {
-    if (!dateString) return "-";
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString("pt-BR");
-    } catch {
-      return dateString;
-    }
-  };
-
   return (
     <div id="printMe" className="bg-background p-6 max-w-[800px] mx-auto print:p-0">
       {/* CABEÇALHO */}
@@ -76,7 +66,7 @@ export function ExamRequestView({ examData }: ExamRequestViewProps) {
           </p>
           <p className="mb-1 text-sm">
             <span className="font-bold">Data Nasc: </span>
-            {formatDate(examData.dataNascimento)}
+            {examData.dataNascimento || "-"}
           </p>
           <p className="text-sm">
             <span className="font-bold">Convênio: </span>
@@ -94,7 +84,7 @@ export function ExamRequestView({ examData }: ExamRequestViewProps) {
           </p>
           <p className="text-sm">
             <span className="font-bold">Data de Entrada: </span>
-            {formatDate(examData.dataEntrada)}
+            {examData.dataEntrada || "-"}
           </p>
         </div>
       </div>
