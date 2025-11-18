@@ -32,17 +32,11 @@ const ExamRequestChoice = () => {
   }, []);
 
   const handleLabExamRequests = () => {
-    toast({
-      title: "Em desenvolvimento",
-      description: "Pedidos de exames laboratoriais em breve",
-    });
+    navigate("/lab-exam-requests");
   };
 
   const handleImageExamRequests = () => {
-    toast({
-      title: "Em desenvolvimento",
-      description: "Pedidos de exames de imagem em breve",
-    });
+    navigate("/image-exam-requests");
   };
 
   return (

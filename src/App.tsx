@@ -11,6 +11,8 @@ import SignupDetails from "./pages/SignupDetails";
 import NotFound from "./pages/NotFound";
 import ExamResults from "./pages/ExamResults";
 import ExamRequestChoice from "./pages/ExamRequestChoice";
+import LabExamRequests from "./pages/LabExamRequests";
+import ImageExamRequests from "./pages/ImageExamRequests";
 import LabExams from "./pages/LabExams";
 import CdiExams from "./pages/CdiExams";
 import PrescriptionsAndCertificates from "./pages/PrescriptionsAndCertificates";
@@ -49,7 +51,9 @@ const App = () => (
             <Route path="/signup/details" element={<SignupDetails />} />
             <Route path="/dashboard" element={<Index />} />
             <Route path="/exam-results" element={<ExamResults />} />
-            <Route path="/exam-request-choice" element={<ExamRequestChoice />} />
+          <Route path="/exam-request-choice" element={<ExamRequestChoice />} />
+          <Route path="/lab-exam-requests" element={<LabExamRequests />} />
+          <Route path="/image-exam-requests" element={<ImageExamRequests />} />
             <Route path="/lab-exams" element={<LabExams />} />
             <Route path="/cdi-exams" element={<CdiExams />} />
             <Route path="/prescriptions-and-certificates" element={<PrescriptionsAndCertificates />} />
