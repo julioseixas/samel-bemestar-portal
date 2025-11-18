@@ -220,48 +220,56 @@ const PrescriptionRenewalDetails = () => {
           </Button>
         </div>
 
-        {selectedPatient && (
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="text-lg">Paciente Selecionado</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {selectedPatient && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Paciente Selecionado</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Nome:</p>
+                  <p className="font-semibold text-foreground">{selectedPatient.nome}</p>
+                </div>
+                
+                {selectedPatient.codigoCarteirinha && (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Código da Carteirinha:</p>
+                    <p className="font-semibold text-foreground">{selectedPatient.codigoCarteirinha}</p>
+                  </div>
+                )}
+                
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold">{selectedPatient.nome}</span>
                   <Badge variant={selectedPatient.tipo === "Titular" ? "default" : "secondary"}>
                     {selectedPatient.tipo}
                   </Badge>
+                  {selectedPatient.sexo && (
+                    <Badge variant="outline">
+                      {selectedPatient.sexo === "M" ? "Masculino" : "Feminino"}
+                    </Badge>
+                  )}
                 </div>
-                {selectedPatient.sexo && (
-                  <p className="text-sm text-muted-foreground">
-                    {selectedPatient.sexo === "M" ? "Masculino" : "Feminino"}
-                    {selectedPatient.idade && ` • ${selectedPatient.idade} anos`}
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+              </CardContent>
+            </Card>
+          )}
 
-        <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Convênio</CardTitle>
+              <CardTitle className="text-lg">Detalhes da Renovação</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               {loadingConvenios ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <Label htmlFor="convenio">Selecione o convênio</Label>
+                  <Label htmlFor="convenio">Convênio</Label>
                   <Select value={selectedConvenio} onValueChange={setSelectedConvenio}>
                     <SelectTrigger id="convenio">
                       <SelectValue placeholder="Escolha um convênio" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-background z-50">
                       {convenios.map((convenio) => (
                         <SelectItem key={convenio.id} value={convenio.id.toString()}>
                           {convenio.descricao}
@@ -271,45 +279,40 @@ const PrescriptionRenewalDetails = () => {
                   </Select>
                 </div>
               )}
+
+              {selectedConvenio && (
+                <>
+                  {loadingEspecialidades ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Label htmlFor="especialidade">Especialidade</Label>
+                      <Select value={selectedEspecialidade} onValueChange={setSelectedEspecialidade}>
+                        <SelectTrigger id="especialidade">
+                          <SelectValue placeholder="Escolha uma especialidade" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-background z-50">
+                          {especialidades.map((especialidade) => (
+                            <SelectItem key={especialidade.id} value={especialidade.id.toString()}>
+                              {especialidade.descricao}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  {selectedEspecialidade && (
+                    <Button onClick={handleContinue} className="w-full mt-4" size="lg">
+                      Continuar
+                    </Button>
+                  )}
+                </>
+              )}
             </CardContent>
           </Card>
-
-          {selectedConvenio && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Especialidade</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {loadingEspecialidades ? (
-                  <div className="flex items-center justify-center py-8">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <Label htmlFor="especialidade">Selecione a especialidade</Label>
-                    <Select value={selectedEspecialidade} onValueChange={setSelectedEspecialidade}>
-                      <SelectTrigger id="especialidade">
-                        <SelectValue placeholder="Escolha uma especialidade" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {especialidades.map((especialidade) => (
-                          <SelectItem key={especialidade.id} value={especialidade.id.toString()}>
-                            {especialidade.descricao}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {selectedConvenio && selectedEspecialidade && (
-            <Button onClick={handleContinue} className="w-full" size="lg">
-              Continuar
-            </Button>
-          )}
         </div>
       </main>
     </div>
