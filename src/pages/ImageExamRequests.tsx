@@ -1,6 +1,6 @@
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { Eye, Hourglass, Beaker } from "lucide-react";
+import { Eye, Hourglass, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -251,7 +251,7 @@ const ImageExamRequests = () => {
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="flex items-center justify-center">
-              <Beaker className="h-5 w-5 text-success" />
+              <CheckCircle className="h-5 w-5 text-success" />
             </div>
           </TooltipTrigger>
           <TooltipContent>
@@ -306,7 +306,7 @@ const ImageExamRequests = () => {
                       <span>Pendente</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Beaker className="h-4 w-4 text-success" />
+                      <CheckCircle className="h-4 w-4 text-success" />
                       <span>Coletado</span>
                     </div>
                   </div>
