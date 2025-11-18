@@ -29,6 +29,8 @@ import ScheduledExams from "./pages/ScheduledExams";
 import TermsToSign from "./pages/TermsToSign";
 import TermsList from "./pages/TermsList";
 import PersonalData from "./pages/PersonalData";
+import PrescriptionRenewalSchedule from "./pages/PrescriptionRenewalSchedule";
+import PrescriptionRenewalDetails from "./pages/PrescriptionRenewalDetails";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +67,8 @@ const App = () => (
           <Route path="/terms-to-sign" element={<TermsToSign />} />
           <Route path="/terms-list/:patientId" element={<TermsList />} />
           <Route path="/personal-data" element={<PersonalData />} />
+          <Route path="/prescription-renewal-schedule" element={<PrescriptionRenewalSchedule />} />
+          <Route path="/prescription-renewal-details" element={<PrescriptionRenewalDetails />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

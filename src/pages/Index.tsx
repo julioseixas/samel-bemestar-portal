@@ -360,6 +360,43 @@ const Index = () => {
     }
   };
 
+  const handleRenewPrescription = () => {
+    const listToSchedule = localStorage.getItem("listToSchedule");
+    
+    if (listToSchedule) {
+      try {
+        const listAllPacient = JSON.parse(listToSchedule);
+        const hasDependents = listAllPacient.length > 1;
+        
+        if (hasDependents) {
+          navigate("/prescription-renewal-schedule");
+        } else {
+          const titular = listAllPacient[0];
+          if (titular) {
+            if (!titular.codigoCarteirinha || titular.codigoCarteirinha.trim() === '') {
+              toast({
+                variant: "destructive",
+                title: "Plano não encontrado",
+                description: "Seu cadastro não possui um plano de saúde ativo. Entre em contato com a Samel."
+              });
+              return;
+            }
+            
+            localStorage.setItem("selectedPatientRenewal", JSON.stringify(titular));
+            navigate("/prescription-renewal-details");
+          } else {
+            navigate("/prescription-renewal-schedule");
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao processar dados:", error);
+        navigate("/prescription-renewal-schedule");
+      }
+    } else {
+      navigate("/prescription-renewal-schedule");
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
@@ -508,7 +545,7 @@ const Index = () => {
                 buttonText="Renovar Receita"
                 variant="default"
                 useDashboardColor={true}
-                onClick={() => handleCardClick("Renovação de Receita")}
+                onClick={handleRenewPrescription}
                 />
               </div>
               
