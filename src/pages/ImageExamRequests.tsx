@@ -91,9 +91,22 @@ const ImageExamRequests = () => {
       setProfilePhoto(photo);
     }
 
-    // Verificar se o dispositivo suporta compartilhamento
-    const hasShareSupport = 'share' in navigator && typeof navigator.share === 'function';
-    setCanShare(hasShareSupport);
+    // Verificar se o dispositivo suporta compartilhamento de arquivos
+    const checkShareSupport = () => {
+      if (!navigator.share || !navigator.canShare) {
+        return false;
+      }
+      
+      // Criar um arquivo de teste para verificar suporte
+      try {
+        const testFile = new File(['test'], 'test.pdf', { type: 'application/pdf' });
+        return navigator.canShare({ files: [testFile] });
+      } catch {
+        return false;
+      }
+    };
+    
+    setCanShare(checkShareSupport());
   }, []);
 
   useEffect(() => {
