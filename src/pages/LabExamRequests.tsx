@@ -464,58 +464,68 @@ const LabExamRequests = () => {
               <ExamRequestView examData={selectedRequest} />
             )}
           </div>
-          <DialogFooter className="border-t pt-4 flex flex-row justify-end gap-2 sm:gap-3">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={handleDownloadPDF}
-                    className="h-9 w-9"
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Baixar PDF</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={handleShare}
-                    className="h-9 w-9"
-                  >
-                    <Share2 className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Compartilhar</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={handlePrint}
-                    className="h-9 w-9"
-                  >
-                    <Printer className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Imprimir</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+          <DialogFooter className="border-t pt-4 flex flex-row justify-between gap-2 sm:gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setIsDetailDialogOpen(false)}
+              className="text-xs sm:text-sm"
+              size="sm"
+            >
+              Fechar
+            </Button>
+            <div className="flex gap-2 sm:gap-3">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={handleDownloadPDF}
+                      className="h-9 w-9"
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Baixar PDF</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={handleShare}
+                      className="h-9 w-9"
+                    >
+                      <Share2 className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Compartilhar</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={handlePrint}
+                      className="h-9 w-9"
+                    >
+                      <Printer className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Imprimir</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
