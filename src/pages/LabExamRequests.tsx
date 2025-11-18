@@ -1,6 +1,7 @@
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { Eye, Hourglass, CheckCircle } from "lucide-react";
+import { Eye, CheckCircle } from "lucide-react";
+import { AnimatedHourglass } from "@/components/AnimatedHourglass";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -233,16 +234,16 @@ const LabExamRequests = () => {
     if (status === "Pendente") {
       return (
         <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex items-center justify-center">
-                <Hourglass className="h-5 w-5 text-warning animate-pulse" />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{status}</p>
-            </TooltipContent>
-          </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="flex items-center justify-center">
+            <AnimatedHourglass className="h-5 w-5 text-warning" />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{status}</p>
+        </TooltipContent>
+      </Tooltip>
         </TooltipProvider>
       );
     }
@@ -302,7 +303,7 @@ const LabExamRequests = () => {
                 <>
                   <div className="mb-4 flex items-center gap-6 text-sm text-muted-foreground border-b pb-3">
                     <div className="flex items-center gap-2">
-                      <Hourglass className="h-4 w-4 text-warning animate-pulse" />
+                      <AnimatedHourglass className="h-4 w-4 text-warning" />
                       <span>Pendente</span>
                     </div>
                     <div className="flex items-center gap-2">
