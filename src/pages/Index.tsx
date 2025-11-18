@@ -3,7 +3,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AppointmentBanner } from "@/components/AppointmentBanner";
 import { DashboardCard } from "@/components/DashboardCard";
-import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, FolderOpen, FileSignature, CalendarX } from "lucide-react";
+import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, ClipboardList, FolderOpen, FileSignature, CalendarX } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
@@ -499,13 +499,13 @@ const Index = () => {
               <div data-card>
                 <DashboardCard
                 title="PEDIDOS DE EXAME"
-                description="Acesse seu histórico médico completo"
-                icon={FolderOpen}
+                description="Visualize e gerencie seus pedidos de exame"
+                icon={ClipboardList}
                 iconColor="text-primary"
-                buttonText="Ver Prontuário"
+                buttonText="Ver Pedidos"
                 variant="default"
                 useDashboardColor={true}
-                onClick={() => handleCardClick("Meu Prontuário")}
+                onClick={() => navigate("/exam-request-choice")}
                 />
               </div>
               
