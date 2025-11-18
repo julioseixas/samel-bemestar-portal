@@ -8,12 +8,6 @@ import { useToast } from "@/hooks/use-toast";
 import { getApiHeaders } from "@/lib/api-headers";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
   Table,
   TableBody,
   TableCell,
@@ -36,7 +30,17 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
+import { ExamRequestView } from "@/components/ExamRequestView";
+import { Download, Share2, Printer } from "lucide-react";
+import html2pdf from "html2pdf.js";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ExamRequest {
   nrAtendimento: number;
@@ -198,6 +202,61 @@ const LabExamRequests = () => {
   const handleViewDetails = (request: ExamRequest) => {
     setSelectedRequest(request);
     setIsDetailDialogOpen(true);
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!selectedRequest) return;
+    const element = document.getElementById("printMe");
+    const options = {
+      margin: 0.5,
+      filename: `pedido_exame_lab_${selectedRequest.nrAtendimento}.pdf`,
+      image: { type: "jpeg" as const, quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "in", format: "a4", orientation: "portrait" as const },
+    };
+    html2pdf().set(options).from(element).save();
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleShare = async () => {
+    if (!selectedRequest) return;
+    const element = document.getElementById("printMe");
+    const options = {
+      margin: 0.5,
+      filename: `pedido_exame_lab_${selectedRequest.nrAtendimento}.pdf`,
+      image: { type: "jpeg" as const, quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "in", format: "a4", orientation: "portrait" as const },
+    };
+
+    try {
+      const pdfBlob = await html2pdf().set(options).from(element).outputPdf("blob");
+      const file = new File([pdfBlob], `pedido_exame_lab_${selectedRequest.nrAtendimento}.pdf`, {
+        type: "application/pdf",
+      });
+
+      if (navigator.share && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: "Pedido de Exame Laboratorial",
+        });
+      } else {
+        toast({
+          title: "Compartilhamento não disponível",
+          description: "Seu dispositivo não suporta compartilhamento de arquivos.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Erro ao compartilhar",
+        description: "Não foi possível compartilhar o documento.",
+        variant: "destructive",
+      });
+    }
   };
 
   const getPageNumbers = () => {
@@ -396,47 +455,67 @@ const LabExamRequests = () => {
       </main>
 
       <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Detalhes do Pedido</DialogTitle>
+            <DialogTitle>Pedido de Exame Laboratorial</DialogTitle>
           </DialogHeader>
           {selectedRequest && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Data</p>
-                  <p className="font-medium">{formatDate(selectedRequest.dataEntrada)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Status</p>
-                  <p className="font-medium">{selectedRequest.dsStatus}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Paciente</p>
-                  <p className="font-medium">{selectedRequest.nomeCliente}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Profissional</p>
-                  <p className="font-medium">{selectedRequest.nomeProfissional}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Especialidade</p>
-                  <p className="font-medium">{selectedRequest.dsEspecialidade}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Setor</p>
-                  <p className="font-medium">{selectedRequest.dsSetor || "-"}</p>
-                </div>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground mb-2">Detalhes</p>
-                <div className="rounded-md bg-muted p-4">
-                  <p className="text-sm whitespace-pre-wrap">
-                    {selectedRequest.retornoDadosMobile || "Nenhum detalhe disponível"}
-                  </p>
-                </div>
-              </div>
-            </div>
+            <>
+              <ExamRequestView examData={selectedRequest} />
+              <DialogFooter className="flex flex-row justify-end gap-2 sm:gap-3">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleDownloadPDF}
+                        className="h-9 w-9"
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Baixar PDF</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleShare}
+                        className="h-9 w-9"
+                      >
+                        <Share2 className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Compartilhar</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handlePrint}
+                        className="h-9 w-9"
+                      >
+                        <Printer className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Imprimir</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </DialogFooter>
+            </>
           )}
         </DialogContent>
       </Dialog>
