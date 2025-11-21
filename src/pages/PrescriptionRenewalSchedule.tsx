@@ -35,9 +35,26 @@ const PrescriptionRenewalSchedule = () => {
   const [showNoHealthPlanDialog, setShowNoHealthPlanDialog] = useState(false);
 
   useEffect(() => {
+    console.log("🔍 PrescriptionRenewalSchedule - Verificando localStorage");
+    
     const storedTitular = localStorage.getItem("titular");
     const storedListToSchedule = localStorage.getItem("listToSchedule");
     const storedProfilePhoto = localStorage.getItem("profilePhoto");
+    const userToken = localStorage.getItem("user");
+
+    console.log("📦 Dados encontrados:", {
+      titular: !!storedTitular,
+      listToSchedule: !!storedListToSchedule,
+      profilePhoto: !!storedProfilePhoto,
+      userToken: !!userToken
+    });
+
+    // Se não houver dados, redirecionar para login
+    if (!userToken) {
+      console.log("⚠️ Sem token - redirecionando para login");
+      navigate("/login");
+      return;
+    }
 
     if (storedTitular) {
       try {
@@ -54,6 +71,7 @@ const PrescriptionRenewalSchedule = () => {
     if (storedListToSchedule) {
       try {
         const parsedList = JSON.parse(storedListToSchedule);
+        console.log("📋 Lista parseada:", parsedList);
         
         const allPatients: Patient[] = [];
         
@@ -61,8 +79,12 @@ const PrescriptionRenewalSchedule = () => {
           ? parsedList 
           : parsedList.listAllPacient || [];
         
+        console.log("👥 Pacientes encontrados:", patientList.length);
+        
         if (patientList.length > 0) {
           patientList.forEach((patient: any) => {
+            console.log("👤 Processando paciente:", patient.nome, patient.tipo || patient.tipoBeneficiario);
+            
             if (patient.tipoBeneficiario === "Titular" || patient.tipo === "Titular") {
               const titularId = patient.id || patient.cdPessoaFisica;
               
@@ -96,17 +118,22 @@ const PrescriptionRenewalSchedule = () => {
             }
           });
           
+          console.log("✅ Total de pacientes processados:", allPatients.length);
           setPatients(allPatients);
+        } else {
+          console.log("⚠️ Nenhum paciente encontrado na lista");
         }
       } catch (error) {
-        console.error("Erro ao processar lista de pacientes:", error);
+        console.error("❌ Erro ao processar lista de pacientes:", error);
       }
+    } else {
+      console.log("⚠️ listToSchedule não encontrado no localStorage");
     }
 
     if (storedProfilePhoto) {
       setProfilePhoto(storedProfilePhoto);
     }
-  }, []);
+  }, [navigate]);
 
   const handleSelectPatient = (patient: Patient) => {
     if (!patient.codigoCarteirinha) {
