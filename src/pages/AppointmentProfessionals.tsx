@@ -19,6 +19,7 @@ interface Unidade {
 interface Profissional {
   idAgenda: number;
   dataAgenda: string;
+  dataAgenda2: string;
   id: string;
   nome: string;
   dsEspecialidade: string;
