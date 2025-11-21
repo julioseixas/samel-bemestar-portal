@@ -308,7 +308,7 @@ const PrescriptionRenewalDetails = () => {
                   ) : (
                     <div className="space-y-2">
                       <Label htmlFor="especialidade">Especialidade</Label>
-                      <Select value={selectedEspecialidade} onValueChange={setSelectedEspecialidade}>
+                      <Select value={selectedEspecialidade} onValueChange={setSelectedEspecialidade} disabled>
                         <SelectTrigger id="especialidade">
                           <SelectValue placeholder="Escolha uma especialidade" />
                         </SelectTrigger>
