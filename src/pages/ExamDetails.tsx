@@ -238,6 +238,38 @@ const ExamDetails = () => {
           return item;
         });
         
+        // Função para filtrar agendas duplicadas, mantendo apenas a mais recente
+        const filtrarAgendasMaisRecentes = (arr: any[]) => {
+          const finalList: any[] = [];
+
+          for (let i = 0; i < arr.length; i++) {
+            const atual = arr[i];
+            let existe = false;
+
+            for (let j = 0; j < finalList.length; j++) {
+              if (finalList[j].idAgenda === atual.idAgenda) {
+                // Se já existe, mantém o mais recente
+                if (new Date(atual.dataAgenda2) > new Date(finalList[j].dataAgenda2)) {
+                  finalList[j] = atual;
+                }
+                existe = true;
+              }
+            }
+
+            if (!existe) {
+              finalList.push(atual);
+            }
+          }
+
+          return finalList;
+        };
+
+        // Aplicar o filtro em cada grupo de profissionais
+        normalizedData = normalizedData.map((group: any) => ({
+          ...group,
+          dados: filtrarAgendasMaisRecentes(group.dados || [])
+        }));
+        
         localStorage.setItem("examProfessionals", JSON.stringify(normalizedData));
         localStorage.setItem("selectedExamProcedimentos", JSON.stringify(selectedProcedimentos));
         localStorage.setItem("selectedExamConvenio", selectedConvenio);
