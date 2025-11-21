@@ -129,11 +129,23 @@ const PrescriptionRenewalDetails = () => {
     try {
       setLoadingEspecialidades(true);
       const headers = getApiHeaders();
-      const cdDependente = selectedPatient.id;
+      
+      const params = new URLSearchParams({
+        idConvenio: selectedConvenio,
+        idadeCliente: String(selectedPatient.idade || 0),
+        cdPessoaFisica: String(selectedPatient.cdPessoaFisica),
+        sexo: selectedPatient.sexo || "M",
+        descricaoEspecialidade: "",
+        cdDependente: String(selectedPatient.cdPessoaFisica),
+        nrCarteirinha: selectedPatient.codigoCarteirinha || "",
+      });
       
       const response = await fetch(
-        `https://api-portalpaciente-web.samel.com.br/api/Agenda/ListarEspecialidadesDisponiveisParaAgendamento2?cdPessoaFisica=${selectedPatient.cdPessoaFisica}&cdConvenio=${selectedConvenio}&codigoCarteirinha=${selectedPatient.codigoCarteirinha}&cdDependente=${cdDependente}`,
-        { headers }
+        `https://appv2-back.samel.com.br/api/Agenda/Consulta/ListarEspecialidadesComAgendaDisponivel3?${params}`,
+        { 
+          method: "GET",
+          headers 
+        }
       );
 
       if (!response.ok) {
@@ -144,6 +156,11 @@ const PrescriptionRenewalDetails = () => {
 
       if (data.sucesso && data.dados) {
         setEspecialidades(data.dados);
+        
+        const especialidade111 = data.dados.find((e: Especialidade) => e.id === 111);
+        if (especialidade111) {
+          setSelectedEspecialidade("111");
+        }
       }
     } catch (error) {
       console.error("Erro ao buscar especialidades:", error);
