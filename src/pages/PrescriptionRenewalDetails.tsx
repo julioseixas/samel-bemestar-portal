@@ -157,9 +157,11 @@ const PrescriptionRenewalDetails = () => {
       if (data.sucesso && data.dados) {
         setEspecialidades(data.dados);
         
-        const especialidade111 = data.dados.find((e: Especialidade) => e.id === 111);
-        if (especialidade111) {
-          setSelectedEspecialidade("111");
+        const renovacaoReceita = data.dados.find((e: Especialidade) => 
+          e.descricao === "Renovação de Receita"
+        );
+        if (renovacaoReceita) {
+          setSelectedEspecialidade(String(renovacaoReceita.id));
         }
       }
     } catch (error) {
