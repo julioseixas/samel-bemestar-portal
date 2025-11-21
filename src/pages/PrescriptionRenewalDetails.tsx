@@ -155,11 +155,13 @@ const PrescriptionRenewalDetails = () => {
       const data = await response.json();
 
       if (data.sucesso && data.dados) {
+        console.log("📋 Especialidades recebidas:", data.dados);
         setEspecialidades(data.dados);
         
         const renovacaoReceita = data.dados.find((e: Especialidade) => 
           e.descricao === "Renovação de Receita"
         );
+        console.log("🎯 Renovação de Receita encontrada:", renovacaoReceita);
         if (renovacaoReceita) {
           setSelectedEspecialidade(String(renovacaoReceita.id));
         }
@@ -313,8 +315,8 @@ const PrescriptionRenewalDetails = () => {
                           <SelectValue placeholder="Escolha uma especialidade" />
                         </SelectTrigger>
                         <SelectContent className="bg-background z-50">
-                          {especialidades.map((especialidade) => (
-                            <SelectItem key={especialidade.id} value={especialidade.id.toString()}>
+                          {especialidades.map((especialidade, index) => (
+                            <SelectItem key={`${especialidade.id}-${index}`} value={especialidade.id.toString()}>
                               {especialidade.descricao}
                             </SelectItem>
                           ))}
