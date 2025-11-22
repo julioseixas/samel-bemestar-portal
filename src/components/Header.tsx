@@ -54,7 +54,14 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
       try {
         const parsed = JSON.parse(storedNotifications);
         // Trata tanto array direto quanto objeto com chave 'dados'
-        const notifList = Array.isArray(parsed) ? parsed : (parsed.dados || []);
+        // Se 'dados' for um objeto vazio, usa array vazio
+        let notifList = [];
+        if (Array.isArray(parsed)) {
+          notifList = parsed;
+        } else if (parsed.dados && Array.isArray(parsed.dados)) {
+          notifList = parsed.dados;
+        }
+        
         setNotifications(notifList);
         
         const unread = notifList.filter((n: Notification) => !n.DT_VISUALIZADO).length;
@@ -99,14 +106,15 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
 
       if (response.ok) {
         const data = await response.json();
-        if (data.sucesso && Array.isArray(data.dados)) {
-          // Salva apenas o array de notificações
-          localStorage.setItem('notifications', JSON.stringify(data.dados));
-          setNotifications(data.dados);
-          
-          const unread = data.dados.filter((n: Notification) => !n.DT_VISUALIZADO).length;
-          setUnreadCount(unread);
-        }
+        // Se 'dados' for um objeto vazio, trata como array vazio
+        const notifList = Array.isArray(data.dados) ? data.dados : [];
+        
+        // Salva apenas o array de notificações
+        localStorage.setItem('notifications', JSON.stringify(notifList));
+        setNotifications(notifList);
+        
+        const unread = notifList.filter((n: Notification) => !n.DT_VISUALIZADO).length;
+        setUnreadCount(unread);
       }
     } catch (error) {
       console.error("Erro ao buscar notificações:", error);
