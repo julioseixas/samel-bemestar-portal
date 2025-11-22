@@ -1,13 +1,21 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, UserCircle, Users } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Patient {
   id: string;
@@ -17,6 +25,9 @@ interface Patient {
   codigoCarteirinha: string;
   tipoBeneficiario: string;
   idEmpresa: number;
+  sexo?: string;
+  tipo?: string;
+  cdPessoaFisica?: string | number;
 }
 
 export default function HospitalizationSchedule() {
@@ -25,6 +36,7 @@ export default function HospitalizationSchedule() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string>("");
+  const [showNoHealthPlanDialog, setShowNoHealthPlanDialog] = useState(false);
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -66,7 +78,10 @@ export default function HospitalizationSchedule() {
                 cpf: patient.cpf,
                 codigoCarteirinha: patient.codigoCarteirinha,
                 tipoBeneficiario: "Titular",
-                idEmpresa: patient.idEmpresa
+                idEmpresa: patient.idEmpresa,
+                sexo: patient.sexo,
+                tipo: "Titular",
+                cdPessoaFisica: patient.cdPessoaFisica || titularId
               });
             }
             
@@ -81,7 +96,10 @@ export default function HospitalizationSchedule() {
                 cpf: patient.cpf,
                 codigoCarteirinha: patient.codigoCarteirinha,
                 tipoBeneficiario: "Dependente",
-                idEmpresa: patient.idEmpresa
+                idEmpresa: patient.idEmpresa,
+                sexo: patient.sexo,
+                tipo: "Dependente",
+                cdPessoaFisica: patient.cdPessoaFisica || depId
               });
             }
           });
@@ -104,105 +122,111 @@ export default function HospitalizationSchedule() {
   }, [toast]);
 
   const handlePatientSelect = (patient: Patient) => {
-    // Valida se o paciente tem carteirinha ativa
     if (!patient.codigoCarteirinha || patient.codigoCarteirinha.trim() === "") {
-      toast({
-        variant: "destructive",
-        title: "Plano Inativo",
-        description: `${patient.nome} não possui plano ativo para acompanhamento de internação.`,
-      });
+      setShowNoHealthPlanDialog(true);
       return;
     }
 
-    // Salva o paciente selecionado no localStorage
-    localStorage.setItem("selectedPatient", JSON.stringify(patient));
+    const patientData = {
+      id: patient.id,
+      nome: patient.nome,
+      tipo: patient.tipo || patient.tipoBeneficiario,
+      sexo: patient.sexo,
+      codigoCarteirinha: patient.codigoCarteirinha,
+      dataNascimento: patient.dataNascimento,
+      cdPessoaFisica: patient.cdPessoaFisica,
+      idEmpresa: patient.idEmpresa,
+      cpf: patient.cpf
+    };
 
-    // Redireciona para a próxima página (a ser criada)
+    localStorage.setItem("selectedPatient", JSON.stringify(patientData));
     navigate("/hospitalization-list");
   };
 
-  const handleBack = () => {
-    navigate("/dashboard");
-  };
-
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <Header patientName={patientName} profilePhoto={profilePhoto} />
-
-      <main className="flex-1 container mx-auto px-4 py-6 md:py-8">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-primary mb-2">
-              Acompanhamento da Internação
-            </h1>
-            <p className="text-muted-foreground">
+    <div className="flex min-h-screen flex-col">
+      <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
+      
+      <main className="flex-1">
+        <div className="container mx-auto px-4 py-4 sm:py-6 md:px-6 md:py-10">
+          <div className="mb-4 sm:mb-6">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground md:text-3xl">
+                Acompanhamento da Internação
+              </h2>
+              <Button
+                variant="outline"
+                onClick={() => navigate("/dashboard")}
+                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
+                size="sm"
+              >
+                Voltar
+              </Button>
+            </div>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Selecione o paciente para ver as internações
             </p>
           </div>
-          <Button variant="outline" size="sm" onClick={handleBack} className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            <span className="hidden sm:inline">Voltar</span>
-          </Button>
-        </div>
 
-        {patients.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <Users className="h-16 w-16 text-muted-foreground mb-4" />
-              <p className="text-lg text-muted-foreground">
-                Nenhum paciente disponível
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            {patients.map((patient) => (
-              <Card
-                key={patient.id}
-                className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:border-primary"
-                onClick={() => handlePatientSelect(patient)}
-              >
-                <CardHeader>
-                  <div className="flex items-start gap-4">
-                    <Avatar className="h-16 w-16 border-2 border-primary">
-                      <AvatarImage src="" alt={patient.nome} />
-                      <AvatarFallback className="bg-primary text-primary-foreground">
-                        <UserCircle className="h-8 w-8" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <CardTitle className="text-lg mb-2">{patient.nome}</CardTitle>
-                      <Badge variant={patient.tipoBeneficiario === "Titular" ? "default" : "secondary"}>
-                        {patient.tipoBeneficiario}
-                      </Badge>
+          {patients.length === 0 ? (
+            <Card>
+              <CardContent className="flex items-center justify-center py-8">
+                <p className="text-muted-foreground">Nenhum paciente disponível.</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {patients.map((patient) => (
+                <Card 
+                  key={patient.id} 
+                  className="group cursor-pointer transition-all hover:shadow-lg border-2 hover:border-primary"
+                  onClick={() => handlePatientSelect(patient)}
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <CardTitle className="text-lg">{patient.nome}</CardTitle>
+                        <div className="mt-2 flex gap-2">
+                          <Badge 
+                            variant={patient.tipoBeneficiario === "Titular" ? "default" : "secondary"}
+                          >
+                            {patient.tipoBeneficiario}
+                          </Badge>
+                          {patient.sexo && (
+                            <Badge variant="outline">
+                              {patient.sexo?.toUpperCase() === 'M' ? 'Masculino' : 'Feminino'}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="font-medium">CPF:</span>
-                      <span>{patient.cpf}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-medium">Data Nascimento:</span>
-                      <span>{patient.dataNascimento}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-medium">Carteirinha:</span>
-                      <span className="font-mono text-sm">
-                        {patient.codigoCarteirinha || "Sem plano ativo"}
-                      </span>
-                    </div>
-                  </CardDescription>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
       </main>
 
       <Footer />
+
+      {/* Alert Dialog para paciente sem plano */}
+      <AlertDialog open={showNoHealthPlanDialog} onOpenChange={setShowNoHealthPlanDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Paciente sem plano ativo</AlertDialogTitle>
+            <AlertDialogDescription>
+              O paciente selecionado não possui um plano de saúde ativo. Por favor, selecione outro beneficiário ou entre em contato com a Samel para mais informações.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setShowNoHealthPlanDialog(false)}>
+              Entendi
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
