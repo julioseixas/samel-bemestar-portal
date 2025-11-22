@@ -128,18 +128,50 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
   const handleMarkAsRead = async () => {
     if (!selectedNotification) return;
     
-    // TODO: Implementar chamada à API para marcar como lida
-    // const response = await fetch('URL_DA_API', {
-    //   method: 'POST',
-    //   headers: getApiHeaders(),
-    //   body: JSON.stringify({ notificationId: selectedNotification.NR_SEQUENCIA })
-    // });
-    
-    // Após marcar como lida, atualizar o estado local
-    setShowNotificationDetailDialog(false);
-    setShowNotificationListDialog(true);
-    // Recarregar notificações
-    await fetchNotifications();
+    try {
+      const response = await fetch(
+        'https://api-portalpaciente-web.samel.com.br/api/notificacao/MarcarComoLida',
+        {
+          method: 'POST',
+          headers: getApiHeaders(),
+          body: JSON.stringify({ 
+            nrSequencia: selectedNotification.NR_SEQUENCIA 
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.sucesso) {
+          // Atualiza o estado local da notificação
+          setNotifications(prev => 
+            prev.map(n => 
+              n.NR_SEQUENCIA === selectedNotification.NR_SEQUENCIA
+                ? { ...n, DT_VISUALIZADO: new Date().toISOString() }
+                : n
+            )
+          );
+          
+          // Atualiza o contador de não lidas
+          setUnreadCount(prev => Math.max(0, prev - 1));
+          
+          // Atualiza o localStorage
+          const updatedNotifications = notifications.map(n => 
+            n.NR_SEQUENCIA === selectedNotification.NR_SEQUENCIA
+              ? { ...n, DT_VISUALIZADO: new Date().toISOString() }
+              : n
+          );
+          localStorage.setItem('notifications', JSON.stringify(updatedNotifications));
+          
+          // Volta para a lista
+          setShowNotificationDetailDialog(false);
+          setShowNotificationListDialog(true);
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao marcar notificação como lida:", error);
+    }
   };
 
   const handleLogout = () => {
