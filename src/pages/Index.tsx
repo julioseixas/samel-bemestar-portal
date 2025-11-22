@@ -397,6 +397,10 @@ const Index = () => {
     }
   };
 
+  const handleHospitalization = () => {
+    navigate("/hospitalization-schedule");
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
@@ -557,7 +561,7 @@ const Index = () => {
                 iconColor="text-warning"
                 buttonText="Ver Internação"
                 variant="warning"
-                onClick={() => handleCardClick("Minha Internação")}
+                onClick={handleHospitalization}
                 />
               </div>
               
