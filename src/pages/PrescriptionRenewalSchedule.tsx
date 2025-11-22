@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
@@ -14,6 +14,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { getApiHeaders } from "@/lib/api-headers";
+import { useToast } from "@/hooks/use-toast";
 
 interface Patient {
   id: string | number;
@@ -29,10 +31,12 @@ interface Patient {
 
 const PrescriptionRenewalSchedule = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [showNoHealthPlanDialog, setShowNoHealthPlanDialog] = useState(false);
+  const [isCheckingShortcut, setIsCheckingShortcut] = useState(false);
 
   useEffect(() => {
     console.log("🔍 PrescriptionRenewalSchedule - Verificando localStorage");
@@ -135,14 +139,106 @@ const PrescriptionRenewalSchedule = () => {
     }
   }, [navigate]);
 
-  const handleSelectPatient = (patient: Patient) => {
+  const handleSelectPatient = async (patient: Patient) => {
     if (!patient.codigoCarteirinha) {
       setShowNoHealthPlanDialog(true);
       return;
     }
 
     localStorage.setItem("selectedPatientRenewal", JSON.stringify(patient));
-    navigate("/prescription-renewal-details");
+    setIsCheckingShortcut(true);
+
+    try {
+      const headers = getApiHeaders();
+      
+      // 1. Buscar convênios do paciente
+      const conveniosResponse = await fetch(
+        'https://api-portalpaciente-web.samel.com.br/api/Convenio/ListarConvenios',
+        { method: "GET", headers }
+      );
+      const conveniosData = await conveniosResponse.json();
+      
+      // 2. Verificar se existe convênio Samel (id: 19)
+      const hasSamelConvenio = conveniosData.sucesso && 
+        conveniosData.dados?.some((conv: any) => conv.id === 19);
+      
+      if (!hasSamelConvenio) {
+        navigate("/prescription-renewal-details");
+        return;
+      }
+
+      // 3. Buscar especialidades disponíveis para o convênio Samel
+      const params = new URLSearchParams({
+        idConvenio: "19",
+        idadeCliente: String(patient.idade || 0),
+        cdPessoaFisica: String(patient.cdPessoaFisica),
+        sexo: patient.sexo || "M",
+        descricaoEspecialidade: "",
+        cdDependente: String(patient.cdPessoaFisica),
+        nrCarteirinha: patient.codigoCarteirinha || "",
+      });
+
+      const especialidadesResponse = await fetch(
+        `https://appv2-back.samel.com.br/api/Agenda/Consulta/ListarEspecialidadesComAgendaDisponivel3?${params}`,
+        { method: "GET", headers }
+      );
+      const especialidadesData = await especialidadesResponse.json();
+      
+      // 4. Verificar se existe "Renovação de Receita"
+      const renovacaoEspecialidade = especialidadesData.sucesso && 
+        especialidadesData.dados?.find((esp: any) => 
+          esp.descricao === "Renovação de Receita"
+        );
+      
+      if (!renovacaoEspecialidade) {
+        navigate("/prescription-renewal-details");
+        return;
+      }
+
+      // 5. SHORTCUT ATIVADO! Buscar profissionais diretamente
+      const profParams = new URLSearchParams({
+        idConvenio: "19",
+        idadeCliente: String(patient.idade || 0),
+        idEspecialidade: String(renovacaoEspecialidade.id),
+        nomeProfissional: "",
+        idCliente: String(patient.cdPessoaFisica),
+        sexo: patient.sexo || "M",
+      });
+
+      const profissionaisResponse = await fetch(
+        `https://appv2-back.samel.com.br/api/Agenda/Consulta/ListarProfissionaisComAgendaDisponivel3?${profParams}`,
+        { method: "GET", headers }
+      );
+      const profissionaisData = await profissionaisResponse.json();
+
+      if (!profissionaisData.sucesso) {
+        toast({
+          variant: "destructive",
+          title: "Erro",
+          description: profissionaisData.mensagem,
+        });
+        navigate("/prescription-renewal-details");
+        return;
+      }
+
+      // 6. Salvar dados no localStorage e ir direto para profissionais
+      const formattedProfessionals = [{
+        combinacao: "",
+        dados: profissionaisData.dados
+      }];
+
+      localStorage.setItem("appointmentProfessionals", JSON.stringify(formattedProfessionals));
+      localStorage.setItem("selectedAppointmentConvenio", "19");
+      localStorage.setItem("selectedAppointmentEspecialidade", String(renovacaoEspecialidade.id));
+      
+      navigate("/appointment-professionals");
+
+    } catch (error) {
+      console.error("Erro ao verificar shortcut:", error);
+      navigate("/prescription-renewal-details");
+    } finally {
+      setIsCheckingShortcut(false);
+    }
   };
 
   const getInitials = (name: string) => {
@@ -156,6 +252,15 @@ const PrescriptionRenewalSchedule = () => {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
+      
+      {isCheckingShortcut && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-card p-8 rounded-lg shadow-lg flex flex-col items-center gap-4">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <p className="text-lg font-medium text-foreground">Verificando disponibilidade...</p>
+          </div>
+        </div>
+      )}
       
       <main className="flex-1 container mx-auto px-4 py-6 md:px-6 md:py-10">
         <div className="flex items-center justify-between gap-4 mb-8">
