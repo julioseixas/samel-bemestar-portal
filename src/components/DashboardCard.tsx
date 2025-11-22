@@ -27,29 +27,29 @@ export const DashboardCard = ({
 }: DashboardCardProps) => {
   return (
     <div 
-      className="group h-full flex flex-col rounded-xl sm:rounded-2xl bg-card p-4 sm:p-6 shadow-card transition-all duration-300 hover:shadow-lg hover:scale-[1.02] hover:-translate-y-1 md:p-8 cursor-pointer"
+      className="group h-full flex flex-col rounded-2xl bg-card p-5 sm:p-6 shadow-sm border border-border/50 transition-all duration-300 hover:shadow-md hover:scale-[1.01] hover:border-primary/30 active:scale-[0.99] md:p-7 cursor-pointer"
       onClick={onClick}
     >
-      <div className="mb-3 sm:mb-4 flex items-start justify-between">
+      <div className="mb-4 sm:mb-5 flex items-start justify-between">
         <div className={cn(
-          "rounded-lg sm:rounded-xl p-3 sm:p-4 transition-all duration-300 group-hover:scale-110",
+          "rounded-xl p-3.5 sm:p-4 transition-all duration-300 group-hover:scale-105",
           iconColor,
           // Backgrounds específicos para cada variante com melhor contraste
-          iconColor.includes("destructive") ? "bg-destructive/10 group-hover:bg-destructive/20" :
-          iconColor.includes("success") ? "bg-success/10 group-hover:bg-success/20" :
-          iconColor.includes("warning") ? "bg-warning/20 group-hover:bg-warning/30" :
-          iconColor.includes("primary") ? "bg-primary/10 group-hover:bg-primary/20" :
-          "bg-accent/50 group-hover:bg-accent/70"
+          iconColor.includes("destructive") ? "bg-destructive/10 group-hover:bg-destructive/15" :
+          iconColor.includes("success") ? "bg-success/10 group-hover:bg-success/15" :
+          iconColor.includes("warning") ? "bg-warning/20 group-hover:bg-warning/25" :
+          iconColor.includes("primary") ? "bg-primary/10 group-hover:bg-primary/15" :
+          "bg-accent/50 group-hover:bg-accent/60"
         )}>
-          <Icon className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 transition-transform duration-300 group-hover:rotate-6" />
+          <Icon className="h-7 w-7 sm:h-8 sm:w-8 md:h-9 md:w-9 transition-transform duration-300 group-hover:rotate-3" />
         </div>
       </div>
       
-      <h3 className="mb-2 text-base sm:text-xl font-semibold text-foreground md:text-2xl">
+      <h3 className="mb-2 sm:mb-3 text-lg sm:text-xl font-bold text-foreground leading-tight md:text-2xl">
         {title}
       </h3>
       
-      <p className="mb-4 sm:mb-6 flex-1 text-xs sm:text-sm text-muted-foreground md:text-base">
+      <p className="mb-5 sm:mb-6 flex-1 text-sm sm:text-base text-muted-foreground leading-relaxed md:text-base">
         {description}
       </p>
       
@@ -61,7 +61,7 @@ export const DashboardCard = ({
         variant={variant}
         size="lg"
         className={cn(
-          "w-full text-sm sm:text-base transition-all duration-300 group-hover:translate-y-0.5",
+          "w-full text-sm sm:text-base font-semibold transition-all duration-300 group-hover:shadow-sm h-11 sm:h-12",
           useDashboardColor && "bg-[hsl(var(--dashboard-button))] text-[hsl(var(--dashboard-button-foreground))] hover:bg-[hsl(var(--dashboard-button))]/90"
         )}
         style={customButtonColor ? { backgroundColor: customButtonColor, color: 'white' } : undefined}
