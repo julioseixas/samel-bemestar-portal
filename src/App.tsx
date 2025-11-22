@@ -36,7 +36,7 @@ import PrescriptionRenewalSchedule from "./pages/PrescriptionRenewalSchedule";
 import PrescriptionRenewalDetails from "./pages/PrescriptionRenewalDetails";
 import HospitalizationSchedule from "./pages/HospitalizationSchedule";
 import CoparticipationChoice from "./pages/CoparticipationChoice";
-import CoparticipationStatement from "./pages/CoparticipationStatement";
+import CoparticipationPriceTable from "./pages/CoparticipationPriceTable";
 
 const queryClient = new QueryClient();
 
@@ -80,7 +80,7 @@ const App = () => (
           <Route path="/prescription-renewal-details" element={<PrescriptionRenewalDetails />} />
           <Route path="/hospitalization-schedule" element={<HospitalizationSchedule />} />
           <Route path="/coparticipation-choice" element={<CoparticipationChoice />} />
-          <Route path="/coparticipation-statement" element={<CoparticipationStatement />} />
+          <Route path="/coparticipation-price-table" element={<CoparticipationPriceTable />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
