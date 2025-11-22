@@ -56,14 +56,27 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
   };
 
   const fetchNotifications = async () => {
-    const user = localStorage.getItem('user');
-    if (!user) return;
-
     try {
-      const userData = JSON.parse(user);
+      const user = localStorage.getItem('user');
+      if (!user) {
+        console.error("Usuário não encontrado no localStorage");
+        return;
+      }
+
+      let userData;
+      try {
+        userData = JSON.parse(user);
+      } catch (parseError) {
+        console.error("Erro ao fazer parse do user:", parseError);
+        return;
+      }
+
       const idCliente = userData[0]?.clienteContratos?.[0]?.idCliente;
       
-      if (!idCliente) return;
+      if (!idCliente) {
+        console.error("idCliente não encontrado");
+        return;
+      }
 
       const chaveAutenticacao = localStorage.getItem('chave-autenticacao');
       
