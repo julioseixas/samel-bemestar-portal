@@ -1,7 +1,6 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Receipt, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -28,41 +27,47 @@ export default function CoparticipationChoice() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
       
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
-            Coparticipação
-          </h1>
+      <main className="flex-1 container mx-auto px-4 py-6 sm:py-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
+              Coparticipação
+            </h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              Selecione o que deseja visualizar
+            </p>
+          </div>
           <Button
-            variant="outline"
-            size="sm"
             onClick={() => navigate("/dashboard")}
-            className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground whitespace-nowrap"
+            size="sm"
           >
-            ← Voltar
+            ← Voltar ao Dashboard
           </Button>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 max-w-4xl mx-auto">
-          <Card 
-            className="cursor-pointer transition-all hover:shadow-lg hover:scale-105"
+        <div className="grid gap-6 sm:grid-cols-2 max-w-4xl mt-8">
+          <div 
+            className="bg-card rounded-lg p-6 shadow-sm hover:shadow-md transition-all cursor-pointer"
             onClick={handlePriceTable}
           >
-            <CardHeader className="text-center">
-              <div className="mx-auto mb-4 rounded-full bg-primary/10 p-4 w-fit">
-                <Receipt className="h-12 w-12 text-primary" />
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="rounded-xl bg-muted p-4">
+                <Receipt className="h-12 w-12 sm:h-16 sm:w-16 text-primary" />
               </div>
-              <CardTitle className="text-xl">Tabela de Preços</CardTitle>
-              <CardDescription>
-                Consulte os valores de coparticipação por procedimento
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+              <div>
+                <h2 className="text-lg sm:text-xl font-bold text-foreground mb-2">
+                  TABELA DE PREÇOS
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Consulte os valores de coparticipação por procedimento
+                </p>
+              </div>
               <Button 
-                className="w-full"
+                className="w-full bg-success hover:bg-success/90 text-white"
                 onClick={(e) => {
                   e.stopPropagation();
                   handlePriceTable();
@@ -70,25 +75,27 @@ export default function CoparticipationChoice() {
               >
                 Ver Tabela
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card 
-            className="cursor-pointer transition-all hover:shadow-lg hover:scale-105"
+          <div 
+            className="bg-card rounded-lg p-6 shadow-sm hover:shadow-md transition-all cursor-pointer"
             onClick={handleStatement}
           >
-            <CardHeader className="text-center">
-              <div className="mx-auto mb-4 rounded-full bg-success/10 p-4 w-fit">
-                <FileText className="h-12 w-12 text-success" />
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="rounded-xl bg-muted p-4">
+                <FileText className="h-12 w-12 sm:h-16 sm:w-16 text-success" />
               </div>
-              <CardTitle className="text-xl">Extrato de Coparticipação</CardTitle>
-              <CardDescription>
-                Acompanhe o histórico dos seus valores pagos
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+              <div>
+                <h2 className="text-lg sm:text-xl font-bold text-foreground mb-2">
+                  EXTRATO DE COPARTICIPAÇÃO
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Acompanhe o histórico dos seus valores pagos
+                </p>
+              </div>
               <Button 
-                className="w-full"
+                className="w-full bg-success hover:bg-success/90 text-white"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleStatement();
@@ -96,8 +103,8 @@ export default function CoparticipationChoice() {
               >
                 Ver Extrato
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </main>
 
