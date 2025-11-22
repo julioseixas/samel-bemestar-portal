@@ -402,10 +402,7 @@ const Index = () => {
   };
 
   const handleCoparticipation = () => {
-    toast({
-      title: "Coparticipação",
-      description: "Esta funcionalidade está em desenvolvimento.",
-    });
+    navigate("/coparticipation-choice");
   };
 
   return (
