@@ -125,19 +125,22 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
     setShowNotificationDetailDialog(true);
   };
 
-  const handleMarkAsRead = async () => {
-    if (!selectedNotification) return;
+  const handleMarkAsRead = async (notification?: Notification) => {
+    const notificationToMark = notification || selectedNotification;
+    if (!notificationToMark) return;
     
     // TODO: Implementar chamada à API para marcar como lida
     // const response = await fetch('URL_DA_API', {
     //   method: 'POST',
     //   headers: getApiHeaders(),
-    //   body: JSON.stringify({ notificationId: selectedNotification.NR_SEQUENCIA })
+    //   body: JSON.stringify({ notificationId: notificationToMark.NR_SEQUENCIA })
     // });
     
     // Após marcar como lida, atualizar o estado local
-    setShowNotificationDetailDialog(false);
-    setShowNotificationListDialog(true);
+    if (selectedNotification) {
+      setShowNotificationDetailDialog(false);
+      setShowNotificationListDialog(true);
+    }
     // Recarregar notificações
     await fetchNotifications();
   };
@@ -260,25 +263,44 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
                   {notifications.map((notification, index) => (
                     <div key={notification.NR_SEQUENCIA}>
                       <div 
-                        className={`p-4 rounded-lg hover:bg-accent/70 transition-all cursor-pointer ${
+                        className={`p-4 rounded-lg transition-all ${
                           !notification.DT_VISUALIZADO ? 'bg-primary/5 border-l-4 border-primary' : ''
                         }`}
-                        onClick={() => handleNotificationClick(notification)}
                       >
-                        <div className="flex items-start justify-between gap-3 mb-2">
-                          <h4 className="font-semibold text-sm sm:text-base line-clamp-2 flex-1">
-                            {notification.DS_TITULO}
-                          </h4>
-                          {!notification.DT_VISUALIZADO && (
-                            <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-2" />
-                          )}
+                        <div 
+                          className="cursor-pointer hover:opacity-80"
+                          onClick={() => handleNotificationClick(notification)}
+                        >
+                          <div className="flex items-start justify-between gap-3 mb-2">
+                            <h4 className="font-semibold text-sm sm:text-base line-clamp-2 flex-1">
+                              {notification.DS_TITULO}
+                            </h4>
+                            {!notification.DT_VISUALIZADO && (
+                              <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-2" />
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground line-clamp-3 mb-2 leading-relaxed">
+                            {notification.DESCRICAO}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {notification.DATA_FORMATADA}
+                          </p>
                         </div>
-                        <p className="text-sm text-muted-foreground line-clamp-3 mb-2 leading-relaxed">
-                          {notification.DESCRICAO}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {notification.DATA_FORMATADA}
-                        </p>
+                        {!notification.DT_VISUALIZADO && (
+                          <div className="mt-3 pt-3 border-t">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleMarkAsRead(notification);
+                              }}
+                              className="w-full sm:w-auto text-xs"
+                            >
+                              Marcar como lida
+                            </Button>
+                          </div>
+                        )}
                       </div>
                       {index < notifications.length - 1 && <Separator className="my-1" />}
                     </div>
@@ -340,7 +362,7 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
               </Button>
               {!selectedNotification?.DT_VISUALIZADO && (
                 <Button 
-                  onClick={handleMarkAsRead}
+                  onClick={() => handleMarkAsRead(selectedNotification)}
                   className="w-full sm:w-auto order-1 sm:order-2"
                 >
                   Marcar como lida
