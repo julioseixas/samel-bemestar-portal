@@ -199,7 +199,7 @@ const PrescriptionRenewalDetails = () => {
     navigate("/dashboard");
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (!selectedConvenio || !selectedEspecialidade) {
       toast({
         variant: "destructive",
@@ -209,10 +209,63 @@ const PrescriptionRenewalDetails = () => {
       return;
     }
 
-    toast({
-      title: "Em desenvolvimento",
-      description: "A próxima etapa do fluxo será implementada em breve.",
-    });
+    if (!selectedPatient) {
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Paciente não selecionado.",
+      });
+      return;
+    }
+
+    try {
+      const especialidadeId = selectedEspecialidade.split('-')[0];
+      const headers = getApiHeaders();
+      
+      const params = new URLSearchParams({
+        idConvenio: selectedConvenio,
+        idadeCliente: String(selectedPatient.idade || 0),
+        idEspecialidade: especialidadeId,
+        nomeProfissional: "",
+        idCliente: String(selectedPatient.cdPessoaFisica),
+        sexo: selectedPatient.sexo || "M",
+      });
+
+      const response = await fetch(
+        `https://appv2-back.samel.com.br/api/Agenda/Consulta/ListarProfissionaisComAgendaDisponivel3?${params}`,
+        {
+          method: "GET",
+          headers
+        }
+      );
+
+      const data = await response.json();
+
+      if (!data.sucesso) {
+        toast({
+          variant: "destructive",
+          title: "Erro",
+          description: data.mensagem,
+        });
+        return;
+      }
+
+      const formattedProfessionals = [{
+        combinacao: "",
+        dados: data.dados
+      }];
+
+      localStorage.setItem("appointmentProfessionals", JSON.stringify(formattedProfessionals));
+      localStorage.setItem("selectedAppointmentConvenio", selectedConvenio);
+      localStorage.setItem("selectedAppointmentEspecialidade", especialidadeId);
+      navigate("/appointment-professionals");
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Não foi possível carregar os profissionais disponíveis.",
+      });
+    }
   };
 
   return (
