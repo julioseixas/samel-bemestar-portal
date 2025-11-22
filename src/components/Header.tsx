@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getApiHeaders } from "@/lib/api-headers";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,7 +45,8 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
     if (storedNotifications) {
       try {
         const parsed = JSON.parse(storedNotifications);
-        const notifList = parsed.dados || [];
+        // Trata tanto array direto quanto objeto com chave 'dados'
+        const notifList = Array.isArray(parsed) ? parsed : (parsed.dados || []);
         setNotifications(notifList);
         
         const unread = notifList.filter((n: Notification) => !n.DT_VISUALIZADO).length;
@@ -57,46 +59,41 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
 
   const fetchNotifications = async () => {
     try {
-      const user = localStorage.getItem('user');
-      if (!user) {
-        console.error("Usuário não encontrado no localStorage");
+      const patientDataRaw = localStorage.getItem('patientData');
+      if (!patientDataRaw) {
+        console.error("patientData não encontrado no localStorage");
         return;
       }
 
-      let userData;
+      let patientData;
       try {
-        userData = JSON.parse(user);
+        patientData = JSON.parse(patientDataRaw);
       } catch (parseError) {
-        console.error("Erro ao fazer parse do user:", parseError);
+        console.error("Erro ao fazer parse do patientData:", parseError);
         return;
       }
 
-      const idCliente = userData[0]?.clienteContratos?.[0]?.idCliente;
+      const idCliente = patientData.cd_pessoa_fisica || patientData.id;
       
       if (!idCliente) {
-        console.error("idCliente não encontrado");
+        console.error("idCliente não encontrado em patientData");
         return;
       }
-
-      const chaveAutenticacao = localStorage.getItem('chave-autenticacao');
       
       const response = await fetch(
         'https://api-portalpaciente-web.samel.com.br/api/notificacao/ObterNotificacoesCliente',
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'chave-autenticacao': chaveAutenticacao || '',
-            'identificador-dispositivo': 'request-android',
-          },
+          headers: getApiHeaders(),
           body: JSON.stringify({ idCliente }),
         }
       );
 
       if (response.ok) {
         const data = await response.json();
-        if (data.sucesso && data.dados) {
-          localStorage.setItem('notifications', JSON.stringify(data));
+        if (data.sucesso && Array.isArray(data.dados)) {
+          // Salva apenas o array de notificações
+          localStorage.setItem('notifications', JSON.stringify(data.dados));
           setNotifications(data.dados);
           
           const unread = data.dados.filter((n: Notification) => !n.DT_VISUALIZADO).length;
