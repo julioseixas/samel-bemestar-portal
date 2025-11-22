@@ -1,6 +1,7 @@
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ArrowLeft, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -38,6 +39,7 @@ const CoparticipationPriceTable = () => {
   const [coparticipationData, setCoparticipationData] = useState<CoparticipationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -96,13 +98,22 @@ const CoparticipationPriceTable = () => {
     }
   };
 
-  const totalPages = Math.ceil(coparticipationData.length / itemsPerPage);
+  const filteredData = coparticipationData.filter((item) =>
+    item.DS_PROCEDIMENTO.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentItems = coparticipationData.slice(startIndex, endIndex);
+  const currentItems = filteredData.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
   };
 
   const renderPaginationItems = () => {
@@ -167,49 +178,68 @@ const CoparticipationPriceTable = () => {
             </div>
           ) : (
             <>
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Nome do Procedimento</TableHead>
-                      <TableHead className="text-right">Valor</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {currentItems.map((item, index) => (
-                      <TableRow key={`${item.IE_PROC_INTERNO}-${index}`}>
-                        <TableCell className="font-medium">
-                          {item.DS_PROCEDIMENTO}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {item.VL_PROCEDIMENTO_MONEY}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+              <div className="mb-4 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Buscar por procedimento..."
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  className="pl-10"
+                />
               </div>
 
-              {totalPages > 1 && (
-                <div className="mt-6">
-                  <Pagination>
-                    <PaginationContent>
-                      <PaginationItem>
-                        <PaginationPrevious
-                          onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                          className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                        />
-                      </PaginationItem>
-                      {renderPaginationItems()}
-                      <PaginationItem>
-                        <PaginationNext
-                          onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-                          className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                        />
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
+              {filteredData.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  Nenhum procedimento encontrado com o termo "{searchTerm}".
                 </div>
+              ) : (
+                <>
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Nome do Procedimento</TableHead>
+                          <TableHead className="text-right">Valor</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {currentItems.map((item, index) => (
+                          <TableRow key={`${item.IE_PROC_INTERNO}-${index}`}>
+                            <TableCell className="font-medium">
+                              {item.DS_PROCEDIMENTO}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {item.VL_PROCEDIMENTO_MONEY}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  {totalPages > 1 && (
+                    <div className="mt-6">
+                      <Pagination>
+                        <PaginationContent>
+                          <PaginationItem>
+                            <PaginationPrevious
+                              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                              className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                            />
+                          </PaginationItem>
+                          {renderPaginationItems()}
+                          <PaginationItem>
+                            <PaginationNext
+                              onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                              className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                            />
+                          </PaginationItem>
+                        </PaginationContent>
+                      </Pagination>
+                    </div>
+                  )}
+                </>
               )}
             </>
           )}
