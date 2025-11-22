@@ -12,9 +12,9 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import samelLogo from "@/assets/samel-logo.png";
 
@@ -42,7 +42,8 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
-  const [showNotificationDialog, setShowNotificationDialog] = useState(false);
+  const [showNotificationListDialog, setShowNotificationListDialog] = useState(false);
+  const [showNotificationDetailDialog, setShowNotificationDetailDialog] = useState(false);
 
   const loadNotifications = () => {
     const storedNotifications = localStorage.getItem('notifications');
@@ -113,9 +114,15 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
     loadNotifications();
   }, []);
 
+  const handleOpenNotifications = async () => {
+    setShowNotificationListDialog(true);
+    await fetchNotifications();
+  };
+
   const handleNotificationClick = (notification: Notification) => {
     setSelectedNotification(notification);
-    setShowNotificationDialog(true);
+    setShowNotificationListDialog(false);
+    setShowNotificationDetailDialog(true);
   };
 
   const handleMarkAsRead = async () => {
@@ -129,7 +136,8 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
     // });
     
     // Após marcar como lida, atualizar o estado local
-    setShowNotificationDialog(false);
+    setShowNotificationDetailDialog(false);
+    setShowNotificationListDialog(true);
     // Recarregar notificações
     await fetchNotifications();
   };
@@ -210,77 +218,92 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
               </DropdownMenuContent>
             </DropdownMenu>
             
-            <Popover>
-              <PopoverTrigger asChild>
-                <button 
-                  className="relative p-2 hover:bg-accent rounded-full transition-colors order-1 sm:order-2"
-                  onClick={fetchNotifications}
+            <button 
+              className="relative p-2 hover:bg-accent rounded-full transition-colors order-1 sm:order-2"
+              onClick={handleOpenNotifications}
+            >
+              <Bell className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" />
+              {unreadCount > 0 && (
+                <Badge 
+                  variant="destructive" 
+                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
                 >
-                  <Bell className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" />
-                  {unreadCount > 0 && (
-                    <Badge 
-                      variant="destructive" 
-                      className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-                    >
-                      {unreadCount > 99 ? '99+' : unreadCount}
-                    </Badge>
-                  )}
-                </button>
-              </PopoverTrigger>
-              
-              <PopoverContent className="w-80 sm:w-96 p-0" align="end">
-                <div className="flex items-center justify-between p-4 border-b">
-                  <h3 className="font-semibold text-lg">Notificações</h3>
-                  {unreadCount > 0 && (
-                    <Badge variant="secondary">{unreadCount} não lida{unreadCount > 1 ? 's' : ''}</Badge>
-                  )}
-                </div>
-                
-                <ScrollArea className="h-[400px]">
-                  {notifications.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-                      <Bell className="h-12 w-12 mb-2 opacity-20" />
-                      <p>Nenhuma notificação</p>
-                    </div>
-                  ) : (
-                    <div className="divide-y">
-                      {notifications.map((notification) => (
-                        <div 
-                          key={notification.NR_SEQUENCIA}
-                          className={`p-4 hover:bg-accent/50 transition-colors cursor-pointer ${
-                            !notification.DT_VISUALIZADO ? 'bg-primary/5' : ''
-                          }`}
-                          onClick={() => handleNotificationClick(notification)}
-                        >
-                          <div className="flex items-start justify-between gap-2 mb-1">
-                            <h4 className="font-semibold text-sm line-clamp-1">
-                              {notification.DS_TITULO}
-                            </h4>
-                            {!notification.DT_VISUALIZADO && (
-                              <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1" />
-                            )}
-                          </div>
-                          <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
-                            {notification.DESCRICAO}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {notification.DATA_FORMATADA}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </ScrollArea>
-              </PopoverContent>
-            </Popover>
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </Badge>
+              )}
+            </button>
           </div>
         </div>
 
+        {/* Modal de Lista de Notificações */}
+        <Dialog open={showNotificationListDialog} onOpenChange={setShowNotificationListDialog}>
+          <DialogContent className="max-w-[95vw] sm:max-w-3xl h-[90vh] flex flex-col p-0 gap-0">
+            <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-4 border-b space-y-2">
+              <div className="flex items-center justify-between">
+                <DialogTitle className="text-xl sm:text-2xl">Notificações</DialogTitle>
+                {unreadCount > 0 && (
+                  <Badge variant="secondary" className="text-xs sm:text-sm">
+                    {unreadCount} não lida{unreadCount > 1 ? 's' : ''}
+                  </Badge>
+                )}
+              </div>
+            </DialogHeader>
+            
+            <ScrollArea className="flex-1 px-4 sm:px-6">
+              {notifications.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+                  <Bell className="h-16 w-16 mb-4 opacity-20" />
+                  <p className="text-lg">Nenhuma notificação</p>
+                </div>
+              ) : (
+                <div className="space-y-1 py-2">
+                  {notifications.map((notification, index) => (
+                    <div key={notification.NR_SEQUENCIA}>
+                      <div 
+                        className={`p-4 rounded-lg hover:bg-accent/70 transition-all cursor-pointer ${
+                          !notification.DT_VISUALIZADO ? 'bg-primary/5 border-l-4 border-primary' : ''
+                        }`}
+                        onClick={() => handleNotificationClick(notification)}
+                      >
+                        <div className="flex items-start justify-between gap-3 mb-2">
+                          <h4 className="font-semibold text-sm sm:text-base line-clamp-2 flex-1">
+                            {notification.DS_TITULO}
+                          </h4>
+                          {!notification.DT_VISUALIZADO && (
+                            <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-2" />
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground line-clamp-3 mb-2 leading-relaxed">
+                          {notification.DESCRICAO}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {notification.DATA_FORMATADA}
+                        </p>
+                      </div>
+                      {index < notifications.length - 1 && <Separator className="my-1" />}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </ScrollArea>
+
+            <DialogFooter className="px-4 sm:px-6 pb-4 sm:pb-6 pt-4 border-t">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowNotificationListDialog(false)}
+                className="w-full sm:w-auto"
+              >
+                Fechar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         {/* Modal de Detalhes da Notificação */}
-        <Dialog open={showNotificationDialog} onOpenChange={setShowNotificationDialog}>
-          <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] flex flex-col p-0">
+        <Dialog open={showNotificationDetailDialog} onOpenChange={setShowNotificationDetailDialog}>
+          <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] flex flex-col p-0 gap-0">
             <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-4 border-b">
-              <DialogTitle className="text-lg sm:text-xl pr-8">
+              <DialogTitle className="text-lg sm:text-xl pr-8 leading-tight">
                 {selectedNotification?.DS_TITULO}
               </DialogTitle>
             </DialogHeader>
@@ -294,6 +317,8 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
                   )}
                 </div>
                 
+                <Separator />
+                
                 <div className="prose dark:prose-invert max-w-none">
                   <p className="text-sm sm:text-base text-foreground whitespace-pre-wrap leading-relaxed">
                     {selectedNotification?.DESCRICAO}
@@ -305,10 +330,13 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
             <DialogFooter className="flex-col sm:flex-row gap-2 px-4 sm:px-6 pb-4 sm:pb-6 pt-4 border-t">
               <Button 
                 variant="outline" 
-                onClick={() => setShowNotificationDialog(false)}
+                onClick={() => {
+                  setShowNotificationDetailDialog(false);
+                  setShowNotificationListDialog(true);
+                }}
                 className="w-full sm:w-auto order-2 sm:order-1"
               >
-                Fechar
+                Voltar
               </Button>
               {!selectedNotification?.DT_VISUALIZADO && (
                 <Button 
