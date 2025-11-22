@@ -138,10 +138,7 @@ export default function HospitalizationSchedule() {
         'https://appv2-back.samel.com.br/api/Login/EfetuarLoginInternacao',
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'identificador-dispositivo': 'request-android'
-          },
+          headers: getApiHeaders(),
           body: JSON.stringify({
             id: patient.id.toString()
           })
