@@ -162,7 +162,7 @@ const PrescriptionRenewalDetails = () => {
         );
         
         if (renovacaoReceita) {
-          setSelectedEspecialidade(String(renovacaoReceita.id));
+          setSelectedEspecialidade(`${renovacaoReceita.id}-${renovacaoReceita.descricao}`);
         }
       }
     } catch (error) {
@@ -315,7 +315,10 @@ const PrescriptionRenewalDetails = () => {
                         </SelectTrigger>
                         <SelectContent className="bg-background z-50">
                           {especialidades.map((especialidade, index) => (
-                            <SelectItem key={`${especialidade.id}-${index}`} value={especialidade.id.toString()}>
+                            <SelectItem 
+                              key={`${especialidade.id}-${index}`} 
+                              value={`${especialidade.id}-${especialidade.descricao}`}
+                            >
                               {especialidade.descricao}
                             </SelectItem>
                           ))}
