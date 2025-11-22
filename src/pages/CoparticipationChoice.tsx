@@ -38,10 +38,7 @@ const CoparticipationChoice = () => {
   };
 
   const handleStatement = () => {
-    toast({
-      title: "Extrato",
-      description: "Esta funcionalidade está em desenvolvimento.",
-    });
+    navigate("/coparticipation-statement");
   };
 
   return (
