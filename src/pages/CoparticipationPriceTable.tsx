@@ -30,7 +30,7 @@ interface CoparticipationItem {
   VL_PROCEDIMENTO_MONEY: string;
 }
 
-const CoparticipationStatement = () => {
+const CoparticipationPriceTable = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [patientName, setPatientName] = useState("Paciente");
@@ -140,7 +140,7 @@ const CoparticipationStatement = () => {
           <div className="mb-6 sm:mb-8">
             <div className="flex flex-col sm:flex-row items-center justify-between mb-2 gap-2">
               <h2 className="text-xl sm:text-2xl font-bold text-foreground md:text-3xl">
-                Extrato de Coparticipação
+                Tabela de Preços
               </h2>
               <Button
                 variant="outline"
@@ -219,4 +219,4 @@ const CoparticipationStatement = () => {
   );
 };
 
-export default CoparticipationStatement;
+export default CoparticipationPriceTable;

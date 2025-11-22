@@ -31,14 +31,14 @@ const CoparticipationChoice = () => {
   }, []);
 
   const handlePriceTable = () => {
-    toast({
-      title: "Tabela de Preços",
-      description: "Esta funcionalidade está em desenvolvimento.",
-    });
+    navigate("/coparticipation-price-table");
   };
 
   const handleStatement = () => {
-    navigate("/coparticipation-statement");
+    toast({
+      title: "Extrato",
+      description: "Esta funcionalidade está em desenvolvimento.",
+    });
   };
 
   return (
