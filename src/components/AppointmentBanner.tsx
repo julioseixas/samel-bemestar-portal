@@ -1,4 +1,4 @@
-import { Calendar, Clock, MapPin, Loader2 } from "lucide-react";
+import { Calendar, Clock, MapPin, Loader2, X, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -228,23 +228,27 @@ export const AppointmentBanner = ({
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-primary-foreground/20">
+                  <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 pt-4 sm:pt-4 border-t border-primary-foreground/20">
                     <Button
                       variant="destructive"
                       size="lg"
-                      className="flex-1 text-xs sm:text-sm font-semibold h-10 sm:h-11"
+                      className="flex-1 font-semibold h-11 sm:h-12 text-sm sm:text-base shadow-md hover:shadow-lg transition-all"
                       onClick={() => handleCancelClick(appointment.appointmentId, appointment.tipoAgendamento)}
                       disabled={isCanceling}
                     >
-                      Cancelar Agendamento
+                      <X className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                      <span className="hidden xs:inline">Cancelar Agendamento</span>
+                      <span className="xs:hidden">Cancelar</span>
                     </Button>
                     <Button
                       variant="outline"
                       size="lg"
-                      className="flex-1 border-2 border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary text-xs sm:text-sm font-semibold h-10 sm:h-11"
+                      className="flex-1 border-2 border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary font-semibold h-11 sm:h-12 text-sm sm:text-base shadow-sm hover:shadow-md transition-all"
                       onClick={() => handleMapClick(appointment)}
                     >
-                      Como Chegar
+                      <Navigation className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                      <span className="hidden xs:inline">Como Chegar</span>
+                      <span className="xs:hidden">Rota</span>
                     </Button>
                   </div>
                 </div>
