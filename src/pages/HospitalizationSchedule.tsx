@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { getApiHeaders } from "@/lib/api-headers";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,6 +38,9 @@ export default function HospitalizationSchedule() {
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string>("");
   const [showNoHealthPlanDialog, setShowNoHealthPlanDialog] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showWarningDialog, setShowWarningDialog] = useState(false);
+  const [warningMessage, setWarningMessage] = useState("");
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -121,26 +125,66 @@ export default function HospitalizationSchedule() {
     }
   }, [toast]);
 
-  const handlePatientSelect = (patient: Patient) => {
+  const handlePatientSelect = async (patient: Patient) => {
     if (!patient.codigoCarteirinha || patient.codigoCarteirinha.trim() === "") {
       setShowNoHealthPlanDialog(true);
       return;
     }
 
-    const patientData = {
-      id: patient.id,
-      nome: patient.nome,
-      tipo: patient.tipo || patient.tipoBeneficiario,
-      sexo: patient.sexo,
-      codigoCarteirinha: patient.codigoCarteirinha,
-      dataNascimento: patient.dataNascimento,
-      cdPessoaFisica: patient.cdPessoaFisica,
-      idEmpresa: patient.idEmpresa,
-      cpf: patient.cpf
-    };
+    setIsLoading(true);
 
-    localStorage.setItem("selectedPatient", JSON.stringify(patientData));
-    navigate("/hospitalization-list");
+    try {
+      const response = await fetch(
+        'https://appv2-back.samel.com.br/api/Login/EfetuarLoginInternacao',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'identificador-dispositivo': 'request-android'
+          },
+          body: JSON.stringify({
+            id: patient.id.toString()
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      if (!data.sucesso) {
+        setWarningMessage(data.mensagem || "Não foi possível acessar as informações de internação.");
+        setShowWarningDialog(true);
+        setIsLoading(false);
+        return;
+      }
+
+      // Se sucesso, salva os dados e navega
+      const patientData = {
+        id: patient.id,
+        nome: patient.nome,
+        tipo: patient.tipo || patient.tipoBeneficiario,
+        sexo: patient.sexo,
+        codigoCarteirinha: patient.codigoCarteirinha,
+        dataNascimento: patient.dataNascimento,
+        cdPessoaFisica: patient.cdPessoaFisica,
+        idEmpresa: patient.idEmpresa,
+        cpf: patient.cpf,
+        internacaoData: data.dados
+      };
+
+      localStorage.setItem("selectedPatient", JSON.stringify(patientData));
+      localStorage.setItem("hospitalizationData", JSON.stringify(data.dados));
+      
+      setIsLoading(false);
+      navigate("/hospitalization-list");
+    } catch (error) {
+      console.error("Erro ao buscar dados de internação:", error);
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Não foi possível conectar ao servidor. Tente novamente.",
+      });
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -180,7 +224,7 @@ export default function HospitalizationSchedule() {
                 <Card 
                   key={patient.id} 
                   className="group cursor-pointer transition-all hover:shadow-lg border-2 hover:border-primary"
-                  onClick={() => handlePatientSelect(patient)}
+                  onClick={() => !isLoading && handlePatientSelect(patient)}
                 >
                   <CardHeader>
                     <div className="flex items-start justify-between">
@@ -227,6 +271,38 @@ export default function HospitalizationSchedule() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Alert Dialog para warning de internação */}
+      <AlertDialog open={showWarningDialog} onOpenChange={setShowWarningDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Atenção</AlertDialogTitle>
+            <AlertDialogDescription>
+              {warningMessage}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction 
+              onClick={() => {
+                setShowWarningDialog(false);
+                navigate("/dashboard");
+              }}
+            >
+              Voltar ao Menu Principal
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Loading overlay */}
+      {isLoading && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-2">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+            <p className="text-sm text-muted-foreground">Carregando informações...</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
