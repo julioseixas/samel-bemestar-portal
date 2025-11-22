@@ -134,21 +134,33 @@ export default function HospitalizationSchedule() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        'https://appv2-back.samel.com.br/api/Login/EfetuarLoginInternacao',
-        {
-          method: 'POST',
-          headers: getApiHeaders(),
-          body: JSON.stringify({
-            id: patient.id.toString()
-          })
-        }
-      );
+      // Faz as duas chamadas em paralelo
+      const [loginResponse, agendaResponse] = await Promise.all([
+        fetch(
+          'https://appv2-back.samel.com.br/api/Login/EfetuarLoginInternacao',
+          {
+            method: 'POST',
+            headers: getApiHeaders(),
+            body: JSON.stringify({
+              id: patient.id.toString()
+            })
+          }
+        ),
+        fetch(
+          `https://appv2-back.samel.com.br/api/Internacao/vefirificarAgendaCirurgica/${patient.id}`,
+          {
+            method: 'GET',
+            headers: getApiHeaders()
+          }
+        )
+      ]);
 
-      const data = await response.json();
+      const loginData = await loginResponse.json();
+      const agendaData = await agendaResponse.json();
 
-      if (!data.sucesso) {
-        setWarningMessage(data.mensagem || "Não foi possível acessar as informações de internação.");
+      // Verifica se o login foi bem-sucedido
+      if (!loginData.sucesso) {
+        setWarningMessage(loginData.mensagem || "Não foi possível acessar as informações de internação.");
         setShowWarningDialog(true);
         setIsLoading(false);
         return;
@@ -165,11 +177,16 @@ export default function HospitalizationSchedule() {
         cdPessoaFisica: patient.cdPessoaFisica,
         idEmpresa: patient.idEmpresa,
         cpf: patient.cpf,
-        internacaoData: data.dados
+        internacaoData: loginData.dados
       };
 
       localStorage.setItem("selectedPatient", JSON.stringify(patientData));
-      localStorage.setItem("hospitalizationData", JSON.stringify(data.dados));
+      localStorage.setItem("hospitalizationData", JSON.stringify(loginData.dados));
+      
+      // Salva os dados da agenda cirúrgica (para uso futuro)
+      if (agendaData.sucesso && agendaData.dados) {
+        localStorage.setItem("surgicalSchedule", JSON.stringify(agendaData.dados));
+      }
       
       setIsLoading(false);
       navigate("/hospitalization-list");
