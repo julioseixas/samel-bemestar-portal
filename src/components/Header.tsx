@@ -39,7 +39,7 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  useEffect(() => {
+  const loadNotifications = () => {
     const storedNotifications = localStorage.getItem('notifications');
     if (storedNotifications) {
       try {
@@ -53,6 +53,50 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
         console.error("Erro ao carregar notificações:", error);
       }
     }
+  };
+
+  const fetchNotifications = async () => {
+    const user = localStorage.getItem('user');
+    if (!user) return;
+
+    try {
+      const userData = JSON.parse(user);
+      const idCliente = userData[0]?.clienteContratos?.[0]?.idCliente;
+      
+      if (!idCliente) return;
+
+      const chaveAutenticacao = localStorage.getItem('chave-autenticacao');
+      
+      const response = await fetch(
+        'https://api-portalpaciente-web.samel.com.br/api/notificacao/ObterNotificacoesCliente',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'chave-autenticacao': chaveAutenticacao || '',
+            'identificador-dispositivo': 'request-android',
+          },
+          body: JSON.stringify({ idCliente }),
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.sucesso && data.dados) {
+          localStorage.setItem('notifications', JSON.stringify(data));
+          setNotifications(data.dados);
+          
+          const unread = data.dados.filter((n: Notification) => !n.DT_VISUALIZADO).length;
+          setUnreadCount(unread);
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao buscar notificações:", error);
+    }
+  };
+
+  useEffect(() => {
+    loadNotifications();
   }, []);
 
   const handleLogout = () => {
@@ -133,7 +177,10 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
             
             <Popover>
               <PopoverTrigger asChild>
-                <button className="relative p-2 hover:bg-accent rounded-full transition-colors order-1 sm:order-2">
+                <button 
+                  className="relative p-2 hover:bg-accent rounded-full transition-colors order-1 sm:order-2"
+                  onClick={fetchNotifications}
+                >
                   <Bell className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" />
                   {unreadCount > 0 && (
                     <Badge 
