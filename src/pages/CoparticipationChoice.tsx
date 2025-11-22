@@ -1,16 +1,34 @@
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { Button } from "@/components/ui/button";
-import { Receipt, FileText } from "lucide-react";
+import { DashboardCard } from "@/components/DashboardCard";
+import { Receipt, FileText, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 
-export default function CoparticipationChoice() {
+const CoparticipationChoice = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const patientData = JSON.parse(localStorage.getItem("patientData") || "[]");
-  const patientName = patientData[0]?.nome || "Usuário";
-  const profilePhoto = patientData[0]?.clienteContratos?.[0]?.fotoPerfil;
+  const [patientName, setPatientName] = useState("Paciente");
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+
+  useEffect(() => {
+    const patientData = localStorage.getItem("patientData");
+    const photo = localStorage.getItem("profilePhoto");
+    
+    if (patientData) {
+      try {
+        const data = JSON.parse(patientData);
+        setPatientName(data.nome || "Paciente");
+      } catch (error) {
+        console.error("Erro ao carregar dados do paciente:", error);
+      }
+    }
+    
+    if (photo) {
+      setProfilePhoto(photo);
+    }
+  }, []);
 
   const handlePriceTable = () => {
     toast({
@@ -27,88 +45,58 @@ export default function CoparticipationChoice() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
       
-      <main className="flex-1 container mx-auto px-4 py-6 sm:py-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
-              Coparticipação
-            </h1>
-            <p className="text-sm sm:text-base text-muted-foreground">
+      <main className="flex-1">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:px-6 md:py-10">
+          <div className="mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row items-center justify-between mb-2 gap-2">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground md:text-3xl">
+                Coparticipação
+              </h2>
+              <Button
+                variant="outline"
+                onClick={() => navigate("/dashboard")}
+                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
+                size="sm"
+              >
+                <ArrowLeft className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                Voltar ao Dashboard
+              </Button>
+            </div>
+            <p className="text-sm sm:text-base text-muted-foreground md:text-lg">
               Selecione o que deseja visualizar
             </p>
           </div>
-          <Button
-            onClick={() => navigate("/dashboard")}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground whitespace-nowrap"
-            size="sm"
-          >
-            ← Voltar ao Dashboard
-          </Button>
-        </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 max-w-4xl mt-8">
-          <div 
-            className="bg-card rounded-lg p-6 shadow-sm hover:shadow-md transition-all cursor-pointer"
-            onClick={handlePriceTable}
-          >
-            <div className="flex flex-col items-center text-center space-y-4">
-              <div className="rounded-xl bg-muted p-4">
-                <Receipt className="h-12 w-12 sm:h-16 sm:w-16 text-primary" />
-              </div>
-              <div>
-                <h2 className="text-lg sm:text-xl font-bold text-foreground mb-2">
-                  TABELA DE PREÇOS
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  Consulte os valores de coparticipação por procedimento
-                </p>
-              </div>
-              <Button 
-                className="w-full bg-success hover:bg-success/90 text-white"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handlePriceTable();
-                }}
-              >
-                Ver Tabela
-              </Button>
-            </div>
-          </div>
-
-          <div 
-            className="bg-card rounded-lg p-6 shadow-sm hover:shadow-md transition-all cursor-pointer"
-            onClick={handleStatement}
-          >
-            <div className="flex flex-col items-center text-center space-y-4">
-              <div className="rounded-xl bg-muted p-4">
-                <FileText className="h-12 w-12 sm:h-16 sm:w-16 text-success" />
-              </div>
-              <div>
-                <h2 className="text-lg sm:text-xl font-bold text-foreground mb-2">
-                  EXTRATO DE COPARTICIPAÇÃO
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  Acompanhe o histórico dos seus valores pagos
-                </p>
-              </div>
-              <Button 
-                className="w-full bg-success hover:bg-success/90 text-white"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleStatement();
-                }}
-              >
-                Ver Extrato
-              </Button>
-            </div>
+          <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-2 max-w-4xl">
+            <DashboardCard
+              title="TABELA DE PREÇOS"
+              description="Consulte os valores de coparticipação por procedimento"
+              icon={Receipt}
+              iconColor="text-primary"
+              buttonText="Ver Tabela"
+              variant="default"
+              useDashboardColor={true}
+              onClick={handlePriceTable}
+            />
+            
+            <DashboardCard
+              title="EXTRATO DE COPARTICIPAÇÃO"
+              description="Acompanhe o histórico dos seus valores pagos"
+              icon={FileText}
+              iconColor="text-primary"
+              buttonText="Ver Extrato"
+              variant="default"
+              useDashboardColor={true}
+              onClick={handleStatement}
+            />
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
-}
+};
+
+export default CoparticipationChoice;
