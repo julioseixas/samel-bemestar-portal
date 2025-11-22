@@ -155,22 +155,12 @@ const PrescriptionRenewalDetails = () => {
       const data = await response.json();
 
       if (data.sucesso && data.dados) {
-        console.log("📋 Especialidades recebidas:", data.dados);
+        setEspecialidades(data.dados);
         
-        const uniqueById: Record<number, Especialidade> = {};
-        data.dados.forEach((e: Especialidade) => {
-          if (!uniqueById[e.id]) {
-            uniqueById[e.id] = e;
-          }
-        });
-
-        const especialidadesUnicas = Object.values(uniqueById);
-        setEspecialidades(especialidadesUnicas);
-        
-        const renovacaoReceita = especialidadesUnicas.find((e: Especialidade) => 
+        const renovacaoReceita = data.dados.find((e: Especialidade) => 
           e.descricao === "Renovação de Receita"
         );
-        console.log("🎯 Renovação de Receita encontrada:", renovacaoReceita);
+        
         if (renovacaoReceita) {
           setSelectedEspecialidade(String(renovacaoReceita.id));
         }
