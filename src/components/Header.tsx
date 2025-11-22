@@ -278,37 +278,43 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
 
         {/* Modal de Detalhes da Notificação */}
         <Dialog open={showNotificationDialog} onOpenChange={setShowNotificationDialog}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle className="text-xl">
+          <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] flex flex-col p-0">
+            <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-4 border-b">
+              <DialogTitle className="text-lg sm:text-xl pr-8">
                 {selectedNotification?.DS_TITULO}
               </DialogTitle>
             </DialogHeader>
             
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span>{selectedNotification?.DATA_FORMATADA}</span>
-                {!selectedNotification?.DT_VISUALIZADO && (
-                  <Badge variant="secondary" className="text-xs">Não lida</Badge>
-                )}
+            <ScrollArea className="flex-1 px-4 sm:px-6 py-4">
+              <div className="space-y-4">
+                <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                  <span>{selectedNotification?.DATA_FORMATADA}</span>
+                  {!selectedNotification?.DT_VISUALIZADO && (
+                    <Badge variant="secondary" className="text-xs">Não lida</Badge>
+                  )}
+                </div>
+                
+                <div className="prose dark:prose-invert max-w-none">
+                  <p className="text-sm sm:text-base text-foreground whitespace-pre-wrap leading-relaxed">
+                    {selectedNotification?.DESCRICAO}
+                  </p>
+                </div>
               </div>
-              
-              <div className="prose dark:prose-invert max-w-none">
-                <p className="text-sm text-foreground whitespace-pre-wrap">
-                  {selectedNotification?.DESCRICAO}
-                </p>
-              </div>
-            </div>
+            </ScrollArea>
 
-            <DialogFooter className="gap-2">
+            <DialogFooter className="flex-col sm:flex-row gap-2 px-4 sm:px-6 pb-4 sm:pb-6 pt-4 border-t">
               <Button 
                 variant="outline" 
                 onClick={() => setShowNotificationDialog(false)}
+                className="w-full sm:w-auto order-2 sm:order-1"
               >
                 Fechar
               </Button>
               {!selectedNotification?.DT_VISUALIZADO && (
-                <Button onClick={handleMarkAsRead}>
+                <Button 
+                  onClick={handleMarkAsRead}
+                  className="w-full sm:w-auto order-1 sm:order-2"
+                >
                   Marcar como lida
                 </Button>
               )}
