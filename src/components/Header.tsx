@@ -218,30 +218,30 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card shadow-sm backdrop-blur-sm bg-card/95">
-      <div className="container mx-auto flex h-16 sm:h-20 items-center justify-between px-4 sm:px-6 md:px-8">
+      <div className="container mx-auto flex h-14 sm:h-16 md:h-20 items-center justify-between px-3 sm:px-6 md:px-8">
         <div className="flex items-center gap-2 sm:gap-3">
-          <div className="flex h-11 w-11 sm:h-14 sm:w-14 items-center justify-center rounded-xl overflow-hidden">
+          <div className="flex h-9 w-9 sm:h-12 sm:w-12 md:h-14 md:w-14 items-center justify-center rounded-xl overflow-hidden">
             <img src={samelLogo} alt="Hospital Samel" className="h-full w-full object-contain" />
           </div>
           <div>
-            <h1 className="text-base sm:text-xl font-bold text-primary leading-tight md:text-2xl">Portal do Paciente</h1>
+            <h1 className="text-sm sm:text-base font-bold text-primary leading-tight md:text-lg">Portal do Paciente</h1>
           </div>
         </div>
         
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           <div className="text-right hidden sm:block">
-            <p className="text-sm text-muted-foreground">Olá,</p>
-            <p className="text-base font-semibold text-foreground leading-tight md:text-lg">{patientName}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">Olá,</p>
+            <p className="text-sm sm:text-base font-semibold text-foreground leading-tight">{patientName}</p>
           </div>
           
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Avatar className="h-11 w-11 sm:h-13 sm:w-13 border-2 border-primary cursor-pointer hover:opacity-80 transition-opacity order-2 sm:order-1">
+                <Avatar className="h-9 w-9 sm:h-11 sm:w-11 border-2 border-primary cursor-pointer hover:opacity-80 transition-opacity order-2 sm:order-1">
                   {profilePhoto ? (
                     <AvatarImage src={`data:image/jpeg;base64,${profilePhoto}`} alt={patientName} />
                   ) : null}
                   <AvatarFallback className="bg-primary text-primary-foreground">
-                    <User className="h-5 w-5 sm:h-7 sm:w-7" />
+                    <User className="h-4 w-4 sm:h-5 sm:w-5" />
                   </AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
@@ -275,16 +275,16 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
             </DropdownMenu>
             
             <button 
-              className="relative p-2 sm:p-2.5 hover:bg-accent rounded-full transition-colors order-1 sm:order-2"
+              className="relative p-1.5 sm:p-2 hover:bg-accent rounded-full transition-colors order-1 sm:order-2"
               onClick={handleOpenNotifications}
             >
               <Bell className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" />
               {unreadCount > 0 && (
                 <Badge 
                   variant="destructive" 
-                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs font-bold"
+                  className="absolute -top-0.5 -right-0.5 h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center p-0 text-[10px] sm:text-xs font-bold"
                 >
-                  {unreadCount > 99 ? '99+' : unreadCount}
+                  {unreadCount > 99 ? '9+' : unreadCount}
                 </Badge>
               )}
             </button>

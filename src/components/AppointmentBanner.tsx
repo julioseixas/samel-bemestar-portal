@@ -139,50 +139,50 @@ export const AppointmentBanner = ({
           <CarouselContent>
             {appointments.map((appointment, index) => (
               <CarouselItem key={index}>
-                <div className="rounded-2xl bg-gradient-to-br from-primary to-primary-hover p-5 sm:p-7 text-primary-foreground shadow-lg md:p-9">
-                  <div className="mb-4 sm:mb-5 flex items-center gap-2 justify-between">
+                <div className="rounded-2xl bg-gradient-to-br from-primary to-primary-hover p-4 sm:p-6 md:p-7 text-primary-foreground shadow-lg">
+                  <div className="mb-3 sm:mb-4 flex items-center gap-2 justify-between">
                     <div className="flex items-center gap-2">
-                      <Calendar className="h-5 w-5 sm:h-6 sm:w-6" />
-                      <span className="text-sm sm:text-base font-semibold md:text-lg">
+                      <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <span className="text-xs sm:text-sm font-semibold md:text-base">
                         Próximo Agendamento
                       </span>
                     </div>
                     {appointments.length > 1 && (
-                      <span className="text-sm sm:text-base opacity-90 font-medium">
+                      <span className="text-xs sm:text-sm opacity-90 font-medium">
                         {index + 1}/{appointments.length}
                       </span>
                     )}
                   </div>
-                  <div className="space-y-5">
+                  <div className="space-y-3 sm:space-y-4">
                     {/* Nome do Exame/Consulta - Destaque Principal */}
                     <div>
-                      <p className="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight">
+                      <p className="text-lg sm:text-2xl md:text-3xl font-bold leading-tight">
                         {appointment.specialty}
                       </p>
                     </div>
 
-                    <div className="border-t border-primary-foreground/20 pt-5 space-y-4">
+                    <div className="border-t border-primary-foreground/20 pt-3 sm:pt-4 space-y-2.5 sm:space-y-3">
                       {/* Data e Horário */}
-                      <div className="flex flex-wrap gap-5">
-                        <div className="flex items-center gap-3">
-                          <div className="bg-primary-foreground/15 p-2 rounded-lg">
-                            <Calendar className="h-5 w-5 sm:h-6 sm:w-6" />
+                      <div className="flex flex-wrap gap-3 sm:gap-4">
+                        <div className="flex items-center gap-2">
+                          <div className="bg-primary-foreground/15 p-1.5 sm:p-2 rounded-lg">
+                            <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
                           </div>
                           <div>
-                            <p className="text-xs sm:text-sm opacity-90 mb-0.5">Data</p>
-                            <p className="text-base sm:text-lg font-bold capitalize leading-tight">
+                            <p className="text-[11px] sm:text-xs opacity-90 mb-0.5">Data</p>
+                            <p className="text-sm sm:text-base font-semibold capitalize leading-tight">
                               {appointment.date}
                             </p>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-3">
-                          <div className="bg-primary-foreground/15 p-2 rounded-lg">
-                            <Clock className="h-5 w-5 sm:h-6 sm:w-6" />
+                        <div className="flex items-center gap-2">
+                          <div className="bg-primary-foreground/15 p-1.5 sm:p-2 rounded-lg">
+                            <Clock className="h-4 w-4 sm:h-5 sm:w-5" />
                           </div>
                           <div>
-                            <p className="text-xs sm:text-sm opacity-90 mb-0.5">Horário</p>
-                            <p className="text-base sm:text-lg font-bold leading-tight">
+                            <p className="text-[11px] sm:text-xs opacity-90 mb-0.5">Horário</p>
+                            <p className="text-sm sm:text-base font-semibold leading-tight">
                               {appointment.time}
                             </p>
                           </div>
@@ -190,10 +190,10 @@ export const AppointmentBanner = ({
                       </div>
 
                       {/* Profissional */}
-                      <div className="flex items-center gap-3">
-                        <div className="bg-primary-foreground/15 p-2 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <div className="bg-primary-foreground/15 p-1.5 sm:p-2 rounded-lg">
                           <svg
-                            className="h-5 w-5 sm:h-6 sm:w-6"
+                            className="h-4 w-4 sm:h-5 sm:w-5"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -207,32 +207,32 @@ export const AppointmentBanner = ({
                           </svg>
                         </div>
                         <div>
-                          <p className="text-xs sm:text-sm opacity-90 mb-0.5">Profissional</p>
-                          <p className="text-base sm:text-lg font-bold leading-tight">
+                          <p className="text-[11px] sm:text-xs opacity-90 mb-0.5">Profissional</p>
+                          <p className="text-sm sm:text-base font-semibold leading-tight">
                             {appointment.doctor}
                           </p>
                         </div>
                       </div>
 
                       {/* Local */}
-                      <div className="flex items-start gap-3">
-                        <div className="bg-primary-foreground/15 p-2 rounded-lg">
-                          <MapPin className="h-5 w-5 sm:h-6 sm:w-6" />
+                      <div className="flex items-start gap-2">
+                        <div className="bg-primary-foreground/15 p-1.5 sm:p-2 rounded-lg">
+                          <MapPin className="h-4 w-4 sm:h-5 sm:w-5" />
                         </div>
                         <div>
-                          <p className="text-xs sm:text-sm opacity-90 mb-0.5">Local</p>
-                          <p className="text-base sm:text-lg font-bold leading-tight">
+                          <p className="text-[11px] sm:text-xs opacity-90 mb-0.5">Local</p>
+                          <p className="text-sm sm:text-base font-semibold leading-tight">
                             {appointment.location}
                           </p>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-5 border-t border-primary-foreground/20">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-primary-foreground/20">
                     <Button
                       variant="destructive"
                       size="lg"
-                      className="flex-1 text-sm sm:text-base font-semibold h-12"
+                      className="flex-1 text-xs sm:text-sm font-semibold h-10 sm:h-11"
                       onClick={() => handleCancelClick(appointment.appointmentId, appointment.tipoAgendamento)}
                       disabled={isCanceling}
                     >
@@ -241,7 +241,7 @@ export const AppointmentBanner = ({
                     <Button
                       variant="outline"
                       size="lg"
-                      className="flex-1 border-2 border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary text-sm sm:text-base font-semibold h-12"
+                      className="flex-1 border-2 border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary text-xs sm:text-sm font-semibold h-10 sm:h-11"
                       onClick={() => handleMapClick(appointment)}
                     >
                       Como Chegar

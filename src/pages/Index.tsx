@@ -410,20 +410,20 @@ const Index = () => {
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
       
       <main className="flex-1">
-        <div className="container mx-auto px-4 sm:px-6 py-5 sm:py-8 md:px-8 md:py-12">
+        <div className="container mx-auto px-3 sm:px-6 py-4 sm:py-6 md:px-8 md:py-10">
           {/* Welcome Section */}
-          <div ref={welcomeSectionRef} className="mb-7 sm:mb-10">
-            <h2 className="mb-3 text-2xl sm:text-3xl font-bold text-foreground leading-tight md:text-4xl">
+          <div ref={welcomeSectionRef} className="mb-5 sm:mb-8">
+            <h2 className="mb-2 text-xl sm:text-2xl font-bold text-foreground leading-tight md:text-3xl">
               Bem-vindo(a) ao seu Portal! 👋
             </h2>
-            <p className="text-base sm:text-lg text-muted-foreground leading-relaxed md:text-xl">
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed md:text-lg">
               Aqui você pode acessar todas as suas informações de saúde de forma simples e rápida.
             </p>
           </div>
 
           {/* Next Appointment Banner */}
           {appointments.length > 0 && (
-            <div ref={bannerRef} className="mb-7 sm:mb-10 md:mb-14">
+            <div ref={bannerRef} className="mb-5 sm:mb-8 md:mb-10">
               <AppointmentBanner
                 appointments={formatAppointmentsForBanner()}
                 onCancel={fetchAppointments}
@@ -432,12 +432,12 @@ const Index = () => {
           )}
 
           {/* Dashboard Cards Grid */}
-          <div className="mb-8 sm:mb-10">
-            <h3 className="mb-5 sm:mb-7 text-xl sm:text-2xl font-bold text-foreground md:text-3xl">
+          <div className="mb-6 sm:mb-8">
+            <h3 className="mb-4 sm:mb-6 text-lg sm:text-xl font-bold text-foreground md:text-2xl">
               O que você deseja fazer?
             </h3>
             
-            <div ref={cardsRef} className="grid gap-4 sm:gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 items-stretch auto-rows-fr">
+            <div ref={cardsRef} className="grid gap-3 sm:gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 items-stretch auto-rows-fr">
               {/* Linha 1 - Ações principais */}
               <div data-card>
                 <DashboardCard
