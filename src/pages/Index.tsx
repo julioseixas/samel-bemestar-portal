@@ -3,7 +3,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AppointmentBanner } from "@/components/AppointmentBanner";
 import { DashboardCard } from "@/components/DashboardCard";
-import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, ClipboardList, FolderOpen, FileSignature, CalendarX } from "lucide-react";
+import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, ClipboardList, FolderOpen, FileSignature, CalendarX, Receipt } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
@@ -401,6 +401,13 @@ const Index = () => {
     navigate("/hospitalization-schedule");
   };
 
+  const handleCoparticipation = () => {
+    toast({
+      title: "Coparticipação",
+      description: "Esta funcionalidade está em desenvolvimento.",
+    });
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
@@ -588,6 +595,19 @@ const Index = () => {
                 variant="default"
                 useDashboardColor={true}
                 onClick={() => handleCardClick("Chatbot Samel")}
+                />
+              </div>
+
+              <div data-card>
+                <DashboardCard
+                title="COPARTICIPAÇÃO"
+                description="Acompanhe seus valores de coparticipação"
+                icon={Receipt}
+                iconColor="text-success"
+                buttonText="Ver Valores"
+                variant="default"
+                useDashboardColor={true}
+                onClick={handleCoparticipation}
                 />
               </div>
             </div>
