@@ -27,62 +27,79 @@ export default function HospitalizationSchedule() {
   const [profilePhoto, setProfilePhoto] = useState<string>("");
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
+    const storedTitular = localStorage.getItem("titular");
+    const storedListToSchedule = localStorage.getItem("listToSchedule");
     const storedPhoto = localStorage.getItem("profilePhoto");
 
-    if (storedPhoto) {
-      setProfilePhoto(storedPhoto);
+    if (storedTitular) {
+      try {
+        const parsedTitular = storedTitular.startsWith('{') 
+          ? JSON.parse(storedTitular) 
+          : { nome: storedTitular };
+        setPatientName(parsedTitular.titular?.nome || parsedTitular.nome || "Paciente");
+      } catch (error) {
+        console.error("Erro ao processar titular:", error);
+        setPatientName(storedTitular);
+      }
     }
 
-    if (storedUser) {
+    if (storedListToSchedule) {
       try {
-        const userData = JSON.parse(storedUser);
+        const parsedList = JSON.parse(storedListToSchedule);
+        
         const allPatients: Patient[] = [];
-
-        if (Array.isArray(userData)) {
-          const mainUser = userData[0];
-          setPatientName(mainUser.nome || "Paciente");
-
-          if (mainUser.clienteContratos && Array.isArray(mainUser.clienteContratos)) {
-            mainUser.clienteContratos.forEach((contrato: any) => {
-              // Adiciona o titular
+        
+        const patientList = Array.isArray(parsedList) 
+          ? parsedList 
+          : parsedList.listAllPacient || [];
+        
+        if (patientList.length > 0) {
+          patientList.forEach((patient: any) => {
+            // Adicionar titular
+            if (patient.tipoBeneficiario === "Titular" || patient.tipo === "Titular") {
+              const titularId = patient.id || patient.cdPessoaFisica;
+              
               allPatients.push({
-                id: contrato.id,
-                nome: contrato.nome,
-                dataNascimento: contrato.dataNascimento2 || contrato.dataNascimento,
-                cpf: contrato.cpf,
-                codigoCarteirinha: contrato.codigoCarteirinha,
-                tipoBeneficiario: contrato.tipoBeneficiario,
-                idEmpresa: contrato.idEmpresa,
+                id: titularId,
+                nome: patient.nome,
+                dataNascimento: patient.dataNascimento2 || patient.dataNascimento,
+                cpf: patient.cpf,
+                codigoCarteirinha: patient.codigoCarteirinha,
+                tipoBeneficiario: "Titular",
+                idEmpresa: patient.idEmpresa
               });
-
-              // Adiciona os dependentes se existirem
-              if (contrato.dependentes && Array.isArray(contrato.dependentes)) {
-                contrato.dependentes.forEach((dep: any) => {
-                  allPatients.push({
-                    id: dep.id,
-                    nome: dep.nome,
-                    dataNascimento: dep.dataNascimento2 || dep.dataNascimento,
-                    cpf: dep.cpf,
-                    codigoCarteirinha: dep.codigoCarteirinha,
-                    tipoBeneficiario: dep.tipoBeneficiario,
-                    idEmpresa: dep.idEmpresa,
-                  });
-                });
-              }
-            });
-          }
+            }
+            
+            // Adicionar dependente
+            if (patient.tipoBeneficiario === "Dependente" || patient.tipo === "Dependente") {
+              const depId = patient.id || patient.cdPessoaFisica;
+              
+              allPatients.push({
+                id: depId,
+                nome: patient.nome,
+                dataNascimento: patient.dataNascimento2 || patient.dataNascimento,
+                cpf: patient.cpf,
+                codigoCarteirinha: patient.codigoCarteirinha,
+                tipoBeneficiario: "Dependente",
+                idEmpresa: patient.idEmpresa
+              });
+            }
+          });
+          
+          setPatients(allPatients);
         }
-
-        setPatients(allPatients);
       } catch (error) {
-        console.error("Erro ao processar dados do usuário:", error);
+        console.error("Erro ao processar lista de pacientes:", error);
         toast({
           variant: "destructive",
           title: "Erro",
           description: "Não foi possível carregar os pacientes.",
         });
       }
+    }
+
+    if (storedPhoto) {
+      setProfilePhoto(storedPhoto);
     }
   }, [toast]);
 
