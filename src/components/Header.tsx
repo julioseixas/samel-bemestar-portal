@@ -91,49 +91,49 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
             <p className="text-base font-semibold text-foreground md:text-lg">{patientName}</p>
           </div>
           
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Avatar className="h-10 w-10 sm:h-12 sm:w-12 border-2 border-primary cursor-pointer hover:opacity-80 transition-opacity">
-                {profilePhoto ? (
-                  <AvatarImage src={`data:image/jpeg;base64,${profilePhoto}`} alt={patientName} />
-                ) : null}
-                <AvatarFallback className="bg-primary text-primary-foreground">
-                  <User className="h-5 w-5 sm:h-6 sm:w-6" />
-                </AvatarFallback>
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem className="cursor-pointer">
-                <KeyRound className="mr-2 h-4 w-4" />
-                <span>Atualizar senha</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/personal-data")}>
-                <UserCircle className="mr-2 h-4 w-4" />
-                <span>Ver dados pessoais</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem 
-                className="cursor-pointer" 
-                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-              >
-                {theme === "light" ? (
-                  <Moon className="mr-2 h-4 w-4" />
-                ) : (
-                  <Sun className="mr-2 h-4 w-4" />
-                )}
-                <span>{theme === "light" ? "Modo escuro" : "Modo claro"}</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer text-destructive" onClick={handleLogout}>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Sair</span>
-              </DropdownMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Avatar className="h-10 w-10 sm:h-12 sm:w-12 border-2 border-primary cursor-pointer hover:opacity-80 transition-opacity order-2 sm:order-1">
+                  {profilePhoto ? (
+                    <AvatarImage src={`data:image/jpeg;base64,${profilePhoto}`} alt={patientName} />
+                  ) : null}
+                  <AvatarFallback className="bg-primary text-primary-foreground">
+                    <User className="h-5 w-5 sm:h-6 sm:w-6" />
+                  </AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem className="cursor-pointer">
+                  <KeyRound className="mr-2 h-4 w-4" />
+                  <span>Atualizar senha</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/personal-data")}>
+                  <UserCircle className="mr-2 h-4 w-4" />
+                  <span>Ver dados pessoais</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  className="cursor-pointer" 
+                  onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+                >
+                  {theme === "light" ? (
+                    <Moon className="mr-2 h-4 w-4" />
+                  ) : (
+                    <Sun className="mr-2 h-4 w-4" />
+                  )}
+                  <span>{theme === "light" ? "Modo escuro" : "Modo claro"}</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="cursor-pointer text-destructive" onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Sair</span>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             
             <Popover>
               <PopoverTrigger asChild>
-                <button className="relative p-2 hover:bg-accent rounded-full transition-colors">
+                <button className="relative p-2 hover:bg-accent rounded-full transition-colors order-1 sm:order-2">
                   <Bell className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" />
                   {unreadCount > 0 && (
                     <Badge 
