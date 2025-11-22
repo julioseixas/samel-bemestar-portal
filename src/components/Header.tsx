@@ -16,6 +16,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import samelLogo from "@/assets/samel-logo.png";
 
 interface Notification {
@@ -39,11 +40,13 @@ interface HeaderProps {
 export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProps) => {
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
+  const { toast } = useToast();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
   const [showNotificationListDialog, setShowNotificationListDialog] = useState(false);
   const [showNotificationDetailDialog, setShowNotificationDetailDialog] = useState(false);
+  const [isMarkingAsRead, setIsMarkingAsRead] = useState(false);
 
   const loadNotifications = () => {
     const storedNotifications = localStorage.getItem('notifications');
@@ -127,22 +130,64 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
 
   const handleMarkAsRead = async (notification?: Notification) => {
     const notificationToMark = notification || selectedNotification;
-    if (!notificationToMark) return;
+    if (!notificationToMark || isMarkingAsRead) return;
     
-    // TODO: Implementar chamada à API para marcar como lida
-    // const response = await fetch('URL_DA_API', {
-    //   method: 'POST',
-    //   headers: getApiHeaders(),
-    //   body: JSON.stringify({ notificationId: notificationToMark.NR_SEQUENCIA })
-    // });
+    setIsMarkingAsRead(true);
     
-    // Após marcar como lida, atualizar o estado local
-    if (selectedNotification) {
-      setShowNotificationDetailDialog(false);
-      setShowNotificationListDialog(true);
+    try {
+      const patientDataRaw = localStorage.getItem('patientData');
+      if (!patientDataRaw) {
+        toast({
+          variant: "destructive",
+          title: "Erro",
+          description: "Dados do paciente não encontrados.",
+        });
+        return;
+      }
+
+      const patientData = JSON.parse(patientDataRaw);
+      const idCliente = patientData.cd_pessoa_fisica || patientData.id;
+
+      const response = await fetch(
+        'https://appv2-back.samel.com.br/api/notificacao/NotificacaoVisualizada',
+        {
+          method: 'POST',
+          headers: getApiHeaders(),
+          body: JSON.stringify({
+            idCliente: idCliente.toString(),
+            idNotificacao: notificationToMark.NR_SEQUENCIA
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!data.sucesso) {
+        toast({
+          variant: "destructive",
+          title: "Erro",
+          description: data.mensagem || "Não foi possível marcar a notificação como lida.",
+        });
+        return;
+      }
+
+      // Se estiver no modal de detalhes, voltar para a lista
+      if (selectedNotification) {
+        setShowNotificationDetailDialog(false);
+        setShowNotificationListDialog(true);
+      }
+      
+      // Recarregar notificações
+      await fetchNotifications();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Erro ao marcar notificação como lida.",
+      });
+    } finally {
+      setIsMarkingAsRead(false);
     }
-    // Recarregar notificações
-    await fetchNotifications();
   };
 
   const handleLogout = () => {
@@ -295,9 +340,10 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
                                 e.stopPropagation();
                                 handleMarkAsRead(notification);
                               }}
+                              disabled={isMarkingAsRead}
                               className="w-full sm:w-auto text-xs"
                             >
-                              Marcar como lida
+                              {isMarkingAsRead ? "Marcando..." : "Marcar como lida"}
                             </Button>
                           </div>
                         )}
@@ -363,9 +409,10 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
               {!selectedNotification?.DT_VISUALIZADO && (
                 <Button 
                   onClick={() => handleMarkAsRead(selectedNotification)}
+                  disabled={isMarkingAsRead}
                   className="w-full sm:w-auto order-1 sm:order-2"
                 >
-                  Marcar como lida
+                  {isMarkingAsRead ? "Marcando..." : "Marcar como lida"}
                 </Button>
               )}
             </DialogFooter>
