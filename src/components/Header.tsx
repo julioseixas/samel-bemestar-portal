@@ -14,6 +14,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import samelLogo from "@/assets/samel-logo.png";
 
 interface Notification {
@@ -39,6 +41,8 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
   const { theme, setTheme } = useTheme();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
+  const [showNotificationDialog, setShowNotificationDialog] = useState(false);
 
   const loadNotifications = () => {
     const storedNotifications = localStorage.getItem('notifications');
@@ -108,6 +112,27 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
   useEffect(() => {
     loadNotifications();
   }, []);
+
+  const handleNotificationClick = (notification: Notification) => {
+    setSelectedNotification(notification);
+    setShowNotificationDialog(true);
+  };
+
+  const handleMarkAsRead = async () => {
+    if (!selectedNotification) return;
+    
+    // TODO: Implementar chamada à API para marcar como lida
+    // const response = await fetch('URL_DA_API', {
+    //   method: 'POST',
+    //   headers: getApiHeaders(),
+    //   body: JSON.stringify({ notificationId: selectedNotification.NR_SEQUENCIA })
+    // });
+    
+    // Após marcar como lida, atualizar o estado local
+    setShowNotificationDialog(false);
+    // Recarregar notificações
+    await fetchNotifications();
+  };
 
   const handleLogout = () => {
     // Remove todos os dados do paciente do localStorage
@@ -225,6 +250,7 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
                           className={`p-4 hover:bg-accent/50 transition-colors cursor-pointer ${
                             !notification.DT_VISUALIZADO ? 'bg-primary/5' : ''
                           }`}
+                          onClick={() => handleNotificationClick(notification)}
                         >
                           <div className="flex items-start justify-between gap-2 mb-1">
                             <h4 className="font-semibold text-sm line-clamp-1">
@@ -249,6 +275,46 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
             </Popover>
           </div>
         </div>
+
+        {/* Modal de Detalhes da Notificação */}
+        <Dialog open={showNotificationDialog} onOpenChange={setShowNotificationDialog}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="text-xl">
+                {selectedNotification?.DS_TITULO}
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>{selectedNotification?.DATA_FORMATADA}</span>
+                {!selectedNotification?.DT_VISUALIZADO && (
+                  <Badge variant="secondary" className="text-xs">Não lida</Badge>
+                )}
+              </div>
+              
+              <div className="prose dark:prose-invert max-w-none">
+                <p className="text-sm text-foreground whitespace-pre-wrap">
+                  {selectedNotification?.DESCRICAO}
+                </p>
+              </div>
+            </div>
+
+            <DialogFooter className="gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowNotificationDialog(false)}
+              >
+                Fechar
+              </Button>
+              {!selectedNotification?.DT_VISUALIZADO && (
+                <Button onClick={handleMarkAsRead}>
+                  Marcar como lida
+                </Button>
+              )}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </header>
     );
   };
