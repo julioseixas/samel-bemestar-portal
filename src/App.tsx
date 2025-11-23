@@ -38,6 +38,7 @@ import HospitalizationSchedule from "./pages/HospitalizationSchedule";
 import CoparticipationChoice from "./pages/CoparticipationChoice";
 import CoparticipationPriceTable from "./pages/CoparticipationPriceTable";
 import OnlineConsultationSchedule from "./pages/OnlineConsultationSchedule";
+import OnlineConsultationDetails from "./pages/OnlineConsultationDetails";
 
 const queryClient = new QueryClient();
 
@@ -83,6 +84,7 @@ const App = () => (
           <Route path="/coparticipation-choice" element={<CoparticipationChoice />} />
           <Route path="/coparticipation-price-table" element={<CoparticipationPriceTable />} />
           <Route path="/online-consultation-schedule" element={<OnlineConsultationSchedule />} />
+          <Route path="/online-consultation-details" element={<OnlineConsultationDetails />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
