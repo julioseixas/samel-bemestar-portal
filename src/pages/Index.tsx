@@ -500,7 +500,7 @@ const Index = () => {
                 buttonText="Fazer Check-in"
                 variant="default"
                 useDashboardColor={true}
-                onClick={() => handleCardClick("Check-in Telemedicina")}
+                onClick={() => navigate("/online-consultation-schedule")}
                 />
               </div>
               
