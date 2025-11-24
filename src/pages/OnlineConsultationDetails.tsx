@@ -250,6 +250,11 @@ const OnlineConsultationDetails = () => {
       const data = await response.json();
 
       if (data.sucesso) {
+        // Se código 2, mostrar alerta mas continuar o fluxo
+        if (data.codigo === 2) {
+          toast(data.mensagem || "Token já enviado anteriormente");
+        }
+        
         setPatientEmail(email);
         setSelectedAppointment(appointment);
         setShowTokenModal(true);
