@@ -73,6 +73,7 @@ const AppointmentDetails = () => {
   const [loadingEspecialidades, setLoadingEspecialidades] = useState(false);
   const [encaminhamentos, setEncaminhamentos] = useState<Encaminhamento[]>([]);
   const [useEncaminhamento, setUseEncaminhamento] = useState(false);
+  const [selectedNrSeqMedAvaliacao, setSelectedNrSeqMedAvaliacao] = useState<number | null>(null);
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -356,6 +357,7 @@ const AppointmentDetails = () => {
         localStorage.setItem("selectedAppointmentConvenio", selectedConvenio);
         localStorage.setItem("selectedAppointmentEspecialidade", selectedEspecialidade);
         localStorage.setItem("appointmentUseEncaminhamento", JSON.stringify(useEncaminhamento));
+        localStorage.setItem("selectedNrSeqMedAvaliacao", JSON.stringify(selectedNrSeqMedAvaliacao));
         
         navigate("/appointment-professionals");
       } else {
@@ -486,7 +488,12 @@ const AppointmentDetails = () => {
                     <Checkbox 
                       id="encaminhamento" 
                       checked={useEncaminhamento}
-                      onCheckedChange={(checked) => setUseEncaminhamento(checked === true)}
+                      onCheckedChange={(checked) => {
+                        setUseEncaminhamento(checked === true);
+                        if (!checked) {
+                          setSelectedNrSeqMedAvaliacao(null);
+                        }
+                      }}
                     />
                     <Label 
                       htmlFor="encaminhamento" 
@@ -503,8 +510,19 @@ const AppointmentDetails = () => {
                   </Label>
                   {useEncaminhamento ? (
                     <Select 
-                      value={selectedEspecialidade} 
-                      onValueChange={setSelectedEspecialidade}
+                      value={selectedNrSeqMedAvaliacao?.toString() || ""} 
+                      onValueChange={(value) => {
+                        const nrSeqMedAvaliacao = parseInt(value);
+                        setSelectedNrSeqMedAvaliacao(nrSeqMedAvaliacao);
+                        
+                        // Buscar o encaminhamento completo para extrair CD_ESPECIALIDADE
+                        const encaminhamento = encaminhamentos.find(
+                          enc => enc.NR_SEQ_MED_AVALIACAO_PACIENTE === nrSeqMedAvaliacao
+                        );
+                        if (encaminhamento) {
+                          setSelectedEspecialidade(encaminhamento.CD_ESPECIALIDADE.toString());
+                        }
+                      }}
                     >
                       <SelectTrigger id="especialidade">
                         <SelectValue placeholder="Selecione o encaminhamento" />
@@ -513,7 +531,7 @@ const AppointmentDetails = () => {
                         {encaminhamentos.map((encaminhamento) => (
                           <SelectItem 
                             key={encaminhamento.id} 
-                            value={encaminhamento.CD_ESPECIALIDADE.toString()}
+                            value={encaminhamento.NR_SEQ_MED_AVALIACAO_PACIENTE.toString()}
                           >
                             {encaminhamento.descricao || encaminhamento.DS_ESPECIALIDADE}
                           </SelectItem>
