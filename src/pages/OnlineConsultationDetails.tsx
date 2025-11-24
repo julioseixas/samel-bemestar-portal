@@ -24,6 +24,8 @@ const OnlineConsultationDetails = () => {
   const [showTokenModal, setShowTokenModal] = useState(false);
   const [patientEmail, setPatientEmail] = useState("");
   const [tokenInput, setTokenInput] = useState("");
+  const [isValidatingToken, setIsValidatingToken] = useState(false);
+  const [queueData, setQueueData] = useState<any>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
@@ -263,6 +265,90 @@ const OnlineConsultationDetails = () => {
     setShowTokenModal(false);
     setTokenInput("");
     setSelectedAppointment(null);
+    setQueueData(null);
+  };
+
+  const handleValidateToken = async () => {
+    if (!selectedAppointment || !tokenInput) return;
+
+    setIsValidatingToken(true);
+    try {
+      const storedPatient = localStorage.getItem("selectedPatientOnlineConsultation");
+      if (!storedPatient) {
+        toast.error("Dados do paciente não encontrados");
+        return;
+      }
+
+      const patientData = JSON.parse(storedPatient);
+      const headers = getApiHeaders();
+
+      // 1. Validar o token
+      const validatePayload = {
+        idCliente: String(patientData.id),
+        nrToken: tokenInput,
+        idAgendamento: selectedAppointment.id,
+        idDependente: String(patientData.id)
+      };
+
+      const validateResponse = await fetch(
+        "https://api-portalpaciente-web.samel.com.br/api/Agenda/ValidarTokenTelemedicina",
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify(validatePayload)
+        }
+      );
+
+      const validateData = await validateResponse.json();
+
+      if (!validateData.sucesso) {
+        toast.error(validateData.mensagem || "Erro ao validar token");
+        return;
+      }
+
+      // 2. Confirmar abertura do atendimento
+      const confirmPayload = {
+        idAgendamento: selectedAppointment.id
+      };
+
+      await fetch(
+        "https://api-portalpaciente-web.samel.com.br/api/Atendimento/ConfirmarAberturaAtendimentoConsulta",
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify(confirmPayload)
+        }
+      );
+
+      // 3. Listar fila
+      const queuePayload = {
+        idAgenda: selectedAppointment.idAgenda,
+        idCliente: String(patientData.id)
+      };
+
+      const queueResponse = await fetch(
+        "https://api-portalpaciente-web.samel.com.br/api/Agenda/ListarFilaTele",
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify(queuePayload)
+        }
+      );
+
+      const queueResponseData = await queueResponse.json();
+
+      if (queueResponseData.sucesso && queueResponseData.dados && queueResponseData.dados.length > 0) {
+        setQueueData(queueResponseData.dados[0]);
+        toast.success("Check-in realizado com sucesso!");
+      } else {
+        toast.error(queueResponseData.mensagem || "Erro ao obter informações da fila");
+      }
+
+    } catch (error) {
+      toast.error("Erro ao processar validação do token");
+    } finally {
+      setIsValidatingToken(false);
+    }
   };
 
   useEffect(() => {
@@ -444,46 +530,81 @@ const OnlineConsultationDetails = () => {
             <DialogTitle>Check-in via Email</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <Alert>
-              <Mail className="h-4 w-4" />
-              <AlertDescription>
-                O código foi enviado para o email <strong>{patientEmail}</strong>. 
-                Verifique sua caixa de entrada e insira o código abaixo.
-              </AlertDescription>
-            </Alert>
-            <div className="space-y-2">
-              <label htmlFor="token" className="text-sm font-medium">
-                Código de Validação
-              </label>
-              <Input
-                id="token"
-                type="text"
-                placeholder="Digite o código"
-                value={tokenInput}
-                onChange={(e) => setTokenInput(e.target.value)}
-                maxLength={6}
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button
-                onClick={() => {
-                  // Por enquanto apenas fecha o modal
-                  // A validação do token será implementada posteriormente
-                  toast.success("Código validado com sucesso!");
-                  handleCloseTokenModal();
-                }}
-                disabled={!tokenInput}
-                className="flex-1"
-              >
-                Confirmar
-              </Button>
-              <Button
-                onClick={handleCloseTokenModal}
-                variant="outline"
-              >
-                Cancelar
-              </Button>
-            </div>
+            {!queueData ? (
+              <>
+                <Alert>
+                  <Mail className="h-4 w-4" />
+                  <AlertDescription>
+                    O código foi enviado para o email <strong>{patientEmail}</strong>. 
+                    Verifique sua caixa de entrada e insira o código abaixo.
+                  </AlertDescription>
+                </Alert>
+                <div className="space-y-2">
+                  <label htmlFor="token" className="text-sm font-medium">
+                    Código de Validação
+                  </label>
+                  <Input
+                    id="token"
+                    type="text"
+                    placeholder="Digite o código"
+                    value={tokenInput}
+                    onChange={(e) => setTokenInput(e.target.value)}
+                    maxLength={6}
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleValidateToken}
+                    disabled={!tokenInput || isValidatingToken}
+                    className="flex-1"
+                  >
+                    {isValidatingToken ? "Validando..." : "Confirmar"}
+                  </Button>
+                  <Button
+                    onClick={handleCloseTokenModal}
+                    variant="outline"
+                    disabled={isValidatingToken}
+                  >
+                    Cancelar
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <Alert className="border-success bg-success/10">
+                  <AlertCircle className="h-4 w-4 text-success" />
+                  <AlertDescription className="text-sm">
+                    Check-in realizado com sucesso!
+                  </AlertDescription>
+                </Alert>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2">
+                    <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Horário da Consulta</p>
+                      <p className="font-medium">{queueData.horario || "Não informado"}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Horário do Check-in</p>
+                      <p className="font-medium">{queueData.horaChegada || "Não informado"}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <AlertCircle className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Status</p>
+                      <p className="font-medium">{queueData.statusDescricao || "Não informado"}</p>
+                    </div>
+                  </div>
+                </div>
+                <Button onClick={handleCloseTokenModal} className="w-full">
+                  Fechar
+                </Button>
+              </>
+            )}
           </div>
         </DialogContent>
       </Dialog>
