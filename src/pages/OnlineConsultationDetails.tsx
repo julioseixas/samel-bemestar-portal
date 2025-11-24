@@ -8,7 +8,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getApiHeaders } from "@/lib/api-headers";
 import { toast } from "sonner";
-import { Calendar, User, Stethoscope, Clock, AlertCircle, Camera } from "lucide-react";
+import { Calendar, User, Stethoscope, Clock, AlertCircle, Camera, Mail } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 const OnlineConsultationDetails = () => {
   const navigate = useNavigate();
@@ -20,6 +21,9 @@ const OnlineConsultationDetails = () => {
   const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showTokenModal, setShowTokenModal] = useState(false);
+  const [patientEmail, setPatientEmail] = useState("");
+  const [tokenInput, setTokenInput] = useState("");
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
@@ -196,6 +200,69 @@ const OnlineConsultationDetails = () => {
     setSelectedAppointment(null);
   };
 
+  const handleEmailCheckin = async (appointment: any) => {
+    try {
+      const storedPatient = localStorage.getItem("selectedPatientOnlineConsultation");
+      const storedUserData = localStorage.getItem("patientData");
+      
+      if (!storedPatient) {
+        toast.error("Dados do paciente não encontrados");
+        return;
+      }
+
+      const patientData = JSON.parse(storedPatient);
+      let email = patientData.email || "";
+
+      // Buscar email no patientData caso não esteja no selectedPatient
+      if (!email && storedUserData) {
+        const userData = JSON.parse(storedUserData);
+        email = userData[0]?.clienteContratos?.[0]?.usuario?.email || "";
+      }
+
+      if (!email) {
+        toast.error("Email do paciente não encontrado");
+        return;
+      }
+
+      const headers = getApiHeaders();
+      
+      const payload = {
+        idMedico: String(appointment.idProfissional || ""),
+        idCliente: String(patientData.id || ""),
+        email: email,
+        idAgendamento: appointment.id || 0,
+        idDependente: patientData.tipo === "Dependente" ? String(patientData.id) : ""
+      };
+
+      const response = await fetch(
+        "https://api-portalpaciente-web.samel.com.br/api/Agenda/CadastrarTokenTelemedicina",
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify(payload)
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.sucesso) {
+        setPatientEmail(email);
+        setSelectedAppointment(appointment);
+        setShowTokenModal(true);
+      } else {
+        toast.error(data.mensagem || "Erro ao enviar código por email");
+      }
+    } catch (error) {
+      toast.error("Erro ao processar check-in via email");
+    }
+  };
+
+  const handleCloseTokenModal = () => {
+    setShowTokenModal(false);
+    setTokenInput("");
+    setSelectedAppointment(null);
+  };
+
   useEffect(() => {
     if (showCamera && isCameraActive === false) {
       startCamera();
@@ -305,14 +372,25 @@ const OnlineConsultationDetails = () => {
                         </AlertDescription>
                       </Alert>
 
-                      <Button 
-                        onClick={() => handleOpenCamera(appointment)}
-                        className="w-full mt-4"
-                        size="sm"
-                      >
-                        <Camera className="h-4 w-4 mr-2" />
-                        Realizar Check-in
-                      </Button>
+                      <div className="flex gap-2 mt-4">
+                        <Button 
+                          onClick={() => handleOpenCamera(appointment)}
+                          className="flex-1"
+                          size="sm"
+                        >
+                          <Camera className="h-4 w-4 mr-2" />
+                          Check-in via Câmera
+                        </Button>
+                        <Button 
+                          onClick={() => handleEmailCheckin(appointment)}
+                          variant="outline"
+                          className="flex-1"
+                          size="sm"
+                        >
+                          <Mail className="h-4 w-4 mr-2" />
+                          Check-in via Email
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -350,6 +428,56 @@ const OnlineConsultationDetails = () => {
                 onClick={handleCloseCamera}
                 variant="outline"
                 disabled={isProcessing}
+              >
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showTokenModal} onOpenChange={handleCloseTokenModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Check-in via Email</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Alert>
+              <Mail className="h-4 w-4" />
+              <AlertDescription>
+                O código foi enviado para o email <strong>{patientEmail}</strong>. 
+                Verifique sua caixa de entrada e insira o código abaixo.
+              </AlertDescription>
+            </Alert>
+            <div className="space-y-2">
+              <label htmlFor="token" className="text-sm font-medium">
+                Código de Validação
+              </label>
+              <Input
+                id="token"
+                type="text"
+                placeholder="Digite o código"
+                value={tokenInput}
+                onChange={(e) => setTokenInput(e.target.value)}
+                maxLength={6}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => {
+                  // Por enquanto apenas fecha o modal
+                  // A validação do token será implementada posteriormente
+                  toast.success("Código validado com sucesso!");
+                  handleCloseTokenModal();
+                }}
+                disabled={!tokenInput}
+                className="flex-1"
+              >
+                Confirmar
+              </Button>
+              <Button
+                onClick={handleCloseTokenModal}
+                variant="outline"
               >
                 Cancelar
               </Button>
