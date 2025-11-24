@@ -26,6 +26,8 @@ const OnlineConsultationDetails = () => {
   const [tokenInput, setTokenInput] = useState("");
   const [isValidatingToken, setIsValidatingToken] = useState(false);
   const [queueData, setQueueData] = useState<any>(null);
+  const [appointmentQueueData, setAppointmentQueueData] = useState<any>(null);
+  const [loadingQueue, setLoadingQueue] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
@@ -273,6 +275,46 @@ const OnlineConsultationDetails = () => {
     setQueueData(null);
   };
 
+  const handleViewQueue = async (appointment: any) => {
+    setLoadingQueue(true);
+    try {
+      const storedPatient = localStorage.getItem("selectedPatientOnlineConsultation");
+      if (!storedPatient) {
+        toast.error("Dados do paciente não encontrados");
+        return;
+      }
+
+      const patientData = JSON.parse(storedPatient);
+      const headers = getApiHeaders();
+
+      const queuePayload = {
+        idAgenda: appointment.idAgenda,
+        idCliente: String(patientData.id)
+      };
+
+      const queueResponse = await fetch(
+        "https://api-portalpaciente-web.samel.com.br/api/Agenda/ListarFilaTele",
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify(queuePayload)
+        }
+      );
+
+      const queueResponseData = await queueResponse.json();
+
+      if (queueResponseData.sucesso && queueResponseData.dados && queueResponseData.dados.length > 0) {
+        setAppointmentQueueData(queueResponseData.dados[0]);
+      } else {
+        toast.error(queueResponseData.mensagem || "Erro ao obter informações da fila");
+      }
+    } catch (error) {
+      toast.error("Erro ao carregar fila de atendimento");
+    } finally {
+      setLoadingQueue(false);
+    }
+  };
+
   const handleValidateToken = async () => {
     if (!selectedAppointment || !tokenInput) return;
 
@@ -416,78 +458,135 @@ const OnlineConsultationDetails = () => {
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {appointments.map((appointment, index) => (
-                <Card key={index}>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Calendar className="h-5 w-5 text-primary" />
-                      Consulta Online
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex items-start gap-2">
-                        <User className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                        <div>
-                          <p className="text-xs text-muted-foreground">Paciente</p>
-                          <p className="font-medium">{appointment.nomeCliente || "Não informado"}</p>
+              {appointments.map((appointment, index) => {
+                const hasCheckedIn = appointment.statusCheckin !== 0;
+                
+                return (
+                  <Card key={index}>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <Calendar className="h-5 w-5 text-primary" />
+                        Consulta Online
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div className="flex items-start gap-2">
+                          <User className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">Paciente</p>
+                            <p className="font-medium">{appointment.nomeCliente || "Não informado"}</p>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="flex items-start gap-2">
-                        <Stethoscope className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                        <div>
-                          <p className="text-xs text-muted-foreground">Profissional</p>
-                          <p className="font-medium">{appointment.nomeProfissional || "Não informado"}</p>
+                        <div className="flex items-start gap-2">
+                          <Stethoscope className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">Profissional</p>
+                            <p className="font-medium">{appointment.nomeProfissional || "Não informado"}</p>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="flex items-start gap-2">
-                        <Stethoscope className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                        <div>
-                          <p className="text-xs text-muted-foreground">Especialidade</p>
-                          <p className="font-medium">{appointment.descricaoEspecialidade || "Não informada"}</p>
+                        <div className="flex items-start gap-2">
+                          <Stethoscope className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">Especialidade</p>
+                            <p className="font-medium">{appointment.descricaoEspecialidade || "Não informada"}</p>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="flex items-start gap-2">
-                        <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                        <div>
-                          <p className="text-xs text-muted-foreground">Horário</p>
-                          <p className="font-medium">{formatDateTime(appointment.dataAgenda)}</p>
+                        <div className="flex items-start gap-2">
+                          <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">Horário</p>
+                            <p className="font-medium">{formatDateTime(appointment.dataAgenda)}</p>
+                          </div>
                         </div>
-                      </div>
 
-                      <Alert className="mt-4 border-warning bg-warning/10">
-                        <AlertCircle className="h-4 w-4 text-warning" />
-                        <AlertDescription className="text-sm">
-                          <strong>Tempo limite de tolerância:</strong> 15 minutos para realizar o check-in
-                        </AlertDescription>
-                      </Alert>
+                        {hasCheckedIn ? (
+                          <>
+                            <Alert 
+                              className="mt-4 border-primary bg-primary/10 cursor-pointer hover:bg-primary/20 transition-colors"
+                              onClick={() => handleViewQueue(appointment)}
+                            >
+                              <AlertCircle className="h-4 w-4 text-primary" />
+                              <AlertDescription className="text-sm">
+                                <strong>Atenção:</strong> Você fez checkin nesta consulta. Clique aqui para ver a fila de atendimento
+                              </AlertDescription>
+                            </Alert>
 
-                      <div className="flex gap-2 mt-4">
-                        <Button 
-                          onClick={() => handleOpenCamera(appointment)}
-                          className="flex-1"
-                          size="sm"
-                        >
-                          <Camera className="h-4 w-4 mr-2" />
-                          Check-in via Câmera
-                        </Button>
-                        <Button 
-                          onClick={() => handleEmailCheckin(appointment)}
-                          variant="outline"
-                          className="flex-1"
-                          size="sm"
-                        >
-                          <Mail className="h-4 w-4 mr-2" />
-                          Check-in via Email
-                        </Button>
+                            {appointmentQueueData && loadingQueue === false && (
+                              <Card className="mt-4 bg-muted/50">
+                                <CardHeader className="pb-3">
+                                  <CardTitle className="text-base">Fila de Atendimento</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-2">
+                                  <div className="flex items-start gap-2">
+                                    <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                                    <div>
+                                      <p className="text-xs text-muted-foreground">Horário da Consulta</p>
+                                      <p className="font-medium text-sm">{appointmentQueueData.horario || "Não informado"}</p>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start gap-2">
+                                    <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                                    <div>
+                                      <p className="text-xs text-muted-foreground">Horário do Check-in</p>
+                                      <p className="font-medium text-sm">{appointmentQueueData.horaChegada || "Não informado"}</p>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start gap-2">
+                                    <AlertCircle className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                                    <div>
+                                      <p className="text-xs text-muted-foreground">Status</p>
+                                      <p className="font-medium text-sm">{appointmentQueueData.statusDescricao || "Não informado"}</p>
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            )}
+
+                            {loadingQueue && (
+                              <div className="mt-4 text-center text-sm text-muted-foreground">
+                                Carregando informações da fila...
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <Alert className="mt-4 border-warning bg-warning/10">
+                              <AlertCircle className="h-4 w-4 text-warning" />
+                              <AlertDescription className="text-sm">
+                                <strong>Tempo limite de tolerância:</strong> 15 minutos para realizar o check-in
+                              </AlertDescription>
+                            </Alert>
+
+                            <div className="flex gap-2 mt-4">
+                              <Button 
+                                onClick={() => handleOpenCamera(appointment)}
+                                className="flex-1"
+                                size="sm"
+                              >
+                                <Camera className="h-4 w-4 mr-2" />
+                                Check-in via Câmera
+                              </Button>
+                              <Button 
+                                onClick={() => handleEmailCheckin(appointment)}
+                                variant="outline"
+                                className="flex-1"
+                                size="sm"
+                              >
+                                <Mail className="h-4 w-4 mr-2" />
+                                Check-in via Email
+                              </Button>
+                            </div>
+                          </>
+                        )}
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           )}
         </div>
