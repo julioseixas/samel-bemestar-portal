@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getApiHeaders } from "@/lib/api-headers";
 import { toast } from "sonner";
+import { Calendar, User, Stethoscope, Clock, AlertCircle } from "lucide-react";
 
 const OnlineConsultationDetails = () => {
   const navigate = useNavigate();
@@ -42,6 +43,21 @@ const OnlineConsultationDetails = () => {
       navigate("/online-consultation-schedule");
     }
   }, [navigate]);
+
+  const formatDateTime = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return dateString;
+    }
+  };
 
   const fetchAppointments = async (patientDataString: string) => {
     try {
@@ -99,15 +115,20 @@ const OnlineConsultationDetails = () => {
           </div>
 
           {loading ? (
-            <Card>
-              <CardContent className="py-8">
-                <div className="space-y-4">
-                  <Skeleton className="h-12 w-full" />
-                  <Skeleton className="h-12 w-full" />
-                  <Skeleton className="h-12 w-full" />
-                </div>
-              </CardContent>
-            </Card>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[1, 2, 3].map((i) => (
+                <Card key={i}>
+                  <CardContent className="py-6">
+                    <div className="space-y-4">
+                      <Skeleton className="h-6 w-full" />
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-16 w-full" />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           ) : appointments.length === 0 ? (
             <Card>
               <CardContent className="flex items-center justify-center py-8">
@@ -115,34 +136,60 @@ const OnlineConsultationDetails = () => {
               </CardContent>
             </Card>
           ) : (
-            <Card>
-              <CardContent className="p-0">
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        {appointments[0] && Object.keys(appointments[0]).map((key) => (
-                          <TableHead key={key} className="whitespace-nowrap">
-                            {key}
-                          </TableHead>
-                        ))}
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {appointments.map((appointment, index) => (
-                        <TableRow key={index}>
-                          {Object.values(appointment).map((value: any, cellIndex) => (
-                            <TableCell key={cellIndex} className="whitespace-nowrap">
-                              {typeof value === 'object' ? JSON.stringify(value) : String(value)}
-                            </TableCell>
-                          ))}
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {appointments.map((appointment, index) => (
+                <Card key={index}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <Calendar className="h-5 w-5 text-primary" />
+                      Consulta Online
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-2">
+                        <User className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">Paciente</p>
+                          <p className="font-medium">{appointment.nomeCliente || "Não informado"}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-2">
+                        <Stethoscope className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">Profissional</p>
+                          <p className="font-medium">{appointment.nomeProfissional || "Não informado"}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-2">
+                        <Stethoscope className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">Especialidade</p>
+                          <p className="font-medium">{appointment.descricaoEspecialidade || "Não informada"}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-2">
+                        <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">Horário</p>
+                          <p className="font-medium">{formatDateTime(appointment.dataAgenda)}</p>
+                        </div>
+                      </div>
+
+                      <Alert className="mt-4 border-warning bg-warning/10">
+                        <AlertCircle className="h-4 w-4 text-warning" />
+                        <AlertDescription className="text-sm">
+                          <strong>Tempo limite de tolerância:</strong> 15 minutos para realizar o check-in
+                        </AlertDescription>
+                      </Alert>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           )}
         </div>
       </main>
