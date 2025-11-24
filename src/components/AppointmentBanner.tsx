@@ -274,8 +274,7 @@ export const AppointmentBanner = ({
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-2 flex-col sm:flex-row">
             <AlertDialogCancel disabled={isCanceling} className="w-full sm:w-auto">
-              <span className="sm:hidden">Manter</span>
-              <span className="hidden sm:inline">Não, manter agendamento</span>
+              Não
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleCancelConfirm}
@@ -288,10 +287,7 @@ export const AppointmentBanner = ({
                   Cancelando...
                 </span>
               ) : (
-                <>
-                  <span className="sm:hidden">Cancelar</span>
-                  <span className="hidden sm:inline">Sim, cancelar agendamento</span>
-                </>
+                "Sim"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
