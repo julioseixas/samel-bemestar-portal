@@ -585,7 +585,7 @@ const Index = () => {
               <div data-card>
                 <DashboardCard
                 title="FALAR COM ASSISTENTE"
-                description="Converse com nosso assistente virtual"
+                description="Converse com a SAMIA (Samel Inteligencia Artificial)"
                 icon={MessageCircle}
                 iconColor="text-primary"
                 buttonText="Iniciar Chat"
