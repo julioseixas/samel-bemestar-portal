@@ -505,15 +505,20 @@ const OnlineConsultationDetails = () => {
 
                         {hasCheckedIn ? (
                           <>
-                            <Alert 
-                              className="mt-4 border-primary bg-primary/10 cursor-pointer hover:bg-primary/20 transition-colors"
-                              onClick={() => handleViewQueue(appointment)}
-                            >
+                            <Alert className="mt-4 border-primary bg-primary/10">
                               <AlertCircle className="h-4 w-4 text-primary" />
                               <AlertDescription className="text-sm">
-                                <strong>Atenção:</strong> Você fez checkin nesta consulta. Clique aqui para ver a fila de atendimento
+                                <strong>Atenção:</strong> Você já realizou o check-in para esta consulta
                               </AlertDescription>
                             </Alert>
+                            
+                            <Button
+                              onClick={() => handleViewQueue(appointment)}
+                              className="w-full mt-2"
+                              variant="default"
+                            >
+                              Ver Fila de Atendimento
+                            </Button>
 
                             {appointmentQueueData && loadingQueue === false && (
                               <Card className="mt-4 bg-muted/50">
