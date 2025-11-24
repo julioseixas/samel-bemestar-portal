@@ -4,6 +4,12 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { getApiHeaders } from "@/lib/api-headers";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogContent,
@@ -50,6 +56,23 @@ export const AppointmentBanner = ({
   const [selectedLocation, setSelectedLocation] = useState("");
   const [selectedUnitName, setSelectedUnitName] = useState("");
   const { toast } = useToast();
+
+  const isMobile = () => {
+    return window.innerWidth < 768;
+  };
+
+  const handleRouteClick = (appointment: any) => {
+    if (appointment.location === "Telemedicina") {
+      if (isMobile()) {
+        toast({
+          title: "Consulta Online",
+          description: "Esta é uma consulta de telemedicina. Não é necessário deslocamento.",
+        });
+      }
+      return;
+    }
+    handleMapClick(appointment);
+  };
 
   // Auto-play carousel
   useEffect(() => {
@@ -240,17 +263,28 @@ export const AppointmentBanner = ({
                       <span className="hidden xs:inline">Cancelar Agendamento</span>
                       <span className="xs:hidden">Cancelar</span>
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      className="flex-1 border-2 border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary font-semibold h-11 sm:h-12 text-sm sm:text-base shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                      onClick={() => handleMapClick(appointment)}
-                      disabled={appointment.location === "Telemedicina"}
-                    >
-                      <Navigation className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                      <span className="hidden xs:inline">Como Chegar</span>
-                      <span className="xs:hidden">Rota</span>
-                    </Button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="lg"
+                            className="flex-1 border-2 border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary font-semibold h-11 sm:h-12 text-sm sm:text-base shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => handleRouteClick(appointment)}
+                            disabled={appointment.location === "Telemedicina"}
+                          >
+                            <Navigation className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                            <span className="hidden xs:inline">Como Chegar</span>
+                            <span className="xs:hidden">Rota</span>
+                          </Button>
+                        </TooltipTrigger>
+                        {appointment.location === "Telemedicina" && (
+                          <TooltipContent>
+                            <p>Esta é uma consulta online. Não é necessário deslocamento.</p>
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                 </div>
               </CarouselItem>
