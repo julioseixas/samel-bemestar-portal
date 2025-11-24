@@ -1,13 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getApiHeaders } from "@/lib/api-headers";
 import { toast } from "sonner";
-import { Calendar, User, Stethoscope, Clock, AlertCircle } from "lucide-react";
+import { Calendar, User, Stethoscope, Clock, AlertCircle, Camera } from "lucide-react";
 
 const OnlineConsultationDetails = () => {
   const navigate = useNavigate();
@@ -15,6 +16,12 @@ const OnlineConsultationDetails = () => {
   const [profilePhoto, setProfilePhoto] = useState("");
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showCamera, setShowCamera] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -88,6 +95,118 @@ const OnlineConsultationDetails = () => {
       setLoading(false);
     }
   };
+
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: "user" },
+        audio: false 
+      });
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        streamRef.current = stream;
+        setIsCameraActive(true);
+      }
+    } catch (error) {
+      toast.error("Não foi possível acessar a câmera. Verifique as permissões.");
+      setShowCamera(false);
+    }
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    setIsCameraActive(false);
+  };
+
+  const capturePhoto = async () => {
+    if (!videoRef.current) return;
+
+    setIsProcessing(true);
+    
+    const canvas = document.createElement('canvas');
+    canvas.width = videoRef.current.videoWidth;
+    canvas.height = videoRef.current.videoHeight;
+    const ctx = canvas.getContext('2d');
+    
+    if (ctx) {
+      ctx.drawImage(videoRef.current, 0, 0);
+      const base64Image = canvas.toDataURL('image/jpeg').split(',')[1];
+      
+      await validateFacialRecognition(base64Image);
+    }
+  };
+
+  const validateFacialRecognition = async (photoBase64: string) => {
+    try {
+      const storedPatient = localStorage.getItem("selectedPatientOnlineConsultation");
+      if (!storedPatient) {
+        toast.error("Dados do paciente não encontrados");
+        return;
+      }
+
+      const patientData = JSON.parse(storedPatient);
+      const headers = getApiHeaders();
+
+      const payload = {
+        cpf: patientData.cpf || "",
+        foto: photoBase64,
+        cpfDependente: patientData.cpfDependente || ""
+      };
+
+      const response = await fetch(
+        "https://api-portalpaciente-web.samel.com.br/api/Cliente/ValidarRecFacial",
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify(payload)
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.sucesso) {
+        // Por enquanto não faz nada em caso de sucesso
+        toast.success("Reconhecimento facial validado com sucesso!");
+        handleCloseCamera();
+      } else {
+        toast.error(data.mensagem || "Erro na validação facial");
+      }
+    } catch (error) {
+      toast.error("Erro ao validar reconhecimento facial");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleOpenCamera = (appointment: any) => {
+    setSelectedAppointment(appointment);
+    setShowCamera(true);
+  };
+
+  const handleCloseCamera = () => {
+    stopCamera();
+    setShowCamera(false);
+    setSelectedAppointment(null);
+  };
+
+  useEffect(() => {
+    if (showCamera && isCameraActive === false) {
+      startCamera();
+    }
+  }, [showCamera]);
+
+  useEffect(() => {
+    return () => {
+      stopCamera();
+    };
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -185,6 +304,15 @@ const OnlineConsultationDetails = () => {
                           <strong>Tempo limite de tolerância:</strong> 15 minutos para realizar o check-in
                         </AlertDescription>
                       </Alert>
+
+                      <Button 
+                        onClick={() => handleOpenCamera(appointment)}
+                        className="w-full mt-4"
+                        size="sm"
+                      >
+                        <Camera className="h-4 w-4 mr-2" />
+                        Realizar Check-in
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -193,6 +321,42 @@ const OnlineConsultationDetails = () => {
           )}
         </div>
       </main>
+
+      <Dialog open={showCamera} onOpenChange={handleCloseCamera}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Check-in via Reconhecimento Facial</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="relative bg-muted rounded-lg overflow-hidden aspect-video">
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={capturePhoto}
+                disabled={!isCameraActive || isProcessing}
+                className="flex-1"
+              >
+                <Camera className="h-4 w-4 mr-2" />
+                {isProcessing ? "Processando..." : "Capturar Foto"}
+              </Button>
+              <Button
+                onClick={handleCloseCamera}
+                variant="outline"
+                disabled={isProcessing}
+              >
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
