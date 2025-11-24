@@ -85,6 +85,7 @@ const Login = () => {
               tipoBeneficiario: decoded.tipoBeneficiario || titularCompleto.tipoBeneficiario,
               nome: decoded.nome || titularCompleto.nome,
               id: decoded.id || titularCompleto.id,
+              cpf: decoded.cpf || titularCompleto.cpf,
               codigoCarteirinha: decoded.codigoCarteirinha || titularCompleto.codigoCarteirinha || null,
               idade: decoded.idade || titularCompleto.idade,
               sexo: decoded.sexo || titularCompleto.sexo,
@@ -103,7 +104,8 @@ const Login = () => {
               decoded.dependentes.forEach((dependente: any) => {
                 listAllPacient.push({
                   ...dependente,
-                  tipo: "Dependente"
+                  tipo: "Dependente",
+                  cpf: dependente.cpf
                 });
               });
             }
