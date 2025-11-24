@@ -111,7 +111,17 @@ const AppointmentDetails = () => {
     if (storedEncaminhamentos) {
       try {
         const parsedEncaminhamentos = JSON.parse(storedEncaminhamentos);
-        setEncaminhamentos(parsedEncaminhamentos);
+        
+        // Filtrar duplicatas por id como medida de segurança
+        const encaminhamentosUnicos = parsedEncaminhamentos.reduce((acc: Encaminhamento[], current: Encaminhamento) => {
+          const existe = acc.find(item => item.id === current.id);
+          if (!existe) {
+            acc.push(current);
+          }
+          return acc;
+        }, []);
+        
+        setEncaminhamentos(encaminhamentosUnicos);
       } catch (error) {
         console.error("Erro ao processar encaminhamentos:", error);
       }
