@@ -157,7 +157,16 @@ const AppointmentSchedule = () => {
       const data = await response.json();
       
       if (data.status && data.dados && data.dados.length > 0) {
-        localStorage.setItem("patientEncaminhamentos", JSON.stringify(data.dados));
+        // Filtrar encaminhamentos duplicados por id
+        const encaminhamentosUnicos = data.dados.reduce((acc: any[], current: any) => {
+          const existe = acc.find(item => item.id === current.id);
+          if (!existe) {
+            acc.push(current);
+          }
+          return acc;
+        }, []);
+        
+        localStorage.setItem("patientEncaminhamentos", JSON.stringify(encaminhamentosUnicos));
       } else {
         localStorage.removeItem("patientEncaminhamentos");
       }
