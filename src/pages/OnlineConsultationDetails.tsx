@@ -459,7 +459,7 @@ const OnlineConsultationDetails = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {appointments.map((appointment, index) => {
-                const hasCheckedIn = appointment.statusCheckin !== 0;
+                const hasCheckedIn = appointment.possuiAtendimento === "S";
                 
                 return (
                   <Card key={index}>
