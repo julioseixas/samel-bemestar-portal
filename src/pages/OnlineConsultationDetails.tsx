@@ -211,12 +211,14 @@ const OnlineConsultationDetails = () => {
       }
 
       const patientData = JSON.parse(storedPatient);
-      let email = patientData.email || "";
 
-      // Buscar email no patientData caso não esteja no selectedPatient
-      if (!email && storedUserData) {
-        const userData = JSON.parse(storedUserData);
-        email = userData[0]?.clienteContratos?.[0]?.usuario?.email || "";
+      // Buscar o email SEMPRE do titular
+      const storedTitular = localStorage.getItem("titular");
+      let email = "";
+
+      if (storedTitular) {
+        const titular = JSON.parse(storedTitular);
+        email = titular.email || "";
       }
 
       if (!email) {
