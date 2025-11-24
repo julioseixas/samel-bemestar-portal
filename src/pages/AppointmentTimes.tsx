@@ -348,7 +348,7 @@ const AppointmentTimes = () => {
           },
           body: JSON.stringify({
             idCliente: idTitular,
-            idConvenio: selectedConvenio,
+            idConvenio: Number(selectedConvenio),
             codigoCarteirinha: selectedPatient.codigoCarteirinha || "",
             idAgenda: selectedHorario.idAgenda,
             dataAgenda: selectedHorario.data,
