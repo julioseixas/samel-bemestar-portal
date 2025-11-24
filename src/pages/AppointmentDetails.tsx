@@ -355,6 +355,7 @@ const AppointmentDetails = () => {
         localStorage.setItem("appointmentProfessionals", JSON.stringify(profissionaisGroups));
         localStorage.setItem("selectedAppointmentConvenio", selectedConvenio);
         localStorage.setItem("selectedAppointmentEspecialidade", selectedEspecialidade);
+        localStorage.setItem("appointmentUseEncaminhamento", JSON.stringify(useEncaminhamento));
         
         navigate("/appointment-professionals");
       } else {

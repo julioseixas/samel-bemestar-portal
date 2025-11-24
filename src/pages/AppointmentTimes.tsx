@@ -47,6 +47,7 @@ const AppointmentTimes = () => {
   const [isTokenModalOpen, setIsTokenModalOpen] = useState(false);
   const [token, setToken] = useState("");
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [useEncaminhamento, setUseEncaminhamento] = useState<boolean>(false);
   const { toast } = useToast();
 
   const { selectedPatient, selectedConvenio, selectedEspecialidade, selectedProfissional } = location.state || {};
@@ -66,6 +67,15 @@ const AppointmentTimes = () => {
 
     if (storedProfilePhoto) {
       setProfilePhoto(storedProfilePhoto);
+    }
+
+    const storedUseEncaminhamento = localStorage.getItem("appointmentUseEncaminhamento");
+    if (storedUseEncaminhamento) {
+      try {
+        setUseEncaminhamento(JSON.parse(storedUseEncaminhamento));
+      } catch (error) {
+        console.error("Erro ao processar useEncaminhamento:", error);
+      }
     }
 
     if (!selectedPatient || !selectedConvenio || !selectedEspecialidade || !selectedProfissional) {
@@ -336,7 +346,7 @@ const AppointmentTimes = () => {
             procedimentos: [],
             tipo: tipo,
             idDependente: selectedPatient.id,
-            ie_encaminhamento: "N",
+            ie_encaminhamento: useEncaminhamento ? "S" : "N",
             nr_seq_med_avaliacao_paciente: null
           })
         }
