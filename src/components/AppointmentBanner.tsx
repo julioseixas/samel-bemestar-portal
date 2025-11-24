@@ -243,8 +243,9 @@ export const AppointmentBanner = ({
                     <Button
                       variant="outline"
                       size="lg"
-                      className="flex-1 border-2 border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary font-semibold h-11 sm:h-12 text-sm sm:text-base shadow-sm hover:shadow-md transition-all"
+                      className="flex-1 border-2 border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary font-semibold h-11 sm:h-12 text-sm sm:text-base shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       onClick={() => handleMapClick(appointment)}
+                      disabled={appointment.location === "Telemedicina"}
                     >
                       <Navigation className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                       <span className="hidden xs:inline">Como Chegar</span>
