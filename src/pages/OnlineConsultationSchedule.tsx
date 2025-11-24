@@ -16,6 +16,7 @@ interface Patient {
   dataNascimento?: string;
   cdPessoaFisica?: string | number;
   idEmpresa?: string | number;
+  cpf?: string;
 }
 
 const OnlineConsultationSchedule = () => {
@@ -65,7 +66,8 @@ const OnlineConsultationSchedule = () => {
                 codigoCarteirinha: patient.codigoCarteirinha,
                 dataNascimento: patient.dataNascimento,
                 cdPessoaFisica: patient.cdPessoaFisica || titularId,
-                idEmpresa: patient.idEmpresa
+                idEmpresa: patient.idEmpresa,
+                cpf: patient.cpf
               });
             }
             
@@ -82,7 +84,8 @@ const OnlineConsultationSchedule = () => {
                 codigoCarteirinha: patient.codigoCarteirinha,
                 dataNascimento: patient.dataNascimento,
                 cdPessoaFisica: patient.cdPessoaFisica || depId,
-                idEmpresa: patient.idEmpresa
+                idEmpresa: patient.idEmpresa,
+                cpf: patient.cpf
               });
             }
           });
@@ -109,7 +112,8 @@ const OnlineConsultationSchedule = () => {
       codigoCarteirinha: patient.codigoCarteirinha,
       dataNascimento: patient.dataNascimento,
       cdPessoaFisica: patient.cdPessoaFisica,
-      idEmpresa: patient.idEmpresa
+      idEmpresa: patient.idEmpresa,
+      cpf: patient.cpf
     };
     
     localStorage.setItem("selectedPatientOnlineConsultation", JSON.stringify(patientData));
