@@ -258,6 +258,7 @@ const PrescriptionRenewalDetails = () => {
       localStorage.setItem("appointmentProfessionals", JSON.stringify(formattedProfessionals));
       localStorage.setItem("selectedAppointmentConvenio", selectedConvenio);
       localStorage.setItem("selectedAppointmentEspecialidade", especialidadeId);
+      localStorage.setItem("selectedPatient", JSON.stringify(selectedPatient));
       navigate("/appointment-professionals");
     } catch (error) {
       toast({
