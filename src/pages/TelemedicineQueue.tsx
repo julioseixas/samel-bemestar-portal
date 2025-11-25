@@ -153,7 +153,7 @@ const TelemedicineQueue = () => {
                             <User className="h-5 w-5 text-primary" />
                           )}
                           <span className={isCurrentPatient ? "text-primary font-bold" : ""}>
-                            Atendimento #{item.idAgendamento}
+                            Posição #{index + 1}
                           </span>
                         </div>
                         {isCurrentPatient && (
