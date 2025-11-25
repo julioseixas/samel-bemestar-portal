@@ -147,9 +147,11 @@ const TelemedicineQueue = () => {
                           <div>
                             <p className="text-xs text-muted-foreground">Horário do Check-in</p>
                             <p className="font-medium">{item.horaChegada || "Não informado"}</p>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {formatDate(item.dataChegada)}
-                            </p>
+                            {item.horaChegada && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {formatDate(item.dataChegada)}
+                              </p>
+                            )}
                           </div>
                         </div>
                       </div>
