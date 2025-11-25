@@ -25,11 +25,13 @@ const TelemedicineQueue = () => {
   const [profilePhoto, setProfilePhoto] = useState("");
   const [queueData, setQueueData] = useState<QueueItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
     const storedProfilePhoto = localStorage.getItem("profilePhoto");
     const storedQueueData = localStorage.getItem("telemedicineQueueData");
+    const storedSelectedPatient = localStorage.getItem("selectedPatientOnlineConsultation");
 
     if (storedTitular) {
       try {
@@ -44,6 +46,15 @@ const TelemedicineQueue = () => {
 
     if (storedProfilePhoto) {
       setProfilePhoto(storedProfilePhoto);
+    }
+
+    if (storedSelectedPatient) {
+      try {
+        const parsedPatient = JSON.parse(storedSelectedPatient);
+        setSelectedPatientId(parsedPatient.id);
+      } catch (error) {
+        // Silent fail
+      }
     }
 
     if (storedQueueData) {
@@ -120,14 +131,26 @@ const TelemedicineQueue = () => {
             </Card>
           ) : (
             <div className="space-y-4">
-              {queueData.map((item, index) => (
-                <Card key={index}>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <User className="h-5 w-5 text-primary" />
-                      Atendimento #{item.idAgendamento}
-                    </CardTitle>
-                  </CardHeader>
+              {queueData.map((item, index) => {
+                const isCurrentPatient = selectedPatientId && item.idCliente === selectedPatientId;
+                return (
+                  <Card 
+                    key={index}
+                    className={isCurrentPatient ? "border-primary border-2" : ""}
+                  >
+                    <CardHeader>
+                      <CardTitle className="flex items-center justify-between gap-2 text-lg">
+                        <div className="flex items-center gap-2">
+                          <User className="h-5 w-5 text-primary" />
+                          Atendimento #{item.idAgendamento}
+                        </div>
+                        {isCurrentPatient && (
+                          <span className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full">
+                            Você
+                          </span>
+                        )}
+                      </CardTitle>
+                    </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -170,7 +193,8 @@ const TelemedicineQueue = () => {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
