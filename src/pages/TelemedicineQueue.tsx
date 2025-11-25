@@ -4,7 +4,7 @@ import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Clock, User, AlertCircle } from "lucide-react";
+import { Clock, User, AlertCircle, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 
 interface QueueItem {
@@ -136,17 +136,30 @@ const TelemedicineQueue = () => {
                 return (
                   <Card 
                     key={index}
-                    className={isCurrentPatient ? "border-primary border-2" : ""}
+                    className={isCurrentPatient 
+                      ? "border-primary border-2 bg-primary/5 shadow-lg shadow-primary/20 animate-scale-in relative overflow-hidden" 
+                      : ""
+                    }
                   >
-                    <CardHeader>
+                    {isCurrentPatient && (
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-primary/80 to-primary" />
+                    )}
+                    <CardHeader className={isCurrentPatient ? "pb-3" : ""}>
                       <CardTitle className="flex items-center justify-between gap-2 text-lg">
                         <div className="flex items-center gap-2">
-                          <User className="h-5 w-5 text-primary" />
-                          Atendimento #{item.idAgendamento}
+                          {isCurrentPatient ? (
+                            <CheckCircle className="h-5 w-5 text-primary fill-primary/20" />
+                          ) : (
+                            <User className="h-5 w-5 text-primary" />
+                          )}
+                          <span className={isCurrentPatient ? "text-primary font-bold" : ""}>
+                            Atendimento #{item.idAgendamento}
+                          </span>
                         </div>
                         {isCurrentPatient && (
-                          <span className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full">
-                            Você
+                          <span className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-sm font-bold px-4 py-1.5 rounded-full shadow-md flex items-center gap-1.5 animate-fade-in">
+                            <CheckCircle className="h-4 w-4" />
+                            Sua Posição
                           </span>
                         )}
                       </CardTitle>
