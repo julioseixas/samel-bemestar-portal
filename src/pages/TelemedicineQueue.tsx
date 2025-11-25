@@ -158,7 +158,11 @@ const TelemedicineQueue = () => {
                         <AlertCircle className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                         <div>
                           <p className="text-xs text-muted-foreground">Status</p>
-                          <p className="font-medium">{item.statusDescricao || "Não informado"}</p>
+                          <p className="font-medium">
+                            {item.status === "AC" || item.status === "O" || item.status === "M"
+                              ? (item.statusDescricao || "Não informado")
+                              : "Paciente ainda não chegou"}
+                          </p>
                         </div>
                       </div>
                     </div>
