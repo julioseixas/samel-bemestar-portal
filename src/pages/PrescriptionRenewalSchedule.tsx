@@ -230,6 +230,7 @@ const PrescriptionRenewalSchedule = () => {
       localStorage.setItem("appointmentProfessionals", JSON.stringify(formattedProfessionals));
       localStorage.setItem("selectedAppointmentConvenio", "19");
       localStorage.setItem("selectedAppointmentEspecialidade", String(renovacaoEspecialidade.id));
+      localStorage.setItem("selectedPatient", JSON.stringify(patient));
       
       navigate("/appointment-professionals");
 
