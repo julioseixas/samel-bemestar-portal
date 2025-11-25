@@ -180,9 +180,14 @@ const OnlineConsultationDetails = () => {
       const data = await response.json();
 
       if (data.sucesso) {
-        // Por enquanto não faz nada em caso de sucesso
         toast.success("Reconhecimento facial validado com sucesso!");
         handleCloseCamera();
+        
+        // Recarregar agendamentos para atualizar o status
+        const storedPatient = localStorage.getItem("selectedPatientOnlineConsultation");
+        if (storedPatient) {
+          fetchAppointments(storedPatient);
+        }
       } else {
         toast.error(data.mensagem || "Erro na validação facial");
       }
@@ -387,6 +392,12 @@ const OnlineConsultationDetails = () => {
       if (queueResponseData.sucesso && queueResponseData.dados && queueResponseData.dados.length > 0) {
         setQueueData(queueResponseData.dados[0]);
         toast.success("Check-in realizado com sucesso!");
+        
+        // Recarregar agendamentos para atualizar o status
+        const storedPatient = localStorage.getItem("selectedPatientOnlineConsultation");
+        if (storedPatient) {
+          fetchAppointments(storedPatient);
+        }
       } else {
         toast.error(queueResponseData.mensagem || "Erro ao obter informações da fila");
       }
