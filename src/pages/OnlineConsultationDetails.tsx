@@ -26,7 +26,6 @@ const OnlineConsultationDetails = () => {
   const [tokenInput, setTokenInput] = useState("");
   const [isValidatingToken, setIsValidatingToken] = useState(false);
   const [queueData, setQueueData] = useState<any>(null);
-  const [appointmentQueueData, setAppointmentQueueData] = useState<any>(null);
   const [loadingQueue, setLoadingQueue] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -179,17 +178,63 @@ const OnlineConsultationDetails = () => {
 
       const data = await response.json();
 
-      if (data.sucesso) {
+      // Verificar default_face_matching_classification
+      if (data.dados?.default_face_matching_classification === true) {
         toast.success("Reconhecimento facial validado com sucesso!");
         handleCloseCamera();
-        
-        // Recarregar agendamentos para atualizar o status
-        const storedPatient = localStorage.getItem("selectedPatientOnlineConsultation");
-        if (storedPatient) {
-          fetchAppointments(storedPatient);
+
+        // 1. Confirmar abertura do atendimento
+        const confirmPayload = {
+          idAgendamento: selectedAppointment.id
+        };
+
+        const confirmResponse = await fetch(
+          "https://api-portalpaciente-web.samel.com.br/api/Atendimento/ConfirmarAberturaAtendimentoConsulta",
+          {
+            method: "POST",
+            headers,
+            body: JSON.stringify(confirmPayload)
+          }
+        );
+
+        const confirmData = await confirmResponse.json();
+
+        if (confirmData.sucesso) {
+          // 2. Listar fila
+          const queuePayload = {
+            idAgenda: selectedAppointment.idAgenda,
+            idCliente: String(patientData.id)
+          };
+
+          const queueResponse = await fetch(
+            "https://api-portalpaciente-web.samel.com.br/api/Agenda/ListarFilaTele",
+            {
+              method: "POST",
+              headers,
+              body: JSON.stringify(queuePayload)
+            }
+          );
+
+          const queueResponseData = await queueResponse.json();
+
+          if (queueResponseData.sucesso && queueResponseData.dados) {
+            // Salvar dados da fila no localStorage
+            localStorage.setItem("telemedicineQueueData", JSON.stringify(queueResponseData.dados));
+            
+            // Recarregar agendamentos
+            await fetchAppointments(storedPatient);
+            
+            // Navegar para página de fila
+            toast.success("Check-in realizado com sucesso!");
+            navigate("/telemedicine-queue");
+          } else {
+            toast.error(queueResponseData.mensagem || "Erro ao obter informações da fila");
+          }
+        } else {
+          toast.error("Erro ao confirmar atendimento");
         }
       } else {
-        toast.error(data.mensagem || "Erro na validação facial");
+        toast.error(data.mensagem || "Validação facial não foi bem-sucedida. Tente novamente.");
       }
     } catch (error) {
       toast.error("Erro ao validar reconhecimento facial");
@@ -308,8 +353,10 @@ const OnlineConsultationDetails = () => {
 
       const queueResponseData = await queueResponse.json();
 
-      if (queueResponseData.sucesso && queueResponseData.dados && queueResponseData.dados.length > 0) {
-        setAppointmentQueueData(queueResponseData.dados[0]);
+      if (queueResponseData.sucesso && queueResponseData.dados) {
+        // Salvar dados da fila no localStorage e navegar
+        localStorage.setItem("telemedicineQueueData", JSON.stringify(queueResponseData.dados));
+        navigate("/telemedicine-queue");
       } else {
         toast.error(queueResponseData.mensagem || "Erro ao obter informações da fila");
       }
@@ -389,15 +436,17 @@ const OnlineConsultationDetails = () => {
 
       const queueResponseData = await queueResponse.json();
 
-      if (queueResponseData.sucesso && queueResponseData.dados && queueResponseData.dados.length > 0) {
-        setQueueData(queueResponseData.dados[0]);
-        toast.success("Check-in realizado com sucesso!");
+      if (queueResponseData.sucesso && queueResponseData.dados) {
+        // Salvar dados da fila no localStorage
+        localStorage.setItem("telemedicineQueueData", JSON.stringify(queueResponseData.dados));
         
-        // Recarregar agendamentos para atualizar o status
-        const storedPatient = localStorage.getItem("selectedPatientOnlineConsultation");
-        if (storedPatient) {
-          fetchAppointments(storedPatient);
-        }
+        // Recarregar agendamentos
+        await fetchAppointments(storedPatient);
+        
+        // Fechar modal e navegar para página de fila
+        handleCloseTokenModal();
+        toast.success("Check-in realizado com sucesso!");
+        navigate("/telemedicine-queue");
       } else {
         toast.error(queueResponseData.mensagem || "Erro ao obter informações da fila");
       }
@@ -530,43 +579,6 @@ const OnlineConsultationDetails = () => {
                             >
                               Ver Fila de Atendimento
                             </Button>
-
-                            {appointmentQueueData && loadingQueue === false && (
-                              <Card className="mt-4 bg-muted/50">
-                                <CardHeader className="pb-3">
-                                  <CardTitle className="text-base">Fila de Atendimento</CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-2">
-                                  <div className="flex items-start gap-2">
-                                    <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                                    <div>
-                                      <p className="text-xs text-muted-foreground">Horário da Consulta</p>
-                                      <p className="font-medium text-sm">{appointmentQueueData.horario || "Não informado"}</p>
-                                    </div>
-                                  </div>
-                                  <div className="flex items-start gap-2">
-                                    <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                                    <div>
-                                      <p className="text-xs text-muted-foreground">Horário do Check-in</p>
-                                      <p className="font-medium text-sm">{appointmentQueueData.horaChegada || "Não informado"}</p>
-                                    </div>
-                                  </div>
-                                  <div className="flex items-start gap-2">
-                                    <AlertCircle className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                                    <div>
-                                      <p className="text-xs text-muted-foreground">Status</p>
-                                      <p className="font-medium text-sm">{appointmentQueueData.statusDescricao || "Não informado"}</p>
-                                    </div>
-                                  </div>
-                                </CardContent>
-                              </Card>
-                            )}
-
-                            {loadingQueue && (
-                              <div className="mt-4 text-center text-sm text-muted-foreground">
-                                Carregando informações da fila...
-                              </div>
-                            )}
                           </>
                         ) : (
                           <>
