@@ -163,6 +163,13 @@ const TelemedicineQueue = () => {
                           </span>
                         )}
                       </CardTitle>
+                      {index === 0 && (
+                        <div className="mt-2 px-3 py-2 bg-gradient-to-r from-primary/10 to-primary/5 border-l-4 border-primary rounded animate-fade-in">
+                          <p className="text-sm font-semibold text-primary">
+                            🎯 Você será o próximo a ser atendido!
+                          </p>
+                        </div>
+                      )}
                     </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
