@@ -5,7 +5,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Star, ArrowLeft, Clock, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -367,81 +367,99 @@ const RateAppointments = () => {
       </main>
 
       <Dialog open={!!selectedAppointment} onOpenChange={handleCloseModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+          <DialogHeader className="border-b pb-4">
             <DialogTitle className="text-xl font-bold">Avalie seu atendimento</DialogTitle>
-            <DialogDescription>
-              {selectedAppointment && (
-                <div className="space-y-1 mt-2">
-                  <p className="font-semibold text-foreground">{selectedAppointment.dados.DS_LOCAL}</p>
-                  <p className="text-sm">Profissional: {selectedAppointment.nm_medico}</p>
-                  <p className="text-sm">Data: {selectedAppointment.dados.DT_ENTRADA}</p>
-                </div>
-              )}
-            </DialogDescription>
-          </DialogHeader>
-
-          {loadingPerguntas ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-center">
-                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent mb-4"></div>
-                <p className="text-muted-foreground">Carregando perguntas...</p>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-6 mt-4">
-              {perguntas.map((pergunta) => (
-                <div key={pergunta.NR_SEQUENCIA} className="space-y-3 p-4 rounded-lg bg-accent/30 border border-border">
+            {selectedAppointment && (
+              <DialogDescription className="space-y-2 mt-3">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                   <div>
-                    <label className="block text-sm font-semibold text-foreground mb-3">
-                      {pergunta.DS_PERGUNTA}
-                    </label>
-                    {pergunta.DS_OBSERVACAO && (
-                      <p className="text-xs text-muted-foreground mb-3">{pergunta.DS_OBSERVACAO}</p>
-                    )}
-                    {renderStars(pergunta.NR_SEQUENCIA)}
-                    {respostas[pergunta.NR_SEQUENCIA] > 0 && (
-                      <p className="text-sm text-muted-foreground mt-2 text-center">
-                        {respostas[pergunta.NR_SEQUENCIA] === 1 && "Muito insatisfeito"}
-                        {respostas[pergunta.NR_SEQUENCIA] === 2 && "Insatisfeito"}
-                        {respostas[pergunta.NR_SEQUENCIA] === 3 && "Neutro"}
-                        {respostas[pergunta.NR_SEQUENCIA] === 4 && "Satisfeito"}
-                        {respostas[pergunta.NR_SEQUENCIA] === 5 && "Muito satisfeito"}
-                      </p>
-                    )}
+                    <p className="text-xs text-muted-foreground">Local</p>
+                    <p className="font-semibold text-foreground">{selectedAppointment.dados.DS_LOCAL}</p>
                   </div>
                 </div>
-              ))}
+                <div className="flex items-start gap-2">
+                  <Star className="h-4 w-4 text-warning mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Profissional</p>
+                    <p className="font-semibold text-foreground">{selectedAppointment.nm_medico}</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Clock className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Data do atendimento</p>
+                    <p className="font-semibold text-foreground">{selectedAppointment.dados.DT_ENTRADA}</p>
+                  </div>
+                </div>
+              </DialogDescription>
+            )}
+          </DialogHeader>
 
-              <div>
-                <label className="block text-sm font-semibold text-foreground mb-2">
-                  Comentário adicional (opcional)
-                </label>
-                <Textarea
-                  placeholder="Compartilhe sua experiência conosco..."
-                  value={comentario}
-                  onChange={(e) => setComentario(e.target.value)}
-                  className="resize-none"
-                  rows={4}
-                />
+          <div className="flex-1 overflow-y-auto py-4">
+            {loadingPerguntas ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                  <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent mb-4"></div>
+                  <p className="text-muted-foreground">Carregando perguntas...</p>
+                </div>
               </div>
+            ) : (
+              <div className="space-y-6">
+                {perguntas.map((pergunta) => (
+                  <div key={pergunta.NR_SEQUENCIA} className="space-y-3 p-4 rounded-lg bg-accent/30 border border-border">
+                    <div>
+                      <label className="block text-sm font-semibold text-foreground mb-3">
+                        {pergunta.DS_PERGUNTA}
+                      </label>
+                      {pergunta.DS_OBSERVACAO && (
+                        <p className="text-xs text-muted-foreground mb-3">{pergunta.DS_OBSERVACAO}</p>
+                      )}
+                      {renderStars(pergunta.NR_SEQUENCIA)}
+                      {respostas[pergunta.NR_SEQUENCIA] > 0 && (
+                        <p className="text-sm text-muted-foreground mt-2 text-center">
+                          {respostas[pergunta.NR_SEQUENCIA] === 1 && "Muito insatisfeito"}
+                          {respostas[pergunta.NR_SEQUENCIA] === 2 && "Insatisfeito"}
+                          {respostas[pergunta.NR_SEQUENCIA] === 3 && "Neutro"}
+                          {respostas[pergunta.NR_SEQUENCIA] === 4 && "Satisfeito"}
+                          {respostas[pergunta.NR_SEQUENCIA] === 5 && "Muito satisfeito"}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
 
-              <div className="flex gap-2 justify-end pt-4">
-                <Button
-                  variant="outline"
-                  onClick={handleCloseModal}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  onClick={handleSubmitAvaliacao}
-                  className="bg-warning hover:bg-warning/90 text-warning-foreground"
-                >
-                  Enviar Avaliação
-                </Button>
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    Comentário adicional (opcional)
+                  </label>
+                  <Textarea
+                    placeholder="Compartilhe sua experiência conosco..."
+                    value={comentario}
+                    onChange={(e) => setComentario(e.target.value)}
+                    className="resize-none"
+                    rows={4}
+                  />
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
+
+          <DialogFooter className="border-t pt-4">
+            <Button
+              variant="outline"
+              onClick={handleCloseModal}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleSubmitAvaliacao}
+              className="bg-warning hover:bg-warning/90 text-warning-foreground"
+            >
+              Enviar Avaliação
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
