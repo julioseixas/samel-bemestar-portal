@@ -245,7 +245,6 @@ const RateAppointments = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'nr_atendimento': selectedAppointment.nr_atendimento.toString(),
           },
           body: JSON.stringify(payload),
         }
