@@ -5,6 +5,8 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { Star, ArrowLeft, Clock, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
@@ -27,8 +29,23 @@ interface AvaliacaoPendente {
   nm_medico: string;
   dados: {
     DS_LOCAL: string;
-    DT_ENTRADA: string; // formato: dd/MM/yyyy HH:mm:ss
+    DT_ENTRADA: string;
   };
+}
+
+interface PerguntaSatisfacao {
+  CD_CODIGO: string;
+  DS_OBSERVACAO: string;
+  DS_PERGUNTA: string;
+  NR_SEQUENCIA: number;
+  TIPO: string;
+}
+
+interface PerguntasResponse {
+  dados: PerguntaSatisfacao[];
+  msg: string;
+  qtdPerguntas: number;
+  status: boolean;
 }
 
 const RateAppointments = () => {
@@ -38,6 +55,12 @@ const RateAppointments = () => {
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [appointments, setAppointments] = useState<AvaliacaoPendente[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedAppointment, setSelectedAppointment] = useState<AvaliacaoPendente | null>(null);
+  const [perguntas, setPerguntas] = useState<PerguntaSatisfacao[]>([]);
+  const [respostas, setRespostas] = useState<{ [key: number]: number }>({});
+  const [comentario, setComentario] = useState("");
+  const [loadingPerguntas, setLoadingPerguntas] = useState(false);
+  const [hoveredStars, setHoveredStars] = useState<{ [key: number]: number }>({});
 
   useEffect(() => {
     const patientData = localStorage.getItem("patientData");
@@ -101,10 +124,6 @@ const RateAppointments = () => {
         }
       }
 
-      if (allPendingEvaluations.length > 0) {
-        console.log("Estrutura de avaliação pendente:", allPendingEvaluations[0]);
-      }
-
       setAppointments(allPendingEvaluations);
     } catch (error) {
       console.error("Erro ao buscar avaliações pendentes:", error);
@@ -116,6 +135,122 @@ const RateAppointments = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCardClick = async (avaliacao: AvaliacaoPendente) => {
+    setSelectedAppointment(avaliacao);
+    setLoadingPerguntas(true);
+    
+    try {
+      const response = await fetch(
+        `https://appv2-back.samel.com.br/api/atendimento/buscarPerguntasDeSatisfacao/${avaliacao.nr_atendimento}`,
+        {
+          method: "GET",
+          headers: getApiHeaders(),
+        }
+      );
+
+      const data: PerguntasResponse = await response.json();
+      
+      if (data.status && data.dados) {
+        setPerguntas(data.dados);
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Erro",
+          description: data.msg || "Não foi possível carregar as perguntas.",
+        });
+        setSelectedAppointment(null);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar perguntas:", error);
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Não foi possível carregar as perguntas de satisfação.",
+      });
+      setSelectedAppointment(null);
+    } finally {
+      setLoadingPerguntas(false);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setSelectedAppointment(null);
+    setPerguntas([]);
+    setRespostas({});
+    setComentario("");
+    setHoveredStars({});
+  };
+
+  const handleStarClick = (perguntaSeq: number, estrelas: number) => {
+    setRespostas(prev => ({
+      ...prev,
+      [perguntaSeq]: estrelas,
+    }));
+  };
+
+  const handleStarHover = (perguntaSeq: number, estrelas: number) => {
+    setHoveredStars(prev => ({
+      ...prev,
+      [perguntaSeq]: estrelas,
+    }));
+  };
+
+  const handleStarLeave = (perguntaSeq: number) => {
+    setHoveredStars(prev => ({
+      ...prev,
+      [perguntaSeq]: 0,
+    }));
+  };
+
+  const handleSubmitAvaliacao = () => {
+    const todasRespondidas = perguntas.every(p => respostas[p.NR_SEQUENCIA] > 0);
+    
+    if (!todasRespondidas) {
+      toast({
+        variant: "destructive",
+        title: "Avaliação incompleta",
+        description: "Por favor, responda todas as perguntas.",
+      });
+      return;
+    }
+
+    toast({
+      title: "Avaliação enviada!",
+      description: "Obrigado pelo seu feedback!",
+    });
+
+    handleCloseModal();
+  };
+
+  const renderStars = (perguntaSeq: number) => {
+    const currentRating = respostas[perguntaSeq] || 0;
+    const hoverRating = hoveredStars[perguntaSeq] || 0;
+    const displayRating = hoverRating || currentRating;
+
+    return (
+      <div className="flex gap-1 justify-center">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            type="button"
+            onClick={() => handleStarClick(perguntaSeq, star)}
+            onMouseEnter={() => handleStarHover(perguntaSeq, star)}
+            onMouseLeave={() => handleStarLeave(perguntaSeq)}
+            className="transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-warning focus:ring-offset-2 rounded"
+          >
+            <Star
+              className={`h-8 w-8 ${
+                star <= displayRating
+                  ? "fill-warning text-warning"
+                  : "fill-none text-muted-foreground"
+              }`}
+            />
+          </button>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -176,6 +311,7 @@ const RateAppointments = () => {
                 return (
                   <Card 
                     key={appointmentId} 
+                    onClick={() => handleCardClick(avaliacao)}
                     className="group relative overflow-hidden border-2 hover:border-warning/50 transition-all duration-300 hover:shadow-xl animate-fade-in cursor-pointer"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
@@ -229,6 +365,85 @@ const RateAppointments = () => {
           )}
         </div>
       </main>
+
+      <Dialog open={!!selectedAppointment} onOpenChange={handleCloseModal}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">Avalie seu atendimento</DialogTitle>
+            <DialogDescription>
+              {selectedAppointment && (
+                <div className="space-y-1 mt-2">
+                  <p className="font-semibold text-foreground">{selectedAppointment.dados.DS_LOCAL}</p>
+                  <p className="text-sm">Profissional: {selectedAppointment.nm_medico}</p>
+                  <p className="text-sm">Data: {selectedAppointment.dados.DT_ENTRADA}</p>
+                </div>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          {loadingPerguntas ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent mb-4"></div>
+                <p className="text-muted-foreground">Carregando perguntas...</p>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6 mt-4">
+              {perguntas.map((pergunta) => (
+                <div key={pergunta.NR_SEQUENCIA} className="space-y-3 p-4 rounded-lg bg-accent/30 border border-border">
+                  <div>
+                    <label className="block text-sm font-semibold text-foreground mb-3">
+                      {pergunta.DS_PERGUNTA}
+                    </label>
+                    {pergunta.DS_OBSERVACAO && (
+                      <p className="text-xs text-muted-foreground mb-3">{pergunta.DS_OBSERVACAO}</p>
+                    )}
+                    {renderStars(pergunta.NR_SEQUENCIA)}
+                    {respostas[pergunta.NR_SEQUENCIA] > 0 && (
+                      <p className="text-sm text-muted-foreground mt-2 text-center">
+                        {respostas[pergunta.NR_SEQUENCIA] === 1 && "Muito insatisfeito"}
+                        {respostas[pergunta.NR_SEQUENCIA] === 2 && "Insatisfeito"}
+                        {respostas[pergunta.NR_SEQUENCIA] === 3 && "Neutro"}
+                        {respostas[pergunta.NR_SEQUENCIA] === 4 && "Satisfeito"}
+                        {respostas[pergunta.NR_SEQUENCIA] === 5 && "Muito satisfeito"}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              <div>
+                <label className="block text-sm font-semibold text-foreground mb-2">
+                  Comentário adicional (opcional)
+                </label>
+                <Textarea
+                  placeholder="Compartilhe sua experiência conosco..."
+                  value={comentario}
+                  onChange={(e) => setComentario(e.target.value)}
+                  className="resize-none"
+                  rows={4}
+                />
+              </div>
+
+              <div className="flex gap-2 justify-end pt-4">
+                <Button
+                  variant="outline"
+                  onClick={handleCloseModal}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleSubmitAvaliacao}
+                  className="bg-warning hover:bg-warning/90 text-warning-foreground"
+                >
+                  Enviar Avaliação
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>
