@@ -12,6 +12,22 @@ import { getApiHeaders } from "@/lib/api-headers";
 import { parse, isBefore, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
+interface AvaliacaoResponse {
+  status: string;
+  message: string;
+  dados: {
+    status: boolean;
+    dados: {
+      enviadas: AvaliacaoPendente[];
+      pendentes: AvaliacaoPendente[];
+    };
+  };
+}
+
+interface AvaliacaoPendente {
+  [key: string]: any;
+}
+
 interface Rating {
   appointmentId: string;
   stars: number;
@@ -23,7 +39,7 @@ const RateAppointments = () => {
   const { toast } = useToast();
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
-  const [appointments, setAppointments] = useState<any[]>([]);
+  const [appointments, setAppointments] = useState<AvaliacaoPendente[]>([]);
   const [loading, setLoading] = useState(true);
   const [ratings, setRatings] = useState<{ [key: string]: Rating }>({});
   const [hoveredStars, setHoveredStars] = useState<{ [key: string]: number }>({});
@@ -45,10 +61,10 @@ const RateAppointments = () => {
       setProfilePhoto(photo);
     }
 
-    fetchPastAppointments();
+    fetchPendingEvaluations();
   }, []);
 
-  const fetchPastAppointments = async () => {
+  const fetchPendingEvaluations = async () => {
     setLoading(true);
     try {
       const userToken = localStorage.getItem("user");
@@ -59,7 +75,8 @@ const RateAppointments = () => {
       }
 
       const decoded: any = jwtDecode(userToken);
-      const pacientesIds = [parseInt(decoded.id)];
+      
+      const pacientesIds: number[] = [parseInt(decoded.id)];
       
       if (decoded.dependentes && Array.isArray(decoded.dependentes)) {
         decoded.dependentes.forEach((dep: any) => {
@@ -67,79 +84,39 @@ const RateAppointments = () => {
         });
       }
 
-      // Busca consultas (tipo 0)
-      const consultasResponse = await fetch(
-        "https://api-portalpaciente-web.samel.com.br/api/Agenda/ListarAgendamentos2",
-        {
-          method: "POST",
-          headers: getApiHeaders(),
-          body: JSON.stringify({ pacientes: pacientesIds, tipo: 0 }),
-        }
-      );
-
-      // Busca exames (tipo 1)
-      const examesResponse = await fetch(
-        "https://api-portalpaciente-web.samel.com.br/api/Agenda/ListarAgendamentos2",
-        {
-          method: "POST",
-          headers: getApiHeaders(),
-          body: JSON.stringify({ pacientes: pacientesIds, tipo: 1 }),
-        }
-      );
-
-      const consultasData = await consultasResponse.json();
-      const examesData = await examesResponse.json();
-
-      const allAppointments = [];
-
-      // Processa consultas passadas
-      if (consultasData.sucesso && consultasData.dados) {
-        const consultas = consultasData.dados
-          .filter((ag: any) => {
-            if (ag.cancelado) return false;
-            try {
-              const agendaDate = parse(ag.dataAgenda, 'yyyy/MM/dd HH:mm:ss', new Date());
-              return isBefore(agendaDate, new Date()) && ag.tipoAgendamento !== 1;
-            } catch {
-              return false;
+      const allPendingEvaluations: AvaliacaoPendente[] = [];
+      
+      for (const id of pacientesIds) {
+        try {
+          const response = await fetch(
+            `https://appv2-back.samel.com.br/api/atendimento/listarUltimasRespostas/${id}`,
+            {
+              method: "GET",
+              headers: getApiHeaders(),
             }
-          })
-          .map((ag: any) => ({ ...ag, tipo: 'consulta' }));
-        
-        allAppointments.push(...consultas);
+          );
+
+          const data: AvaliacaoResponse = await response.json();
+          
+          if (data.dados?.dados?.pendentes && Array.isArray(data.dados.dados.pendentes)) {
+            allPendingEvaluations.push(...data.dados.dados.pendentes);
+          }
+        } catch (error) {
+          console.error(`Erro ao buscar avaliações para o ID ${id}:`, error);
+        }
       }
 
-      // Processa exames passados
-      if (examesData.sucesso && examesData.dados) {
-        const exames = examesData.dados
-          .filter((ag: any) => {
-            if (ag.cancelado) return false;
-            try {
-              const agendaDate = parse(ag.dataAgenda, 'yyyy/MM/dd HH:mm:ss', new Date());
-              return isBefore(agendaDate, new Date()) && ag.tipoAgendamento === 1;
-            } catch {
-              return false;
-            }
-          })
-          .map((ag: any) => ({ ...ag, tipo: 'exame' }));
-        
-        allAppointments.push(...exames);
+      if (allPendingEvaluations.length > 0) {
+        console.log("Estrutura de avaliação pendente:", allPendingEvaluations[0]);
       }
 
-      // Ordena por data (mais recente primeiro)
-      allAppointments.sort((a, b) => {
-        const dateA = parse(a.dataAgenda, 'yyyy/MM/dd HH:mm:ss', new Date());
-        const dateB = parse(b.dataAgenda, 'yyyy/MM/dd HH:mm:ss', new Date());
-        return dateB.getTime() - dateA.getTime();
-      });
-
-      setAppointments(allAppointments.slice(0, 10)); // Últimos 10 atendimentos
+      setAppointments(allPendingEvaluations);
     } catch (error) {
-      console.error("Erro ao buscar atendimentos:", error);
+      console.error("Erro ao buscar avaliações pendentes:", error);
       toast({
         variant: "destructive",
         title: "Erro",
-        description: "Não foi possível carregar seus atendimentos.",
+        description: "Não foi possível carregar suas avaliações pendentes.",
       });
     } finally {
       setLoading(false);
@@ -298,69 +275,68 @@ const RateAppointments = () => {
             </Card>
           ) : (
             <div className="space-y-4">
-              {appointments.map((appointment) => (
-                <Card key={appointment.id} className="overflow-hidden">
-                  <CardHeader className="bg-accent/50">
-                    <CardTitle className="text-lg sm:text-xl">
-                      {appointment.tipo === 'consulta' 
-                        ? `Consulta - ${appointment.descricaoEspecialidade || appointment.especialidade}`
-                        : `Exame - ${appointment.procedimentos?.[0]?.descricao || 'Exame'}`
-                      }
-                    </CardTitle>
-                    <CardDescription className="space-y-1">
-                      <div className="flex flex-col sm:flex-row sm:gap-4">
-                        <span className="font-medium">
-                          Profissional: {appointment.nomeProfissional}
-                        </span>
-                        <span>
-                          Data: {formatDate(appointment.dataAgenda)}
-                        </span>
-                      </div>
-                      <div>
-                        Local: {appointment.nomeUnidade || 'Telemedicina'}
-                      </div>
-                    </CardDescription>
-                  </CardHeader>
+              {appointments.map((avaliacao, index) => {
+                const appointmentId = avaliacao.id || avaliacao.idAgendamento || `${index}`;
+                
+                return (
+                  <Card key={appointmentId} className="overflow-hidden">
+                    <CardHeader className="bg-accent/50">
+                      <CardTitle className="text-lg sm:text-xl">
+                        {avaliacao.descricaoEspecialidade || avaliacao.especialidade || "Atendimento"}
+                      </CardTitle>
+                      <CardDescription className="space-y-1">
+                        <div className="flex flex-col sm:flex-row sm:gap-4">
+                          <span className="font-medium">
+                            Profissional: {avaliacao.nomeProfissional || avaliacao.medico || "Não informado"}
+                          </span>
+                          <span>
+                            Data: {avaliacao.dataAtendimento || avaliacao.dataAgenda || avaliacao.data || "Não informada"}
+                          </span>
+                        </div>
+                        <div>Paciente: {avaliacao.nomeCliente || avaliacao.paciente || patientName}</div>
+                      </CardDescription>
+                    </CardHeader>
                   <CardContent className="pt-6 space-y-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-foreground mb-3">
-                        Como você avalia este atendimento?
-                      </label>
-                      {renderStars(appointment.id)}
-                      {ratings[appointment.id]?.stars > 0 && (
-                        <p className="text-sm text-muted-foreground mt-2">
-                          {ratings[appointment.id].stars === 1 && "Muito insatisfeito"}
-                          {ratings[appointment.id].stars === 2 && "Insatisfeito"}
-                          {ratings[appointment.id].stars === 3 && "Neutro"}
-                          {ratings[appointment.id].stars === 4 && "Satisfeito"}
-                          {ratings[appointment.id].stars === 5 && "Muito satisfeito"}
-                        </p>
-                      )}
-                    </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-foreground mb-3">
+                          Como você avalia este atendimento?
+                        </label>
+                        {renderStars(appointmentId)}
+                        {ratings[appointmentId]?.stars > 0 && (
+                          <p className="text-sm text-muted-foreground mt-2">
+                            {ratings[appointmentId].stars === 1 && "Muito insatisfeito"}
+                            {ratings[appointmentId].stars === 2 && "Insatisfeito"}
+                            {ratings[appointmentId].stars === 3 && "Neutro"}
+                            {ratings[appointmentId].stars === 4 && "Satisfeito"}
+                            {ratings[appointmentId].stars === 5 && "Muito satisfeito"}
+                          </p>
+                        )}
+                      </div>
 
-                    <div>
-                      <label className="block text-sm font-semibold text-foreground mb-2">
-                        Comentário (opcional)
-                      </label>
-                      <Textarea
-                        placeholder="Compartilhe sua experiência conosco..."
-                        value={ratings[appointment.id]?.comment || ""}
-                        onChange={(e) => handleCommentChange(appointment.id, e.target.value)}
-                        className="resize-none"
-                        rows={3}
-                      />
-                    </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-foreground mb-2">
+                          Comentário (opcional)
+                        </label>
+                        <Textarea
+                          placeholder="Compartilhe sua experiência conosco..."
+                          value={ratings[appointmentId]?.comment || ""}
+                          onChange={(e) => handleCommentChange(appointmentId, e.target.value)}
+                          className="resize-none"
+                          rows={3}
+                        />
+                      </div>
 
-                    <Button
-                      onClick={() => handleSubmitRating(appointment.id)}
-                      variant="default"
-                      className="w-full sm:w-auto bg-warning hover:bg-warning/90 text-warning-foreground"
-                    >
-                      Enviar Avaliação
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+                      <Button
+                        onClick={() => handleSubmitRating(appointmentId)}
+                        variant="default"
+                        className="w-full sm:w-auto bg-warning hover:bg-warning/90 text-warning-foreground"
+                      >
+                        Enviar Avaliação
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           )}
         </div>
