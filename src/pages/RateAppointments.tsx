@@ -417,9 +417,6 @@ const RateAppointments = () => {
                       <label className="block text-sm font-semibold text-foreground mb-3">
                         {pergunta.DS_PERGUNTA}
                       </label>
-                      {pergunta.DS_OBSERVACAO && (
-                        <p className="text-xs text-muted-foreground mb-3">{pergunta.DS_OBSERVACAO}</p>
-                      )}
                       {renderStars(pergunta)}
                       {respostas[pergunta.NR_SEQUENCIA] > 0 && (
                         <p className="text-sm text-muted-foreground mt-2 text-center">
