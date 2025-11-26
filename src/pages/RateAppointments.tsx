@@ -25,7 +25,12 @@ interface AvaliacaoResponse {
 }
 
 interface AvaliacaoPendente {
-  [key: string]: any;
+  nr_atendimento: number;
+  nm_medico: string;
+  dados: {
+    DS_LOCAL: string;
+    DT_ENTRADA: string; // formato: dd/MM/yyyy HH:mm:ss
+  };
 }
 
 interface Rating {
@@ -275,25 +280,25 @@ const RateAppointments = () => {
             </Card>
           ) : (
             <div className="space-y-4">
-              {appointments.map((avaliacao, index) => {
-                const appointmentId = avaliacao.id || avaliacao.idAgendamento || `${index}`;
+              {appointments.map((avaliacao) => {
+                const appointmentId = String(avaliacao.nr_atendimento);
                 
                 return (
                   <Card key={appointmentId} className="overflow-hidden">
                     <CardHeader className="bg-accent/50">
                       <CardTitle className="text-lg sm:text-xl">
-                        {avaliacao.descricaoEspecialidade || avaliacao.especialidade || "Atendimento"}
+                        {avaliacao.dados.DS_LOCAL || "Atendimento"}
                       </CardTitle>
                       <CardDescription className="space-y-1">
                         <div className="flex flex-col sm:flex-row sm:gap-4">
                           <span className="font-medium">
-                            Profissional: {avaliacao.nomeProfissional || avaliacao.medico || "Não informado"}
+                            Profissional: {avaliacao.nm_medico}
                           </span>
                           <span>
-                            Data: {avaliacao.dataAtendimento || avaliacao.dataAgenda || avaliacao.data || "Não informada"}
+                            Data: {avaliacao.dados.DT_ENTRADA}
                           </span>
                         </div>
-                        <div>Paciente: {avaliacao.nomeCliente || avaliacao.paciente || patientName}</div>
+                        <div>Paciente: {patientName}</div>
                       </CardDescription>
                     </CardHeader>
                   <CardContent className="pt-6 space-y-4">
