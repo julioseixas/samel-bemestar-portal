@@ -284,26 +284,43 @@ const RateAppointments = () => {
     const maxStars = pergunta.CD_CODIGO === "Q1" ? 10 : 5;
     const stars = Array.from({ length: maxStars }, (_, i) => i + 1);
 
+    const getRatingLabel = (rating: number) => {
+      if (rating === 0) return "";
+      if (rating === 1) return "Muito insatisfeito";
+      if (rating === 2) return "Insatisfeito";
+      if (rating === 3) return "Neutro";
+      if (rating === 4) return "Satisfeito";
+      if (rating >= 5) return "Muito satisfeito";
+      return "";
+    };
+
     return (
-      <div className="flex gap-1 justify-start flex-wrap">
-        {stars.map((star) => (
-          <button
-            key={star}
-            type="button"
-            onClick={() => handleStarClick(perguntaSeq, star)}
-            onMouseEnter={() => handleStarHover(perguntaSeq, star)}
-            onMouseLeave={() => handleStarLeave(perguntaSeq)}
-            className="transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-warning focus:ring-offset-2 rounded"
-          >
-            <Star
-              className={`h-8 w-8 ${
-                star <= displayRating
-                  ? "fill-warning text-warning"
-                  : "fill-none text-muted-foreground"
-              }`}
-            />
-          </button>
-        ))}
+      <div className="flex justify-between items-center gap-4">
+        <div className="flex gap-1 flex-wrap">
+          {stars.map((star) => (
+            <button
+              key={star}
+              type="button"
+              onClick={() => handleStarClick(perguntaSeq, star)}
+              onMouseEnter={() => handleStarHover(perguntaSeq, star)}
+              onMouseLeave={() => handleStarLeave(perguntaSeq)}
+              className="transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-warning focus:ring-offset-2 rounded"
+            >
+              <Star
+                className={`h-8 w-8 ${
+                  star <= displayRating
+                    ? "fill-warning text-warning"
+                    : "fill-none text-muted-foreground"
+                }`}
+              />
+            </button>
+          ))}
+        </div>
+        {currentRating > 0 && (
+          <p className="text-sm text-muted-foreground font-medium whitespace-nowrap">
+            {getRatingLabel(currentRating)}
+          </p>
+        )}
       </div>
     );
   };
@@ -469,15 +486,6 @@ const RateAppointments = () => {
                         {pergunta.DS_PERGUNTA}
                       </label>
                       {renderStars(pergunta)}
-                      {respostas[pergunta.NR_SEQUENCIA] > 0 && (
-                        <p className="text-sm text-muted-foreground mt-2 text-center">
-                          {respostas[pergunta.NR_SEQUENCIA] === 1 && "Muito insatisfeito"}
-                          {respostas[pergunta.NR_SEQUENCIA] === 2 && "Insatisfeito"}
-                          {respostas[pergunta.NR_SEQUENCIA] === 3 && "Neutro"}
-                          {respostas[pergunta.NR_SEQUENCIA] === 4 && "Satisfeito"}
-                          {respostas[pergunta.NR_SEQUENCIA] === 5 && "Muito satisfeito"}
-                        </p>
-                      )}
                     </div>
                   </div>
                 ))}
