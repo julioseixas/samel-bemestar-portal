@@ -469,7 +469,7 @@ const RateAppointments = () => {
             )}
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto py-4">
+          <div className="flex-1 overflow-y-auto py-4 px-2">
             {loadingPerguntas ? (
               <div className="flex items-center justify-center py-12">
                 <div className="text-center">
