@@ -61,6 +61,7 @@ const RateAppointments = () => {
   const [comentario, setComentario] = useState("");
   const [loadingPerguntas, setLoadingPerguntas] = useState(false);
   const [hoveredStars, setHoveredStars] = useState<{ [key: number]: number }>({});
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const patientData = localStorage.getItem("patientData");
@@ -204,7 +205,7 @@ const RateAppointments = () => {
     }));
   };
 
-  const handleSubmitAvaliacao = () => {
+  const handleSubmitAvaliacao = async () => {
     const todasRespondidas = perguntas.every(p => respostas[p.NR_SEQUENCIA] > 0);
     
     if (!todasRespondidas) {
@@ -216,12 +217,62 @@ const RateAppointments = () => {
       return;
     }
 
-    toast({
-      title: "Avaliação enviada!",
-      description: "Obrigado pelo seu feedback!",
-    });
+    if (!selectedAppointment) return;
 
-    handleCloseModal();
+    setSubmitting(true);
+
+    try {
+      const respostasArray = perguntas.map((pergunta) => ({
+        cd_pergunta: pergunta.CD_CODIGO,
+        ds_resposta: respostas[pergunta.NR_SEQUENCIA].toString(),
+      }));
+
+      respostasArray.push({
+        cd_pergunta: 'E1',
+        ds_resposta: comentario,
+      });
+
+      const payload = {
+        body: [{
+          nr_atendimento: selectedAppointment.nr_atendimento,
+          respostas: respostasArray,
+        }],
+      };
+
+      const response = await fetch(
+        'https://appv2-back.samel.com.br/api/atendimento/enviarPesquisaDeSatisfacao',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'nr_atendimento': selectedAppointment.nr_atendimento.toString(),
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const data = await response.json();
+
+      toast({
+        title: data.status === 'success' ? "Avaliação enviada!" : "Atenção",
+        description: data.message || "Obrigado pelo seu feedback!",
+        variant: data.status === 'success' ? "default" : "destructive",
+      });
+
+      if (data.status === 'success') {
+        handleCloseModal();
+        await fetchPendingEvaluations();
+      }
+    } catch (error) {
+      console.error("Erro ao enviar avaliação:", error);
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Não foi possível enviar sua avaliação. Tente novamente.",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const renderStars = (pergunta: PerguntaSatisfacao) => {
@@ -456,9 +507,10 @@ const RateAppointments = () => {
             </Button>
             <Button
               onClick={handleSubmitAvaliacao}
+              disabled={submitting}
               className="bg-warning hover:bg-warning/90 text-warning-foreground"
             >
-              Enviar Avaliação
+              {submitting ? "Enviando..." : "Enviar Avaliação"}
             </Button>
           </DialogFooter>
         </DialogContent>
