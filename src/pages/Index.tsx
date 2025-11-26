@@ -3,7 +3,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AppointmentBanner } from "@/components/AppointmentBanner";
 import { DashboardCard } from "@/components/DashboardCard";
-import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, ClipboardList, FolderOpen, FileSignature, CalendarX, Receipt } from "lucide-react";
+import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, ClipboardList, FolderOpen, FileSignature, CalendarX, Receipt, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
@@ -605,6 +605,18 @@ const Index = () => {
                 variant="default"
                 useDashboardColor={true}
                 onClick={handleCoparticipation}
+                />
+              </div>
+              
+              <div data-card>
+                <DashboardCard
+                title="SUA OPINIÃO IMPORTA!"
+                description="Avalie seus atendimentos e nos ajude a melhorar"
+                icon={Star}
+                iconColor="text-warning"
+                buttonText="Avaliar Agora"
+                variant="warning"
+                onClick={() => navigate("/rate-appointments")}
                 />
               </div>
             </div>
