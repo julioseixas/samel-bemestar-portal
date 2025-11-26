@@ -224,14 +224,18 @@ const RateAppointments = () => {
     handleCloseModal();
   };
 
-  const renderStars = (perguntaSeq: number) => {
+  const renderStars = (pergunta: PerguntaSatisfacao) => {
+    const perguntaSeq = pergunta.NR_SEQUENCIA;
     const currentRating = respostas[perguntaSeq] || 0;
     const hoverRating = hoveredStars[perguntaSeq] || 0;
     const displayRating = hoverRating || currentRating;
+    
+    const maxStars = pergunta.CD_CODIGO === "Q1" ? 10 : 5;
+    const stars = Array.from({ length: maxStars }, (_, i) => i + 1);
 
     return (
-      <div className="flex gap-1 justify-center">
-        {[1, 2, 3, 4, 5].map((star) => (
+      <div className="flex gap-1 justify-center flex-wrap">
+        {stars.map((star) => (
           <button
             key={star}
             type="button"
@@ -416,7 +420,7 @@ const RateAppointments = () => {
                       {pergunta.DS_OBSERVACAO && (
                         <p className="text-xs text-muted-foreground mb-3">{pergunta.DS_OBSERVACAO}</p>
                       )}
-                      {renderStars(pergunta.NR_SEQUENCIA)}
+                      {renderStars(pergunta)}
                       {respostas[pergunta.NR_SEQUENCIA] > 0 && (
                         <p className="text-sm text-muted-foreground mt-2 text-center">
                           {respostas[pergunta.NR_SEQUENCIA] === 1 && "Muito insatisfeito"}
