@@ -169,35 +169,58 @@ const RateAppointments = () => {
               </CardDescription>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {appointments.map((avaliacao) => {
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {appointments.map((avaliacao, index) => {
                 const appointmentId = String(avaliacao.nr_atendimento);
                 
                 return (
-                  <Card key={appointmentId} className="overflow-hidden hover:shadow-lg transition-shadow">
-                    <CardHeader className="bg-accent/50">
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <CardTitle className="text-lg">
-                          {avaliacao.dados.DS_LOCAL || "Atendimento"}
-                        </CardTitle>
-                        <Badge variant="outline" className="flex items-center gap-1 bg-warning/10 text-warning border-warning/20">
-                          <Clock className="h-3 w-3" />
-                          Pendente
-                        </Badge>
+                  <Card 
+                    key={appointmentId} 
+                    className="group relative overflow-hidden border-2 hover:border-warning/50 transition-all duration-300 hover:shadow-xl animate-fade-in cursor-pointer"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-warning/5 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
+                    
+                    <CardHeader className="relative space-y-4 pb-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="p-2 rounded-lg bg-warning/10 group-hover:bg-warning/20 transition-colors">
+                            <Star className="h-5 w-5 text-warning" />
+                          </div>
+                          <Badge variant="outline" className="bg-warning/10 text-warning border-warning/30 font-medium">
+                            Pendente
+                          </Badge>
+                        </div>
                       </div>
-                      <CardDescription className="space-y-2">
-                        <div className="flex items-start gap-2">
-                          <AlertCircle className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                          <div className="space-y-1">
-                            <div className="font-medium">
+
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">Local</p>
+                          <h3 className="text-lg font-bold text-foreground group-hover:text-warning transition-colors">
+                            {avaliacao.dados.DS_LOCAL || "Atendimento"}
+                          </h3>
+                        </div>
+
+                        <div className="flex items-start gap-2 pt-2 border-t border-border/50">
+                          <AlertCircle className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs text-muted-foreground mb-0.5">Profissional</p>
+                            <p className="text-sm font-semibold text-foreground truncate">
                               {avaliacao.nm_medico}
-                            </div>
-                            <div className="text-sm">
-                              {avaliacao.dados.DT_ENTRADA}
-                            </div>
+                            </p>
                           </div>
                         </div>
-                      </CardDescription>
+
+                        <div className="flex items-start gap-2">
+                          <Clock className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
+                          <div className="flex-1">
+                            <p className="text-xs text-muted-foreground mb-0.5">Data do atendimento</p>
+                            <p className="text-sm font-medium text-foreground">
+                              {avaliacao.dados.DT_ENTRADA}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     </CardHeader>
                   </Card>
                 );
