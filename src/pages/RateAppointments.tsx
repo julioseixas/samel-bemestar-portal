@@ -234,7 +234,7 @@ const RateAppointments = () => {
     const stars = Array.from({ length: maxStars }, (_, i) => i + 1);
 
     return (
-      <div className="flex gap-1 justify-center flex-wrap">
+      <div className="flex gap-1 justify-start flex-wrap">
         {stars.map((star) => (
           <button
             key={star}
