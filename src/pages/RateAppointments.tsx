@@ -243,9 +243,7 @@ const RateAppointments = () => {
         'https://appv2-back.samel.com.br/api/atendimento/enviarPesquisaDeSatisfacao',
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: getApiHeaders(),
           body: JSON.stringify(payload),
         }
       );
