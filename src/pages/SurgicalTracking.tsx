@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Calendar, MapPin, User, ArrowLeft, Stethoscope, Check } from "lucide-react";
+import { Calendar, MapPin, User, ArrowLeft, Stethoscope, Check, FileText } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -269,6 +269,34 @@ export default function SurgicalTracking() {
                   </CardContent>
                 </Card>
               )}
+
+              {/* Guia de Internação */}
+              <Card className="border-2 border-primary/20 shadow-md bg-gradient-to-br from-primary/5 to-transparent">
+                <CardContent className="pt-6 pb-6">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="rounded-full bg-primary/10 p-3">
+                        <FileText className="h-6 w-6 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-foreground text-base sm:text-lg">
+                          Guia de Internação
+                        </h3>
+                        <p className="text-xs sm:text-sm text-muted-foreground">
+                          Acesse informações importantes sobre o processo de internação
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={() => window.open('https://www.samel.com.br/guia-internacao/', '_blank')}
+                      className="w-full sm:w-auto"
+                    >
+                      <FileText className="mr-2 h-4 w-4" />
+                      Acessar Guia
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* Data de Atualização */}
               {surgicalData.dataAtualizacao && (
