@@ -215,7 +215,7 @@ export default function PrescriptionsTracking() {
 
               {/* Modal de Detalhes */}
               <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                <DialogContent className="max-w-3xl max-h-[80vh] flex flex-col">
                   <DialogHeader className="border-b pb-4">
                     <div className="flex items-center justify-between">
                       <DialogTitle className="flex items-center gap-2 text-xl">
@@ -234,7 +234,7 @@ export default function PrescriptionsTracking() {
                   </DialogHeader>
                   
                   {selectedGroup && prescriptions[selectedGroup] && (
-                    <div className="space-y-4 mt-4">
+                    <div className="space-y-4 mt-4 overflow-y-auto pr-2">
                       {prescriptions[selectedGroup].map((item, index) => (
                         <div
                           key={`${item.idPrescricao}-${index}`}
