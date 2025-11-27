@@ -156,14 +156,14 @@ const EvaluateProfessional = () => {
         patientName={patientName}
         profilePhoto={profilePhoto}
       />
-      <main className="flex-1 container mx-auto px-4 py-6">
+      <main className="flex-1 container mx-auto px-4 py-6 flex flex-col">
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-2xl font-bold text-foreground">
               Avaliar Profissional
             </h1>
             <Button
-              variant="ghost"
+              variant="outline"
               onClick={() => navigate("/hospitalization-options")}
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -184,7 +184,7 @@ const EvaluateProfessional = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-4">
+          <div className="flex-1 overflow-y-auto space-y-4 pr-2">
             {avaliacoes.map((avaliacao, index) => (
               <Card key={`${avaliacao.idPergunta}-${index}`}>
                 <CardHeader>
