@@ -5,7 +5,7 @@ import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Star, Stethoscope, HeartPulse, UtensilsCrossed, Sparkles, ArrowLeft } from "lucide-react";
+import { Star, Stethoscope, HeartPulse, UtensilsCrossed, Sparkles, ArrowLeft, UserCheck } from "lucide-react";
 import { toast } from "sonner";
 import { getApiHeaders } from "@/lib/api-headers";
 
@@ -116,6 +116,8 @@ const EvaluateProfessional = () => {
         return <UtensilsCrossed className="w-10 h-10 text-primary" />;
       case "H1":
         return <Sparkles className="w-10 h-10 text-primary" />;
+      case "C1":
+        return <UserCheck className="w-10 h-10 text-primary" />;
       default:
         return <Star className="w-10 h-10 text-primary" />;
     }
