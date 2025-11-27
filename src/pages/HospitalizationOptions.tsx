@@ -78,7 +78,7 @@ export default function HospitalizationOptions() {
             </p>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:max-w-7xl lg:mx-auto">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {/* Acompanhamento Cirúrgico */}
             <Card 
               className="group cursor-pointer transition-all hover:shadow-lg border-2 hover:border-primary"
