@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Calendar, MapPin, User, ArrowLeft, Stethoscope } from "lucide-react";
+import { Calendar, MapPin, User, ArrowLeft, Stethoscope, Check } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -76,6 +76,13 @@ export default function SurgicalTracking() {
     }
   };
 
+  const getProgressStep = () => {
+    if (surgicalData?.status === "Autorizado") return 2;
+    return 1; // "Pré-Agenda" ou qualquer outro status
+  };
+
+  const currentStep = getProgressStep();
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
@@ -104,6 +111,42 @@ export default function SurgicalTracking() {
 
           {surgicalData ? (
             <div className="space-y-4 max-w-3xl mx-auto">
+              {/* Progress Bar */}
+              <Card className="border-2">
+                <CardContent className="pt-6 pb-6">
+                  <div className="flex items-center justify-between">
+                    {/* Passo 1 - Aguardando Agendamento */}
+                    <div className="flex flex-col items-center flex-1">
+                      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-colors ${
+                        currentStep >= 1 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                      }`}>
+                        {currentStep >= 1 ? <Check className="w-5 h-5 sm:w-6 sm:h-6" /> : <span className="text-sm sm:text-base font-semibold">1</span>}
+                      </div>
+                      <span className="text-xs sm:text-sm mt-2 text-center font-medium">
+                        Aguardando<br />Agendamento
+                      </span>
+                    </div>
+                    
+                    {/* Linha conectora */}
+                    <div className={`h-1 flex-1 mx-2 sm:mx-4 transition-colors ${
+                      currentStep >= 2 ? 'bg-primary' : 'bg-muted'
+                    }`} />
+                    
+                    {/* Passo 2 - Agendado */}
+                    <div className="flex flex-col items-center flex-1">
+                      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-colors ${
+                        currentStep >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                      }`}>
+                        {currentStep >= 2 ? <Check className="w-5 h-5 sm:w-6 sm:h-6" /> : <span className="text-sm sm:text-base font-semibold">2</span>}
+                      </div>
+                      <span className="text-xs sm:text-sm mt-2 text-center font-medium">
+                        Agendado
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Status Badge */}
               {surgicalData.status && (
                 <div className="flex justify-center">
