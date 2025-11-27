@@ -1,27 +1,28 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Mail, Phone, MessageCircle } from "lucide-react";
+import { ArrowLeft, MessageCircle } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { getApiHeaders } from "@/lib/api-headers";
 
 export default function ContactHospitalization() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string>("");
-  const [message, setMessage] = useState("");
-  const [subject, setSubject] = useState("");
+  const [reclamacao, setReclamacao] = useState("");
   const [loading, setLoading] = useState(false);
+  const [idAtendimento, setIdAtendimento] = useState<number | null>(null);
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
     const storedPhoto = localStorage.getItem("profilePhoto");
+    const hospitalizationData = localStorage.getItem("hospitalizationData");
 
     if (storedTitular) {
       try {
@@ -38,15 +39,33 @@ export default function ContactHospitalization() {
     if (storedPhoto) {
       setProfilePhoto(storedPhoto);
     }
+
+    if (hospitalizationData) {
+      try {
+        const parsed = JSON.parse(hospitalizationData);
+        setIdAtendimento(parsed.idAtendimento);
+      } catch (error) {
+        console.error("Erro ao processar dados de internação:", error);
+      }
+    }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!subject.trim() || !message.trim()) {
+    if (!reclamacao.trim()) {
       toast({
         title: "Atenção",
-        description: "Por favor, preencha todos os campos",
+        description: "Por favor, descreva sua reclamação",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!idAtendimento) {
+      toast({
+        title: "Erro",
+        description: "Dados de atendimento não encontrados",
         variant: "destructive",
       });
       return;
@@ -54,16 +73,44 @@ export default function ContactHospitalization() {
 
     setLoading(true);
 
-    // Simular envio - aqui você pode integrar com uma API
-    setTimeout(() => {
+    try {
+      const response = await fetch(
+        "https://api-portalpaciente-web.samel.com.br/api/Internacao/CadastrarReclamacao",
+        {
+          method: "POST",
+          headers: getApiHeaders(),
+          body: JSON.stringify({
+            idAtendimento: idAtendimento,
+            dsReclamacao: reclamacao,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.sucesso) {
+        toast({
+          title: "Sucesso",
+          description: data.mensagem,
+        });
+        navigate("/hospitalization-options");
+      } else {
+        toast({
+          title: "Erro",
+          description: data.mensagem || "Erro ao enviar reclamação",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao enviar reclamação:", error);
       toast({
-        title: "Mensagem enviada!",
-        description: "Em breve entraremos em contato com você.",
+        title: "Erro",
+        description: "Erro ao conectar com o servidor",
+        variant: "destructive",
       });
-      setSubject("");
-      setMessage("");
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -92,40 +139,29 @@ export default function ContactHospitalization() {
             </p>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-3 lg:max-w-6xl lg:mx-auto">
-            {/* Formulário de Contato */}
-            <Card className="lg:col-span-2">
+          <div className="max-w-3xl mx-auto">
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MessageCircle className="h-5 w-5 text-primary" />
-                  Envie sua mensagem
+                  Registrar Reclamação
                 </CardTitle>
                 <CardDescription>
-                  Preencha o formulário abaixo e entraremos em contato
+                  Descreva sua reclamação sobre o atendimento na internação
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="subject">Assunto</Label>
-                    <Input
-                      id="subject"
-                      placeholder="Digite o assunto da sua mensagem"
-                      value={subject}
-                      onChange={(e) => setSubject(e.target.value)}
-                      disabled={loading}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="message">Mensagem</Label>
+                    <Label htmlFor="reclamacao">Reclamação</Label>
                     <Textarea
-                      id="message"
-                      placeholder="Descreva sua dúvida ou solicitação"
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      rows={6}
+                      id="reclamacao"
+                      placeholder="Descreva sua reclamação sobre o atendimento"
+                      value={reclamacao}
+                      onChange={(e) => setReclamacao(e.target.value)}
+                      rows={8}
                       disabled={loading}
+                      className="resize-none"
                     />
                   </div>
 
@@ -134,55 +170,11 @@ export default function ContactHospitalization() {
                     className="w-full"
                     disabled={loading}
                   >
-                    {loading ? "Enviando..." : "Enviar Mensagem"}
+                    {loading ? "Enviando..." : "Enviar Reclamação"}
                   </Button>
                 </form>
               </CardContent>
             </Card>
-
-            {/* Informações de Contato */}
-            <div className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-primary" />
-                    Telefone
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">Central de Atendimento</p>
-                  <p className="text-lg font-semibold">0800 123 4567</p>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Seg a Sex: 7h às 19h<br />
-                    Sáb: 8h às 12h
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Mail className="h-4 w-4 text-primary" />
-                    E-mail
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">Contato Geral</p>
-                  <p className="text-sm font-semibold break-all">contato@samel.com.br</p>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Resposta em até 24h úteis
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-primary/5 border-primary/20">
-                <CardContent className="pt-6">
-                  <p className="text-sm text-muted-foreground">
-                    <strong>Emergências:</strong> Em caso de urgência ou emergência, dirija-se ao pronto-socorro mais próximo ou ligue 192 (SAMU).
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
           </div>
         </div>
       </main>
