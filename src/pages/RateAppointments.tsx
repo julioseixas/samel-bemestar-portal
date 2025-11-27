@@ -398,18 +398,18 @@ const RateAppointments = () => {
 
                       <div className="space-y-3">
                         <div>
-                          <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">Local</p>
+                          <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">Profissional</p>
                           <h3 className="text-lg font-bold text-foreground group-hover:text-warning transition-colors">
-                            {avaliacao.dados.DS_LOCAL || "Atendimento"}
+                            {avaliacao.nm_medico}
                           </h3>
                         </div>
 
                         <div className="flex items-start gap-2 pt-2 border-t border-border/50">
                           <AlertCircle className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs text-muted-foreground mb-0.5">Profissional</p>
+                            <p className="text-xs text-muted-foreground mb-0.5">Local</p>
                             <p className="text-sm font-semibold text-foreground truncate">
-                              {avaliacao.nm_medico}
+                              {avaliacao.dados.DS_LOCAL || "Atendimento"}
                             </p>
                           </div>
                         </div>
