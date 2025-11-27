@@ -47,6 +47,7 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
   const [showNotificationListDialog, setShowNotificationListDialog] = useState(false);
   const [showNotificationDetailDialog, setShowNotificationDetailDialog] = useState(false);
   const [isMarkingAsRead, setIsMarkingAsRead] = useState(false);
+  const [isMarkingAllAsRead, setIsMarkingAllAsRead] = useState(false);
 
   const loadNotifications = () => {
     const storedNotifications = localStorage.getItem('notifications');
@@ -195,6 +196,66 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
       });
     } finally {
       setIsMarkingAsRead(false);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    const unreadNotifications = notifications.filter(n => !n.DT_VISUALIZADO);
+    
+    if (unreadNotifications.length === 0) {
+      toast({
+        title: "Aviso",
+        description: "Não há notificações não lidas.",
+      });
+      return;
+    }
+
+    setIsMarkingAllAsRead(true);
+
+    try {
+      const patientDataRaw = localStorage.getItem('patientData');
+      if (!patientDataRaw) {
+        toast({
+          variant: "destructive",
+          title: "Erro",
+          description: "Dados do paciente não encontrados.",
+        });
+        return;
+      }
+
+      const patientData = JSON.parse(patientDataRaw);
+      const idCliente = patientData.cd_pessoa_fisica || patientData.id;
+
+      // Loop para marcar todas as notificações não lidas
+      for (const notification of unreadNotifications) {
+        await fetch(
+          'https://appv2-back.samel.com.br/api/notificacao/NotificacaoVisualizada',
+          {
+            method: 'POST',
+            headers: getApiHeaders(),
+            body: JSON.stringify({
+              idCliente: idCliente.toString(),
+              idNotificacao: notification.NR_SEQUENCIA
+            }),
+          }
+        );
+      }
+
+      toast({
+        title: "Sucesso",
+        description: "Todas as notificações foram marcadas como lidas.",
+      });
+
+      // Recarregar notificações
+      await fetchNotifications();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Erro ao marcar todas as notificações como lidas.",
+      });
+    } finally {
+      setIsMarkingAllAsRead(false);
     }
   };
 
@@ -363,11 +424,20 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
               )}
             </ScrollArea>
 
-            <DialogFooter className="px-4 sm:px-6 pb-4 sm:pb-6 pt-4 border-t">
+            <DialogFooter className="flex-col sm:flex-row gap-2 px-4 sm:px-6 pb-4 sm:pb-6 pt-4 border-t">
+              {unreadCount > 0 && (
+                <Button 
+                  onClick={handleMarkAllAsRead}
+                  disabled={isMarkingAllAsRead}
+                  className="w-full sm:w-auto order-1"
+                >
+                  {isMarkingAllAsRead ? "Marcando..." : "Marcar todas como lidas"}
+                </Button>
+              )}
               <Button 
                 variant="outline" 
                 onClick={() => setShowNotificationListDialog(false)}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto order-2"
               >
                 Fechar
               </Button>
