@@ -3,7 +3,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AppointmentBanner } from "@/components/AppointmentBanner";
 import { DashboardCard } from "@/components/DashboardCard";
-import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, ClipboardList, FolderOpen, FileSignature, CalendarX, Receipt, Star } from "lucide-react";
+import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, ClipboardList, FolderOpen, FileSignature, CalendarX, Receipt, Star, Baby } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
@@ -18,6 +18,7 @@ const Index = () => {
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [appointments, setAppointments] = useState<any[]>([]);
+  const [hasPregnantPatient, setHasPregnantPatient] = useState(false);
   const welcomeSectionRef = useRef<HTMLDivElement>(null);
   const bannerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
@@ -44,6 +45,22 @@ const Index = () => {
     if (photo) {
       setProfilePhoto(photo);
     }
+
+    // Verifica se titular ou dependentes são gestantes
+    const checkForPregnantPatients = () => {
+      try {
+        const listToSchedule = localStorage.getItem("listToSchedule");
+        if (listToSchedule) {
+          const patients = JSON.parse(listToSchedule);
+          const hasPregnant = patients.some((patient: any) => patient.ieGravida === "S");
+          setHasPregnantPatient(hasPregnant);
+        }
+      } catch (error) {
+        console.error("Erro ao verificar gestantes:", error);
+      }
+    };
+
+    checkForPregnantPatients();
 
     // Sempre busca consultas e exames agendados para garantir dados atualizados
     console.log("📞 Chamando fetchAppointments...");
@@ -441,7 +458,7 @@ const Index = () => {
               {/* Linha 1 - Ações principais */}
               <div data-card>
                 <DashboardCard
-                  title="AGENDAR CONSULTA"
+                title="AGENDAR CONSULTA"
                 description="Agende uma nova consulta com nossos especialistas"
                 icon={Calendar}
                 iconColor="text-primary"
@@ -451,6 +468,21 @@ const Index = () => {
                 onClick={handleAppointmentSchedule}
                 />
               </div>
+
+              {hasPregnantPatient && (
+                <div data-card>
+                  <DashboardCard
+                  title="PRÉ-NATAL"
+                  description="Agende consultas de pré-natal e acompanhamento gestacional"
+                  icon={Baby}
+                  iconColor="text-pink-500"
+                  buttonText="Agendar Pré-Natal"
+                  variant="default"
+                  useDashboardColor={true}
+                  onClick={() => navigate("/prenatal-schedule")}
+                  />
+                </div>
+              )}
               
               <div data-card>
                 <DashboardCard
