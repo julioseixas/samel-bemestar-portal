@@ -164,10 +164,10 @@ const EvaluateProfessional = () => {
             </h1>
             <Button
               variant="ghost"
-              size="icon"
               onClick={() => navigate("/hospitalization-options")}
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Voltar
             </Button>
           </div>
           <p className="text-muted-foreground">
