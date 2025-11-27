@@ -1,11 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Loader2, Pill } from "lucide-react";
+import { ArrowLeft, Loader2, Pill, X } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { getApiHeaders } from "@/lib/api-headers";
 
@@ -32,6 +33,8 @@ export default function PrescriptionsTracking() {
   const [profilePhoto, setProfilePhoto] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [prescriptions, setPrescriptions] = useState<GroupedPrescriptions>({});
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -144,6 +147,16 @@ export default function PrescriptionsTracking() {
     }
   };
 
+  const handleGroupClick = (agrupador: string) => {
+    setSelectedGroup(agrupador);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedGroup(null);
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
@@ -187,23 +200,48 @@ export default function PrescriptionsTracking() {
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-4">
-              {Object.entries(prescriptions).map(([agrupador, items]) => (
-                <Card key={agrupador} className="border-2">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
-                        <Pill className="h-5 w-5 text-primary" />
-                        {agrupador}
-                      </CardTitle>
+            <>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {Object.entries(prescriptions).map(([agrupador, items]) => (
+                  <Card 
+                    key={agrupador} 
+                    className="group cursor-pointer transition-all hover:shadow-lg border-2 hover:border-primary"
+                    onClick={() => handleGroupClick(agrupador)}
+                  >
+                    <CardHeader>
+                      <div className="flex items-center gap-3">
+                        <div className="rounded-full bg-primary/10 p-3 group-hover:bg-primary/20 transition-colors">
+                          <Pill className="h-6 w-6 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <CardTitle className="text-base sm:text-lg line-clamp-2">
+                            {agrupador}
+                          </CardTitle>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
                       <Badge variant="secondary" className="text-xs">
                         {items.length} {items.length === 1 ? "item" : "itens"}
                       </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {items.map((item, index) => (
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Modal de Detalhes */}
+              <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2 text-xl">
+                      <Pill className="h-5 w-5 text-primary" />
+                      {selectedGroup}
+                    </DialogTitle>
+                  </DialogHeader>
+                  
+                  {selectedGroup && prescriptions[selectedGroup] && (
+                    <div className="space-y-4 mt-4">
+                      {prescriptions[selectedGroup].map((item, index) => (
                         <div
                           key={`${item.idPrescricao}-${index}`}
                           className="p-4 rounded-lg bg-muted/50 border border-border"
@@ -239,10 +277,10 @@ export default function PrescriptionsTracking() {
                         </div>
                       ))}
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                  )}
+                </DialogContent>
+              </Dialog>
+            </>
           )}
         </div>
       </main>
