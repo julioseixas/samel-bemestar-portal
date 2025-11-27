@@ -183,13 +183,15 @@ export default function HospitalizationSchedule() {
       localStorage.setItem("selectedPatient", JSON.stringify(patientData));
       localStorage.setItem("hospitalizationData", JSON.stringify(loginData.dados));
       
-      // Salva os dados da agenda cirúrgica (para uso futuro)
+      // Verifica se tem agenda cirúrgica com sucesso
       if (agendaData.sucesso && agendaData.dados) {
         localStorage.setItem("surgicalSchedule", JSON.stringify(agendaData.dados));
+        setIsLoading(false);
+        navigate("/hospitalization-options");
+      } else {
+        setIsLoading(false);
+        navigate("/hospitalization-list");
       }
-      
-      setIsLoading(false);
-      navigate("/hospitalization-list");
     } catch (error) {
       console.error("Erro ao buscar dados de internação:", error);
       toast({
