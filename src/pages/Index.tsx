@@ -479,7 +479,7 @@ const Index = () => {
                   buttonText="Agendar Pré-Natal"
                   variant="default"
                   useDashboardColor={true}
-                  onClick={() => navigate("/prenatal-schedule")}
+                  onClick={handleAppointmentSchedule}
                   />
                 </div>
               )}
