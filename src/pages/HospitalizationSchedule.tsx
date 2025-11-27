@@ -147,7 +147,7 @@ export default function HospitalizationSchedule() {
           }
         ),
         fetch(
-          `https://appv2-back.samel.com.br/api/Internacao/vefirificarAgendaCirurgica/${patient.id}`,
+          `https://api-portalpaciente-web.samel.com.br/api/Internacao/vefirificarAgendaCirurgica/${patient.id}`,
           {
             method: 'GET',
             headers: getApiHeaders()
