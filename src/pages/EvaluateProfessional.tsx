@@ -5,7 +5,7 @@ import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Star, Stethoscope, HeartPulse, UtensilsCrossed, Sparkles } from "lucide-react";
+import { Star, Stethoscope, HeartPulse, UtensilsCrossed, Sparkles, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { getApiHeaders } from "@/lib/api-headers";
 
@@ -109,15 +109,15 @@ const EvaluateProfessional = () => {
   const getIconByIdPergunta = (idPergunta: string) => {
     switch (idPergunta) {
       case "A1":
-        return <Stethoscope className="w-5 h-5 text-primary" />;
+        return <Stethoscope className="w-10 h-10 text-primary" />;
       case "B1":
-        return <HeartPulse className="w-5 h-5 text-primary" />;
+        return <HeartPulse className="w-10 h-10 text-primary" />;
       case "N1":
-        return <UtensilsCrossed className="w-5 h-5 text-primary" />;
+        return <UtensilsCrossed className="w-10 h-10 text-primary" />;
       case "H1":
-        return <Sparkles className="w-5 h-5 text-primary" />;
+        return <Sparkles className="w-10 h-10 text-primary" />;
       default:
-        return <Star className="w-5 h-5 text-primary" />;
+        return <Star className="w-10 h-10 text-primary" />;
     }
   };
 
@@ -146,6 +146,15 @@ const EvaluateProfessional = () => {
       />
       <main className="flex-1 container mx-auto px-4 py-6">
         <div className="mb-6">
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/hospitalization-options")}
+            className="mb-4"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Voltar
+          </Button>
+          
           <h1 className="text-2xl font-bold text-foreground mb-2">
             Avaliar Profissional
           </h1>
@@ -167,10 +176,7 @@ const EvaluateProfessional = () => {
             {avaliacoes.map((avaliacao, index) => (
               <Card key={`${avaliacao.idPergunta}-${index}`}>
                 <CardHeader>
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1">
-                      {getIconByIdPergunta(avaliacao.idPergunta)}
-                    </div>
+                  <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <CardTitle className="text-lg">
                         {avaliacao.dsPergunta}
@@ -178,6 +184,9 @@ const EvaluateProfessional = () => {
                       <p className="text-sm text-muted-foreground">
                         Setor: {avaliacao.dsSetor}
                       </p>
+                    </div>
+                    <div className="flex-shrink-0">
+                      {getIconByIdPergunta(avaliacao.idPergunta)}
                     </div>
                   </div>
                 </CardHeader>
