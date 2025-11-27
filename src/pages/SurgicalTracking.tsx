@@ -110,7 +110,7 @@ export default function SurgicalTracking() {
           </div>
 
           {surgicalData ? (
-            <div className="space-y-6 max-w-4xl mx-auto">
+            <div className="space-y-6">
               {/* Card Principal com Progress Bar Integrado */}
               <Card className="border-2 shadow-lg">
                 {/* Header com Status */}
@@ -130,16 +130,16 @@ export default function SurgicalTracking() {
                   </div>
                   
                   {/* Progress Bar */}
-                  <div className="mt-8 px-4 sm:px-8">
-                    <div className="flex items-center justify-between">
+                  <div className="mt-10 px-4 sm:px-8">
+                    <div className="flex items-center justify-between max-w-md mx-auto">
                       {/* Passo 1 - Aguardando Agendamento */}
                       <div className="flex flex-col items-center flex-1">
-                        <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition-all duration-300 shadow-md ${
-                          currentStep >= 1 ? 'bg-primary text-primary-foreground scale-110' : 'bg-muted text-muted-foreground'
+                        <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all duration-300 shadow-md ${
+                          currentStep >= 1 ? 'bg-primary text-primary-foreground scale-105' : 'bg-muted text-muted-foreground'
                         }`}>
-                          {currentStep >= 1 ? <Check className="w-6 h-6 sm:w-7 sm:h-7" /> : <span className="text-base sm:text-lg font-semibold">1</span>}
+                          {currentStep >= 1 ? <Check className="w-5 h-5 sm:w-6 sm:h-6" /> : <span className="text-sm sm:text-base font-semibold">1</span>}
                         </div>
-                        <span className={`text-xs sm:text-sm mt-3 text-center font-medium transition-colors ${
+                        <span className={`text-xs sm:text-sm mt-2 text-center font-medium transition-colors ${
                           currentStep >= 1 ? 'text-foreground' : 'text-muted-foreground'
                         }`}>
                           Aguardando<br />Agendamento
@@ -147,18 +147,18 @@ export default function SurgicalTracking() {
                       </div>
                       
                       {/* Linha conectora */}
-                      <div className={`h-1.5 flex-1 mx-2 sm:mx-6 rounded-full transition-all duration-500 ${
+                      <div className={`h-1 flex-1 mx-2 sm:mx-4 rounded-full transition-all duration-500 ${
                         currentStep >= 2 ? 'bg-primary' : 'bg-muted'
                       }`} />
                       
                       {/* Passo 2 - Agendado */}
                       <div className="flex flex-col items-center flex-1">
-                        <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition-all duration-300 shadow-md ${
-                          currentStep >= 2 ? 'bg-primary text-primary-foreground scale-110' : 'bg-muted text-muted-foreground'
+                        <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all duration-300 shadow-md ${
+                          currentStep >= 2 ? 'bg-primary text-primary-foreground scale-105' : 'bg-muted text-muted-foreground'
                         }`}>
-                          {currentStep >= 2 ? <Check className="w-6 h-6 sm:w-7 sm:h-7" /> : <span className="text-base sm:text-lg font-semibold">2</span>}
+                          {currentStep >= 2 ? <Check className="w-5 h-5 sm:w-6 sm:h-6" /> : <span className="text-sm sm:text-base font-semibold">2</span>}
                         </div>
-                        <span className={`text-xs sm:text-sm mt-3 text-center font-medium transition-colors ${
+                        <span className={`text-xs sm:text-sm mt-2 text-center font-medium transition-colors ${
                           currentStep >= 2 ? 'text-foreground' : 'text-muted-foreground'
                         }`}>
                           Agendado
