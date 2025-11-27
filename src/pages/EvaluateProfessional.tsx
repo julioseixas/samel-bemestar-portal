@@ -147,7 +147,7 @@ const EvaluateProfessional = () => {
             idAtendimento: idAtendimento,
             idPergunta: avaliacao.idPergunta,
             dsDescricao: avaliacao.rating.toString(),
-            idEvolucao: avaliacao.idEvolucao.toString(),
+            idEvolucao: avaliacao.idEvolucao,
             dsObservacao: avaliacao.comentario || "",
           }),
         }
