@@ -232,12 +232,10 @@ const RateAppointments = () => {
         ds_resposta: comentario,
       });
 
-      const payload = {
-        body: [{
-          nr_atendimento: selectedAppointment.nr_atendimento,
-          respostas: respostasArray,
-        }],
-      };
+      const payload = [{
+        nr_atendimento: selectedAppointment.nr_atendimento,
+        respostas: respostasArray,
+      }];
 
       const response = await fetch(
         'https://appv2-back.samel.com.br/api/atendimento/enviarPesquisaDeSatisfacao',
