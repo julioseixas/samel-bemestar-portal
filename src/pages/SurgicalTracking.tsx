@@ -239,6 +239,15 @@ export default function SurgicalTracking() {
                       </p>
                     </div>
                   </div>
+
+                  {/* Data de Atualização */}
+                  {surgicalData.dataAtualizacao && (
+                    <div className="mt-6 pt-4 border-t border-border">
+                      <p className="text-xs sm:text-sm text-muted-foreground text-center">
+                        Última atualização: <span className="font-medium">{surgicalData.dataAtualizacao}</span>
+                      </p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -269,15 +278,6 @@ export default function SurgicalTracking() {
                   </div>
                 </CardContent>
               </Card>
-
-              {/* Data de Atualização */}
-              {surgicalData.dataAtualizacao && (
-                <div className="text-center">
-                  <p className="text-xs sm:text-sm text-muted-foreground">
-                    Última atualização: <span className="font-medium">{surgicalData.dataAtualizacao}</span>
-                  </p>
-                </div>
-              )}
             </div>
           ) : (
             <Card>
