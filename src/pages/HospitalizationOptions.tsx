@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Stethoscope, FileText, ArrowLeft } from "lucide-react";
+import { Stethoscope, FileText, ArrowLeft, MessageCircle } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -78,7 +78,7 @@ export default function HospitalizationOptions() {
             </p>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:max-w-4xl lg:mx-auto">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:max-w-6xl lg:mx-auto">
             {/* Acompanhamento Cirúrgico */}
             <Card 
               className="group cursor-pointer transition-all hover:shadow-lg border-2 hover:border-primary"
@@ -119,6 +119,26 @@ export default function HospitalizationOptions() {
                     </CardTitle>
                     <CardDescription className="mt-1">
                       {hasIdAtendimento ? "Veja as prescrições da sua internação" : "Em breve disponível"}
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+
+            {/* Fale Conosco */}
+            <Card 
+              className="group cursor-pointer transition-all hover:shadow-lg border-2 hover:border-primary"
+              onClick={() => navigate("/contact-hospitalization")}
+            >
+              <CardHeader>
+                <div className="flex items-center gap-4">
+                  <div className="rounded-full bg-primary/10 p-3 group-hover:bg-primary/20 transition-colors">
+                    <MessageCircle className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <CardTitle className="text-lg">Fale Conosco</CardTitle>
+                    <CardDescription className="mt-1">
+                      Entre em contato sobre sua internação
                     </CardDescription>
                   </div>
                 </div>
