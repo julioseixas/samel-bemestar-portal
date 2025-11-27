@@ -158,7 +158,10 @@ const EvaluateProfessional = () => {
       />
       <main className="flex-1 container mx-auto px-4 py-6">
         <div className="mb-6">
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex items-center justify-between mb-2">
+            <h1 className="text-2xl font-bold text-foreground">
+              Avaliar Profissional
+            </h1>
             <Button
               variant="ghost"
               size="icon"
@@ -166,9 +169,6 @@ const EvaluateProfessional = () => {
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <h1 className="text-2xl font-bold text-foreground">
-              Avaliar Profissional
-            </h1>
           </div>
           <p className="text-muted-foreground">
             Avalie o atendimento recebido durante sua internação
