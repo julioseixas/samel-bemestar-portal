@@ -156,7 +156,7 @@ const EvaluateProfessional = () => {
         patientName={patientName}
         profilePhoto={profilePhoto}
       />
-      <main className="flex-1 container mx-auto px-4 py-6 flex flex-col">
+      <main className="flex-1 container mx-auto px-4 py-6">
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-2xl font-bold text-foreground">
@@ -184,7 +184,7 @@ const EvaluateProfessional = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+          <div className="max-h-[calc(100vh-280px)] overflow-y-auto space-y-4 pr-2">
             {avaliacoes.map((avaliacao, index) => (
               <Card key={`${avaliacao.idPergunta}-${index}`}>
                 <CardHeader>
