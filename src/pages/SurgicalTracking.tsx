@@ -242,34 +242,6 @@ export default function SurgicalTracking() {
                 </CardContent>
               </Card>
 
-              {/* Informações Adicionais */}
-              {(surgicalData.txtDescParagrafo1 || surgicalData.txtDescParagrafo2) && (
-                <Card className="border shadow-sm bg-muted/30">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-                      <div className="w-1 h-5 bg-primary rounded-full" />
-                      Informações Adicionais
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {surgicalData.txtDescParagrafo1 && (
-                      <div className="bg-card p-4 rounded-lg border">
-                        <p className="text-sm text-foreground leading-relaxed">
-                          {surgicalData.txtDescParagrafo1}
-                        </p>
-                      </div>
-                    )}
-                    {surgicalData.txtDescParagrafo2 && (
-                      <div className="bg-card p-4 rounded-lg border">
-                        <p className="text-sm text-foreground leading-relaxed">
-                          {surgicalData.txtDescParagrafo2}
-                        </p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
-
               {/* Guia de Internação */}
               <Card className="border-2 border-primary/20 shadow-md bg-gradient-to-br from-primary/5 to-transparent">
                 <CardContent className="pt-6 pb-6">
