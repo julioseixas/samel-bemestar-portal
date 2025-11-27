@@ -158,18 +158,18 @@ const EvaluateProfessional = () => {
       />
       <main className="flex-1 container mx-auto px-4 py-6">
         <div className="mb-6">
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/hospitalization-options")}
-            className="mb-4"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar
-          </Button>
-          
-          <h1 className="text-2xl font-bold text-foreground mb-2">
-            Avaliar Profissional
-          </h1>
+          <div className="flex items-center gap-3 mb-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/hospitalization-options")}
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <h1 className="text-2xl font-bold text-foreground">
+              Avaliar Profissional
+            </h1>
+          </div>
           <p className="text-muted-foreground">
             Avalie o atendimento recebido durante sua internação
           </p>
