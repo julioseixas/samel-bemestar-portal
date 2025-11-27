@@ -5,7 +5,7 @@ import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Star, Stethoscope, HeartPulse, UtensilsCrossed, Sparkles, ArrowLeft, UserCheck } from "lucide-react";
+import { Star, Stethoscope, Activity, UtensilsCrossed, Sparkles, ArrowLeft, UserCheck } from "lucide-react";
 import { toast } from "sonner";
 import { getApiHeaders } from "@/lib/api-headers";
 
@@ -111,7 +111,7 @@ const EvaluateProfessional = () => {
       case "A1":
         return <Stethoscope className="w-10 h-10 text-primary" />;
       case "B1":
-        return <HeartPulse className="w-10 h-10 text-primary" />;
+        return <Activity className="w-10 h-10 text-primary" />;
       case "N1":
         return <UtensilsCrossed className="w-10 h-10 text-primary" />;
       case "H1":
@@ -121,6 +121,16 @@ const EvaluateProfessional = () => {
       default:
         return <Star className="w-10 h-10 text-primary" />;
     }
+  };
+
+  const handleSubmitAvaliacao = (avaliacao: AvaliacaoComResposta) => {
+    if (avaliacao.rating === 0) {
+      toast.error("Por favor, selecione uma nota de 1 a 5 estrelas");
+      return;
+    }
+    
+    toast.success("Avaliação enviada com sucesso!");
+    // TODO: Implementar chamada à API para enviar a avaliação
   };
 
   if (isLoading) {
@@ -224,19 +234,16 @@ const EvaluateProfessional = () => {
                       className="min-h-[100px]"
                     />
                   </div>
+
+                  <Button
+                    className="w-full"
+                    onClick={() => handleSubmitAvaliacao(avaliacao)}
+                  >
+                    Enviar Avaliação
+                  </Button>
                 </CardContent>
               </Card>
             ))}
-
-            <Button
-              className="w-full"
-              onClick={() => {
-                toast.success("Avaliações enviadas com sucesso!");
-                navigate("/hospitalization-options");
-              }}
-            >
-              Enviar Avaliações
-            </Button>
           </div>
         )}
       </main>
