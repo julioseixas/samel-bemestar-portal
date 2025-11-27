@@ -216,11 +216,21 @@ export default function PrescriptionsTracking() {
               {/* Modal de Detalhes */}
               <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2 text-xl">
-                      <Pill className="h-5 w-5 text-primary" />
-                      {selectedGroup}
-                    </DialogTitle>
+                  <DialogHeader className="border-b pb-4">
+                    <div className="flex items-center justify-between">
+                      <DialogTitle className="flex items-center gap-2 text-xl">
+                        <Pill className="h-5 w-5 text-primary" />
+                        {selectedGroup}
+                      </DialogTitle>
+                      {selectedGroup && prescriptions[selectedGroup] && (
+                        <Badge variant="secondary" className="text-sm">
+                          {prescriptions[selectedGroup].length} {prescriptions[selectedGroup].length === 1 ? "item" : "itens"}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Detalhes das prescrições deste agrupador
+                    </p>
                   </DialogHeader>
                   
                   {selectedGroup && prescriptions[selectedGroup] && (
