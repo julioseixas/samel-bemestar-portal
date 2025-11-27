@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Stethoscope, FileText, ArrowLeft, MessageCircle } from "lucide-react";
+import { Stethoscope, FileText, ArrowLeft, MessageCircle, Star } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -127,18 +127,50 @@ export default function HospitalizationOptions() {
 
             {/* Fale Conosco */}
             <Card 
-              className="group cursor-pointer transition-all hover:shadow-lg border-2 hover:border-primary"
-              onClick={() => navigate("/contact-hospitalization")}
+              className={
+                hasIdAtendimento
+                  ? "group cursor-pointer transition-all hover:shadow-lg border-2 hover:border-primary"
+                  : "opacity-50 cursor-not-allowed border-2"
+              }
+              onClick={hasIdAtendimento ? () => navigate("/contact-hospitalization") : undefined}
             >
               <CardHeader>
                 <div className="flex items-center gap-4">
-                  <div className="rounded-full bg-primary/10 p-3 group-hover:bg-primary/20 transition-colors">
-                    <MessageCircle className="h-6 w-6 text-primary" />
+                  <div className={`rounded-full p-3 ${hasIdAtendimento ? 'bg-primary/10 group-hover:bg-primary/20 transition-colors' : 'bg-muted'}`}>
+                    <MessageCircle className={`h-6 w-6 ${hasIdAtendimento ? 'text-primary' : 'text-muted-foreground'}`} />
                   </div>
                   <div className="flex-1">
-                    <CardTitle className="text-lg">Fale Conosco</CardTitle>
+                    <CardTitle className={`text-lg ${hasIdAtendimento ? '' : 'text-muted-foreground'}`}>
+                      Fale Conosco
+                    </CardTitle>
                     <CardDescription className="mt-1">
-                      Entre em contato sobre sua internação
+                      {hasIdAtendimento ? "Entre em contato sobre sua internação" : "Em breve disponível"}
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+
+            {/* Avaliar Profissional */}
+            <Card 
+              className={
+                hasIdAtendimento
+                  ? "group cursor-pointer transition-all hover:shadow-lg border-2 hover:border-primary"
+                  : "opacity-50 cursor-not-allowed border-2"
+              }
+              onClick={hasIdAtendimento ? () => navigate("/evaluate-professional") : undefined}
+            >
+              <CardHeader>
+                <div className="flex items-center gap-4">
+                  <div className={`rounded-full p-3 ${hasIdAtendimento ? 'bg-primary/10 group-hover:bg-primary/20 transition-colors' : 'bg-muted'}`}>
+                    <Star className={`h-6 w-6 ${hasIdAtendimento ? 'text-primary' : 'text-muted-foreground'}`} />
+                  </div>
+                  <div className="flex-1">
+                    <CardTitle className={`text-lg ${hasIdAtendimento ? '' : 'text-muted-foreground'}`}>
+                      Avaliar Profissional
+                    </CardTitle>
+                    <CardDescription className="mt-1">
+                      {hasIdAtendimento ? "Avalie o atendimento recebido" : "Em breve disponível"}
                     </CardDescription>
                   </div>
                 </div>
