@@ -123,14 +123,47 @@ const EvaluateProfessional = () => {
     }
   };
 
-  const handleSubmitAvaliacao = (avaliacao: AvaliacaoComResposta) => {
+  const handleSubmitAvaliacao = async (avaliacao: AvaliacaoComResposta) => {
     if (avaliacao.rating === 0) {
       toast.error("Por favor, selecione uma nota de 1 a 5 estrelas");
       return;
     }
-    
-    toast.success("Avaliação enviada com sucesso!");
-    // TODO: Implementar chamada à API para enviar a avaliação
+
+    const hospitalizationData = localStorage.getItem("hospitalizationData");
+    if (!hospitalizationData) {
+      toast.error("Dados de internação não encontrados");
+      return;
+    }
+
+    const { idAtendimento } = JSON.parse(hospitalizationData);
+
+    try {
+      const response = await fetch(
+        "https://api-portalpaciente-web.samel.com.br/api/Internacao/CadastrarResposta",
+        {
+          method: "POST",
+          headers: getApiHeaders(),
+          body: JSON.stringify({
+            idAtendimento: idAtendimento,
+            idPergunta: avaliacao.idPergunta,
+            dsDescricao: avaliacao.rating.toString(),
+            idEvolucao: avaliacao.idEvolucao.toString(),
+            dsObservacao: avaliacao.comentario || "",
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.sucesso) {
+        toast.success(data.mensagem);
+        fetchAvaliacoes(idAtendimento);
+      } else {
+        toast.error(data.mensagem || "Erro ao enviar avaliação");
+      }
+    } catch (error) {
+      toast.error("Erro ao enviar avaliação");
+    }
   };
 
   if (isLoading) {
