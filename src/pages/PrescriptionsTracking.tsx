@@ -131,22 +131,6 @@ export default function PrescriptionsTracking() {
     }
   };
 
-  const formatDateTime = (dateString: string) => {
-    if (!dateString) return "-";
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleString("pt-BR", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch {
-      return dateString;
-    }
-  };
-
   const handleGroupClick = (agrupador: string) => {
     setSelectedGroup(agrupador);
     setIsModalOpen(true);
@@ -260,17 +244,17 @@ export default function PrescriptionsTracking() {
                               
                               <div>
                                 <p className="text-xs text-muted-foreground">Data/Hora</p>
-                                <p className="text-sm font-medium">{formatDateTime(item.dataHorario)}</p>
+                                <p className="text-sm font-medium">{item.dataHorario || "-"}</p>
                               </div>
                               
                               <div>
                                 <p className="text-xs text-muted-foreground">Liberação</p>
-                                <p className="text-sm font-medium">{formatDateTime(item.dataLiberacao)}</p>
+                                <p className="text-sm font-medium">{item.dataLiberacao || "-"}</p>
                               </div>
                               
                               <div>
                                 <p className="text-xs text-muted-foreground">Validade</p>
-                                <p className="text-sm font-medium">{formatDateTime(item.dataValidade)}</p>
+                                <p className="text-sm font-medium">{item.dataValidade || "-"}</p>
                               </div>
                             </div>
                           </div>
