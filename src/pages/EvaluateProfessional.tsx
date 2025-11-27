@@ -5,7 +5,7 @@ import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Star } from "lucide-react";
+import { Star, Stethoscope, HeartPulse, UtensilsCrossed, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { getApiHeaders } from "@/lib/api-headers";
 
@@ -106,6 +106,21 @@ const EvaluateProfessional = () => {
     );
   };
 
+  const getIconByIdPergunta = (idPergunta: string) => {
+    switch (idPergunta) {
+      case "A1":
+        return <Stethoscope className="w-5 h-5 text-primary" />;
+      case "B1":
+        return <HeartPulse className="w-5 h-5 text-primary" />;
+      case "N1":
+        return <UtensilsCrossed className="w-5 h-5 text-primary" />;
+      case "H1":
+        return <Sparkles className="w-5 h-5 text-primary" />;
+      default:
+        return <Star className="w-5 h-5 text-primary" />;
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
@@ -152,12 +167,19 @@ const EvaluateProfessional = () => {
             {avaliacoes.map((avaliacao, index) => (
               <Card key={`${avaliacao.idPergunta}-${index}`}>
                 <CardHeader>
-                  <CardTitle className="text-lg">
-                    {avaliacao.dsPergunta}
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    Setor: {avaliacao.dsSetor}
-                  </p>
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1">
+                      {getIconByIdPergunta(avaliacao.idPergunta)}
+                    </div>
+                    <div className="flex-1">
+                      <CardTitle className="text-lg">
+                        {avaliacao.dsPergunta}
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground">
+                        Setor: {avaliacao.dsSetor}
+                      </p>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex gap-2">
