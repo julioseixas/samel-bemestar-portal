@@ -184,7 +184,7 @@ const EvaluateProfessional = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="max-h-[calc(100vh-280px)] overflow-y-auto space-y-4 pr-2">
+          <div className="space-y-4">
             {avaliacoes.map((avaliacao, index) => (
               <Card key={`${avaliacao.idPergunta}-${index}`}>
                 <CardHeader>
