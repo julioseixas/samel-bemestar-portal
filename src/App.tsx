@@ -37,6 +37,7 @@ import PrescriptionRenewalDetails from "./pages/PrescriptionRenewalDetails";
 import HospitalizationSchedule from "./pages/HospitalizationSchedule";
 import HospitalizationOptions from "./pages/HospitalizationOptions";
 import SurgicalTracking from "./pages/SurgicalTracking";
+import PrescriptionsTracking from "./pages/PrescriptionsTracking";
 import CoparticipationChoice from "./pages/CoparticipationChoice";
 import CoparticipationPriceTable from "./pages/CoparticipationPriceTable";
 import OnlineConsultationSchedule from "./pages/OnlineConsultationSchedule";
@@ -87,6 +88,7 @@ const App = () => (
           <Route path="/hospitalization-schedule" element={<HospitalizationSchedule />} />
           <Route path="/hospitalization-options" element={<HospitalizationOptions />} />
           <Route path="/surgical-tracking" element={<SurgicalTracking />} />
+          <Route path="/prescriptions-tracking" element={<PrescriptionsTracking />} />
           <Route path="/coparticipation-choice" element={<CoparticipationChoice />} />
           <Route path="/coparticipation-price-table" element={<CoparticipationPriceTable />} />
           <Route path="/online-consultation-schedule" element={<OnlineConsultationSchedule />} />

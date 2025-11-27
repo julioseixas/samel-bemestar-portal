@@ -10,6 +10,7 @@ export default function HospitalizationOptions() {
   const navigate = useNavigate();
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string>("");
+  const [hasIdAtendimento, setHasIdAtendimento] = useState(false);
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -35,6 +36,19 @@ export default function HospitalizationOptions() {
     const surgicalSchedule = localStorage.getItem("surgicalSchedule");
     if (!surgicalSchedule) {
       navigate("/dashboard");
+    }
+
+    // Verifica se tem idAtendimento para habilitar prescrições
+    const hospitalizationData = localStorage.getItem("hospitalizationData");
+    if (hospitalizationData) {
+      try {
+        const parsedData = JSON.parse(hospitalizationData);
+        if (parsedData.idAtendimento) {
+          setHasIdAtendimento(true);
+        }
+      } catch (error) {
+        console.error("Erro ao processar hospitalizationData:", error);
+      }
     }
   }, [navigate]);
 
@@ -85,17 +99,26 @@ export default function HospitalizationOptions() {
               </CardHeader>
             </Card>
 
-            {/* Verificar Prescrição - Bloqueado */}
-            <Card className="opacity-50 cursor-not-allowed border-2">
+            {/* Verificar Prescrição */}
+            <Card 
+              className={
+                hasIdAtendimento
+                  ? "group cursor-pointer transition-all hover:shadow-lg border-2 hover:border-primary"
+                  : "opacity-50 cursor-not-allowed border-2"
+              }
+              onClick={hasIdAtendimento ? () => navigate("/prescriptions-tracking") : undefined}
+            >
               <CardHeader>
                 <div className="flex items-center gap-4">
-                  <div className="rounded-full bg-muted p-3">
-                    <FileText className="h-6 w-6 text-muted-foreground" />
+                  <div className={`rounded-full p-3 ${hasIdAtendimento ? 'bg-primary/10 group-hover:bg-primary/20 transition-colors' : 'bg-muted'}`}>
+                    <FileText className={`h-6 w-6 ${hasIdAtendimento ? 'text-primary' : 'text-muted-foreground'}`} />
                   </div>
                   <div className="flex-1">
-                    <CardTitle className="text-lg text-muted-foreground">Verificar Prescrição</CardTitle>
+                    <CardTitle className={`text-lg ${hasIdAtendimento ? '' : 'text-muted-foreground'}`}>
+                      Verificar Prescrição
+                    </CardTitle>
                     <CardDescription className="mt-1">
-                      Em breve disponível
+                      {hasIdAtendimento ? "Veja as prescrições da sua internação" : "Em breve disponível"}
                     </CardDescription>
                   </div>
                 </div>
