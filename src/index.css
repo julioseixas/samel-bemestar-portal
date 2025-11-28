@@ -238,6 +238,25 @@ All colors MUST be HSL.
   .tap-highlight-none {
     -webkit-tap-highlight-color: transparent;
   }
+  
+  /* Swipe indicator for Sonner toast notifications - mobile only */
+  @media (max-width: 640px) {
+    .swipeable-toast {
+      position: relative;
+    }
+    
+    .swipeable-toast::after {
+      content: "↔ Deslize";
+      position: absolute;
+      right: 8px;
+      bottom: 6px;
+      font-size: 10px;
+      color: hsl(var(--muted-foreground));
+      opacity: 0.5;
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      pointer-events: none;
+    }
+  }
 }
 
 /* Print styles for exam reports */
