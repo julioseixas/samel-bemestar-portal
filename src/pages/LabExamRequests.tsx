@@ -473,7 +473,7 @@ const LabExamRequests = () => {
       </main>
 
       <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
-        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-[95vw] max-h-[calc(100vh-1.5rem)] sm:max-h-[95vh] overflow-hidden flex flex-col p-4">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-[95vw] max-h-[75vh] sm:max-h-[95vh] overflow-hidden flex flex-col p-4">
           <DialogHeader className="border-b pb-3 mx-0">
             <DialogTitle className="text-xl">Pedido de Exame Laboratorial</DialogTitle>
           </DialogHeader>
