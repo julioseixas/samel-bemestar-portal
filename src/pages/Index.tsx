@@ -437,7 +437,7 @@ const Index = () => {
               O que você deseja fazer?
             </h3>
             
-            <div ref={cardsRef} className="grid gap-3 sm:gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 items-stretch auto-rows-fr">
+            <div ref={cardsRef} className="grid grid-cols-2 gap-2 xs:gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 items-stretch auto-rows-fr">
               {/* Linha 1 - Ações principais */}
               <div data-card>
                 <DashboardCard

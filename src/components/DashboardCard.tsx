@@ -27,12 +27,12 @@ export const DashboardCard = ({
 }: DashboardCardProps) => {
   return (
     <div 
-      className="group h-full flex flex-col rounded-2xl bg-card p-4 sm:p-5 md:p-6 shadow-sm border border-border/50 transition-all duration-300 hover:shadow-md hover:scale-[1.01] hover:border-primary/30 active:scale-[0.99] cursor-pointer"
+      className="group h-full flex flex-col rounded-xl xs:rounded-2xl bg-card p-2.5 xs:p-3 sm:p-5 md:p-6 shadow-sm border border-border/50 transition-all duration-300 hover:shadow-md hover:scale-[1.01] hover:border-primary/30 active:scale-[0.99] cursor-pointer"
       onClick={onClick}
     >
-      <div className="mb-3 sm:mb-4 flex items-start justify-between">
+      <div className="mb-2 xs:mb-3 sm:mb-4 flex items-start justify-between">
         <div className={cn(
-          "rounded-xl p-2.5 sm:p-3 md:p-3.5 transition-all duration-300 group-hover:scale-105",
+          "rounded-lg xs:rounded-xl p-1.5 xs:p-2 sm:p-3 md:p-3.5 transition-all duration-300 group-hover:scale-105",
           iconColor,
           // Backgrounds específicos para cada variante com melhor contraste
           iconColor.includes("destructive") ? "bg-destructive/10 group-hover:bg-destructive/15" :
@@ -41,15 +41,15 @@ export const DashboardCard = ({
           iconColor.includes("primary") ? "bg-primary/10 group-hover:bg-primary/15" :
           "bg-accent/50 group-hover:bg-accent/60"
         )}>
-          <Icon className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 transition-transform duration-300 group-hover:rotate-3" />
+          <Icon className="h-5 w-5 xs:h-6 xs:w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 transition-transform duration-300 group-hover:rotate-3" />
         </div>
       </div>
       
-      <h3 className="mb-2 text-base sm:text-lg md:text-xl font-bold text-foreground leading-tight">
+      <h3 className="mb-1 xs:mb-2 text-xs xs:text-sm sm:text-lg md:text-xl font-bold text-foreground leading-tight">
         {title}
       </h3>
       
-      <p className="mb-4 sm:mb-5 flex-1 text-sm sm:text-base text-muted-foreground leading-relaxed">
+      <p className="mb-2 xs:mb-3 sm:mb-5 flex-1 text-[11px] xs:text-xs sm:text-base text-muted-foreground leading-snug xs:leading-relaxed line-clamp-2 xs:line-clamp-3 sm:line-clamp-none">
         {description}
       </p>
       
@@ -61,7 +61,7 @@ export const DashboardCard = ({
         variant={variant}
         size="lg"
         className={cn(
-          "w-full text-sm sm:text-base font-semibold transition-all duration-300 group-hover:shadow-sm h-10 sm:h-11",
+          "w-full text-[10px] xs:text-xs sm:text-base font-semibold transition-all duration-300 group-hover:shadow-sm h-8 xs:h-9 sm:h-11",
           useDashboardColor && "bg-[hsl(var(--dashboard-button))] text-[hsl(var(--dashboard-button-foreground))] hover:bg-[hsl(var(--dashboard-button))]/90"
         )}
         style={customButtonColor ? { backgroundColor: customButtonColor, color: 'white' } : undefined}
