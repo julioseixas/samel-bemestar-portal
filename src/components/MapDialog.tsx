@@ -125,16 +125,16 @@ export const MapDialog = ({ open, onOpenChange, location, unitName }: MapDialogP
           )}
         </div>
 
-        <div className="shrink-0 px-3 py-3 sm:px-6 sm:py-4 border-t bg-card">
-          <div className="flex flex-col sm:flex-row sm:justify-between gap-2">
-            <div className="flex flex-col xs:flex-row gap-2 w-full sm:w-auto">
+        <div className="shrink-0 px-2 py-2 sm:px-6 sm:py-4 border-t bg-card">
+          <div className="flex flex-col sm:flex-row sm:justify-between gap-1.5 sm:gap-2">
+            <div className="flex flex-col xs:flex-row gap-1.5 sm:gap-2 w-full sm:w-auto">
               <Button
                 variant="outline"
                 onClick={handleShowRoute}
                 disabled={isLoadingLocation}
-                className="w-full xs:w-auto text-xs sm:text-sm h-9 sm:h-10"
+                className="w-full xs:w-auto text-[11px] sm:text-sm h-8 sm:h-10 px-2 sm:px-4"
               >
-                <Navigation className="h-3.5 w-3.5 xs:h-4 xs:w-4 xs:mr-2" />
+                <Navigation className="h-3 w-3 xs:h-4 xs:w-4 xs:mr-2" />
                 <span className="hidden xs:inline">
                   {isLoadingLocation ? "Obtendo..." : showRoute ? "Ver Local" : "Ver Rota"}
                 </span>
@@ -142,9 +142,9 @@ export const MapDialog = ({ open, onOpenChange, location, unitName }: MapDialogP
               <Button
                 variant="outline"
                 onClick={() => window.open(directionsUrl, "_blank")}
-                className="w-full xs:w-auto text-xs sm:text-sm h-9 sm:h-10"
+                className="w-full xs:w-auto text-[11px] sm:text-sm h-8 sm:h-10 px-2 sm:px-4"
               >
-                <ExternalLink className="h-3.5 w-3.5 xs:h-4 xs:w-4 xs:mr-2" />
+                <ExternalLink className="h-3 w-3 xs:h-4 xs:w-4 xs:mr-2" />
                 <span className="hidden xs:inline">Abrir no Google Maps</span>
                 <span className="xs:hidden">Google Maps</span>
               </Button>
@@ -152,7 +152,7 @@ export const MapDialog = ({ open, onOpenChange, location, unitName }: MapDialogP
             <Button 
               variant="outline" 
               onClick={() => onOpenChange(false)}
-              className="w-full sm:w-auto text-xs sm:text-sm h-9 sm:h-10"
+              className="w-full sm:w-auto text-[11px] sm:text-sm h-8 sm:h-10 px-2 sm:px-4"
             >
               Fechar
             </Button>
