@@ -87,13 +87,13 @@ export const MapDialog = ({ open, onOpenChange, location, unitName }: MapDialogP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] w-full h-[90vh] flex flex-col p-0">
-        <DialogHeader className="px-6 py-4 border-b bg-card shrink-0">
-          <DialogTitle className="text-xl">Como Chegar</DialogTitle>
+      <DialogContent className="max-w-[98vw] sm:max-w-[95vw] w-full h-[92vh] sm:h-[90vh] flex flex-col p-0">
+        <DialogHeader className="px-3 py-3 sm:px-6 sm:py-4 border-b bg-card shrink-0">
+          <DialogTitle className="text-base sm:text-xl">Como Chegar</DialogTitle>
           {unitName && (
-            <p className="text-sm font-semibold text-foreground mt-2">{unitName}</p>
+            <p className="text-xs sm:text-sm font-semibold text-foreground mt-1 sm:mt-2">{unitName}</p>
           )}
-          <p className="text-sm text-muted-foreground">{location}</p>
+          <p className="text-xs sm:text-sm text-muted-foreground">{location}</p>
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden relative">
@@ -127,27 +127,38 @@ export const MapDialog = ({ open, onOpenChange, location, unitName }: MapDialogP
           )}
         </div>
 
-        <div className="shrink-0 px-6 py-4 border-t bg-card flex justify-between gap-2">
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={handleShowRoute}
-              disabled={isLoadingLocation}
+        <div className="shrink-0 px-3 py-3 sm:px-6 sm:py-4 border-t bg-card">
+          <div className="flex flex-col sm:flex-row sm:justify-between gap-2">
+            <div className="flex flex-col xs:flex-row gap-2 w-full sm:w-auto">
+              <Button
+                variant="outline"
+                onClick={handleShowRoute}
+                disabled={isLoadingLocation}
+                className="w-full xs:w-auto text-xs sm:text-sm h-9 sm:h-10"
+              >
+                <Navigation className="h-3.5 w-3.5 xs:h-4 xs:w-4 xs:mr-2" />
+                <span className="hidden xs:inline">
+                  {isLoadingLocation ? "Obtendo..." : showRoute ? "Ver Local" : "Ver Rota"}
+                </span>
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => window.open(directionsUrl, "_blank")}
+                className="w-full xs:w-auto text-xs sm:text-sm h-9 sm:h-10"
+              >
+                <ExternalLink className="h-3.5 w-3.5 xs:h-4 xs:w-4 xs:mr-2" />
+                <span className="hidden xs:inline">Abrir no Google Maps</span>
+                <span className="xs:hidden">Google Maps</span>
+              </Button>
+            </div>
+            <Button 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
+              className="w-full sm:w-auto text-xs sm:text-sm h-9 sm:h-10"
             >
-              <Navigation className="h-4 w-4 mr-2" />
-              {isLoadingLocation ? "Obtendo localização..." : showRoute ? "Ver Local" : "Ver Rota"}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => window.open(directionsUrl, "_blank")}
-            >
-              <ExternalLink className="h-4 w-4 mr-2" />
-              Abrir no Google Maps
+              Fechar
             </Button>
           </div>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Fechar
-          </Button>
         </div>
       </DialogContent>
     </Dialog>
