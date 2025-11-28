@@ -132,11 +132,6 @@ const ExamProfessionals = () => {
             <div className="space-y-6">
               {profissionaisGroups.map((group, groupIndex) => (
                 <div key={groupIndex}>
-                  {group.combinacao && (
-                    <h3 className="text-lg font-semibold mb-4 text-foreground hidden sm:block">
-                      {group.combinacao}
-                    </h3>
-                  )}
                    <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {group.dados.map((profissional) => (
                       <Card 
