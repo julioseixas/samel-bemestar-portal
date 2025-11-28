@@ -1,4 +1,4 @@
-import { User, KeyRound, UserCircle, LogOut, Moon, Sun, Bell } from "lucide-react";
+import { User, KeyRound, UserCircle, LogOut, Moon, Sun, Bell, ChevronsRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
@@ -377,10 +377,15 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
                   {notifications.map((notification, index) => (
                     <div key={notification.NR_SEQUENCIA}>
                       <div 
-                        className={`p-4 rounded-lg transition-all ${
+                        className={`p-4 rounded-lg transition-all relative ${
                           !notification.DT_VISUALIZADO ? 'bg-primary/5 border-l-4 border-primary' : ''
                         }`}
                       >
+                        {!notification.DT_VISUALIZADO && (
+                          <div className="absolute left-1 top-1/2 -translate-y-1/2 sm:hidden">
+                            <ChevronsRight className="h-4 w-4 text-primary/40 animate-pulse" />
+                          </div>
+                        )}
                         <div 
                           className="cursor-pointer hover:opacity-80"
                           onClick={() => handleNotificationClick(notification)}
