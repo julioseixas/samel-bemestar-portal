@@ -20,6 +20,7 @@ export const MapDialog = ({ open, onOpenChange, location, unitName }: MapDialogP
   const [showRoute, setShowRoute] = useState(false);
   const [userLocation, setUserLocation] = useState<string>("");
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  const [isMapLoading, setIsMapLoading] = useState(true);
   
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
   
@@ -79,6 +80,8 @@ export const MapDialog = ({ open, onOpenChange, location, unitName }: MapDialogP
     if (!open) {
       setShowRoute(false);
       setUserLocation("");
+    } else {
+      setIsMapLoading(true);
     }
   }, [open]);
 
@@ -93,15 +96,26 @@ export const MapDialog = ({ open, onOpenChange, location, unitName }: MapDialogP
           <p className="text-sm text-muted-foreground">{location}</p>
         </DialogHeader>
 
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden relative">
           {apiKey ? (
-            <iframe
-              src={embedUrl}
-              className="w-full h-full border-0"
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
+            <>
+              {isMapLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-10">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                    <p className="text-sm text-muted-foreground">Carregando mapa...</p>
+                  </div>
+                </div>
+              )}
+              <iframe
+                src={embedUrl}
+                className="w-full h-full border-0"
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                onLoad={() => setIsMapLoading(false)}
+              />
+            </>
           ) : (
             <div className="flex items-center justify-center h-full p-6">
               <div className="text-center">
