@@ -215,7 +215,7 @@ export default function PrescriptionsTracking() {
 
               {/* Modal de Detalhes */}
               <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-3xl max-h-[calc(100vh-1.5rem)] sm:max-h-[80vh] flex flex-col">
+                <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-3xl max-h-[75vh] sm:max-h-[80vh] flex flex-col">
                   <DialogHeader className="border-b pb-4">
                     <div className="flex items-center justify-between">
                       <DialogTitle className="flex items-center gap-2 text-xl">

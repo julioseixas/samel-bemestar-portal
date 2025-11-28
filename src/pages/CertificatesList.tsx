@@ -485,7 +485,7 @@ const CertificatesList = () => {
       </main>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-[calc(100vw-1.5rem)] max-h-[calc(100vh-1.5rem)] sm:max-w-[95vw] sm:h-[90vh] flex flex-col p-0 sm:rounded-lg">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] max-h-[75vh] sm:max-w-[95vw] sm:h-[90vh] flex flex-col p-0 sm:rounded-lg">
           <DialogHeader className="px-3 sm:px-6 py-3 sm:py-4 border-b bg-card shrink-0">
             <DialogTitle className="text-base sm:text-xl">
               Atestado - {selectedCertificate?.nomeProfissional}

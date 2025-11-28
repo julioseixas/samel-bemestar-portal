@@ -621,7 +621,7 @@ const OnlineConsultationDetails = () => {
       </main>
 
       <Dialog open={showCamera} onOpenChange={handleCloseCamera}>
-        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-md max-h-[calc(100vh-1.5rem)]">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-md max-h-[75vh]">
           <DialogHeader>
             <DialogTitle>Check-in via Reconhecimento Facial</DialogTitle>
           </DialogHeader>
@@ -657,7 +657,7 @@ const OnlineConsultationDetails = () => {
       </Dialog>
 
       <Dialog open={showTokenModal} onOpenChange={handleCloseTokenModal}>
-        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-md max-h-[calc(100vh-1.5rem)]">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-md max-h-[75vh]">
           <DialogHeader>
             <DialogTitle>Check-in via Email</DialogTitle>
           </DialogHeader>

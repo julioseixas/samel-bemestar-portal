@@ -434,7 +434,7 @@ const RateAppointments = () => {
       </main>
 
       <Dialog open={!!selectedAppointment} onOpenChange={handleCloseModal}>
-        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-2xl max-h-[calc(100vh-1.5rem)] sm:max-h-[90vh] flex flex-col">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-2xl max-h-[75vh] sm:max-h-[90vh] flex flex-col">
           <DialogHeader className="border-b pb-4">
             <DialogTitle className="text-xl font-bold">Avalie seu atendimento</DialogTitle>
             {selectedAppointment && (

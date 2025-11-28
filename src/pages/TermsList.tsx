@@ -249,7 +249,7 @@ const TermsList = () => {
         )}
 
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-[95vw] h-[calc(100vh-1.5rem)] sm:h-[90vh] flex flex-col p-0">
+          <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-[95vw] h-[75vh] sm:h-[90vh] flex flex-col p-0">
             <DialogHeader className="px-6 py-4 border-b">
               <DialogTitle>{selectedTerm?.NM_TERMO}</DialogTitle>
               <DialogDescription>
