@@ -429,7 +429,7 @@ const ExamTimes = () => {
 
       {/* Modal de Confirmação */}
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <DialogContent>
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] max-h-[calc(100vh-1.5rem)]">
           <DialogHeader>
             <DialogTitle>Confirmar Agendamento</DialogTitle>
             <DialogDescription>
@@ -482,7 +482,7 @@ const ExamTimes = () => {
 
       {/* Modal de Sucesso */}
       <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
-        <DialogContent>
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] max-h-[calc(100vh-1.5rem)]">
           <DialogHeader>
             <DialogTitle>Agendamento Confirmado!</DialogTitle>
             <DialogDescription>
