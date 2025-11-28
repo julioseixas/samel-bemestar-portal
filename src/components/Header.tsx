@@ -381,13 +381,12 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
                           !notification.DT_VISUALIZADO ? 'bg-primary/5 border-l-4 border-primary' : ''
                         }`}
                       >
-                        {!notification.DT_VISUALIZADO && (
-                          <div className="absolute left-1 top-1/2 -translate-y-1/2 sm:hidden">
-                            <ChevronsRight className="h-4 w-4 text-primary/40 animate-pulse" />
-                          </div>
-                        )}
+                        <div className="absolute left-2 top-1/2 -translate-y-1/2 sm:hidden flex items-center gap-0.5">
+                          <ChevronsRight className="h-5 w-5 text-primary/50 animate-pulse" />
+                          <span className="text-[10px] text-primary/50 font-medium">Deslize</span>
+                        </div>
                         <div 
-                          className="cursor-pointer hover:opacity-80"
+                          className="cursor-pointer hover:opacity-80 pl-16 sm:pl-0"
                           onClick={() => handleNotificationClick(notification)}
                         >
                           <div className="flex items-start justify-between gap-3 mb-2">
