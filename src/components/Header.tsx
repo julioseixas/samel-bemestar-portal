@@ -48,6 +48,9 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
   const [showNotificationDetailDialog, setShowNotificationDetailDialog] = useState(false);
   const [isMarkingAsRead, setIsMarkingAsRead] = useState(false);
   const [isMarkingAllAsRead, setIsMarkingAllAsRead] = useState(false);
+  const [swipingNotification, setSwipingNotification] = useState<number | null>(null);
+  const [swipeOffset, setSwipeOffset] = useState(0);
+  const [touchStart, setTouchStart] = useState(0);
 
   const loadNotifications = () => {
     const storedNotifications = localStorage.getItem('notifications');
@@ -197,6 +200,40 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
     } finally {
       setIsMarkingAsRead(false);
     }
+  };
+
+  const handleSwipeStart = (e: React.TouchEvent, notificationId: number) => {
+    setTouchStart(e.touches[0].clientX);
+    setSwipingNotification(notificationId);
+  };
+
+  const handleSwipeMove = (e: React.TouchEvent) => {
+    if (swipingNotification === null) return;
+    
+    const currentTouch = e.touches[0].clientX;
+    const diff = currentTouch - touchStart;
+    
+    // Só permite deslizar para a direita
+    if (diff > 0) {
+      setSwipeOffset(diff);
+    }
+  };
+
+  const handleSwipeEnd = async () => {
+    if (swipingNotification === null) return;
+    
+    // Se deslizou mais de 100px, marca como lida
+    if (swipeOffset > 100) {
+      const notification = notifications.find(n => n.NR_SEQUENCIA === swipingNotification);
+      if (notification) {
+        await handleMarkAsRead(notification);
+      }
+    }
+    
+    // Reset
+    setSwipingNotification(null);
+    setSwipeOffset(0);
+    setTouchStart(0);
   };
 
   const handleMarkAllAsRead = async () => {
@@ -374,12 +411,24 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
                 </div>
               ) : (
                 <div className="space-y-2 py-2">
-                  {notifications.map((notification, index) => (
+                  {notifications.map((notification, index) => {
+                    const isSwipingThis = swipingNotification === notification.NR_SEQUENCIA;
+                    const currentOffset = isSwipingThis ? swipeOffset : 0;
+                    
+                    return (
                     <div key={notification.NR_SEQUENCIA}>
                       <div 
-                        className={`p-4 rounded-lg transition-all relative ${
+                        className={`p-4 rounded-lg relative overflow-hidden ${
                           !notification.DT_VISUALIZADO ? 'bg-primary/5 border-l-4 border-primary' : ''
                         }`}
+                        style={{
+                          transform: `translateX(${currentOffset}px)`,
+                          transition: isSwipingThis ? 'none' : 'transform 0.3s ease-out',
+                          opacity: isSwipingThis ? Math.max(0.3, 1 - currentOffset / 200) : 1,
+                        }}
+                        onTouchStart={(e) => handleSwipeStart(e, notification.NR_SEQUENCIA)}
+                        onTouchMove={handleSwipeMove}
+                        onTouchEnd={handleSwipeEnd}
                       >
                         <div className="absolute left-2 top-1/2 -translate-y-1/2 sm:hidden flex items-center gap-0.5">
                           <ChevronsRight className="h-5 w-5 text-primary/50 animate-pulse" />
@@ -423,7 +472,8 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
                       </div>
                       {index < notifications.length - 1 && <Separator className="my-1" />}
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </ScrollArea>
