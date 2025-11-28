@@ -132,7 +132,7 @@ const ExamProfessionals = () => {
             <div className="space-y-6">
               {profissionaisGroups.map((group, groupIndex) => (
                 <div key={groupIndex}>
-                   <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                   <div className="grid grid-cols-1 gap-4 sm:gap-6 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                     {group.dados.map((profissional) => (
                       <Card 
                         key={profissional.idAgenda}
