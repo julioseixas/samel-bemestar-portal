@@ -61,7 +61,7 @@ export const DashboardCard = ({
         variant={variant}
         size="lg"
         className={cn(
-          "w-full text-[10px] xs:text-xs sm:text-base font-semibold transition-all duration-300 group-hover:shadow-sm h-8 xs:h-9 sm:h-11",
+          "w-full text-base font-semibold transition-all duration-300 group-hover:shadow-sm h-11 hidden sm:flex",
           useDashboardColor && "bg-[hsl(var(--dashboard-button))] text-[hsl(var(--dashboard-button-foreground))] hover:bg-[hsl(var(--dashboard-button))]/90"
         )}
         style={customButtonColor ? { backgroundColor: customButtonColor, color: 'white' } : undefined}
