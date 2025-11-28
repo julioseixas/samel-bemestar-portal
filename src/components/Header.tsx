@@ -373,7 +373,7 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
                   <p className="text-lg">Nenhuma notificação</p>
                 </div>
               ) : (
-                <div className="space-y-1 py-2">
+                <div className="space-y-2 py-2">
                   {notifications.map((notification, index) => (
                     <div key={notification.NR_SEQUENCIA}>
                       <div 
