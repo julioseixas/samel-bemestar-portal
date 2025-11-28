@@ -122,91 +122,78 @@ const ExamProfessionals = () => {
             </p>
           </div>
 
-          {profissionaisGroups.length === 0 ? (
-            <Card>
-              <CardContent className="flex items-center justify-center py-8">
-                <p className="text-muted-foreground">Nenhum profissional disponível</p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-6">
-              {profissionaisGroups.map((group, groupIndex) => (
-                <div key={groupIndex}>
-                   <div className="grid grid-cols-1 gap-4 sm:gap-6 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                    {group.dados.map((profissional) => (
-                      <Card 
-                        key={profissional.idAgenda}
-                        className="hover:shadow-lg transition-shadow cursor-pointer"
-                        onClick={() => handleSelectProfessional(profissional)}
-                      >
-                        <CardHeader>
-                          <div className="flex items-center gap-4">
-                            <div className={`h-16 w-16 rounded-full flex items-center justify-center ${getAvatarColor(profissional.ieSexo || '')}`}>
-                              <Stethoscope className="h-8 w-8 text-primary" />
+            {profissionaisGroups.length === 0 ? (
+              <Card>
+                <CardContent className="flex items-center justify-center py-8">
+                  <p className="text-muted-foreground">Nenhum profissional disponível</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {profissionaisGroups.flatMap((group) => {
+                  if (!group.dados || !Array.isArray(group.dados) || group.dados.length === 0) {
+                    return [];
+                  }
+
+                  return group.dados.map((profissional) => (
+                    <Card
+                      key={profissional.idAgenda}
+                      className="hover:shadow-lg transition-shadow cursor-pointer"
+                      onClick={() => handleSelectProfessional(profissional)}
+                    >
+                      <CardHeader>
+                        <div className="flex items-center gap-4">
+                          <div
+                            className={`h-16 w-16 rounded-full flex items-center justify-center ${getAvatarColor(
+                              profissional.ieSexo || ""
+                            )}`}
+                          >
+                            <Stethoscope className="h-8 w-8 text-primary" />
+                          </div>
+                          <div className="flex-1">
+                            <CardTitle className="text-base sm:text-lg">{profissional.nome}</CardTitle>
+                            <Badge variant="outline" className="mt-1">
+                              {profissional.ie_sigla_conselho} {profissional.nr_conselho}
+                            </Badge>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        {group.combinacao && (
+                          <div>
+                            <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                              Exames que realiza:
+                            </span>
+                            <div className="mt-1 max-h-24 overflow-y-auto border rounded-md p-2 bg-muted/30">
+                              <p className="text-xs sm:text-sm leading-relaxed">{group.combinacao}</p>
                             </div>
-                            <div className="flex-1">
-                              <CardTitle className="text-base sm:text-lg">
-                                {profissional.nome}
-                              </CardTitle>
-                              <Badge variant="outline" className="mt-1">
-                                {profissional.ie_sigla_conselho} {profissional.nr_conselho}
-                              </Badge>
-                            </div>
                           </div>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                          {group.combinacao && (
-                            <div>
-                              <span className="text-xs sm:text-sm font-medium text-muted-foreground">
-                                Exames que realiza:
-                              </span>
-                              <div className="mt-1 max-h-24 overflow-y-auto border rounded-md p-2 bg-muted/30">
-                                <p className="text-xs sm:text-sm leading-relaxed">
-                                  {group.combinacao}
-                                </p>
-                              </div>
-                            </div>
-                          )}
-                          <div>
-                            <span className="text-xs sm:text-sm font-medium text-muted-foreground">
-                              Especialidade:
-                            </span>
-                            <p className="text-sm sm:text-base font-semibold">
-                              {profissional.dsEspecialidade}
-                            </p>
-                          </div>
-                          <div>
-                            <span className="text-xs sm:text-sm font-medium text-muted-foreground">
-                              Disponível a partir de:
-                            </span>
-                            <p className="text-sm sm:text-base font-semibold">
-                              {profissional.dataAgenda}
-                            </p>
-                          </div>
-                          <div>
-                            <span className="text-xs sm:text-sm font-medium text-muted-foreground">
-                              Unidade:
-                            </span>
-                            <p className="text-sm sm:text-base font-semibold">
-                              {profissional.unidade.descricao}
-                            </p>
-                          </div>
-                          <div>
-                            <span className="text-xs sm:text-sm font-medium text-muted-foreground">
-                              Endereço:
-                            </span>
-                            <p className="text-sm sm:text-base">
-                              {formatEndereco(profissional.unidade)}
-                            </p>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                        )}
+                        <div>
+                          <span className="text-xs sm:text-sm font-medium text-muted-foreground">Especialidade:</span>
+                          <p className="text-sm sm:text-base font-semibold">{profissional.dsEspecialidade}</p>
+                        </div>
+                        <div>
+                          <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                            Disponível a partir de:
+                          </span>
+                          <p className="text-sm sm:text-base font-semibold">{profissional.dataAgenda}</p>
+                        </div>
+                        <div>
+                          <span className="text-xs sm:text-sm font-medium text-muted-foreground">Unidade:</span>
+                          <p className="text-sm sm:text-base font-semibold">{profissional.unidade.descricao}</p>
+                        </div>
+                        <div>
+                          <span className="text-xs sm:text-sm font-medium text-muted-foreground">Endereço:</span>
+                          <p className="text-sm sm:text-base">{formatEndereco(profissional.unidade)}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ));
+                })}
+              </div>
+            )}
+
         </div>
       </main>
     </div>
