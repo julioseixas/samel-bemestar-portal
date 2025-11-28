@@ -137,70 +137,70 @@ const ExamProfessionals = () => {
                       {group.combinacao}
                     </h3>
                   )}
-                   <div className="grid grid-cols-2 gap-2 xs:gap-3 sm:gap-4 md:gap-6 lg:grid-cols-3">
+                   <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {group.dados.map((profissional) => (
                       <Card 
                         key={profissional.idAgenda}
                         className="hover:shadow-lg transition-shadow cursor-pointer"
                         onClick={() => handleSelectProfessional(profissional)}
                       >
-                        <CardHeader className="p-3 xs:p-4 sm:p-6">
-                          <div className="flex flex-col xs:flex-row items-center gap-2 xs:gap-3 sm:gap-4">
-                            <div className={`h-10 w-10 xs:h-12 xs:w-12 sm:h-16 sm:w-16 rounded-full flex items-center justify-center shrink-0 ${getAvatarColor(profissional.ieSexo || '')}`}>
-                              <Stethoscope className="h-5 w-5 xs:h-6 xs:w-6 sm:h-8 sm:w-8 text-primary" />
+                        <CardHeader>
+                          <div className="flex items-center gap-4">
+                            <div className={`h-16 w-16 rounded-full flex items-center justify-center ${getAvatarColor(profissional.ieSexo || '')}`}>
+                              <Stethoscope className="h-8 w-8 text-primary" />
                             </div>
-                            <div className="flex-1 text-center xs:text-left min-w-0">
-                              <CardTitle className="text-xs xs:text-sm sm:text-base lg:text-lg truncate">
+                            <div className="flex-1">
+                              <CardTitle className="text-base sm:text-lg hidden sm:block">
                                 {profissional.nome}
                               </CardTitle>
-                              <Badge variant="outline" className="mt-1 text-[10px] xs:text-xs">
+                              <Badge variant="outline" className="mt-1">
                                 {profissional.ie_sigla_conselho} {profissional.nr_conselho}
                               </Badge>
                             </div>
                           </div>
                         </CardHeader>
-                        <CardContent className="space-y-2 xs:space-y-2.5 sm:space-y-3 p-3 xs:p-4 sm:p-6 pt-0">
+                        <CardContent className="space-y-3">
                           {group.combinacao && (
                             <div>
-                              <span className="text-[10px] xs:text-xs sm:text-sm font-medium text-muted-foreground">
+                              <span className="text-xs sm:text-sm font-medium text-muted-foreground">
                                 Exames que realiza:
                               </span>
-                              <div className="mt-0.5 xs:mt-1 max-h-16 xs:max-h-20 sm:max-h-24 overflow-y-auto border rounded-md p-1.5 xs:p-2 bg-muted/30">
-                                <p className="text-[10px] xs:text-xs sm:text-sm leading-relaxed">
+                              <div className="mt-1 max-h-24 overflow-y-auto border rounded-md p-2 bg-muted/30">
+                                <p className="text-xs sm:text-sm leading-relaxed">
                                   {group.combinacao}
                                 </p>
                               </div>
                             </div>
                           )}
                           <div>
-                            <span className="text-[10px] xs:text-xs sm:text-sm font-medium text-muted-foreground">
+                            <span className="text-xs sm:text-sm font-medium text-muted-foreground">
                               Especialidade:
                             </span>
-                            <p className="text-xs xs:text-sm sm:text-base font-semibold truncate">
+                            <p className="text-sm sm:text-base font-semibold">
                               {profissional.dsEspecialidade}
                             </p>
                           </div>
                           <div>
-                            <span className="text-[10px] xs:text-xs sm:text-sm font-medium text-muted-foreground">
+                            <span className="text-xs sm:text-sm font-medium text-muted-foreground">
                               Disponível a partir de:
                             </span>
-                            <p className="text-xs xs:text-sm sm:text-base font-semibold">
+                            <p className="text-sm sm:text-base font-semibold">
                               {profissional.dataAgenda}
                             </p>
                           </div>
                           <div>
-                            <span className="text-[10px] xs:text-xs sm:text-sm font-medium text-muted-foreground">
+                            <span className="text-xs sm:text-sm font-medium text-muted-foreground">
                               Unidade:
                             </span>
-                            <p className="text-xs xs:text-sm sm:text-base font-semibold truncate">
+                            <p className="text-sm sm:text-base font-semibold">
                               {profissional.unidade.descricao}
                             </p>
                           </div>
                           <div>
-                            <span className="text-[10px] xs:text-xs sm:text-sm font-medium text-muted-foreground">
+                            <span className="text-xs sm:text-sm font-medium text-muted-foreground">
                               Endereço:
                             </span>
-                            <p className="text-[10px] xs:text-xs sm:text-sm line-clamp-2">
+                            <p className="text-sm sm:text-base">
                               {formatEndereco(profissional.unidade)}
                             </p>
                           </div>
