@@ -87,7 +87,7 @@ export const MapDialog = ({ open, onOpenChange, location, unitName }: MapDialogP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-[95vw] w-full h-[calc(100vh-4rem)] sm:h-[80vh] flex flex-col p-0">
+      <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-[95vw] w-full h-[60vh] sm:h-[80vh] flex flex-col p-0">
         <DialogHeader className="px-3 py-3 sm:px-6 sm:py-4 border-b bg-card shrink-0">
           <DialogTitle className="text-sm sm:text-base text-left">
             Como chegar em: <span className="font-semibold">{location}</span>
