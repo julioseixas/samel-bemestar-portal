@@ -89,11 +89,9 @@ export const MapDialog = ({ open, onOpenChange, location, unitName }: MapDialogP
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[98vw] sm:max-w-[95vw] w-full h-[92vh] sm:h-[90vh] flex flex-col p-0">
         <DialogHeader className="px-3 py-3 sm:px-6 sm:py-4 border-b bg-card shrink-0">
-          <DialogTitle className="text-base sm:text-xl">Como Chegar</DialogTitle>
-          {unitName && (
-            <p className="text-xs sm:text-sm font-semibold text-foreground mt-1 sm:mt-2">{unitName}</p>
-          )}
-          <p className="text-xs sm:text-sm text-muted-foreground">{location}</p>
+          <DialogTitle className="text-sm sm:text-base">
+            Como chegar em: <span className="font-semibold">{unitName || location}</span>
+          </DialogTitle>
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden relative">
