@@ -511,7 +511,7 @@ const AppointmentTimes = () => {
       </main>
 
       <Dialog open={isConfirmModalOpen} onOpenChange={setIsConfirmModalOpen}>
-        <DialogContent className="max-w-[95vw] w-full sm:max-w-md">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-md max-h-[calc(100vh-1.5rem)] w-full">
           <DialogHeader>
             <DialogTitle>Confirmar Agendamento</DialogTitle>
             <DialogDescription>
@@ -571,7 +571,7 @@ const AppointmentTimes = () => {
       </Dialog>
 
       <Dialog open={isTokenModalOpen} onOpenChange={setIsTokenModalOpen}>
-        <DialogContent className="max-w-[95vw] w-full sm:max-w-md">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-md max-h-[calc(100vh-1.5rem)] w-full">
           <DialogHeader>
             <DialogTitle>Confirmar Código</DialogTitle>
             <DialogDescription>
@@ -613,7 +613,7 @@ const AppointmentTimes = () => {
       </Dialog>
 
       <Dialog open={isSuccessModalOpen} onOpenChange={setIsSuccessModalOpen}>
-        <DialogContent className="max-w-[95vw] w-full sm:max-w-md">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-md max-h-[calc(100vh-1.5rem)] w-full">
           <DialogHeader>
             <DialogTitle className="text-center text-2xl">✅ Consulta Marcada com Sucesso!</DialogTitle>
             <DialogDescription className="text-center pt-2">

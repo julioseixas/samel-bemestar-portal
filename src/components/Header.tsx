@@ -354,7 +354,7 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
 
         {/* Modal de Lista de Notificações */}
         <Dialog open={showNotificationListDialog} onOpenChange={setShowNotificationListDialog}>
-          <DialogContent className="max-w-[95vw] sm:max-w-3xl h-[90vh] flex flex-col p-0 gap-0">
+          <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-3xl h-[calc(100vh-1.5rem)] sm:h-[90vh] flex flex-col p-0 gap-0">
             <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-4 border-b space-y-2">
               <div className="flex items-center justify-between">
                 <DialogTitle className="text-xl sm:text-2xl">Notificações</DialogTitle>
@@ -447,7 +447,7 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
 
         {/* Modal de Detalhes da Notificação */}
         <Dialog open={showNotificationDetailDialog} onOpenChange={setShowNotificationDetailDialog}>
-          <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] flex flex-col p-0 gap-0">
+          <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-2xl max-h-[calc(100vh-1.5rem)] sm:max-h-[90vh] flex flex-col p-0 gap-0">
             <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-4 border-b">
               <DialogTitle className="text-lg sm:text-xl pr-8 leading-tight">
                 {selectedNotification?.DS_TITULO}

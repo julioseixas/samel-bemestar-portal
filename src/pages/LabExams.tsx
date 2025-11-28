@@ -526,7 +526,7 @@ const LabExams = () => {
 
       {/* Dialog de Progressão Laboratorial */}
       <Dialog open={progressDialogOpen} onOpenChange={setProgressDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-4xl max-h-[calc(100vh-1.5rem)] sm:max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Progressão Laboratorial - {selectedPatient?.nome}</DialogTitle>
           </DialogHeader>

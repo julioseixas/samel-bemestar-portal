@@ -459,7 +459,7 @@ export function ExamDetailsDialog({
           }
         }}
       >
-        <DialogContent className="w-full h-full sm:max-w-[90vw] sm:h-[90vh] flex flex-col p-0 max-w-none sm:rounded-lg">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] max-h-[calc(100vh-1.5rem)] sm:max-w-[90vw] sm:h-[90vh] flex flex-col p-0 sm:rounded-lg">
           <DialogHeader className="px-3 sm:px-6 py-3 sm:py-4 border-b">
             <DialogTitle className="text-base sm:text-lg">Detalhes dos Exames</DialogTitle>
             <DialogDescription className="text-xs sm:text-sm">
@@ -709,7 +709,7 @@ export function ExamDetailsDialog({
           if (!isOpen) setSelectedExam(null);
         }}
       >
-        <DialogContent className="max-w-[95vw] w-full h-[90vh] flex flex-col p-0">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-[95vw] w-full h-[calc(100vh-1.5rem)] sm:h-[90vh] flex flex-col p-0">
           <DialogHeader className="px-6 py-4 border-b bg-card shrink-0">
             <DialogTitle className="text-xl">
               Laudo - {selectedExam?.procedimentoExame}
@@ -794,7 +794,7 @@ export function ExamDetailsDialog({
           }
         }}
       >
-        <DialogContent className="max-w-[95vw] w-full h-[90vh] flex flex-col p-0">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-[95vw] w-full h-[calc(100vh-1.5rem)] sm:h-[90vh] flex flex-col p-0">
           <DialogHeader className="px-6 py-4 border-b bg-card shrink-0">
             <DialogTitle className="text-xl">
               Laudos Selecionados ({selectedExamIndexes.size} exames)
