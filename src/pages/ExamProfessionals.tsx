@@ -133,7 +133,7 @@ const ExamProfessionals = () => {
               {profissionaisGroups.map((group, groupIndex) => (
                 <div key={groupIndex}>
                   {group.combinacao && (
-                    <h3 className="text-lg font-semibold mb-4 text-foreground">
+                    <h3 className="text-lg font-semibold mb-4 text-foreground hidden sm:block">
                       {group.combinacao}
                     </h3>
                   )}
@@ -150,7 +150,7 @@ const ExamProfessionals = () => {
                               <Stethoscope className="h-8 w-8 text-primary" />
                             </div>
                             <div className="flex-1">
-                              <CardTitle className="text-base sm:text-lg hidden sm:block">
+                              <CardTitle className="text-base sm:text-lg">
                                 {profissional.nome}
                               </CardTitle>
                               <Badge variant="outline" className="mt-1">
