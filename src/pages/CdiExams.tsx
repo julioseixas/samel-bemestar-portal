@@ -218,7 +218,8 @@ const CdiExams = () => {
                             size="icon"
                             variant="ghost"
                             onClick={() => handleViewExam(exam)}
-                            className="h-10 w-10 rounded-full bg-success/10 hover:bg-success/20 text-success"
+                            className="h-10 w-10 rounded-full hover:opacity-90"
+                            style={{ backgroundColor: '#7DA092', color: 'white' }}
                           >
                             <Eye className="h-5 w-5" />
                           </Button>
@@ -250,7 +251,8 @@ const CdiExams = () => {
                     </div>
                     <Button
                       onClick={() => handleViewExam(exam)}
-                      className="w-full min-h-[44px] bg-success hover:bg-success/90 text-white"
+                      className="w-full min-h-[44px] hover:opacity-90 text-white"
+                      style={{ backgroundColor: '#7DA092' }}
                     >
                       <Eye className="h-4 w-4 mr-2" />
                       Ver exames
