@@ -501,7 +501,7 @@ const RateAppointments = () => {
             )}
           </div>
 
-          <DialogFooter className="border-t pt-4">
+          <DialogFooter className="border-t pt-4 gap-3">
             <Button
               variant="outline"
               onClick={handleCloseModal}
