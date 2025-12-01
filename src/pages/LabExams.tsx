@@ -30,6 +30,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import {
   Pagination,
   PaginationContent,
@@ -538,8 +539,10 @@ const LabExams = () => {
               )}
 
               {!loading && exams.length > itemsPerPage && (
-                <div className="mt-6">
-                  <Pagination>
+                <>
+                  <Separator className="mt-6" />
+                  <div className="mt-6">
+                    <Pagination>
                     <PaginationContent>
                       <PaginationItem>
                         <Button
@@ -603,6 +606,7 @@ const LabExams = () => {
                     Página {currentPage} de {totalPages} ({exams.length} exames)
                   </p>
                 </div>
+              </>
               )}
             </CardContent>
           </Card>

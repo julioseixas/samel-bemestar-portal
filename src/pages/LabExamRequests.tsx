@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import {
   Pagination,
   PaginationContent,
@@ -429,8 +430,10 @@ const LabExamRequests = () => {
                   </div>
 
               {totalPages > 1 && (
-                <div className="mt-6">
-                  <Pagination>
+                <>
+                  <Separator className="mt-6" />
+                  <div className="mt-6">
+                    <Pagination>
                     <PaginationContent>
                       <PaginationItem>
                         <Button
@@ -474,8 +477,9 @@ const LabExamRequests = () => {
                         </Button>
                       </PaginationItem>
                     </PaginationContent>
-                  </Pagination>
-                </div>
+                    </Pagination>
+                  </div>
+                </>
               )}
             </>
           )}
