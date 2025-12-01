@@ -478,7 +478,7 @@ const LabExamRequests = () => {
                           size="icon"
                           onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                           disabled={currentPage === 1}
-                          className="h-[18px] w-[18px] sm:h-10 sm:w-10 min-w-[18px] sm:min-w-[40px]"
+                          className="h-[18px] w-[18px] sm:h-10 sm:w-10 min-w-[18px] sm:min-w-[40px] p-0 sm:p-2"
                         >
                           <ChevronLeft className="h-2.5 w-2.5 sm:h-4 sm:w-4" />
                         </Button>
@@ -495,7 +495,7 @@ const LabExamRequests = () => {
                               {page}
                             </PaginationLink>
                           ) : (
-                            <PaginationEllipsis className="h-[18px] w-[18px] sm:h-10 sm:w-10 min-w-[18px] sm:min-w-[40px]" />
+                            <PaginationEllipsis className="h-[18px] w-[18px] sm:h-10 sm:w-10 min-w-[18px] sm:min-w-[40px] p-0 sm:p-2" />
                           )}
                         </PaginationItem>
                       ))}
@@ -506,7 +506,7 @@ const LabExamRequests = () => {
                           size="icon"
                           onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                           disabled={currentPage === totalPages}
-                          className="h-[18px] w-[18px] sm:h-10 sm:w-10 min-w-[18px] sm:min-w-[40px]"
+                          className="h-[18px] w-[18px] sm:h-10 sm:w-10 min-w-[18px] sm:min-w-[40px] p-0 sm:p-2"
                         >
                           <ChevronRight className="h-2.5 w-2.5 sm:h-4 sm:w-4" />
                         </Button>
