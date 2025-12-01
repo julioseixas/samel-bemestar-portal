@@ -401,7 +401,7 @@ const LabExams = () => {
                   </div>
 
                   {/* Mobile cards */}
-                  <div className="md:hidden space-y-3 max-h-[40vh] overflow-y-auto">
+                  <div className="md:hidden space-y-3 max-h-[calc(100vh-400px)] sm:max-h-[calc(100vh-420px)] md:max-h-[40vh] overflow-y-auto">
                     {patients.map((patient, index) => (
                       <div
                         key={`${patient.id}-${index}`}
@@ -506,7 +506,7 @@ const LabExams = () => {
                   </div>
 
                   {/* Mobile cards */}
-                  <div className="md:hidden space-y-3 max-h-[50vh] overflow-y-auto">
+                  <div className="md:hidden space-y-3 max-h-[calc(100vh-320px)] sm:max-h-[calc(100vh-340px)] md:max-h-[50vh] overflow-y-auto">
                     {currentExams.map((exam, index) => (
                       <div
                         key={`${exam.nrAtendimento}-${index}`}

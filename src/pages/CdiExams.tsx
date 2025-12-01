@@ -229,7 +229,7 @@ const CdiExams = () => {
               </div>
 
               {/* Mobile cards */}
-              <div className="md:hidden space-y-3 p-3 max-h-[60vh] overflow-y-auto">
+              <div className="md:hidden space-y-3 p-3 max-h-[calc(100vh-280px)] sm:max-h-[calc(100vh-300px)] md:max-h-[60vh] overflow-y-auto">
                 {currentExams.map((exam, index) => (
                   <div
                     key={`${exam.nrAtendimento}-${index}`}

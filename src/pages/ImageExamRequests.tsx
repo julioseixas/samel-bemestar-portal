@@ -388,7 +388,7 @@ const ImageExamRequests = () => {
                       <span>Coletado</span>
                     </div>
                   </div>
-                  <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
+                  <div className="overflow-x-auto max-h-[calc(100vh-280px)] sm:max-h-[calc(100vh-300px)] md:max-h-[60vh] overflow-y-auto">
                     <Table>
                       <TableHeader className="sticky top-0 bg-card z-10">
                         <TableRow>
