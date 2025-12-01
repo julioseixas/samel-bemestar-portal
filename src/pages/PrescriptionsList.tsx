@@ -1,7 +1,7 @@
 import { Header } from "@/components/Header";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Printer, Eye, Download, Share2 } from "lucide-react";
+import { Printer, Eye, Download, Share2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
@@ -501,12 +501,18 @@ const PrescriptionsList = () => {
                     <div className="mt-6">
                       <Pagination>
                         <PaginationContent>
-                          <PaginationItem>
-                            <PaginationPrevious 
-                              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                              className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                            />
-                          </PaginationItem>
+                      <PaginationItem>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                          disabled={currentPage === 1}
+                          className="h-9 w-9 sm:h-10 sm:w-auto sm:px-4"
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                          <span className="hidden sm:inline ml-2">Anterior</span>
+                        </Button>
+                      </PaginationItem>
                           
                           {getPageNumbers().map((page, i) => (
                             <PaginationItem key={`${page}-${i}`}>
@@ -524,12 +530,18 @@ const PrescriptionsList = () => {
                             </PaginationItem>
                           ))}
                           
-                          <PaginationItem>
-                            <PaginationNext 
-                              onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-                              className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                            />
-                          </PaginationItem>
+                      <PaginationItem>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                          disabled={currentPage === totalPages}
+                          className="h-9 w-9 sm:h-10 sm:w-auto sm:px-4"
+                        >
+                          <span className="hidden sm:inline mr-2">Próximo</span>
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </PaginationItem>
                         </PaginationContent>
                       </Pagination>
                     </div>

@@ -1,6 +1,6 @@
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { Eye, CheckCircle } from "lucide-react";
+import { Eye, CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { AnimatedHourglass } from "@/components/AnimatedHourglass";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -433,10 +433,16 @@ const ImageExamRequests = () => {
                   <Pagination>
                     <PaginationContent>
                       <PaginationItem>
-                        <PaginationPrevious 
+                        <Button
+                          variant="outline"
+                          size="icon"
                           onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                          className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                        />
+                          disabled={currentPage === 1}
+                          className="h-9 w-9 sm:h-10 sm:w-auto sm:px-4"
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                          <span className="hidden sm:inline ml-2">Anterior</span>
+                        </Button>
                       </PaginationItem>
                       
                       {getPageNumbers().map((page, i) => (
@@ -456,10 +462,16 @@ const ImageExamRequests = () => {
                       ))}
                       
                       <PaginationItem>
-                        <PaginationNext 
+                        <Button
+                          variant="outline"
+                          size="icon"
                           onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-                          className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                        />
+                          disabled={currentPage === totalPages}
+                          className="h-9 w-9 sm:h-10 sm:w-auto sm:px-4"
+                        >
+                          <span className="hidden sm:inline mr-2">Próximo</span>
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
                       </PaginationItem>
                     </PaginationContent>
                   </Pagination>
