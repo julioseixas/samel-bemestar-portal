@@ -200,12 +200,7 @@ const LabExamRequests = () => {
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "-";
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString("pt-BR");
-    } catch {
-      return dateString;
-    }
+    return dateString;
   };
 
   const totalPages = Math.ceil(requests.length / itemsPerPage);
