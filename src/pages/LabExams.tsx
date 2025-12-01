@@ -361,42 +361,75 @@ const LabExams = () => {
                   <p className="text-muted-foreground">Nenhum paciente encontrado.</p>
                 </div>
               ) : (
-                <div className="overflow-x-auto max-h-[40vh] overflow-y-auto">
-                  <Table>
-                    <TableHeader className="sticky top-0 bg-card z-10">
-                      <TableRow>
-                        <TableHead>Paciente</TableHead>
-                        <TableHead>Tipo</TableHead>
-                        <TableHead className="text-right">Ver Progressão</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {patients.map((patient, index) => (
-                        <TableRow key={`${patient.id}-${index}`} className="hover:bg-muted/50">
-                          <TableCell className="font-medium">{patient.nome}</TableCell>
-                          <TableCell>
-                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                <>
+                  {/* Desktop table */}
+                  <div className="hidden md:block overflow-x-auto max-h-[40vh] overflow-y-auto">
+                    <Table>
+                      <TableHeader className="sticky top-0 bg-card z-10">
+                        <TableRow>
+                          <TableHead>Paciente</TableHead>
+                          <TableHead>Tipo</TableHead>
+                          <TableHead className="text-right">Ver Progressão</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {patients.map((patient, index) => (
+                          <TableRow key={`${patient.id}-${index}`} className="hover:bg-muted/50">
+                            <TableCell className="font-medium">{patient.nome}</TableCell>
+                            <TableCell>
+                              <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                                patient.tipo === "Titular" 
+                                  ? "bg-primary/10 text-primary" 
+                                  : "bg-secondary/10 text-secondary-foreground"
+                              }`}>
+                                {patient.tipo}
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button
+                                size="icon"
+                                className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-9 w-9"
+                                onClick={() => handleViewProgress(patient)}
+                              >
+                                <TrendingUp className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  {/* Mobile cards */}
+                  <div className="md:hidden space-y-3 max-h-[40vh] overflow-y-auto">
+                    {patients.map((patient, index) => (
+                      <div
+                        key={`${patient.id}-${index}`}
+                        className="rounded-lg border bg-card p-4 space-y-3 shadow-sm"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-semibold">{patient.nome}</p>
+                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold mt-1 ${
                               patient.tipo === "Titular" 
                                 ? "bg-primary/10 text-primary" 
                                 : "bg-secondary/10 text-secondary-foreground"
                             }`}>
                               {patient.tipo}
                             </span>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Button
-                              size="icon"
-                              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-9 w-9"
-                              onClick={() => handleViewProgress(patient)}
-                            >
-                              <TrendingUp className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={() => handleViewProgress(patient)}
+                          className="w-full min-h-[44px] bg-primary hover:bg-primary/90 text-primary-foreground"
+                        >
+                          <TrendingUp className="h-4 w-4 mr-2" />
+                          Ver Progressão
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </>
               )}
             </CardContent>
           </Card>
@@ -407,53 +440,101 @@ const LabExams = () => {
             </CardHeader>
             <CardContent className="p-3 sm:p-6">
               {loading ? (
-                <div className="overflow-x-auto max-h-[50vh] overflow-y-auto">
-                  <div className="space-y-4">
-                    {[...Array(10)].map((_, i) => (
-                      <div key={i} className="flex items-center space-x-4">
-                        <Skeleton className="h-12 w-[180px]" />
-                        <Skeleton className="h-12 flex-1" />
-                        <Skeleton className="h-12 w-[200px]" />
-                        <Skeleton className="h-10 w-10 rounded-full" />
+                <>
+                  {/* Desktop skeleton */}
+                  <div className="hidden md:block overflow-x-auto max-h-[50vh] overflow-y-auto">
+                    <div className="space-y-4">
+                      {[...Array(10)].map((_, i) => (
+                        <div key={i} className="flex items-center space-x-4">
+                          <Skeleton className="h-12 w-[180px]" />
+                          <Skeleton className="h-12 flex-1" />
+                          <Skeleton className="h-12 w-[200px]" />
+                          <Skeleton className="h-10 w-10 rounded-full" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Mobile skeleton */}
+                  <div className="md:hidden space-y-3">
+                    {[...Array(5)].map((_, i) => (
+                      <div key={i} className="rounded-lg border bg-card p-4 space-y-3">
+                        <Skeleton className="h-5 w-32" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-11 w-full" />
                       </div>
                     ))}
                   </div>
-                </div>
+                </>
               ) : exams.length === 0 ? (
                 <div className="flex items-center justify-center py-8">
                   <p className="text-muted-foreground">Nenhum exame encontrado.</p>
                 </div>
               ) : (
-                <div className="overflow-x-auto max-h-[50vh] overflow-y-auto">
-                  <Table>
-                    <TableHeader className="sticky top-0 bg-card z-10">
-                      <TableRow>
-                        <TableHead>Data</TableHead>
-                        <TableHead>Paciente</TableHead>
-                        <TableHead>Médico</TableHead>
-                        <TableHead className="text-right">Ver exames</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {currentExams.map((exam, index) => (
-                        <TableRow key={`${exam.nrAtendimento}-${index}`} className="hover:bg-muted/50">
-                          <TableCell className="font-medium">{exam.dataEntrada}</TableCell>
-                          <TableCell>{exam.nomeCliente}</TableCell>
-                          <TableCell className="text-primary">{exam.medicoSolicitante}</TableCell>
-                          <TableCell className="text-right">
-                            <Button
-                              size="icon"
-                              className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-full h-9 w-9"
-                              onClick={() => handleViewDetails(exam)}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
+                <>
+                  {/* Desktop table */}
+                  <div className="hidden md:block overflow-x-auto max-h-[50vh] overflow-y-auto">
+                    <Table>
+                      <TableHeader className="sticky top-0 bg-card z-10">
+                        <TableRow>
+                          <TableHead>Data</TableHead>
+                          <TableHead>Paciente</TableHead>
+                          <TableHead>Médico</TableHead>
+                          <TableHead className="text-right">Ver exames</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                      </TableHeader>
+                      <TableBody>
+                        {currentExams.map((exam, index) => (
+                          <TableRow key={`${exam.nrAtendimento}-${index}`} className="hover:bg-muted/50">
+                            <TableCell className="font-medium">{exam.dataEntrada}</TableCell>
+                            <TableCell>{exam.nomeCliente}</TableCell>
+                            <TableCell className="text-primary">{exam.medicoSolicitante}</TableCell>
+                            <TableCell className="text-right">
+                              <Button
+                                size="icon"
+                                className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-full h-9 w-9"
+                                onClick={() => handleViewDetails(exam)}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  {/* Mobile cards */}
+                  <div className="md:hidden space-y-3 max-h-[50vh] overflow-y-auto">
+                    {currentExams.map((exam, index) => (
+                      <div
+                        key={`${exam.nrAtendimento}-${index}`}
+                        className="rounded-lg border bg-card p-4 space-y-3 shadow-sm"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground">Data</span>
+                          <span className="text-sm font-semibold">{exam.dataEntrada}</span>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">Paciente</p>
+                          <p className="text-sm font-medium">{exam.nomeCliente}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">Médico</p>
+                          <p className="text-sm text-primary">{exam.medicoSolicitante}</p>
+                        </div>
+                        <Button
+                          onClick={() => handleViewDetails(exam)}
+                          className="w-full min-h-[44px] bg-emerald-500 hover:bg-emerald-600 text-white"
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          Ver exames
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </>
               )}
 
               {!loading && exams.length > itemsPerPage && (

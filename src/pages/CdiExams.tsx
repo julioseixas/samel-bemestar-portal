@@ -162,55 +162,104 @@ const CdiExams = () => {
             </div>
 
           {loading ? (
-            <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
-              <div className="p-6 space-y-4">
-                {[...Array(10)].map((_, i) => (
-                  <div key={i} className="flex items-center space-x-4">
-                    <Skeleton className="h-12 w-[180px]" />
-                    <Skeleton className="h-12 flex-1" />
-                    <Skeleton className="h-12 w-[200px]" />
-                    <Skeleton className="h-10 w-10 rounded-full" />
+            <>
+              {/* Desktop skeleton */}
+              <div className="hidden md:block overflow-x-auto max-h-[60vh] overflow-y-auto">
+                <div className="p-6 space-y-4">
+                  {[...Array(10)].map((_, i) => (
+                    <div key={i} className="flex items-center space-x-4">
+                      <Skeleton className="h-12 w-[180px]" />
+                      <Skeleton className="h-12 flex-1" />
+                      <Skeleton className="h-12 w-[200px]" />
+                      <Skeleton className="h-10 w-10 rounded-full" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Mobile skeleton */}
+              <div className="md:hidden space-y-3 p-3">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="rounded-lg border bg-card p-4 space-y-3">
+                    <Skeleton className="h-5 w-32" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-11 w-full" />
                   </div>
                 ))}
               </div>
-            </div>
+            </>
           ) : exams.length === 0 ? (
             <div className="flex justify-center items-center py-12">
               <p className="text-muted-foreground">Nenhum exame CDI encontrado.</p>
             </div>
           ) : (
-            <div className="max-h-[60vh] overflow-y-auto overflow-x-auto">
-              <Table>
-                <TableHeader className="sticky top-0 bg-card z-10">
-                  <TableRow>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Paciente</TableHead>
-                    <TableHead>Médico</TableHead>
-                    <TableHead className="text-center">Ver exames</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {currentExams.map((exam, index) => (
-                    <TableRow key={`${exam.nrAtendimento}-${index}`}>
-                      <TableCell>{exam.dataEntrada}</TableCell>
-                      <TableCell>{exam.nomeCliente}</TableCell>
-                      <TableCell>{exam.medicoSolicitante}</TableCell>
-                      <TableCell className="text-center">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => handleViewExam(exam)}
-                          className="h-10 w-10 rounded-full bg-success/10 hover:bg-success/20 text-success"
-                        >
-                          <Eye className="h-5 w-5" />
-                        </Button>
-                      </TableCell>
+            <>
+              {/* Desktop table */}
+              <div className="hidden md:block max-h-[60vh] overflow-y-auto overflow-x-auto">
+                <Table>
+                  <TableHeader className="sticky top-0 bg-card z-10">
+                    <TableRow>
+                      <TableHead>Data</TableHead>
+                      <TableHead>Paciente</TableHead>
+                      <TableHead>Médico</TableHead>
+                      <TableHead className="text-center">Ver exames</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {currentExams.map((exam, index) => (
+                      <TableRow key={`${exam.nrAtendimento}-${index}`}>
+                        <TableCell>{exam.dataEntrada}</TableCell>
+                        <TableCell>{exam.nomeCliente}</TableCell>
+                        <TableCell>{exam.medicoSolicitante}</TableCell>
+                        <TableCell className="text-center">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => handleViewExam(exam)}
+                            className="h-10 w-10 rounded-full bg-success/10 hover:bg-success/20 text-success"
+                          >
+                            <Eye className="h-5 w-5" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
 
-              {!loading && exams.length > itemsPerPage && (
+              {/* Mobile cards */}
+              <div className="md:hidden space-y-3 p-3 max-h-[60vh] overflow-y-auto">
+                {currentExams.map((exam, index) => (
+                  <div
+                    key={`${exam.nrAtendimento}-${index}`}
+                    className="rounded-lg border bg-card p-4 space-y-3 shadow-sm"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">Data</span>
+                      <span className="text-sm font-semibold">{exam.dataEntrada}</span>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Paciente</p>
+                      <p className="text-sm font-medium">{exam.nomeCliente}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Médico</p>
+                      <p className="text-sm">{exam.medicoSolicitante}</p>
+                    </div>
+                    <Button
+                      onClick={() => handleViewExam(exam)}
+                      className="w-full min-h-[44px] bg-success hover:bg-success/90 text-white"
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      Ver exames
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+          {!loading && exams.length > itemsPerPage && (
                 <div className="p-6 border-t">
                   <Pagination>
                     <PaginationContent>
@@ -265,8 +314,6 @@ const CdiExams = () => {
                   </p>
                 </div>
               )}
-            </div>
-          )}
           </div>
         </div>
       </main>

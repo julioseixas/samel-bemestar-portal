@@ -387,25 +387,41 @@ const CertificatesList = () => {
             </CardHeader>
             <CardContent className="p-3 sm:p-6">
               {loading ? (
-                <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
-                  <div className="space-y-4">
-                    {[...Array(10)].map((_, i) => (
-                      <div key={i} className="flex items-center space-x-4">
-                        <Skeleton className="h-12 w-[180px]" />
-                        <Skeleton className="h-12 flex-1" />
-                        <Skeleton className="h-12 w-[200px]" />
-                        <Skeleton className="h-10 w-10 rounded-full" />
+                <>
+                  {/* Desktop skeleton */}
+                  <div className="hidden md:block overflow-x-auto max-h-[60vh] overflow-y-auto">
+                    <div className="space-y-4">
+                      {[...Array(10)].map((_, i) => (
+                        <div key={i} className="flex items-center space-x-4">
+                          <Skeleton className="h-12 w-[180px]" />
+                          <Skeleton className="h-12 flex-1" />
+                          <Skeleton className="h-12 w-[200px]" />
+                          <Skeleton className="h-10 w-10 rounded-full" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Mobile skeleton */}
+                  <div className="md:hidden space-y-3">
+                    {[...Array(5)].map((_, i) => (
+                      <div key={i} className="rounded-lg border bg-card p-4 space-y-3">
+                        <Skeleton className="h-5 w-32" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-11 w-full" />
                       </div>
                     ))}
                   </div>
-                </div>
+                </>
               ) : certificates.length === 0 ? (
                 <div className="flex items-center justify-center py-8">
                   <p className="text-muted-foreground">Nenhum atestado encontrado.</p>
                 </div>
               ) : (
                 <>
-                  <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
+                  {/* Desktop table */}
+                  <div className="hidden md:block overflow-x-auto max-h-[60vh] overflow-y-auto">
                     <Table>
                       <TableHeader className="sticky top-0 bg-card z-10">
                         <TableRow>
@@ -440,7 +456,48 @@ const CertificatesList = () => {
                     </Table>
                   </div>
 
-                  {totalPages > 1 && (
+                  {/* Mobile cards */}
+                  <div className="md:hidden space-y-3 max-h-[60vh] overflow-y-auto">
+                    {currentCertificates.map((certificate, index) => (
+                      <div
+                        key={`${certificate.nrAtendimento}-${index}`}
+                        className="rounded-lg border bg-card p-4 space-y-3 shadow-sm"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground">Data</span>
+                          <span className="text-sm font-semibold">{certificate.dataEntrada}</span>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">Paciente</p>
+                          <p className="text-sm font-medium">{certificate.nomeCliente}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">Profissional</p>
+                          <p className="text-sm">{certificate.nomeProfissional}</p>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <div>
+                            <p className="text-muted-foreground">CRM</p>
+                            <p className="font-medium">{certificate.crm}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-muted-foreground">Setor</p>
+                            <p className="font-medium">{certificate.dsSetor}</p>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={() => handleView(certificate)}
+                          className="w-full min-h-[44px] bg-primary hover:bg-primary/90 text-primary-foreground"
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          Ver atestado
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+              {totalPages > 1 && (
                     <div className="mt-6">
                       <Pagination>
                         <PaginationContent>
@@ -477,8 +534,6 @@ const CertificatesList = () => {
                       </Pagination>
                     </div>
                   )}
-                </>
-              )}
             </CardContent>
           </Card>
         </div>
