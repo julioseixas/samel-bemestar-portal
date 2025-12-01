@@ -390,44 +390,35 @@ const LabExamRequests = () => {
                     {currentRequests.map((request, index) => (
                       <Card 
                         key={`${request.nrAtendimento}-${index}`}
-                        className="hover:shadow-lg transition-shadow"
+                        className="hover:shadow-lg transition-shadow cursor-pointer"
+                        onClick={() => handleViewDetails(request)}
                       >
                         <CardContent className="p-4 space-y-3">
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex-1 min-w-0 space-y-2">
-                              <div>
-                                <p className="text-xs text-muted-foreground mb-1">Data</p>
-                                <p className="font-semibold text-sm">{formatDate(request.dataEntrada)}</p>
-                              </div>
-                              
-                              <div>
-                                <p className="text-xs text-muted-foreground mb-1">Paciente</p>
-                                <p className="font-medium text-sm break-words">{request.nomeCliente}</p>
-                              </div>
-                              
-                              <div>
-                                <p className="text-xs text-muted-foreground mb-1">Profissional</p>
-                                <p className="text-sm break-words">{request.nomeProfissional}</p>
-                              </div>
-                              
-                              <div>
-                                <p className="text-xs text-muted-foreground mb-1">Especialidade</p>
-                                <p className="text-sm break-words">{request.dsEspecialidade}</p>
-                              </div>
-                              
-                              <div className="flex items-center gap-2 pt-1">
-                                <p className="text-xs text-muted-foreground">Status:</p>
-                                {getStatusIcon(request.dsStatus)}
-                              </div>
+                          <div className="space-y-2">
+                            <div>
+                              <p className="text-xs text-muted-foreground mb-1">Data</p>
+                              <p className="font-semibold text-sm">{formatDate(request.dataEntrada)}</p>
                             </div>
                             
-                            <Button
-                              size="icon"
-                              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-9 w-9 shrink-0"
-                              onClick={() => handleViewDetails(request)}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
+                            <div>
+                              <p className="text-xs text-muted-foreground mb-1">Paciente</p>
+                              <p className="font-medium text-sm break-words">{request.nomeCliente}</p>
+                            </div>
+                            
+                            <div>
+                              <p className="text-xs text-muted-foreground mb-1">Profissional</p>
+                              <p className="text-sm break-words">{request.nomeProfissional}</p>
+                            </div>
+                            
+                            <div>
+                              <p className="text-xs text-muted-foreground mb-1">Especialidade</p>
+                              <p className="text-sm break-words">{request.dsEspecialidade}</p>
+                            </div>
+                            
+                            <div className="flex items-center gap-2 pt-1">
+                              <p className="text-xs text-muted-foreground">Status:</p>
+                              {getStatusIcon(request.dsStatus)}
+                            </div>
                           </div>
                         </CardContent>
                       </Card>
