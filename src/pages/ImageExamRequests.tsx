@@ -472,7 +472,7 @@ const ImageExamRequests = () => {
                   <div className="mt-6 overflow-x-auto">
                     <Pagination>
                     <PaginationContent className="gap-0 sm:gap-2">
-                      <PaginationItem>
+                      <PaginationItem className={totalPages <= 5 ? "hidden sm:block" : ""}>
                         <Button
                           variant="outline"
                           size="icon"
@@ -500,7 +500,7 @@ const ImageExamRequests = () => {
                         </PaginationItem>
                       ))}
                       
-                      <PaginationItem>
+                      <PaginationItem className={totalPages <= 5 ? "hidden sm:block" : ""}>
                         <Button
                           variant="outline"
                           size="icon"
