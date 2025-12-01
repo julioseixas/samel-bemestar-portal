@@ -435,29 +435,29 @@ const RateAppointments = () => {
 
       <Dialog open={!!selectedAppointment} onOpenChange={handleCloseModal}>
         <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-2xl max-h-[75vh] sm:max-h-[90vh] flex flex-col">
-          <DialogHeader className="border-b pb-4">
-            <DialogTitle className="text-xl font-bold">Avalie seu atendimento</DialogTitle>
+          <DialogHeader className="border-b pb-3 sm:pb-4 space-y-3 sm:space-y-2">
+            <DialogTitle className="text-left text-lg sm:text-xl font-bold">Avalie seu atendimento</DialogTitle>
             {selectedAppointment && (
-              <DialogDescription className="space-y-2 mt-3">
-                <div className="flex items-start gap-2">
+              <DialogDescription className="space-y-3 sm:space-y-2 !mt-3 text-left">
+                <div className="flex items-start gap-2.5 sm:gap-2">
                   <AlertCircle className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">Local</p>
-                    <p className="font-semibold text-foreground">{selectedAppointment.dados.DS_LOCAL}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-muted-foreground mb-1">Local</p>
+                    <p className="font-semibold text-foreground text-sm sm:text-base break-words">{selectedAppointment.dados.DS_LOCAL}</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-2">
+                <div className="flex items-start gap-2.5 sm:gap-2">
                   <Star className="h-4 w-4 text-warning mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">Profissional</p>
-                    <p className="font-semibold text-foreground">{selectedAppointment.nm_medico}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-muted-foreground mb-1">Profissional</p>
+                    <p className="font-semibold text-foreground text-sm sm:text-base break-words">{selectedAppointment.nm_medico}</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-2">
+                <div className="flex items-start gap-2.5 sm:gap-2">
                   <Clock className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">Data do atendimento</p>
-                    <p className="font-semibold text-foreground">{selectedAppointment.dados.DT_ENTRADA}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-muted-foreground mb-1">Data do atendimento</p>
+                    <p className="font-semibold text-foreground text-sm sm:text-base">{selectedAppointment.dados.DT_ENTRADA}</p>
                   </div>
                 </div>
               </DialogDescription>
