@@ -478,9 +478,9 @@ const ImageExamRequests = () => {
                           size="icon"
                           onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                           disabled={currentPage === 1}
-                          className="h-[18px] w-[18px] sm:h-10 sm:w-10 min-w-[18px] sm:min-w-[40px]"
+                          className="h-[12px] w-[12px] sm:h-10 sm:w-10 min-w-[12px] sm:min-w-[40px]"
                         >
-                          <ChevronLeft className="h-2.5 w-2.5 sm:h-4 sm:w-4" />
+                          <ChevronLeft className="h-2 w-2 sm:h-4 sm:w-4" />
                         </Button>
                       </PaginationItem>
                       
@@ -490,12 +490,12 @@ const ImageExamRequests = () => {
                             <PaginationLink
                               onClick={() => handlePageChange(page)}
                               isActive={currentPage === page}
-                              className="cursor-pointer h-[18px] w-[18px] sm:h-10 sm:w-10 min-w-[18px] sm:min-w-[40px] text-[9px] sm:text-sm p-0"
+                              className="cursor-pointer h-[12px] w-[12px] sm:h-10 sm:w-10 min-w-[12px] sm:min-w-[40px] text-[8px] sm:text-sm p-0"
                             >
                               {page}
                             </PaginationLink>
                           ) : (
-                            <PaginationEllipsis className="h-[18px] w-[18px] sm:h-10 sm:w-10 min-w-[18px] sm:min-w-[40px]" />
+                            <PaginationEllipsis className="h-[12px] w-[12px] sm:h-10 sm:w-10 min-w-[12px] sm:min-w-[40px]" />
                           )}
                         </PaginationItem>
                       ))}
@@ -506,9 +506,9 @@ const ImageExamRequests = () => {
                           size="icon"
                           onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                           disabled={currentPage === totalPages}
-                          className="h-[18px] w-[18px] sm:h-10 sm:w-10 min-w-[18px] sm:min-w-[40px]"
+                          className="h-[12px] w-[12px] sm:h-10 sm:w-10 min-w-[12px] sm:min-w-[40px]"
                         >
-                          <ChevronRight className="h-2.5 w-2.5 sm:h-4 sm:w-4" />
+                          <ChevronRight className="h-2 w-2 sm:h-4 sm:w-4" />
                         </Button>
                       </PaginationItem>
                     </PaginationContent>
