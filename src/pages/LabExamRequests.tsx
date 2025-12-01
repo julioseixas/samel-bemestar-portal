@@ -469,19 +469,18 @@ const LabExamRequests = () => {
               {totalPages > 1 && (
                 <>
                   <Separator className="mt-6" />
-                  <div className="mt-6">
+                  <div className="mt-6 overflow-x-auto">
                     <Pagination>
-                    <PaginationContent>
+                    <PaginationContent className="flex-wrap gap-1 sm:gap-2">
                       <PaginationItem>
                         <Button
                           variant="outline"
                           size="icon"
                           onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                           disabled={currentPage === 1}
-                          className="h-9 w-9 sm:h-10 sm:w-auto sm:px-4"
+                          className="h-8 w-8 sm:h-10 sm:w-10"
                         >
                           <ChevronLeft className="h-4 w-4" />
-                          <span className="hidden sm:inline ml-2">Anterior</span>
                         </Button>
                       </PaginationItem>
                       
@@ -491,12 +490,12 @@ const LabExamRequests = () => {
                             <PaginationLink
                               onClick={() => handlePageChange(page)}
                               isActive={currentPage === page}
-                              className="cursor-pointer"
+                              className="cursor-pointer h-8 w-8 sm:h-10 sm:w-10 text-xs sm:text-sm"
                             >
                               {page}
                             </PaginationLink>
                           ) : (
-                            <PaginationEllipsis />
+                            <PaginationEllipsis className="h-8 w-8 sm:h-10 sm:w-10" />
                           )}
                         </PaginationItem>
                       ))}
@@ -507,9 +506,8 @@ const LabExamRequests = () => {
                           size="icon"
                           onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                           disabled={currentPage === totalPages}
-                          className="h-9 w-9 sm:h-10 sm:w-auto sm:px-4"
+                          className="h-8 w-8 sm:h-10 sm:w-10"
                         >
-                          <span className="hidden sm:inline mr-2">Próximo</span>
                           <ChevronRight className="h-4 w-4" />
                         </Button>
                       </PaginationItem>
