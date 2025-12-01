@@ -59,7 +59,7 @@ const CoparticipationChoice = () => {
                 size="sm"
               >
                 <ArrowLeft className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                Voltar ao Dashboard
+                Voltar
               </Button>
             </div>
             <p className="text-sm sm:text-base text-muted-foreground md:text-lg">
