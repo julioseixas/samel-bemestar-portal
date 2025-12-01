@@ -570,7 +570,7 @@ const Index = () => {
               </div>
               
               {/* Linha 4 - Administrativo e suporte */}
-              <div data-card>
+              {/* <div data-card>
                 <DashboardCard
                 title="ASSINAR DOCUMENTOS"
                 description="Visualize e assine os termos pendentes"
@@ -593,7 +593,7 @@ const Index = () => {
                 useDashboardColor={true}
                 onClick={() => handleCardClick("Chatbot Samel")}
                 />
-              </div>
+              </div> */}
 
               <div data-card>
                 <DashboardCard
