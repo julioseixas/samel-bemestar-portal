@@ -25,6 +25,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Separator } from "@/components/ui/separator";
 
 interface CdiExam {
   nrAtendimento: number;
@@ -260,8 +261,10 @@ const CdiExams = () => {
             </>
           )}
           {!loading && exams.length > itemsPerPage && (
-                <div className="p-6 border-t">
-                  <Pagination>
+                <>
+                  <Separator className="mt-6" />
+                  <div className="p-6">
+                    <Pagination>
                     <PaginationContent>
                       <PaginationItem>
                         <Button
@@ -324,7 +327,8 @@ const CdiExams = () => {
                   <p className="text-center text-sm text-muted-foreground mt-2">
                     Página {currentPage} de {totalPages} ({exams.length} exames)
                   </p>
-                </div>
+                  </div>
+                </>
               )}
           </div>
         </div>
