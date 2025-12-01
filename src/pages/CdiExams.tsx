@@ -146,7 +146,7 @@ const CdiExams = () => {
             <div className="flex items-center justify-between gap-2 p-3 sm:p-6 border-b">
               <div className="min-w-0 flex-1">
                 <h2 className="text-lg sm:text-2xl font-bold text-foreground truncate">
-                  Laudo de Exames CDI
+                  Laudo de Exames de Imagem
                 </h2>
                 <p className="text-xs sm:text-base text-muted-foreground truncate">
                   Centro de Diagnóstico por Imagem
@@ -192,7 +192,7 @@ const CdiExams = () => {
             </>
           ) : exams.length === 0 ? (
             <div className="flex justify-center items-center py-12">
-              <p className="text-muted-foreground">Nenhum exame CDI encontrado.</p>
+              <p className="text-muted-foreground">Nenhum exame de imagem encontrado.</p>
             </div>
           ) : (
             <>
