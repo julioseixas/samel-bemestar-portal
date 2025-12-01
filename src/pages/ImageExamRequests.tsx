@@ -396,8 +396,8 @@ const ImageExamRequests = () => {
                         <CardContent className="p-4 space-y-3">
                           <div className="space-y-2">
                             <div>
-                              <p className="text-xs text-muted-foreground mb-1">Data</p>
-                              <p className="font-semibold text-sm">{formatDate(request.dataEntrada)}</p>
+                              <p className="text-xs text-muted-foreground mb-1">Especialidade</p>
+                              <p className="font-semibold text-sm break-words">{request.dsEspecialidade}</p>
                             </div>
                             
                             <div>
@@ -406,13 +406,13 @@ const ImageExamRequests = () => {
                             </div>
                             
                             <div>
-                              <p className="text-xs text-muted-foreground mb-1">Profissional</p>
-                              <p className="text-sm break-words">{request.nomeProfissional}</p>
+                              <p className="text-xs text-muted-foreground mb-1">Data</p>
+                              <p className="text-sm">{formatDate(request.dataEntrada)}</p>
                             </div>
                             
                             <div>
-                              <p className="text-xs text-muted-foreground mb-1">Especialidade</p>
-                              <p className="text-sm break-words">{request.dsEspecialidade}</p>
+                              <p className="text-xs text-muted-foreground mb-1">Profissional</p>
+                              <p className="text-sm break-words">{request.nomeProfissional}</p>
                             </div>
                             
                             <div className="flex items-center gap-2 pt-1">
