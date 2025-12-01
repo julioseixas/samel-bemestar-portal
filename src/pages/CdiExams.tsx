@@ -142,19 +142,19 @@ const CdiExams = () => {
       <main className="flex-1">
         <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:px-6 md:py-10">
           <div className="rounded-lg border bg-card shadow-soft overflow-hidden">
-            <div className="flex items-center justify-between p-3 sm:p-6 border-b">
-              <div>
-                <h2 className="text-lg sm:text-2xl font-bold text-foreground">
+            <div className="flex items-center justify-between gap-2 p-3 sm:p-6 border-b">
+              <div className="min-w-0 flex-1">
+                <h2 className="text-lg sm:text-2xl font-bold text-foreground truncate">
                   Laudo de Exames CDI
                 </h2>
-                <p className="text-xs sm:text-base text-muted-foreground">
+                <p className="text-xs sm:text-base text-muted-foreground truncate">
                   Centro de Diagnóstico por Imagem
                 </p>
               </div>
               <Button
                 variant="outline"
                 onClick={() => navigate("/exam-results")}
-                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
+                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm shrink-0"
                 size="sm"
               >
                 ← Voltar
