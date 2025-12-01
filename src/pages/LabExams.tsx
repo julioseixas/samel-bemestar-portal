@@ -401,7 +401,7 @@ const LabExams = () => {
                   </div>
 
                   {/* Mobile cards */}
-                  <div className="md:hidden space-y-3 max-h-[40vh] overflow-y-auto">
+                  <div className="md:hidden space-y-3 max-h-[40vh] overflow-y-auto min-h-0">
                     {patients.map((patient, index) => (
                       <div
                         key={`${patient.id}-${index}`}
@@ -506,7 +506,7 @@ const LabExams = () => {
                   </div>
 
                   {/* Mobile cards */}
-                  <div className="md:hidden space-y-3 flex-1 overflow-y-auto">
+                  <div className="md:hidden space-y-3 flex-1 overflow-y-auto min-h-0">
                     {currentExams.map((exam, index) => (
                       <div
                         key={`${exam.nrAtendimento}-${index}`}
