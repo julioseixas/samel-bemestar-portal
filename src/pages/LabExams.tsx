@@ -340,8 +340,8 @@ const LabExams = () => {
     <div className="flex min-h-screen flex-col">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
       
-      <main className="flex-1">
-        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:px-6 md:py-10">
+      <main className="flex-1 flex flex-col">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:px-6 md:py-10 flex-1 flex flex-col">
           {/* Tabela de Pacientes para Progressão Laboratorial */}
           <Card className="mb-4 sm:mb-6">
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 p-3 sm:p-6">
@@ -434,11 +434,11 @@ const LabExams = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="flex-1 flex flex-col">
             <CardHeader className="p-3 sm:p-6">
               <CardTitle className="text-lg sm:text-2xl">Laudo de Exames Laboratoriais</CardTitle>
             </CardHeader>
-            <CardContent className="p-3 sm:p-6">
+            <CardContent className="p-3 sm:p-6 flex-1 flex flex-col">
               {loading ? (
                 <>
                   {/* Desktop skeleton */}
@@ -472,9 +472,9 @@ const LabExams = () => {
                   <p className="text-muted-foreground">Nenhum exame encontrado.</p>
                 </div>
               ) : (
-                <>
+                <div className="flex-1 flex flex-col">
                   {/* Desktop table */}
-                  <div className="hidden md:block overflow-x-auto max-h-[50vh] overflow-y-auto">
+                  <div className="hidden md:block overflow-x-auto flex-1 overflow-y-auto">
                     <Table>
                       <TableHeader className="sticky top-0 bg-card z-10">
                         <TableRow>
@@ -506,7 +506,7 @@ const LabExams = () => {
                   </div>
 
                   {/* Mobile cards */}
-                  <div className="md:hidden space-y-3 max-h-[50vh] overflow-y-auto">
+                  <div className="md:hidden space-y-3 flex-1 overflow-y-auto">
                     {currentExams.map((exam, index) => (
                       <div
                         key={`${exam.nrAtendimento}-${index}`}
@@ -534,62 +534,63 @@ const LabExams = () => {
                       </div>
                     ))}
                   </div>
-                </>
-              )}
 
-              {!loading && exams.length > itemsPerPage && (
-                <div className="mt-6">
-                  <Pagination>
-                    <PaginationContent>
-                      <PaginationItem>
-                        <PaginationPrevious 
-                          onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
-                          className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                        />
-                      </PaginationItem>
-                      
-                      {[...Array(totalPages)].map((_, index) => {
-                        const pageNumber = index + 1;
-                        if (
-                          pageNumber === 1 ||
-                          pageNumber === totalPages ||
-                          (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
-                        ) {
-                          return (
-                            <PaginationItem key={pageNumber}>
-                              <PaginationLink
-                                onClick={() => handlePageChange(pageNumber)}
-                                isActive={currentPage === pageNumber}
-                                className="cursor-pointer"
-                              >
-                                {pageNumber}
-                              </PaginationLink>
-                            </PaginationItem>
-                          );
-                        } else if (
-                          pageNumber === currentPage - 2 ||
-                          pageNumber === currentPage + 2
-                        ) {
-                          return (
-                            <PaginationItem key={pageNumber}>
-                              <PaginationEllipsis />
-                            </PaginationItem>
-                          );
-                        }
-                        return null;
-                      })}
+                  {/* Pagination */}
+                  {!loading && exams.length > itemsPerPage && (
+                    <div className="mt-4 sm:mt-6 pt-4 border-t">
+                      <Pagination>
+                        <PaginationContent>
+                          <PaginationItem>
+                            <PaginationPrevious 
+                              onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
+                              className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                            />
+                          </PaginationItem>
+                          
+                          {[...Array(totalPages)].map((_, index) => {
+                            const pageNumber = index + 1;
+                            if (
+                              pageNumber === 1 ||
+                              pageNumber === totalPages ||
+                              (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+                            ) {
+                              return (
+                                <PaginationItem key={pageNumber}>
+                                  <PaginationLink
+                                    onClick={() => handlePageChange(pageNumber)}
+                                    isActive={currentPage === pageNumber}
+                                    className="cursor-pointer"
+                                  >
+                                    {pageNumber}
+                                  </PaginationLink>
+                                </PaginationItem>
+                              );
+                            } else if (
+                              pageNumber === currentPage - 2 ||
+                              pageNumber === currentPage + 2
+                            ) {
+                              return (
+                                <PaginationItem key={pageNumber}>
+                                  <PaginationEllipsis />
+                                </PaginationItem>
+                              );
+                            }
+                            return null;
+                          })}
 
-                      <PaginationItem>
-                        <PaginationNext 
-                          onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
-                          className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                        />
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                  <p className="text-center text-sm text-muted-foreground mt-2">
-                    Página {currentPage} de {totalPages} ({exams.length} exames)
-                  </p>
+                          <PaginationItem>
+                            <PaginationNext 
+                              onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
+                              className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                            />
+                          </PaginationItem>
+                        </PaginationContent>
+                      </Pagination>
+                      <p className="text-center text-sm text-muted-foreground mt-2">
+                        Página {currentPage} de {totalPages} ({exams.length} exames)
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>

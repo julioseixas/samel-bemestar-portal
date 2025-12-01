@@ -139,9 +139,9 @@ const CdiExams = () => {
     <div className="flex min-h-screen flex-col">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
       
-      <main className="flex-1">
-        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:px-6 md:py-10">
-          <div className="rounded-lg border bg-card shadow-soft overflow-hidden">
+      <main className="flex-1 flex flex-col">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:px-6 md:py-10 flex-1 flex flex-col">
+          <div className="rounded-lg border bg-card shadow-soft overflow-hidden flex-1 flex flex-col">
             <div className="flex items-center justify-between p-3 sm:p-6 border-b">
               <div>
                 <h2 className="text-lg sm:text-2xl font-bold text-foreground">
@@ -194,9 +194,9 @@ const CdiExams = () => {
               <p className="text-muted-foreground">Nenhum exame CDI encontrado.</p>
             </div>
           ) : (
-            <>
+            <div className="flex-1 flex flex-col">
               {/* Desktop table */}
-              <div className="hidden md:block max-h-[60vh] overflow-y-auto overflow-x-auto">
+              <div className="hidden md:block flex-1 overflow-y-auto overflow-x-auto">
                 <Table>
                   <TableHeader className="sticky top-0 bg-card z-10">
                     <TableRow>
@@ -229,7 +229,7 @@ const CdiExams = () => {
               </div>
 
               {/* Mobile cards */}
-              <div className="md:hidden space-y-3 p-3 max-h-[60vh] overflow-y-auto">
+              <div className="md:hidden space-y-3 p-3 flex-1 overflow-y-auto">
                 {currentExams.map((exam, index) => (
                   <div
                     key={`${exam.nrAtendimento}-${index}`}
@@ -257,10 +257,10 @@ const CdiExams = () => {
                   </div>
                 ))}
               </div>
-            </>
-          )}
-          {!loading && exams.length > itemsPerPage && (
-                <div className="p-6 border-t">
+
+              {/* Pagination */}
+              {!loading && exams.length > itemsPerPage && (
+                <div className="p-3 sm:p-6 border-t">
                   <Pagination>
                     <PaginationContent>
                       <PaginationItem>
@@ -314,6 +314,8 @@ const CdiExams = () => {
                   </p>
                 </div>
               )}
+            </div>
+          )}
           </div>
         </div>
       </main>
