@@ -457,7 +457,7 @@ const CertificatesList = () => {
                   </div>
 
                   {/* Mobile cards */}
-                  <div className="md:hidden space-y-3 flex-1 overflow-y-auto">
+                  <div className="md:hidden space-y-3 flex-1 overflow-y-auto min-h-0">
                     {currentCertificates.map((certificate, index) => (
                       <div
                         key={`${certificate.nrAtendimento}-${index}`}
