@@ -389,7 +389,58 @@ const LabExamRequests = () => {
                       <span>Coletado</span>
                     </div>
                   </div>
-                  <div className="overflow-x-auto max-h-[calc(100vh-280px)] sm:max-h-[calc(100vh-300px)] md:max-h-[60vh] overflow-y-auto">
+                  
+                  {/* Cards para Mobile */}
+                  <div className="md:hidden space-y-3 max-h-[calc(100vh-280px)] overflow-y-auto">
+                    {currentRequests.map((request, index) => (
+                      <Card 
+                        key={`${request.nrAtendimento}-${index}`}
+                        className="hover:shadow-lg transition-shadow"
+                      >
+                        <CardContent className="p-4 space-y-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0 space-y-2">
+                              <div>
+                                <p className="text-xs text-muted-foreground mb-1">Data</p>
+                                <p className="font-semibold text-sm">{formatDate(request.dataEntrada)}</p>
+                              </div>
+                              
+                              <div>
+                                <p className="text-xs text-muted-foreground mb-1">Paciente</p>
+                                <p className="font-medium text-sm break-words">{request.nomeCliente}</p>
+                              </div>
+                              
+                              <div>
+                                <p className="text-xs text-muted-foreground mb-1">Profissional</p>
+                                <p className="text-sm break-words">{request.nomeProfissional}</p>
+                              </div>
+                              
+                              <div>
+                                <p className="text-xs text-muted-foreground mb-1">Especialidade</p>
+                                <p className="text-sm break-words">{request.dsEspecialidade}</p>
+                              </div>
+                              
+                              <div className="flex items-center gap-2 pt-1">
+                                <p className="text-xs text-muted-foreground">Status:</p>
+                                {getStatusIcon(request.dsStatus)}
+                              </div>
+                            </div>
+                            
+                            <Button
+                              size="icon"
+                              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-9 w-9 shrink-0"
+                              onClick={() => handleViewDetails(request)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+
+                  {/* Tabela para Desktop */}
+                  <div className="hidden md:block overflow-x-auto max-h-[60vh] overflow-y-auto">
                     <Table>
                       <TableHeader className="sticky top-0 bg-card z-10">
                         <TableRow>
