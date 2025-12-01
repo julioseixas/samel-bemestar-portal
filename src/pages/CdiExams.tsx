@@ -219,7 +219,7 @@ const CdiExams = () => {
                             variant="ghost"
                             onClick={() => handleViewExam(exam)}
                             className="h-10 w-10 rounded-full hover:opacity-90"
-                            style={{ backgroundColor: '#7DA092', color: 'white' }}
+                            style={{ backgroundColor: '#214C3B', color: 'white' }}
                           >
                             <Eye className="h-5 w-5" />
                           </Button>
@@ -252,7 +252,7 @@ const CdiExams = () => {
                     <Button
                       onClick={() => handleViewExam(exam)}
                       className="w-full min-h-[44px] hover:opacity-90 text-white"
-                      style={{ backgroundColor: '#7DA092' }}
+                      style={{ backgroundColor: '#214C3B' }}
                     >
                       <Eye className="h-4 w-4 mr-2" />
                       Ver exames
