@@ -368,12 +368,12 @@ const PrescriptionsList = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex h-screen flex-col">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
       
-      <main className="flex-1 flex flex-col">
-        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:px-6 md:py-10 flex-1 flex flex-col">
-          <Card className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col min-h-0">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:px-6 md:py-10 flex-1 flex flex-col min-h-0">
+          <Card className="flex-1 flex flex-col min-h-0">
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 p-3 sm:p-6">
               <CardTitle className="text-lg sm:text-2xl">Minhas Receitas</CardTitle>
               <Button
@@ -385,7 +385,7 @@ const PrescriptionsList = () => {
                 ← Voltar
               </Button>
             </CardHeader>
-            <CardContent className="p-3 sm:p-6 flex-1 flex flex-col">
+            <CardContent className="p-3 sm:p-6 flex-1 flex flex-col min-h-0">
               {loading ? (
                 <>
                   {/* Desktop skeleton */}

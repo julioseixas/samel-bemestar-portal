@@ -136,12 +136,12 @@ const CdiExams = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex h-screen flex-col">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
       
-      <main className="flex-1 flex flex-col">
-        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:px-6 md:py-10 flex-1 flex flex-col">
-          <div className="rounded-lg border bg-card shadow-soft overflow-hidden flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col min-h-0">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:px-6 md:py-10 flex-1 flex flex-col min-h-0">
+          <div className="rounded-lg border bg-card shadow-soft overflow-hidden flex-1 flex flex-col min-h-0">
             <div className="flex items-center justify-between p-3 sm:p-6 border-b">
               <div>
                 <h2 className="text-lg sm:text-2xl font-bold text-foreground">
