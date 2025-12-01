@@ -48,14 +48,14 @@ const CoparticipationChoice = () => {
       <main className="flex-1">
         <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:px-6 md:py-10">
           <div className="mb-6 sm:mb-8">
-            <div className="flex flex-col sm:flex-row items-center justify-between mb-2 gap-2">
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground md:text-3xl">
+            <div className="flex flex-row items-center justify-between mb-2 gap-2">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground md:text-3xl truncate min-w-0">
                 Coparticipação
               </h2>
               <Button
                 variant="outline"
                 onClick={() => navigate("/dashboard")}
-                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
+                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm shrink-0"
                 size="sm"
               >
                 <ArrowLeft className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
