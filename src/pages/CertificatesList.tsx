@@ -371,9 +371,9 @@ const CertificatesList = () => {
     <div className="flex min-h-screen flex-col">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
       
-      <main className="flex-1">
-        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:px-6 md:py-10">
-          <Card>
+      <main className="flex-1 flex flex-col">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:px-6 md:py-10 flex-1 flex flex-col">
+          <Card className="flex-1 flex flex-col">
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 p-3 sm:p-6">
               <CardTitle className="text-lg sm:text-2xl">Meus Atestados</CardTitle>
               <Button
@@ -385,7 +385,7 @@ const CertificatesList = () => {
                 ← Voltar
               </Button>
             </CardHeader>
-            <CardContent className="p-3 sm:p-6">
+            <CardContent className="p-3 sm:p-6 flex-1 flex flex-col">
               {loading ? (
                 <>
                   {/* Desktop skeleton */}
@@ -419,9 +419,9 @@ const CertificatesList = () => {
                   <p className="text-muted-foreground">Nenhum atestado encontrado.</p>
                 </div>
               ) : (
-                <>
+                <div className="flex-1 flex flex-col">
                   {/* Desktop table */}
-                  <div className="hidden md:block overflow-x-auto max-h-[60vh] overflow-y-auto">
+                  <div className="hidden md:block overflow-x-auto flex-1 overflow-y-auto">
                     <Table>
                       <TableHeader className="sticky top-0 bg-card z-10">
                         <TableRow>
@@ -457,7 +457,7 @@ const CertificatesList = () => {
                   </div>
 
                   {/* Mobile cards */}
-                  <div className="md:hidden space-y-3 max-h-[60vh] overflow-y-auto">
+                  <div className="md:hidden space-y-3 flex-1 overflow-y-auto">
                     {currentCertificates.map((certificate, index) => (
                       <div
                         key={`${certificate.nrAtendimento}-${index}`}
@@ -495,45 +495,45 @@ const CertificatesList = () => {
                       </div>
                     ))}
                   </div>
-                </>
-              )}
-              {totalPages > 1 && (
-                    <div className="mt-6">
-                      <Pagination>
-                        <PaginationContent>
-                          <PaginationItem>
-                            <PaginationPrevious 
-                              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                              className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                            />
+
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <Pagination className="mt-4 sm:mt-6 pt-4 border-t">
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious 
+                            onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                            className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                          />
+                        </PaginationItem>
+                        
+                        {getPageNumbers().map((page, i) => (
+                          <PaginationItem key={`${page}-${i}`}>
+                            {typeof page === 'number' ? (
+                              <PaginationLink
+                                onClick={() => handlePageChange(page)}
+                                isActive={currentPage === page}
+                                className="cursor-pointer"
+                              >
+                                {page}
+                              </PaginationLink>
+                            ) : (
+                              <PaginationEllipsis />
+                            )}
                           </PaginationItem>
-                          
-                          {getPageNumbers().map((page, i) => (
-                            <PaginationItem key={`${page}-${i}`}>
-                              {typeof page === 'number' ? (
-                                <PaginationLink
-                                  onClick={() => handlePageChange(page)}
-                                  isActive={currentPage === page}
-                                  className="cursor-pointer"
-                                >
-                                  {page}
-                                </PaginationLink>
-                              ) : (
-                                <PaginationEllipsis />
-                              )}
-                            </PaginationItem>
-                          ))}
-                          
-                          <PaginationItem>
-                            <PaginationNext 
-                              onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-                              className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                            />
-                          </PaginationItem>
-                        </PaginationContent>
-                      </Pagination>
-                    </div>
+                        ))}
+                        
+                        <PaginationItem>
+                          <PaginationNext 
+                            onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                            className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
                   )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
