@@ -3,7 +3,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AppointmentBanner } from "@/components/AppointmentBanner";
 import { DashboardCard } from "@/components/DashboardCard";
-import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, ClipboardList, FolderOpen, FileSignature, CalendarX, Receipt, Star } from "lucide-react";
+import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, ClipboardList, FolderOpen, FileSignature, CalendarX, Receipt, Star, History } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
@@ -491,6 +491,19 @@ const Index = () => {
               </div>
               
               {/* Linha 2 - Ações secundárias */}
+              <div data-card>
+                <DashboardCard
+                title="HISTÓRICO DE ATENDIMENTOS"
+                description="Consulte o histórico de todas as suas consultas e exames"
+                icon={History}
+                iconColor="text-primary"
+                buttonText="Ver Histórico"
+                variant="default"
+                useDashboardColor={true}
+                onClick={() => navigate("/appointment-history")}
+                />
+              </div>
+              
               <div data-card>
                 <DashboardCard
                 title="ENTRAR NA CONSULTA ONLINE"

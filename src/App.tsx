@@ -46,6 +46,7 @@ import OnlineConsultationSchedule from "./pages/OnlineConsultationSchedule";
 import OnlineConsultationDetails from "./pages/OnlineConsultationDetails";
 import TelemedicineQueue from "./pages/TelemedicineQueue";
 import RateAppointments from "./pages/RateAppointments";
+import AppointmentHistory from "./pages/AppointmentHistory";
 
 const queryClient = new QueryClient();
 
@@ -99,6 +100,7 @@ const App = () => (
           <Route path="/online-consultation-details" element={<OnlineConsultationDetails />} />
           <Route path="/telemedicine-queue" element={<TelemedicineQueue />} />
           <Route path="/rate-appointments" element={<RateAppointments />} />
+          <Route path="/appointment-history" element={<AppointmentHistory />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
