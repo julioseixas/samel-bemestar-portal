@@ -157,15 +157,15 @@ const CoparticipationPriceTable = () => {
       <main className="flex-1">
         <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:px-6 md:py-10">
           <Card>
-            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 p-3 sm:p-6">
-              <CardTitle className="text-lg sm:text-2xl">Tabela de Preços</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between gap-2 p-3 sm:p-6">
+              <CardTitle className="text-lg sm:text-2xl truncate min-w-0 flex-1">Tabela de Preços</CardTitle>
               <Button
                 variant="outline"
                 onClick={() => navigate("/coparticipation-choice")}
-                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
+                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm flex-shrink-0"
                 size="sm"
               >
-                ← Voltar
+                Voltar
               </Button>
             </CardHeader>
             <CardContent className="p-3 sm:p-6">
