@@ -520,7 +520,7 @@ const Index = () => {
               <div data-card>
                 <DashboardCard
                 title="FILA DE ATENDIMENTO"
-                description="Acompanhe sua posição na fila de telemedicina"
+                description="Acompanhe sua posição na fila de atendimento"
                 icon={Users}
                 iconColor="text-primary"
                 buttonText="Ver Fila"
