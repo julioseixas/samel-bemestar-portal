@@ -589,23 +589,23 @@ const OnlineConsultationDetails = () => {
                               </AlertDescription>
                             </Alert>
 
-                            <div className="flex gap-2 mt-4">
+                            <div className="flex flex-col xs:flex-row gap-2 mt-4">
                               <Button 
                                 onClick={() => handleOpenCamera(appointment)}
-                                className="flex-1"
+                                className="flex-1 min-w-0"
                                 size="sm"
                               >
-                                <Camera className="h-4 w-4 mr-2" />
-                                Check-in via Câmera
+                                <Camera className="h-4 w-4 mr-1 xs:mr-2 flex-shrink-0" />
+                                <span className="truncate">Câmera</span>
                               </Button>
                               <Button 
                                 onClick={() => handleEmailCheckin(appointment)}
                                 variant="outline"
-                                className="flex-1"
+                                className="flex-1 min-w-0"
                                 size="sm"
                               >
-                                <Mail className="h-4 w-4 mr-2" />
-                                Check-in via Email
+                                <Mail className="h-4 w-4 mr-1 xs:mr-2 flex-shrink-0" />
+                                <span className="truncate">Email</span>
                               </Button>
                             </div>
                           </>
