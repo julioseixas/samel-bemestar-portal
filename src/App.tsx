@@ -47,6 +47,9 @@ import OnlineConsultationDetails from "./pages/OnlineConsultationDetails";
 import TelemedicineQueue from "./pages/TelemedicineQueue";
 import RateAppointments from "./pages/RateAppointments";
 import AppointmentHistory from "./pages/AppointmentHistory";
+import QueueChoice from "./pages/QueueChoice";
+import EmergencyQueue from "./pages/EmergencyQueue";
+import ExamQueue from "./pages/ExamQueue";
 
 const queryClient = new QueryClient();
 
@@ -101,6 +104,9 @@ const App = () => (
           <Route path="/telemedicine-queue" element={<TelemedicineQueue />} />
           <Route path="/rate-appointments" element={<RateAppointments />} />
           <Route path="/appointment-history" element={<AppointmentHistory />} />
+          <Route path="/queue-choice" element={<QueueChoice />} />
+          <Route path="/emergency-queue" element={<EmergencyQueue />} />
+          <Route path="/exam-queue" element={<ExamQueue />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
