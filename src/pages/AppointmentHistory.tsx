@@ -287,7 +287,7 @@ const AppointmentHistory = () => {
                 {filteredAppointments.map((appointment) => {
                   const status = getAppointmentStatus(appointment);
                   return (
-                    <Card key={`${appointment.id}-${appointment.tipoAgendamento}`} className="overflow-hidden">
+                    <Card key={`${appointment.id}-${appointment.tipoAgendamento}`} className="overflow-hidden border-2 border-border">
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1 space-y-2">
