@@ -27,6 +27,8 @@ interface Appointment {
   realizado: boolean;
 }
 
+type StatusFilter = "todos" | "realizada" | "agendada" | "cancelada";
+
 const AppointmentHistory = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -34,6 +36,7 @@ const AppointmentHistory = () => {
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("todos");
 
   useEffect(() => {
     const patientData = localStorage.getItem("patientData");
@@ -157,13 +160,26 @@ const AppointmentHistory = () => {
 
   const getAppointmentStatus = (appointment: Appointment) => {
     if (appointment.cancelado) {
-      return { label: "Cancelada", className: "bg-destructive/10 text-destructive border-destructive/20" };
+      return { label: "Cancelada", className: "bg-destructive/10 text-destructive border-destructive/20", key: "cancelada" as const };
     }
     if (appointment.realizado) {
-      return { label: "Realizada", className: "bg-success/10 text-success border-success/20" };
+      return { label: "Realizada", className: "bg-success/10 text-success border-success/20", key: "realizada" as const };
     }
-    return { label: "Agendada", className: "bg-warning/10 text-warning border-warning/20" };
+    return { label: "Agendada", className: "bg-warning/10 text-warning border-warning/20", key: "agendada" as const };
   };
+
+  const filteredAppointments = appointments.filter((appointment) => {
+    if (statusFilter === "todos") return true;
+    const status = getAppointmentStatus(appointment);
+    return status.key === statusFilter;
+  });
+
+  const filterButtons: { key: StatusFilter; label: string }[] = [
+    { key: "todos", label: "Todos" },
+    { key: "realizada", label: "Realizadas" },
+    { key: "agendada", label: "Agendadas" },
+    { key: "cancelada", label: "Canceladas" },
+  ];
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -190,6 +206,21 @@ const AppointmentHistory = () => {
             </div>
           </div>
 
+          {/* Filtros de status */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            {filterButtons.map((filter) => (
+              <Button
+                key={filter.key}
+                variant={statusFilter === filter.key ? "default" : "outline"}
+                size="sm"
+                onClick={() => setStatusFilter(filter.key)}
+                className="text-xs sm:text-sm"
+              >
+                {filter.label}
+              </Button>
+            ))}
+          </div>
+
           {isLoading ? (
             <div className="space-y-4">
               {[1, 2, 3, 4].map((i) => (
@@ -204,7 +235,7 @@ const AppointmentHistory = () => {
                 </Card>
               ))}
             </div>
-          ) : appointments.length === 0 ? (
+          ) : filteredAppointments.length === 0 ? (
             <Card>
               <CardContent className="p-8 text-center">
                 <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -212,13 +243,15 @@ const AppointmentHistory = () => {
                   Nenhum atendimento encontrado
                 </h3>
                 <p className="text-muted-foreground">
-                  Você ainda não possui histórico de consultas ou exames.
+                  {statusFilter === "todos" 
+                    ? "Você ainda não possui histórico de consultas ou exames."
+                    : `Nenhum atendimento com status "${filterButtons.find(f => f.key === statusFilter)?.label}" encontrado.`}
                 </p>
               </CardContent>
             </Card>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-              {appointments.map((appointment) => {
+              {filteredAppointments.map((appointment) => {
                 const status = getAppointmentStatus(appointment);
                 return (
                   <Card key={`${appointment.id}-${appointment.tipoAgendamento}`} className="overflow-hidden">
