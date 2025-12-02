@@ -187,15 +187,7 @@ const AppointmentHistory = () => {
 
       <main className="flex-1">
         <div className="container mx-auto px-3 sm:px-6 py-4 sm:py-6 md:px-8 md:py-10">
-          <div className="flex items-center gap-3 mb-6">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate("/dashboard")}
-              className="h-9 w-9"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
+          <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-xl sm:text-2xl font-bold text-foreground">
                 Histórico de Atendimentos
@@ -204,6 +196,13 @@ const AppointmentHistory = () => {
                 Consulte todas as suas consultas e exames
               </p>
             </div>
+            <Button
+              variant="outline"
+              onClick={() => navigate("/dashboard")}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Voltar
+            </Button>
           </div>
 
           {/* Filtros de status */}
