@@ -526,7 +526,7 @@ const Index = () => {
                 buttonText="Ver Fila"
                 variant="default"
                 useDashboardColor={true}
-                onClick={() => navigate("/telemedicine-queue")}
+                onClick={() => navigate("/queue-choice")}
                 />
               </div>
               
