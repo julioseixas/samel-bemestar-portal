@@ -251,7 +251,9 @@ const CoparticipationPriceTable = () => {
                       </div>
 
                       {totalPages > 1 && (
-                        <div className="mt-6">
+                        <>
+                          <hr className="my-4 border-border" />
+                          <div>
                           <Pagination>
                             <PaginationContent>
                               <PaginationItem>
@@ -285,7 +287,8 @@ const CoparticipationPriceTable = () => {
                               </PaginationItem>
                             </PaginationContent>
                           </Pagination>
-                        </div>
+                          </div>
+                        </>
                       )}
                     </>
                   )}
