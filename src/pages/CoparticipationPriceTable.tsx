@@ -209,7 +209,8 @@ const CoparticipationPriceTable = () => {
                     </div>
                   ) : (
                     <>
-                      <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
+                      {/* Desktop Table */}
+                      <div className="hidden md:block overflow-x-auto max-h-[60vh] overflow-y-auto">
                         <Table>
                           <TableHeader className="sticky top-0 bg-card z-10">
                             <TableRow>
@@ -230,6 +231,23 @@ const CoparticipationPriceTable = () => {
                             ))}
                           </TableBody>
                         </Table>
+                      </div>
+
+                      {/* Mobile Cards */}
+                      <div className="md:hidden space-y-3">
+                        {currentItems.map((item, index) => (
+                          <div 
+                            key={`mobile-${item.IE_PROC_INTERNO}-${index}`}
+                            className="p-3 border rounded-lg bg-card"
+                          >
+                            <p className="text-sm font-medium text-foreground mb-2 break-words">
+                              {item.DS_PROCEDIMENTO}
+                            </p>
+                            <p className="text-base font-semibold text-primary">
+                              {item.VL_PROCEDIMENTO_MONEY}
+                            </p>
+                          </div>
+                        ))}
                       </div>
 
                       {totalPages > 1 && (
