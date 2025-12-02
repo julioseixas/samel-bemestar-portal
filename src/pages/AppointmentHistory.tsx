@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Calendar, User, MapPin, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getApiHeaders } from "@/lib/api-headers";
@@ -22,6 +23,8 @@ interface Appointment {
   tipoAgendamento: number;
   procedimentos?: { descricao: string }[];
   nomeCliente?: string;
+  cancelado: boolean;
+  realizado: boolean;
 }
 
 const AppointmentHistory = () => {
@@ -95,19 +98,15 @@ const AppointmentHistory = () => {
 
       const allAppointments: Appointment[] = [];
 
-      // Processa consultas
+      // Processa consultas (sem filtro de cancelado)
       if (consultasData.sucesso && consultasData.dados) {
-        const consultas = consultasData.dados
-          .filter((ag: any) => !ag.cancelado)
-          .map((ag: any) => ({ ...ag, tipoAgendamento: 0 }));
+        const consultas = consultasData.dados.map((ag: any) => ({ ...ag, tipoAgendamento: 0 }));
         allAppointments.push(...consultas);
       }
 
-      // Processa exames
+      // Processa exames (sem filtro de cancelado)
       if (examesData.sucesso && examesData.dados) {
-        const exames = examesData.dados
-          .filter((ag: any) => !ag.cancelado)
-          .map((ag: any) => ({ ...ag, tipoAgendamento: 1 }));
+        const exames = examesData.dados.map((ag: any) => ({ ...ag, tipoAgendamento: 1 }));
         allAppointments.push(...exames);
       }
 
@@ -154,6 +153,16 @@ const AppointmentHistory = () => {
       return appointment.procedimentos?.[0]?.descricao || "Exame";
     }
     return appointment.descricaoEspecialidade || appointment.especialidade || "Consulta";
+  };
+
+  const getAppointmentStatus = (appointment: Appointment) => {
+    if (appointment.cancelado) {
+      return { label: "Cancelada", className: "bg-destructive/10 text-destructive border-destructive/20" };
+    }
+    if (appointment.realizado) {
+      return { label: "Realizada", className: "bg-success/10 text-success border-success/20" };
+    }
+    return { label: "Agendada", className: "bg-warning/10 text-warning border-warning/20" };
   };
 
   return (
@@ -209,55 +218,61 @@ const AppointmentHistory = () => {
             </Card>
           ) : (
             <div className="space-y-3">
-              {appointments.map((appointment) => (
-                <Card key={`${appointment.id}-${appointment.tipoAgendamento}`} className="overflow-hidden">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 space-y-2">
-                        <div className="flex items-center gap-2">
-                          <span className={`px-2 py-0.5 text-xs font-medium rounded ${
-                            appointment.tipoAgendamento === 1 
-                              ? "bg-success/10 text-success" 
-                              : "bg-primary/10 text-primary"
-                          }`}>
-                            {appointment.tipoAgendamento === 1 ? "Exame" : "Consulta"}
-                          </span>
-                        </div>
-                        
-                        <h3 className="font-semibold text-foreground">
-                          {getSpecialtyOrProcedure(appointment)}
-                        </h3>
-
-                        <div className="space-y-1 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-2">
-                            <User className="h-4 w-4" />
-                            <span>{appointment.nomeProfissional || "Profissional não informado"}</span>
+              {appointments.map((appointment) => {
+                const status = getAppointmentStatus(appointment);
+                return (
+                  <Card key={`${appointment.id}-${appointment.tipoAgendamento}`} className="overflow-hidden">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 space-y-2">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className={`px-2 py-0.5 text-xs font-medium rounded ${
+                              appointment.tipoAgendamento === 1 
+                                ? "bg-success/10 text-success" 
+                                : "bg-primary/10 text-primary"
+                            }`}>
+                              {appointment.tipoAgendamento === 1 ? "Exame" : "Consulta"}
+                            </span>
+                            <Badge variant="outline" className={status.className}>
+                              {status.label}
+                            </Badge>
                           </div>
                           
-                          <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4" />
-                            <span>{formatDate(appointment.dataAgenda)}</span>
-                            <Clock className="h-4 w-4 ml-2" />
-                            <span>{formatTime(appointment.dataAgenda)}</span>
-                          </div>
-                          
-                          <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4" />
-                            <span>{appointment.nomeUnidade || "Local não informado"}</span>
-                          </div>
+                          <h3 className="font-semibold text-foreground">
+                            {getSpecialtyOrProcedure(appointment)}
+                          </h3>
 
-                          {appointment.nomeCliente && (
-                            <div className="flex items-center gap-2 text-xs">
-                              <span className="font-medium">Paciente:</span>
-                              <span>{appointment.nomeCliente}</span>
+                          <div className="space-y-1 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-2">
+                              <User className="h-4 w-4" />
+                              <span>{appointment.nomeProfissional || "Profissional não informado"}</span>
                             </div>
-                          )}
+                            
+                            <div className="flex items-center gap-2">
+                              <Calendar className="h-4 w-4" />
+                              <span>{formatDate(appointment.dataAgenda)}</span>
+                              <Clock className="h-4 w-4 ml-2" />
+                              <span>{formatTime(appointment.dataAgenda)}</span>
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                              <MapPin className="h-4 w-4" />
+                              <span>{appointment.nomeUnidade || "Local não informado"}</span>
+                            </div>
+
+                            {appointment.nomeCliente && (
+                              <div className="flex items-center gap-2 text-xs">
+                                <span className="font-medium">Paciente:</span>
+                                <span>{appointment.nomeCliente}</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           )}
         </div>
