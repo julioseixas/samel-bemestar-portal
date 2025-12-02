@@ -3,7 +3,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AppointmentBanner } from "@/components/AppointmentBanner";
 import { DashboardCard } from "@/components/DashboardCard";
-import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, ClipboardList, FolderOpen, FileSignature, CalendarX, Receipt, Star, History } from "lucide-react";
+import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, ClipboardList, FolderOpen, FileSignature, CalendarX, Receipt, Star, History, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
@@ -514,6 +514,19 @@ const Index = () => {
                 variant="default"
                 useDashboardColor={true}
                 onClick={() => navigate("/online-consultation-schedule")}
+                />
+              </div>
+              
+              <div data-card>
+                <DashboardCard
+                title="FILA DE ATENDIMENTO"
+                description="Acompanhe sua posição na fila de telemedicina"
+                icon={Users}
+                iconColor="text-primary"
+                buttonText="Ver Fila"
+                variant="default"
+                useDashboardColor={true}
+                onClick={() => navigate("/telemedicine-queue")}
                 />
               </div>
               
