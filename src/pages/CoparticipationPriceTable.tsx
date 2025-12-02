@@ -234,7 +234,7 @@ const CoparticipationPriceTable = () => {
                       </div>
 
                       {/* Mobile Cards */}
-                      <div className="md:hidden space-y-3">
+                      <div className="md:hidden space-y-3 max-h-[calc(100vh-380px)] overflow-y-auto">
                         {currentItems.map((item, index) => (
                           <div 
                             key={`mobile-${item.IE_PROC_INTERNO}-${index}`}
