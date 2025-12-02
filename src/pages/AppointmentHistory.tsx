@@ -28,6 +28,7 @@ interface Appointment {
 }
 
 type StatusFilter = "todos" | "realizada" | "agendada" | "cancelada";
+type TypeFilter = "todos" | "consulta" | "exame";
 
 const AppointmentHistory = () => {
   const navigate = useNavigate();
@@ -37,6 +38,7 @@ const AppointmentHistory = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("todos");
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("todos");
 
   useEffect(() => {
     const patientData = localStorage.getItem("patientData");
@@ -169,9 +171,18 @@ const AppointmentHistory = () => {
   };
 
   const filteredAppointments = appointments.filter((appointment) => {
-    if (statusFilter === "todos") return true;
-    const status = getAppointmentStatus(appointment);
-    return status.key === statusFilter;
+    // Filtro de status
+    if (statusFilter !== "todos") {
+      const status = getAppointmentStatus(appointment);
+      if (status.key !== statusFilter) return false;
+    }
+    // Filtro de tipo
+    if (typeFilter !== "todos") {
+      const isExame = appointment.tipoAgendamento === 1;
+      if (typeFilter === "exame" && !isExame) return false;
+      if (typeFilter === "consulta" && isExame) return false;
+    }
+    return true;
   });
 
   const filterButtons: { key: StatusFilter; label: string }[] = [
@@ -179,6 +190,12 @@ const AppointmentHistory = () => {
     { key: "realizada", label: "Realizadas" },
     { key: "agendada", label: "Agendadas" },
     { key: "cancelada", label: "Canceladas" },
+  ];
+
+  const typeFilterButtons: { key: TypeFilter; label: string }[] = [
+    { key: "todos", label: "Todos" },
+    { key: "consulta", label: "Consultas" },
+    { key: "exame", label: "Exames" },
   ];
 
   return (
@@ -205,19 +222,36 @@ const AppointmentHistory = () => {
             </Button>
           </div>
 
-          {/* Filtros de status */}
-          <div className="flex flex-wrap gap-2 mb-4">
-            {filterButtons.map((filter) => (
-              <Button
-                key={filter.key}
-                variant={statusFilter === filter.key ? "default" : "outline"}
-                size="sm"
-                onClick={() => setStatusFilter(filter.key)}
-                className="text-xs sm:text-sm"
-              >
-                {filter.label}
-              </Button>
-            ))}
+          {/* Filtros */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+            {/* Filtros de status */}
+            <div className="flex flex-wrap gap-2">
+              {filterButtons.map((filter) => (
+                <Button
+                  key={filter.key}
+                  variant={statusFilter === filter.key ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setStatusFilter(filter.key)}
+                  className="text-xs sm:text-sm"
+                >
+                  {filter.label}
+                </Button>
+              ))}
+            </div>
+            {/* Filtros de tipo */}
+            <div className="flex flex-wrap gap-2">
+              {typeFilterButtons.map((filter) => (
+                <Button
+                  key={filter.key}
+                  variant={typeFilter === filter.key ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setTypeFilter(filter.key)}
+                  className="text-xs sm:text-sm"
+                >
+                  {filter.label}
+                </Button>
+              ))}
+            </div>
           </div>
 
           {isLoading ? (
