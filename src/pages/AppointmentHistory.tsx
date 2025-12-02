@@ -254,93 +254,95 @@ const AppointmentHistory = () => {
             </div>
           </div>
 
-          {isLoading ? (
-            <div className="space-y-4">
-              {[1, 2, 3, 4].map((i) => (
-                <Card key={i}>
-                  <CardContent className="p-4">
-                    <div className="space-y-3">
-                      <Skeleton className="h-5 w-3/4" />
-                      <Skeleton className="h-4 w-1/2" />
-                      <Skeleton className="h-4 w-2/3" />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : filteredAppointments.length === 0 ? (
-            <Card>
-              <CardContent className="p-8 text-center">
-                <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold text-foreground mb-2">
-                  Nenhum atendimento encontrado
-                </h3>
-                <p className="text-muted-foreground">
-                  {statusFilter === "todos" 
-                    ? "Você ainda não possui histórico de consultas ou exames."
-                    : `Nenhum atendimento com status "${filterButtons.find(f => f.key === statusFilter)?.label}" encontrado.`}
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-              {filteredAppointments.map((appointment) => {
-                const status = getAppointmentStatus(appointment);
-                return (
-                  <Card key={`${appointment.id}-${appointment.tipoAgendamento}`} className="overflow-hidden">
+          <div className="overflow-y-auto max-h-[calc(100vh-280px)] sm:max-h-[calc(100vh-300px)] pr-1">
+            {isLoading ? (
+              <div className="space-y-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <Card key={i}>
                     <CardContent className="p-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1 space-y-2">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className={`px-2 py-0.5 text-xs font-medium rounded ${
-                              appointment.tipoAgendamento === 1 
-                                ? "bg-success/10 text-success" 
-                                : "bg-primary/10 text-primary"
-                            }`}>
-                              {appointment.tipoAgendamento === 1 ? "Exame" : "Consulta"}
-                            </span>
-                            <Badge variant="outline" className={status.className}>
-                              {status.label}
-                            </Badge>
-                          </div>
-                          
-                          <h3 className="font-semibold text-foreground">
-                            {getSpecialtyOrProcedure(appointment)}
-                          </h3>
-
-                          <div className="space-y-1 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-2">
-                              <User className="h-4 w-4" />
-                              <span>{appointment.nomeProfissional || "Profissional não informado"}</span>
-                            </div>
-                            
-                            <div className="flex items-center gap-2">
-                              <Calendar className="h-4 w-4" />
-                              <span>{formatDate(appointment.dataAgenda)}</span>
-                              <Clock className="h-4 w-4 ml-2" />
-                              <span>{formatTime(appointment.dataAgenda)}</span>
-                            </div>
-                            
-                            <div className="flex items-center gap-2">
-                              <MapPin className="h-4 w-4" />
-                              <span>{appointment.nomeUnidade || "Local não informado"}</span>
-                            </div>
-
-                            {appointment.nomeCliente && (
-                              <div className="flex items-center gap-2 text-xs">
-                                <span className="font-medium">Paciente:</span>
-                                <span>{appointment.nomeCliente}</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                      <div className="space-y-3">
+                        <Skeleton className="h-5 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
+                        <Skeleton className="h-4 w-2/3" />
                       </div>
                     </CardContent>
                   </Card>
-                );
-              })}
-            </div>
-          )}
+                ))}
+              </div>
+            ) : filteredAppointments.length === 0 ? (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-semibold text-foreground mb-2">
+                    Nenhum atendimento encontrado
+                  </h3>
+                  <p className="text-muted-foreground">
+                    {statusFilter === "todos" 
+                      ? "Você ainda não possui histórico de consultas ou exames."
+                      : `Nenhum atendimento com status "${filterButtons.find(f => f.key === statusFilter)?.label}" encontrado.`}
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                {filteredAppointments.map((appointment) => {
+                  const status = getAppointmentStatus(appointment);
+                  return (
+                    <Card key={`${appointment.id}-${appointment.tipoAgendamento}`} className="overflow-hidden">
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 space-y-2">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className={`px-2 py-0.5 text-xs font-medium rounded ${
+                                appointment.tipoAgendamento === 1 
+                                  ? "bg-success/10 text-success" 
+                                  : "bg-primary/10 text-primary"
+                              }`}>
+                                {appointment.tipoAgendamento === 1 ? "Exame" : "Consulta"}
+                              </span>
+                              <Badge variant="outline" className={status.className}>
+                                {status.label}
+                              </Badge>
+                            </div>
+                            
+                            <h3 className="font-semibold text-foreground">
+                              {getSpecialtyOrProcedure(appointment)}
+                            </h3>
+
+                            <div className="space-y-1 text-sm text-muted-foreground">
+                              <div className="flex items-center gap-2">
+                                <User className="h-4 w-4" />
+                                <span>{appointment.nomeProfissional || "Profissional não informado"}</span>
+                              </div>
+                              
+                              <div className="flex items-center gap-2">
+                                <Calendar className="h-4 w-4" />
+                                <span>{formatDate(appointment.dataAgenda)}</span>
+                                <Clock className="h-4 w-4 ml-2" />
+                                <span>{formatTime(appointment.dataAgenda)}</span>
+                              </div>
+                              
+                              <div className="flex items-center gap-2">
+                                <MapPin className="h-4 w-4" />
+                                <span>{appointment.nomeUnidade || "Local não informado"}</span>
+                              </div>
+
+                              {appointment.nomeCliente && (
+                                <div className="flex items-center gap-2 text-xs">
+                                  <span className="font-medium">Paciente:</span>
+                                  <span>{appointment.nomeCliente}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       </main>
 
