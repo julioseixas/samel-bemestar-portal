@@ -79,7 +79,7 @@ const CoparticipationChoice = () => {
               onClick={handlePriceTable}
             />
             
-            <DashboardCard
+            {/* <DashboardCard
               title="EXTRATO DE COPARTICIPAÇÃO"
               description="Acompanhe o histórico dos seus valores pagos"
               icon={FileText}
@@ -88,7 +88,7 @@ const CoparticipationChoice = () => {
               variant="default"
               useDashboardColor={true}
               onClick={handleStatement}
-            />
+            /> */}
           </div>
         </div>
       </main>
