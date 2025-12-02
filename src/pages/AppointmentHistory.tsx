@@ -253,7 +253,7 @@ const AppointmentHistory = () => {
             </div>
           </div>
 
-          <div className="overflow-y-auto max-h-[calc(100vh-280px)] sm:max-h-[calc(100vh-300px)] pr-1">
+          <div className="overflow-y-auto max-h-[calc(100vh-280px)] sm:max-h-[calc(100vh-300px)] pr-1 border border-muted-foreground/20 rounded-lg p-3">
             {isLoading ? (
               <div className="space-y-4">
                 {[1, 2, 3, 4].map((i) => (
