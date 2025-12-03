@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Stethoscope, Calendar, Clock, Users } from "lucide-react";
+import { ArrowLeft, Stethoscope, Calendar, Clock, Users, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getApiHeaders } from "@/lib/api-headers";
@@ -22,6 +22,8 @@ interface ConsultaFila {
   status: string;
   statusDescricao: string;
   posicaoAtual: number;
+  descricaoEspecialidade: string;
+  nomeUnidade: string;
 }
 
 const ConsultationQueue = () => {
@@ -187,6 +189,22 @@ const ConsultationQueue = () => {
                     </div>
 
                     <div className="space-y-2">
+                      {consulta.descricaoEspecialidade && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <Stethoscope className="h-4 w-4 text-primary" />
+                          <span className="font-medium">Especialidade:</span>
+                          <span className="text-muted-foreground">{consulta.descricaoEspecialidade}</span>
+                        </div>
+                      )}
+
+                      {consulta.nomeUnidade && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <MapPin className="h-4 w-4 text-primary" />
+                          <span className="font-medium">Unidade:</span>
+                          <span className="text-muted-foreground">{consulta.nomeUnidade}</span>
+                        </div>
+                      )}
+
                       <div className="flex items-center gap-2 text-sm">
                         <Calendar className="h-4 w-4 text-primary" />
                         <span className="font-medium">Data:</span>
