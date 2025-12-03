@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Stethoscope, Calendar, Clock, Users, MapPin } from "lucide-react";
+import { ArrowLeft, Stethoscope, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getApiHeaders } from "@/lib/api-headers";
@@ -180,12 +180,6 @@ const ConsultationQueue = () => {
                       <Badge variant="secondary" className="text-xs">
                         {consulta.statusDescricao || consulta.status}
                       </Badge>
-                      {consulta.posicaoAtual > 0 && (
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <Users className="h-4 w-4" />
-                          <span>Posição: {consulta.posicaoAtual}</span>
-                        </div>
-                      )}
                     </div>
 
                     <div className="space-y-2">
@@ -202,26 +196,6 @@ const ConsultationQueue = () => {
                           <MapPin className="h-4 w-4 text-primary" />
                           <span className="font-medium">Unidade:</span>
                           <span className="text-muted-foreground">{consulta.nomeUnidade}</span>
-                        </div>
-                      )}
-
-                      <div className="flex items-center gap-2 text-sm">
-                        <Calendar className="h-4 w-4 text-primary" />
-                        <span className="font-medium">Data:</span>
-                        <span className="text-muted-foreground">{consulta.dataAgenda}</span>
-                      </div>
-
-                      <div className="flex items-center gap-2 text-sm">
-                        <Clock className="h-4 w-4 text-primary" />
-                        <span className="font-medium">Horário:</span>
-                        <span className="text-muted-foreground">{consulta.horario}</span>
-                      </div>
-
-                      {consulta.horaChegada && (
-                        <div className="flex items-center gap-2 text-sm">
-                          <Clock className="h-4 w-4 text-green-500" />
-                          <span className="font-medium">Chegada:</span>
-                          <span className="text-muted-foreground">{consulta.horaChegada}</span>
                         </div>
                       )}
                     </div>
