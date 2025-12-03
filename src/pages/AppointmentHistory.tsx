@@ -222,34 +222,40 @@ const AppointmentHistory = () => {
           </div>
 
           {/* Filtros */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <div className="flex flex-col gap-3 mb-4">
             {/* Filtros de status */}
-            <div className="flex flex-wrap gap-2">
-              {filterButtons.map((filter) => (
-                <Button
-                  key={filter.key}
-                  variant={statusFilter === filter.key ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setStatusFilter(filter.key)}
-                  className="text-xs sm:text-sm"
-                >
-                  {filter.label}
-                </Button>
-              ))}
+            <div className="flex flex-col xs:flex-row xs:items-center gap-1.5 xs:gap-2">
+              <span className="text-xs text-muted-foreground font-medium shrink-0">Status:</span>
+              <div className="flex flex-wrap gap-1.5">
+                {filterButtons.map((filter) => (
+                  <Button
+                    key={filter.key}
+                    variant={statusFilter === filter.key ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setStatusFilter(filter.key)}
+                    className="text-[10px] xs:text-xs sm:text-sm h-7 px-2 xs:px-3"
+                  >
+                    {filter.label}
+                  </Button>
+                ))}
+              </div>
             </div>
             {/* Filtros de tipo */}
-            <div className="flex flex-wrap gap-2">
-              {typeFilterButtons.map((filter) => (
-                <Button
-                  key={filter.key}
-                  variant={typeFilter === filter.key ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setTypeFilter(filter.key)}
-                  className="text-xs sm:text-sm"
-                >
-                  {filter.label}
-                </Button>
-              ))}
+            <div className="flex flex-col xs:flex-row xs:items-center gap-1.5 xs:gap-2">
+              <span className="text-xs text-muted-foreground font-medium shrink-0">Tipo:</span>
+              <div className="flex flex-wrap gap-1.5">
+                {typeFilterButtons.map((filter) => (
+                  <Button
+                    key={filter.key}
+                    variant={typeFilter === filter.key ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setTypeFilter(filter.key)}
+                    className="text-[10px] xs:text-xs sm:text-sm h-7 px-2 xs:px-3"
+                  >
+                    {filter.label}
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
 
