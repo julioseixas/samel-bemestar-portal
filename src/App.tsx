@@ -50,6 +50,7 @@ import AppointmentHistory from "./pages/AppointmentHistory";
 import QueueChoice from "./pages/QueueChoice";
 import EmergencyQueue from "./pages/EmergencyQueue";
 import ExamQueue from "./pages/ExamQueue";
+import ConsultationQueue from "./pages/ConsultationQueue";
 
 const queryClient = new QueryClient();
 
@@ -107,6 +108,7 @@ const App = () => (
           <Route path="/queue-choice" element={<QueueChoice />} />
           <Route path="/emergency-queue" element={<EmergencyQueue />} />
           <Route path="/exam-queue" element={<ExamQueue />} />
+          <Route path="/consultation-queue" element={<ConsultationQueue />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

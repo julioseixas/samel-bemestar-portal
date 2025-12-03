@@ -34,7 +34,7 @@ const QueueChoice = () => {
       title: "Fila de Consultas",
       description: "Acompanhe sua posição na fila de consultas",
       icon: Stethoscope,
-      onClick: () => navigate("/telemedicine-queue"),
+      onClick: () => navigate("/consultation-queue"),
     },
     {
       title: "Fila do Pronto Socorro",
