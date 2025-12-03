@@ -44,6 +44,7 @@ const EmergencyQueue = () => {
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [currentPatientIds, setCurrentPatientIds] = useState<number[]>([]);
   const previousStatusRef = useRef<Map<number, string>>(new Map());
+  const previousCountRef = useRef<number>(0);
   const isFirstLoadRef = useRef(true);
 
   const playNotificationSound = useCallback(() => {
@@ -141,25 +142,40 @@ const EmergencyQueue = () => {
       }
 
       if (allResults.length > 0 && lastResponse) {
-        // Check for status changes only for current patient's appointments
+        // Check for changes only after first load
         if (!isFirstLoadRef.current) {
-          for (const item of allResults) {
-            if (currentPatientIds.includes(item.CD_PESSOA_FISICA)) {
-              const previousStatus = previousStatusRef.current.get(item.NR_ATENDIMENTO);
-              if (previousStatus && previousStatus !== item.DS_STATUS_ATENDIMENTO) {
-                playNotificationSound();
-                break;
+          let shouldPlaySound = false;
+          
+          // Check for list size changes (additions or removals)
+          if (allResults.length !== previousCountRef.current) {
+            shouldPlaySound = true;
+          }
+          
+          // Check for status changes
+          if (!shouldPlaySound) {
+            for (const item of allResults) {
+              if (currentPatientIds.includes(item.CD_PESSOA_FISICA)) {
+                const previousStatus = previousStatusRef.current.get(item.NR_ATENDIMENTO);
+                if (previousStatus && previousStatus !== item.DS_STATUS_ATENDIMENTO) {
+                  shouldPlaySound = true;
+                  break;
+                }
               }
             }
           }
+          
+          if (shouldPlaySound) {
+            playNotificationSound();
+          }
         }
         
-        // Update previous status map
+        // Update previous refs
         const newStatusMap = new Map<number, string>();
         allResults.forEach(item => {
           newStatusMap.set(item.NR_ATENDIMENTO, item.DS_STATUS_ATENDIMENTO);
         });
         previousStatusRef.current = newStatusMap;
+        previousCountRef.current = allResults.length;
         isFirstLoadRef.current = false;
         
         setQueueData({
@@ -168,6 +184,12 @@ const EmergencyQueue = () => {
         });
         setApiMessage(null);
       } else {
+        // Play sound if list became empty (was not empty before)
+        if (!isFirstLoadRef.current && previousCountRef.current > 0) {
+          playNotificationSound();
+        }
+        previousCountRef.current = 0;
+        isFirstLoadRef.current = false;
         setQueueData(null);
         setApiMessage(lastMessage);
       }
