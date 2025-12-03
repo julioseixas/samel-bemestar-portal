@@ -130,7 +130,7 @@ const ConsultationQueue = () => {
         <div className="container mx-auto px-3 sm:px-6 py-4 sm:py-6 md:px-8 md:py-10">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-xl sm:text-2xl font-bold text-foreground truncate min-w-0 flex-1">
-              Fila de Consultas
+              Consultas do dia
             </h1>
             <Button
               variant="outline"
