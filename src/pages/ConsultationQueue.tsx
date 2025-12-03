@@ -176,12 +176,6 @@ const ConsultationQueue = () => {
               {consultas.map((consulta) => (
                 <Card key={consulta.idAgendamento} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-4 sm:p-6">
-                    <div className="flex items-start justify-between mb-3">
-                      <Badge variant="secondary" className="text-xs">
-                        {consulta.statusDescricao || consulta.status}
-                      </Badge>
-                    </div>
-
                     <div className="space-y-2">
                       {consulta.descricaoEspecialidade && (
                         <div className="flex items-center gap-2 text-sm">
