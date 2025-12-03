@@ -2,14 +2,35 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Stethoscope } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ArrowLeft, Stethoscope, Calendar, Clock, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { getApiHeaders } from "@/lib/api-headers";
+import { useToast } from "@/hooks/use-toast";
+import { jwtDecode } from "jwt-decode";
+
+interface ConsultaFila {
+  dataAgenda: string;
+  dataChegada: string;
+  horaChegada: string;
+  horario: string;
+  idAgenda: number;
+  idAgendamento: number;
+  idCliente: string;
+  status: string;
+  statusDescricao: string;
+  posicaoAtual: number;
+}
 
 const ConsultationQueue = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const [consultas, setConsultas] = useState<ConsultaFila[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const patientData = localStorage.getItem("patientData");
@@ -27,7 +48,65 @@ const ConsultationQueue = () => {
     if (photo) {
       setProfilePhoto(photo);
     }
+
+    fetchConsultasAgendadas();
   }, []);
+
+  const fetchConsultasAgendadas = async () => {
+    setIsLoading(true);
+    try {
+      const userToken = localStorage.getItem("user");
+      if (!userToken) {
+        toast({
+          title: "Erro",
+          description: "Token de autenticação não encontrado",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const decoded: any = jwtDecode(userToken);
+      const cdPessoaFisica = decoded.cd_pessoa_fisica;
+
+      if (!cdPessoaFisica) {
+        toast({
+          title: "Erro",
+          description: "Dados do paciente não encontrados",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const headers = getApiHeaders();
+      const response = await fetch(
+        "https://api-portalpaciente-web.samel.com.br/api/Agenda/ListarConsultasAgendadas",
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            pacientes: [cdPessoaFisica],
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.sucesso && data.dados) {
+        setConsultas(data.dados);
+      } else {
+        setConsultas([]);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar consultas agendadas:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar a fila de consultas",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -49,21 +128,78 @@ const ConsultationQueue = () => {
             </Button>
           </div>
 
-          <Card>
-            <CardContent className="p-6 sm:p-10 flex flex-col items-center text-center gap-4">
-              <div className="p-4 rounded-full bg-muted">
-                <Stethoscope className="h-10 w-10 text-muted-foreground" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg text-foreground mb-1">
-                  Nenhuma consulta na fila
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Você não possui consultas na fila no momento.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          {isLoading ? (
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+              {[1, 2].map((i) => (
+                <Card key={i}>
+                  <CardContent className="p-4 sm:p-6">
+                    <Skeleton className="h-6 w-3/4 mb-3" />
+                    <Skeleton className="h-4 w-1/2 mb-2" />
+                    <Skeleton className="h-4 w-2/3 mb-2" />
+                    <Skeleton className="h-4 w-1/3" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : consultas.length === 0 ? (
+            <Card>
+              <CardContent className="p-6 sm:p-10 flex flex-col items-center text-center gap-4">
+                <div className="p-4 rounded-full bg-muted">
+                  <Stethoscope className="h-10 w-10 text-muted-foreground" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg text-foreground mb-1">
+                    Nenhuma consulta na fila
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Você não possui consultas na fila no momento.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+              {consultas.map((consulta) => (
+                <Card key={consulta.idAgendamento} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex items-start justify-between mb-3">
+                      <Badge variant="secondary" className="text-xs">
+                        {consulta.statusDescricao || consulta.status}
+                      </Badge>
+                      {consulta.posicaoAtual > 0 && (
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <Users className="h-4 w-4" />
+                          <span>Posição: {consulta.posicaoAtual}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm">
+                        <Calendar className="h-4 w-4 text-primary" />
+                        <span className="font-medium">Data:</span>
+                        <span className="text-muted-foreground">{consulta.dataAgenda}</span>
+                      </div>
+
+                      <div className="flex items-center gap-2 text-sm">
+                        <Clock className="h-4 w-4 text-primary" />
+                        <span className="font-medium">Horário:</span>
+                        <span className="text-muted-foreground">{consulta.horario}</span>
+                      </div>
+
+                      {consulta.horaChegada && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <Clock className="h-4 w-4 text-green-500" />
+                          <span className="font-medium">Chegada:</span>
+                          <span className="text-muted-foreground">{consulta.horaChegada}</span>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </main>
 
