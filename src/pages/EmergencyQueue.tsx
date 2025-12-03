@@ -66,14 +66,14 @@ const EmergencyQueue = () => {
         const decoded: any = jwtDecode(userToken);
         const ids: number[] = [];
         
-        if (decoded.cd_pessoa_fisica) {
-          ids.push(decoded.cd_pessoa_fisica);
+        if (decoded.id) {
+          ids.push(parseInt(decoded.id));
         }
         
         if (decoded.dependentes && Array.isArray(decoded.dependentes)) {
           decoded.dependentes.forEach((dep: any) => {
-            if (dep.cd_pessoa_fisica) {
-              ids.push(dep.cd_pessoa_fisica);
+            if (dep.id) {
+              ids.push(parseInt(dep.id));
             }
           });
         }
