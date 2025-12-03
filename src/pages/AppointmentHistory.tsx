@@ -222,9 +222,9 @@ const AppointmentHistory = () => {
           </div>
 
           {/* Filtros */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 mb-4">
             {/* Filtros de status */}
-            <div className="flex flex-col xs:flex-row xs:items-center gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground font-medium shrink-0 sm:hidden">Status:</span>
               <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {filterButtons.map((filter) => (
@@ -241,7 +241,7 @@ const AppointmentHistory = () => {
               </div>
             </div>
             {/* Filtros de tipo */}
-            <div className="flex flex-col xs:flex-row xs:items-center gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground font-medium shrink-0 sm:hidden">Tipo:</span>
               <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {typeFilterButtons.map((filter) => (
