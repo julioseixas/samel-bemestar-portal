@@ -2,43 +2,14 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Calendar, Clock, User, MapPin, Stethoscope } from "lucide-react";
+import { ArrowLeft, Stethoscope } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { jwtDecode } from "jwt-decode";
-import { getApiHeaders } from "@/lib/api-headers";
-import { toast } from "@/hooks/use-toast";
-
-interface AgendaConsulta {
-  idAgendamento?: number;
-  id?: number;
-  nomeCliente?: string;
-  nomePaciente?: string;
-  nomeProfissional?: string;
-  nmMedico?: string;
-  especialidade?: string;
-  descricaoEspecialidade?: string;
-  dsEspecialidade?: string;
-  dataAgenda?: string;
-  dataAgenda2?: string;
-  dtAgenda?: string;
-  horario?: string;
-  hora?: string;
-  local?: string;
-  unidade?: string;
-  dsUnidade?: string;
-  status?: string;
-  statusDescricao?: string;
-  [key: string]: any;
-}
 
 const ConsultationQueue = () => {
   const navigate = useNavigate();
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
-  const [agendas, setAgendas] = useState<AgendaConsulta[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const patientData = localStorage.getItem("patientData");
@@ -56,112 +27,7 @@ const ConsultationQueue = () => {
     if (photo) {
       setProfilePhoto(photo);
     }
-
-    fetchAgendas();
   }, []);
-
-  const fetchAgendas = async () => {
-    setLoading(true);
-    try {
-      const userToken = localStorage.getItem("user");
-      if (!userToken) {
-        toast({
-          title: "Erro",
-          description: "Sessão expirada. Faça login novamente.",
-          variant: "destructive",
-        });
-        navigate("/login");
-        return;
-      }
-
-      const decoded: any = jwtDecode(userToken);
-      const pacientesIds: number[] = [];
-
-      // Adiciona titular
-      if (decoded.id) {
-        pacientesIds.push(decoded.id);
-      }
-
-      // Adiciona dependentes
-      if (decoded.dependentes && Array.isArray(decoded.dependentes)) {
-        decoded.dependentes.forEach((dep: any) => {
-          if (dep.id) {
-            pacientesIds.push(dep.id);
-          }
-        });
-      }
-
-      const response = await fetch(
-        "https://api-portalpaciente-web.samel.com.br/api/Agenda/ListarExameagendadas",
-        {
-          method: "POST",
-          headers: getApiHeaders(),
-          body: JSON.stringify({ pacientes: pacientesIds }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (data.dados && Array.isArray(data.dados)) {
-        setAgendas(data.dados);
-      } else if (Array.isArray(data)) {
-        setAgendas(data);
-      } else {
-        setAgendas([]);
-      }
-    } catch (error) {
-      console.error("Erro ao buscar agendas:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar as agendas. Tente novamente.",
-        variant: "destructive",
-      });
-      setAgendas([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatDate = (dateStr?: string) => {
-    if (!dateStr) return "Data não informada";
-    
-    // Se já está no formato brasileiro, retorna diretamente
-    if (dateStr.includes("/")) return dateStr.split(" ")[0];
-    
-    try {
-      const date = new Date(dateStr);
-      return date.toLocaleDateString("pt-BR");
-    } catch {
-      return dateStr;
-    }
-  };
-
-  const getTime = (agenda: AgendaConsulta) => {
-    return agenda.horario || agenda.hora || 
-           (agenda.dataAgenda?.includes(" ") ? agenda.dataAgenda.split(" ")[1] : null) ||
-           (agenda.dataAgenda2?.includes(" ") ? agenda.dataAgenda2.split(" ")[1] : null) ||
-           "Horário não informado";
-  };
-
-  const getPatientName = (agenda: AgendaConsulta) => {
-    return agenda.nomeCliente || agenda.nomePaciente || "Paciente";
-  };
-
-  const getProfessionalName = (agenda: AgendaConsulta) => {
-    return agenda.nomeProfissional || agenda.nmMedico || "Profissional não informado";
-  };
-
-  const getSpecialty = (agenda: AgendaConsulta) => {
-    return agenda.especialidade || agenda.descricaoEspecialidade || agenda.dsEspecialidade || "Especialidade não informada";
-  };
-
-  const getLocation = (agenda: AgendaConsulta) => {
-    return agenda.local || agenda.unidade || agenda.dsUnidade || null;
-  };
-
-  const getDate = (agenda: AgendaConsulta) => {
-    return formatDate(agenda.dataAgenda || agenda.dataAgenda2 || agenda.dtAgenda);
-  };
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -183,100 +49,21 @@ const ConsultationQueue = () => {
             </Button>
           </div>
 
-          {loading ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {[1, 2, 3].map((i) => (
-                <Card key={i}>
-                  <CardContent className="p-4 sm:p-6 space-y-3">
-                    <Skeleton className="h-5 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                    <Skeleton className="h-4 w-2/3" />
-                    <Skeleton className="h-4 w-1/3" />
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : agendas.length === 0 ? (
-            <Card>
-              <CardContent className="p-6 sm:p-10 flex flex-col items-center text-center gap-4">
-                <div className="p-4 rounded-full bg-muted">
-                  <Stethoscope className="h-10 w-10 text-muted-foreground" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg text-foreground mb-1">
-                    Nenhuma consulta na fila
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Você não possui consultas agendadas no momento.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {agendas.map((agenda, index) => (
-                <Card key={agenda.idAgendamento || agenda.id || index} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4 sm:p-6 space-y-3">
-                    {/* Paciente */}
-                    <div className="flex items-start gap-2">
-                      <User className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs text-muted-foreground">Paciente</p>
-                        <p className="font-medium text-foreground truncate">{getPatientName(agenda)}</p>
-                      </div>
-                    </div>
-
-                    {/* Especialidade */}
-                    <div className="flex items-start gap-2">
-                      <Stethoscope className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs text-muted-foreground">Especialidade</p>
-                        <p className="font-medium text-foreground truncate">{getSpecialty(agenda)}</p>
-                      </div>
-                    </div>
-
-                    {/* Profissional */}
-                    <div className="flex items-start gap-2">
-                      <User className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs text-muted-foreground">Profissional</p>
-                        <p className="text-sm text-foreground truncate">{getProfessionalName(agenda)}</p>
-                      </div>
-                    </div>
-
-                    {/* Data e Horário */}
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm text-foreground">{getDate(agenda)}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <Clock className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm text-foreground">{getTime(agenda)}</span>
-                      </div>
-                    </div>
-
-                    {/* Local (se disponível) */}
-                    {getLocation(agenda) && (
-                      <div className="flex items-start gap-2 pt-2 border-t border-border">
-                        <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                        <p className="text-sm text-muted-foreground truncate">{getLocation(agenda)}</p>
-                      </div>
-                    )}
-
-                    {/* Status (se disponível) */}
-                    {(agenda.status || agenda.statusDescricao) && (
-                      <div className="pt-2">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                          {agenda.statusDescricao || agenda.status}
-                        </span>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+          <Card>
+            <CardContent className="p-6 sm:p-10 flex flex-col items-center text-center gap-4">
+              <div className="p-4 rounded-full bg-muted">
+                <Stethoscope className="h-10 w-10 text-muted-foreground" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg text-foreground mb-1">
+                  Nenhuma consulta na fila
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Você não possui consultas na fila no momento.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </main>
 
