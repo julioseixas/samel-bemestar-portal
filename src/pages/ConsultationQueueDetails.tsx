@@ -33,6 +33,26 @@ const ConsultationQueueDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentPatientId, setCurrentPatientId] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const [previousPosition, setPreviousPosition] = useState<number | null>(null);
+
+  const playNotificationSound = useCallback(() => {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+    oscillator.frequency.setValueAtTime(1100, audioContext.currentTime + 0.1);
+    oscillator.frequency.setValueAtTime(880, audioContext.currentTime + 0.2);
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.3);
+  }, []);
 
   const idAgenda = searchParams.get("idAgenda");
   const especialidade = searchParams.get("especialidade") || "";
@@ -85,7 +105,27 @@ const ConsultationQueueDetails = () => {
       const data = await response.json();
 
       if (data.sucesso && data.dados) {
-        setQueueData(Array.isArray(data.dados) ? data.dados : [data.dados]);
+        const newQueueData = Array.isArray(data.dados) ? data.dados : [data.dados];
+        setQueueData(newQueueData);
+        
+        // Check if current patient's position changed
+        if (currentPatientId) {
+          const currentPatientIndex = newQueueData.findIndex(
+            (item: QueueItem) => item.idCliente === currentPatientId
+          );
+          
+          if (currentPatientIndex !== -1) {
+            const newPosition = currentPatientIndex + 1;
+            if (previousPosition !== null && newPosition !== previousPosition) {
+              playNotificationSound();
+              toast({
+                title: "Posição atualizada!",
+                description: `Sua nova posição na fila: #${newPosition}`,
+              });
+            }
+            setPreviousPosition(newPosition);
+          }
+        }
       } else {
         setQueueData([]);
       }
@@ -95,7 +135,7 @@ const ConsultationQueueDetails = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [idAgenda]);
+  }, [idAgenda, currentPatientId, previousPosition, playNotificationSound, toast]);
 
   useEffect(() => {
     if (!idAgenda) {
