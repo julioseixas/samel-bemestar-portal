@@ -66,9 +66,21 @@ const ConsultationQueue = () => {
       }
 
       const decoded: any = jwtDecode(userToken);
-      const cdPessoaFisica = decoded.cd_pessoa_fisica;
+      
+      // Coletar IDs do titular e dependentes
+      const pacientesIds: number[] = [];
+      
+      if (decoded.id) {
+        pacientesIds.push(parseInt(decoded.id));
+      }
+      
+      if (decoded.dependentes && Array.isArray(decoded.dependentes)) {
+        decoded.dependentes.forEach((dep: any) => {
+          if (dep.id) pacientesIds.push(parseInt(dep.id));
+        });
+      }
 
-      if (!cdPessoaFisica) {
+      if (pacientesIds.length === 0) {
         toast({
           title: "Erro",
           description: "Dados do paciente não encontrados",
@@ -84,7 +96,7 @@ const ConsultationQueue = () => {
           method: "POST",
           headers,
           body: JSON.stringify({
-            pacientes: [cdPessoaFisica],
+            pacientes: pacientesIds,
           }),
         }
       );
