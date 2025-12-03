@@ -299,87 +299,56 @@ const EmergencyQueue = () => {
             </Card>
           ) : (
             <div className="space-y-4">
-              {queueData.dados.map((item, index) => {
+              {queueData.dados.map((item) => {
                 const isCurrentPatient = currentPatientIds.includes(item.CD_PESSOA_FISICA);
                 return (
                   <Card 
                     key={item.NR_ATENDIMENTO}
                     className={isCurrentPatient 
-                      ? "border-primary border-2 bg-primary/5 shadow-lg shadow-primary/20 animate-scale-in relative overflow-hidden" 
+                      ? "border-primary border-2 bg-primary/5 shadow-lg shadow-primary/20 relative overflow-hidden" 
                       : ""
                     }
                   >
                     {isCurrentPatient && (
                       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-primary/80 to-primary" />
                     )}
-                    <CardHeader className={isCurrentPatient ? "pb-2 sm:pb-3" : "pb-2 sm:pb-4"}>
-                      <CardTitle className="flex items-center justify-between gap-2 text-base sm:text-lg">
-                        <div className="flex items-center gap-1.5 sm:gap-2">
-                          {isCurrentPatient ? (
-                            <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-primary fill-primary/20 flex-shrink-0" />
-                          ) : (
-                            <User className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
-                          )}
-                          <span className={isCurrentPatient ? "text-primary font-bold truncate" : "truncate"}>
-                            {item.NM_PESSOA_FISICA_PACIENTE}
-                          </span>
-                        </div>
+                    <CardContent className="pt-4 pb-4">
+                      <div className="space-y-3">
                         {isCurrentPatient && (
-                          <span className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-xs sm:text-sm font-bold px-2 py-1 sm:px-4 sm:py-1.5 rounded-full shadow-md flex items-center gap-1 sm:gap-1.5 animate-fade-in whitespace-nowrap">
-                            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
-                            <span className="hidden sm:inline">Você</span>
-                          </span>
-                        )}
-                      </CardTitle>
-                      {item.DS_CLASSIFICACAO && (
-                        <div className="mt-2">
-                          <span className={`text-xs font-semibold px-3 py-1 rounded-full ${getClassificationColor(item.DS_CLASSIFICACAO)}`}>
-                            {item.DS_CLASSIFICACAO}
-                          </span>
-                        </div>
-                      )}
-                    </CardHeader>
-                    <CardContent className="pt-3 sm:pt-4">
-                      <div className="space-y-3 sm:space-y-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                          <div className="flex items-start gap-2">
-                            <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                            <div className="min-w-0">
-                              <p className="text-xs text-muted-foreground">Data de Entrada</p>
-                              <p className="font-medium text-sm sm:text-base">{item.DT_ENTRADA_STRING}</p>
-                              <p className="text-xs text-muted-foreground mt-0.5">
-                                às {item.HR_ENTRADA_STRING}
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-start gap-2">
-                            <AlertCircle className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                            <div className="min-w-0">
-                              <p className="text-xs text-muted-foreground">Status</p>
-                              <p className="font-medium text-sm sm:text-base">
-                                {item.DS_STATUS_ATENDIMENTO}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {item.DT_ATEND_MEDICO && (
-                          <div className="flex items-start gap-2">
-                            <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                            <div className="min-w-0">
-                              <p className="text-xs text-muted-foreground">Atendimento Médico</p>
-                              <p className="font-medium text-sm sm:text-base">
-                                {new Date(item.DT_ATEND_MEDICO).toLocaleString('pt-BR')}
-                              </p>
-                            </div>
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-xs font-bold px-3 py-1 rounded-full shadow-md flex items-center gap-1.5">
+                              <CheckCircle className="h-3 w-3" />
+                              Você está na fila
+                            </span>
                           </div>
                         )}
 
-                        <div className="pt-2 border-t">
-                          <p className="text-xs text-muted-foreground">
-                            Atendimento Nº {item.NR_ATENDIMENTO}
-                          </p>
+                        <div className="flex items-start gap-2">
+                          <AlertCircle className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                          <div className="min-w-0">
+                            <p className="text-xs text-muted-foreground">Classificação na triagem</p>
+                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${getClassificationColor(item.DS_CLASSIFICACAO)}`}>
+                              {item.DS_CLASSIFICACAO || "Não classificado"}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-2">
+                          <User className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                          <div className="min-w-0">
+                            <p className="text-xs text-muted-foreground">Status do atendimento</p>
+                            <p className="font-medium text-sm">{item.DS_STATUS_ATENDIMENTO}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-2">
+                          <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                          <div className="min-w-0">
+                            <p className="text-xs text-muted-foreground">Data da entrada</p>
+                            <p className="font-medium text-sm">
+                              {item.DT_ENTRADA_STRING} às {item.HR_ENTRADA_STRING}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </CardContent>
