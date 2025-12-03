@@ -39,6 +39,7 @@ const EmergencyQueue = () => {
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [queueData, setQueueData] = useState<EmergencyQueueResponse | null>(null);
+  const [apiMessage, setApiMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [currentPatientIds, setCurrentPatientIds] = useState<number[]>([]);
@@ -94,6 +95,7 @@ const EmergencyQueue = () => {
       // Fetch for each patient and combine results
       const allResults: EmergencyQueueItem[] = [];
       let lastResponse: EmergencyQueueResponse | null = null;
+      let lastMessage: string | null = null;
 
       for (const cdPessoaFisica of currentPatientIds) {
         const response = await fetch(
@@ -105,6 +107,7 @@ const EmergencyQueue = () => {
         );
 
         const data: EmergencyQueueResponse = await response.json();
+        lastMessage = data.message || lastMessage;
         
         if (data.status && data.dados && data.dados.length > 0) {
           allResults.push(...data.dados);
@@ -117,8 +120,10 @@ const EmergencyQueue = () => {
           ...lastResponse,
           dados: allResults,
         });
+        setApiMessage(null);
       } else {
         setQueueData(null);
+        setApiMessage(lastMessage);
       }
       
       setLastUpdate(new Date());
@@ -235,12 +240,14 @@ const EmergencyQueue = () => {
               <CardContent>
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <Ambulance className="h-16 w-16 text-muted-foreground/50 mb-4" />
-                  <p className="text-muted-foreground">
-                    Nenhum atendimento de pronto socorro encontrado.
+                <p className="text-muted-foreground">
+                    {apiMessage || "Nenhum atendimento de pronto socorro encontrado."}
                   </p>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Quando você estiver na fila do pronto socorro, sua posição aparecerá aqui.
-                  </p>
+                  {!apiMessage && (
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Quando você estiver na fila do pronto socorro, sua posição aparecerá aqui.
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
