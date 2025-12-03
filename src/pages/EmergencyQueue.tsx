@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Ambulance, Clock, User, AlertCircle, RefreshCw, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { getApiHeaders } from "@/lib/api-headers";
 import { jwtDecode } from "jwt-decode";
 
@@ -43,6 +43,31 @@ const EmergencyQueue = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [currentPatientIds, setCurrentPatientIds] = useState<number[]>([]);
+  const previousStatusRef = useRef<Map<number, string>>(new Map());
+  const isFirstLoadRef = useRef(true);
+
+  const playNotificationSound = useCallback(() => {
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+      oscillator.frequency.setValueAtTime(1100, audioContext.currentTime + 0.1);
+      oscillator.frequency.setValueAtTime(880, audioContext.currentTime + 0.2);
+      
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.4);
+    } catch (error) {
+      console.error("Erro ao reproduzir som:", error);
+    }
+  }, []);
 
   useEffect(() => {
     const patientData = localStorage.getItem("patientData");
@@ -116,6 +141,27 @@ const EmergencyQueue = () => {
       }
 
       if (allResults.length > 0 && lastResponse) {
+        // Check for status changes only for current patient's appointments
+        if (!isFirstLoadRef.current) {
+          for (const item of allResults) {
+            if (currentPatientIds.includes(item.CD_PESSOA_FISICA)) {
+              const previousStatus = previousStatusRef.current.get(item.NR_ATENDIMENTO);
+              if (previousStatus && previousStatus !== item.DS_STATUS_ATENDIMENTO) {
+                playNotificationSound();
+                break;
+              }
+            }
+          }
+        }
+        
+        // Update previous status map
+        const newStatusMap = new Map<number, string>();
+        allResults.forEach(item => {
+          newStatusMap.set(item.NR_ATENDIMENTO, item.DS_STATUS_ATENDIMENTO);
+        });
+        previousStatusRef.current = newStatusMap;
+        isFirstLoadRef.current = false;
+        
         setQueueData({
           ...lastResponse,
           dados: allResults,
