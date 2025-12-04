@@ -1,4 +1,4 @@
-import { User, KeyRound, UserCircle, LogOut, Moon, Sun, Bell, Phone, Mail, MapPin } from "lucide-react";
+import { User, KeyRound, UserCircle, LogOut, Moon, Sun, Bell, Phone, Mail, Copy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
@@ -510,40 +510,54 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
             </DialogHeader>
             
             <div className="space-y-4 py-4">
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                  <Phone className="h-5 w-5 text-primary" />
+              <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-muted/50">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                    <Phone className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Telefone</p>
+                    <a href="tel:+559295040866" className="font-medium text-foreground hover:text-primary transition-colors">
+                      (92) 9504-0866
+                    </a>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Telefone</p>
-                  <a href="tel:+559295040866" className="font-medium text-foreground hover:text-primary transition-colors">
-                    (92) 9504-0866
-                  </a>
-                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    navigator.clipboard.writeText("(92) 9504-0866");
+                    toast({ title: "Copiado!", description: "Telefone copiado para a área de transferência." });
+                  }}
+                  className="h-9 w-9"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
               </div>
               
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                  <Mail className="h-5 w-5 text-primary" />
+              <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-muted/50">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                    <Mail className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">E-mail</p>
+                    <a href="mailto:contato@samel.com.br" className="font-medium text-foreground hover:text-primary transition-colors">
+                      contato@samel.com.br
+                    </a>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">E-mail</p>
-                  <a href="mailto:contato@samel.com.br" className="font-medium text-foreground hover:text-primary transition-colors">
-                    contato@samel.com.br
-                  </a>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 flex-shrink-0">
-                  <MapPin className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Endereço</p>
-                  <p className="font-medium text-foreground">
-                    Av. Rodrigo Otávio, 3.555 - Distrito Industrial I, Manaus - AM
-                  </p>
-                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    navigator.clipboard.writeText("contato@samel.com.br");
+                    toast({ title: "Copiado!", description: "E-mail copiado para a área de transferência." });
+                  }}
+                  className="h-9 w-9"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
               </div>
             </div>
             
