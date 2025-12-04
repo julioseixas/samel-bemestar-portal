@@ -1,4 +1,4 @@
-import { User, KeyRound, UserCircle, LogOut, Moon, Sun, Bell } from "lucide-react";
+import { User, KeyRound, UserCircle, LogOut, Moon, Sun, Bell, Phone, Mail, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
@@ -48,6 +48,7 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
   const [showNotificationDetailDialog, setShowNotificationDetailDialog] = useState(false);
   const [isMarkingAsRead, setIsMarkingAsRead] = useState(false);
   const [isMarkingAllAsRead, setIsMarkingAllAsRead] = useState(false);
+  const [showContactDialog, setShowContactDialog] = useState(false);
 
   const loadNotifications = () => {
     const storedNotifications = localStorage.getItem('notifications');
@@ -315,6 +316,10 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
                   <UserCircle className="mr-2 h-4 w-4" />
                   <span>Ver dados pessoais</span>
                 </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => setShowContactDialog(true)}>
+                  <Phone className="mr-2 h-4 w-4" />
+                  <span>Contato</span>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   className="cursor-pointer" 
@@ -493,6 +498,59 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
                   {isMarkingAsRead ? "Marcando..." : "Marcar como lida"}
                 </Button>
               )}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Modal de Contato */}
+        <Dialog open={showContactDialog} onOpenChange={setShowContactDialog}>
+          <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-xl">Contato</DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4 py-4">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                  <Phone className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Telefone</p>
+                  <a href="tel:+559295040866" className="font-medium text-foreground hover:text-primary transition-colors">
+                    (92) 9504-0866
+                  </a>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                  <Mail className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">E-mail</p>
+                  <a href="mailto:contato@samel.com.br" className="font-medium text-foreground hover:text-primary transition-colors">
+                    contato@samel.com.br
+                  </a>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 flex-shrink-0">
+                  <MapPin className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Endereço</p>
+                  <p className="font-medium text-foreground">
+                    Av. Rodrigo Otávio, 3.555 - Distrito Industrial I, Manaus - AM
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowContactDialog(false)} className="w-full sm:w-auto">
+                Fechar
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
