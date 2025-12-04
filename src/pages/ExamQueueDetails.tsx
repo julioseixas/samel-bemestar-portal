@@ -257,7 +257,7 @@ const ExamQueueDetails = () => {
                           </span>
                         )}
                       </CardTitle>
-                      {index === 0 && (
+                      {isCurrentPatient && index === 0 && (
                         <div className="mt-2 px-2 py-1.5 sm:px-3 sm:py-2 bg-gradient-to-r from-primary/10 to-primary/5 border-l-4 border-primary rounded animate-fade-in">
                           <p className="text-xs sm:text-sm font-semibold text-primary">
                             🎯 Próximo a ser atendido
