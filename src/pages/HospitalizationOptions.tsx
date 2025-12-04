@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Stethoscope, FileText, ArrowLeft, MessageCircle, Star } from "lucide-react";
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -179,8 +178,6 @@ export default function HospitalizationOptions() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

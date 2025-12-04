@@ -1,5 +1,4 @@
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -234,8 +233,6 @@ const QueueChoice = () => {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };
