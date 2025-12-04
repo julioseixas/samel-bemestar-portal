@@ -353,40 +353,52 @@ const EmergencyQueue = () => {
                     <Timer className="h-5 w-5 text-primary" />
                     Tempo Médio de Espera
                   </h2>
-                  <div className="flex gap-3 overflow-x-auto pb-2 -mx-3 px-3 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 sm:overflow-visible">
-                    {waitTimeData.map((sector, sectorIndex) => (
-                      sector.dados.map((dayData, dayIndex) => (
-                        <Card key={`${sectorIndex}-${dayIndex}`} className="border-border/50 min-w-[200px] flex-shrink-0 sm:min-w-0 sm:flex-shrink">
-                          <CardHeader className="pb-2 pt-4 px-4">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">
-                              {sector.setor_de_atendimento} - {dayData.dia_semana}
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent className="pb-4 px-4">
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="flex items-center gap-2">
-                                <Timer className="h-4 w-4 text-primary" />
-                                <div>
-                                  <p className="text-xs text-muted-foreground">Tempo médio</p>
-                                  <p className="font-bold text-lg text-foreground">
-                                    {dayData.tempo_medio_de_espera_em_minutos} min
-                                  </p>
+                  <div className="flex gap-3 overflow-x-auto pb-2 -mx-3 px-3 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 sm:overflow-visible scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                    {(() => {
+                      const cardColors = [
+                        'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/50',
+                        'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800/50',
+                        'bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800/50',
+                      ];
+                      let globalIndex = 0;
+                      return waitTimeData.map((sector, sectorIndex) => (
+                        sector.dados.map((dayData, dayIndex) => {
+                          const colorClass = cardColors[globalIndex % cardColors.length];
+                          globalIndex++;
+                          return (
+                            <Card key={`${sectorIndex}-${dayIndex}`} className={`${colorClass} min-w-[200px] flex-shrink-0 sm:min-w-0 sm:flex-shrink`}>
+                              <CardHeader className="pb-2 pt-4 px-4">
+                                <CardTitle className="text-sm font-medium text-muted-foreground">
+                                  {sector.setor_de_atendimento} - {dayData.dia_semana}
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent className="pb-4 px-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="flex items-center gap-2">
+                                    <Timer className="h-4 w-4 text-primary" />
+                                    <div>
+                                      <p className="text-xs text-muted-foreground">Tempo médio</p>
+                                      <p className="font-bold text-lg text-foreground">
+                                        {dayData.tempo_medio_de_espera_em_minutos} min
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Users className="h-4 w-4 text-primary" />
+                                    <div>
+                                      <p className="text-xs text-muted-foreground">Na fila</p>
+                                      <p className="font-bold text-lg text-foreground">
+                                        {dayData.qtd_paciente_fila}
+                                      </p>
+                                    </div>
+                                  </div>
                                 </div>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Users className="h-4 w-4 text-primary" />
-                                <div>
-                                  <p className="text-xs text-muted-foreground">Na fila</p>
-                                  <p className="font-bold text-lg text-foreground">
-                                    {dayData.qtd_paciente_fila}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))
-                    ))}
+                              </CardContent>
+                            </Card>
+                          );
+                        })
+                      ));
+                    })()}
                   </div>
                 </div>
               )}
