@@ -3,7 +3,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Stethoscope, Ambulance, TestTube, Clock, Users, Timer } from "lucide-react";
+import { ArrowLeft, Stethoscope, Ambulance, TestTube, Users, Timer } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getApiHeaders } from "@/lib/api-headers";
@@ -90,26 +90,6 @@ const QueueChoice = () => {
     }
   };
 
-  const getTodayWaitTime = (): string | null => {
-    if (waitTimeData.length === 0) return null;
-    for (const sector of waitTimeData) {
-      if (sector.dados && sector.dados.length > 0) {
-        return sector.dados[0].tempo_medio_de_espera_em_minutos;
-      }
-    }
-    return null;
-  };
-
-  const getTodayQueueCount = (): string | null => {
-    if (waitTimeData.length === 0) return null;
-    for (const sector of waitTimeData) {
-      if (sector.dados && sector.dados.length > 0) {
-        return sector.dados[0].qtd_paciente_fila;
-      }
-    }
-    return null;
-  };
-
   const getCurrentHourFirstAttendance = (): string | null => {
     if (firstAttendanceData.length === 0) return null;
     const currentHour = `${new Date().getHours()}h`;
@@ -122,8 +102,6 @@ const QueueChoice = () => {
     return null;
   };
 
-  const todayWaitTime = getTodayWaitTime();
-  const todayQueueCount = getTodayQueueCount();
   const currentHourFirstAttendance = getCurrentHourFirstAttendance();
 
   const queueOptions = [
@@ -184,33 +162,39 @@ const QueueChoice = () => {
                   <Skeleton className="h-16 flex-1" />
                 </div>
               ) : (
-                <div className="grid grid-cols-3 gap-3 sm:gap-4">
-                  <div className="bg-background/80 rounded-lg p-3 text-center">
-                    <div className="flex items-center justify-center mb-1">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                    <p className="text-2xl sm:text-3xl font-bold text-primary">
-                      {todayWaitTime ? `${todayWaitTime} min` : "--"}
-                    </p>
+                <div className="space-y-4">
+                  {/* Tempo por Setor */}
+                  <div className="grid grid-cols-3 gap-3 sm:gap-4">
+                    {waitTimeData.map((sector) => {
+                      const sectorTime = sector.dados?.[0]?.tempo_medio_de_espera_em_minutos;
+                      const sectorQueue = sector.dados?.[0]?.qtd_paciente_fila;
+                      return (
+                        <div key={sector.setor_de_atendimento} className="bg-background/80 rounded-lg p-3 text-center">
+                          <p className="text-xs font-medium text-muted-foreground mb-1 truncate">
+                            {sector.setor_de_atendimento}
+                          </p>
+                          <p className="text-xl sm:text-2xl font-bold text-primary">
+                            {sectorTime ? `${sectorTime} min` : "--"}
+                          </p>
+                          {sectorQueue && sectorQueue !== "0" && (
+                            <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+                              <Users className="h-3 w-3" /> {sectorQueue}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                   
-                  <div className="bg-background/80 rounded-lg p-3 text-center">
-                    <div className="flex items-center justify-center mb-1">
-                      <Timer className="h-4 w-4 text-muted-foreground" />
+                  {/* 1º Atendimento */}
+                  <div className="bg-background/80 rounded-lg p-3">
+                    <div className="flex items-center justify-center gap-2">
+                      <Timer className="h-4 w-4 text-emerald-600" />
+                      <span className="text-sm text-muted-foreground">1º atendimento:</span>
+                      <span className="text-lg font-bold text-emerald-600">
+                        {currentHourFirstAttendance ? `${currentHourFirstAttendance} min` : "--"}
+                      </span>
                     </div>
-                    <p className="text-2xl sm:text-3xl font-bold text-emerald-600">
-                      {currentHourFirstAttendance ? `${currentHourFirstAttendance} min` : "--"}
-                    </p>
-                    <p className="text-xs text-muted-foreground">1º atendimento</p>
-                  </div>
-                  
-                  <div className="bg-background/80 rounded-lg p-3 text-center">
-                    <div className="flex items-center justify-center mb-1">
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                    <p className="text-2xl sm:text-3xl font-bold text-amber-600">
-                      {todayQueueCount || "--"}
-                    </p>
                   </div>
                 </div>
               )}
