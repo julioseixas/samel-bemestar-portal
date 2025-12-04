@@ -213,21 +213,18 @@ const EmergencyQueue = () => {
   const getClassificationColor = (classification: string | null) => {
     if (!classification) return "bg-muted text-muted-foreground";
     
-    const lowerClassification = classification.toLowerCase();
-    if (lowerClassification.includes("vermelho") || lowerClassification.includes("emergência")) {
-      return "bg-destructive text-destructive-foreground";
+    const upperClassification = classification.toUpperCase();
+    if (upperClassification.includes("VERMELHO")) {
+      return "bg-red-500 text-white";
     }
-    if (lowerClassification.includes("laranja") || lowerClassification.includes("muito urgente")) {
-      return "bg-orange-500 text-white";
-    }
-    if (lowerClassification.includes("amarelo") || lowerClassification.includes("urgente")) {
+    if (upperClassification.includes("AMARELO")) {
       return "bg-yellow-500 text-black";
     }
-    if (lowerClassification.includes("verde") || lowerClassification.includes("pouco urgente")) {
+    if (upperClassification.includes("VERDE")) {
       return "bg-green-500 text-white";
     }
-    if (lowerClassification.includes("azul") || lowerClassification.includes("não urgente")) {
-      return "bg-blue-500 text-white";
+    if (upperClassification.includes("ROXO")) {
+      return "bg-purple-500 text-white";
     }
     return "bg-muted text-muted-foreground";
   };
