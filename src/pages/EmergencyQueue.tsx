@@ -561,7 +561,7 @@ const EmergencyQueue = () => {
                         <span>Espera: <span className="text-primary font-bold">{todayWaitTime}min</span></span>
                       )}
                       {currentHourFirstAttendance && (
-                        <span className="ml-2">• 1º atend.: <span className="text-emerald-600 font-bold">{currentHourFirstAttendance}min</span></span>
+                        <span className="ml-2">• 1º atendimento: <span className="text-emerald-600 font-bold">{currentHourFirstAttendance} minutos</span></span>
                       )}
                       {!todayWaitTime && !currentHourFirstAttendance && 'Histórico de Espera'}
                     </p>
@@ -577,8 +577,8 @@ const EmergencyQueue = () => {
               <AccordionContent className="px-4 pb-4">
                 <Tabs defaultValue="weekly" className="w-full">
                   <TabsList className="grid w-full grid-cols-2 mb-4">
-                    <TabsTrigger value="weekly" className="text-xs sm:text-sm">📅 Histórico Semanal</TabsTrigger>
-                    <TabsTrigger value="hourly" className="text-xs sm:text-sm">⏰ Por Hora do Dia</TabsTrigger>
+                    <TabsTrigger value="weekly" className="text-xs sm:text-sm">📅 Tempo Médio Semanal</TabsTrigger>
+                    <TabsTrigger value="hourly" className="text-xs sm:text-sm">⏰ 1º Atendimento - Tempo Médio</TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="weekly">
@@ -634,7 +634,7 @@ const EmergencyQueue = () => {
                               <p className="text-xs text-muted-foreground text-center">
                                 <span className="inline-flex items-center gap-1.5">
                                   <span className="w-3 h-3 rounded bg-primary"></span>
-                                  Dia atual
+                                  Dia atual ({chartData.find(d => d.isToday)?.tempo || 0} min)
                                 </span>
                               </p>
                             </div>
