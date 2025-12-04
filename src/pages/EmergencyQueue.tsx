@@ -353,10 +353,10 @@ const EmergencyQueue = () => {
                     <Timer className="h-5 w-5 text-primary" />
                     Tempo Médio de Espera
                   </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="flex gap-3 overflow-x-auto pb-2 -mx-3 px-3 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 sm:overflow-visible">
                     {waitTimeData.map((sector, sectorIndex) => (
                       sector.dados.map((dayData, dayIndex) => (
-                        <Card key={`${sectorIndex}-${dayIndex}`} className="border-border/50">
+                        <Card key={`${sectorIndex}-${dayIndex}`} className="border-border/50 min-w-[200px] flex-shrink-0 sm:min-w-0 sm:flex-shrink">
                           <CardHeader className="pb-2 pt-4 px-4">
                             <CardTitle className="text-sm font-medium text-muted-foreground">
                               {sector.setor_de_atendimento} - {dayData.dia_semana}
