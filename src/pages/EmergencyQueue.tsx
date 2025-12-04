@@ -346,6 +346,51 @@ const EmergencyQueue = () => {
             </Card>
           ) : (
             <div className="space-y-4">
+              {/* Wait Time Cards */}
+              {waitTimeData.length > 0 && (
+                <div className="mb-6">
+                  <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                    <Timer className="h-5 w-5 text-primary" />
+                    Tempo Médio de Espera
+                  </h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {waitTimeData.map((sector, sectorIndex) => (
+                      sector.dados.map((dayData, dayIndex) => (
+                        <Card key={`${sectorIndex}-${dayIndex}`} className="border-border/50">
+                          <CardHeader className="pb-2 pt-4 px-4">
+                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                              {sector.setor_de_atendimento} - {dayData.dia_semana}
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className="pb-4 px-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="flex items-center gap-2">
+                                <Timer className="h-4 w-4 text-primary" />
+                                <div>
+                                  <p className="text-xs text-muted-foreground">Tempo médio</p>
+                                  <p className="font-bold text-lg text-foreground">
+                                    {dayData.tempo_medio_de_espera_em_minutos} min
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Users className="h-4 w-4 text-primary" />
+                                <div>
+                                  <p className="text-xs text-muted-foreground">Na fila</p>
+                                  <p className="font-bold text-lg text-foreground">
+                                    {dayData.qtd_paciente_fila}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {queueData.dados.map((item) => {
                 const isCurrentPatient = currentPatientIds.some(id => Number(id) === Number(item.CD_PESSOA_FISICA));
                 return (
@@ -402,51 +447,6 @@ const EmergencyQueue = () => {
                   </Card>
                 );
               })}
-
-              {/* Wait Time Cards */}
-              {waitTimeData.length > 0 && (
-                <div className="mt-6">
-                  <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-                    <Timer className="h-5 w-5 text-primary" />
-                    Tempo Médio de Espera
-                  </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {waitTimeData.map((sector, sectorIndex) => (
-                      sector.dados.map((dayData, dayIndex) => (
-                        <Card key={`${sectorIndex}-${dayIndex}`} className="border-border/50">
-                          <CardHeader className="pb-2 pt-4 px-4">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">
-                              {sector.setor_de_atendimento} - {dayData.dia_semana}
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent className="pb-4 px-4">
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="flex items-center gap-2">
-                                <Timer className="h-4 w-4 text-primary" />
-                                <div>
-                                  <p className="text-xs text-muted-foreground">Tempo médio</p>
-                                  <p className="font-bold text-lg text-foreground">
-                                    {dayData.tempo_medio_de_espera_em_minutos} min
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Users className="h-4 w-4 text-primary" />
-                                <div>
-                                  <p className="text-xs text-muted-foreground">Na fila</p>
-                                  <p className="font-bold text-lg text-foreground">
-                                    {dayData.qtd_paciente_fila}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           )}
         </div>
