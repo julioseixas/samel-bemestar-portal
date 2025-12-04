@@ -1,13 +1,14 @@
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Ambulance, Clock, User, AlertCircle, RefreshCw, CheckCircle, Users, Timer } from "lucide-react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { ArrowLeft, Ambulance, Clock, User, AlertCircle, RefreshCw, CheckCircle, BarChart3, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { getApiHeaders } from "@/lib/api-headers";
 import { jwtDecode } from "jwt-decode";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 interface EmergencyQueueItem {
   CD_PESSOA_FISICA: number;
@@ -45,6 +46,16 @@ interface WaitTimeSector {
   dados: WaitTimeData[];
 }
 
+interface WeeklyWaitTimeData {
+  dia_semana: string;
+  tempo_medio_em_minuto: number;
+}
+
+interface WeeklyWaitTimeSector {
+  setor_de_atendimento: string;
+  dados: WeeklyWaitTimeData[];
+}
+
 const EmergencyQueue = () => {
   const navigate = useNavigate();
   const [patientName, setPatientName] = useState("Paciente");
@@ -55,6 +66,7 @@ const EmergencyQueue = () => {
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [currentPatientIds, setCurrentPatientIds] = useState<number[]>([]);
   const [waitTimeData, setWaitTimeData] = useState<WaitTimeSector[]>([]);
+  const [weeklyWaitTimeData, setWeeklyWaitTimeData] = useState<WeeklyWaitTimeSector[]>([]);
   const previousStatusRef = useRef<Map<number, string>>(new Map());
   const previousCountRef = useRef<number>(0);
   const isFirstLoadRef = useRef(true);
@@ -130,7 +142,6 @@ const EmergencyQueue = () => {
     try {
       const headers = getApiHeaders();
       
-      // Fetch for each patient and combine results
       const allResults: EmergencyQueueItem[] = [];
       let lastResponse: EmergencyQueueResponse | null = null;
       let lastMessage: string | null = null;
@@ -154,16 +165,13 @@ const EmergencyQueue = () => {
       }
 
       if (allResults.length > 0 && lastResponse) {
-        // Check for changes only after first load
         if (!isFirstLoadRef.current) {
           let shouldPlaySound = false;
           
-          // Check for list size changes (additions or removals)
           if (allResults.length !== previousCountRef.current) {
             shouldPlaySound = true;
           }
           
-          // Check for status changes
           if (!shouldPlaySound) {
             for (const item of allResults) {
               if (currentPatientIds.some(id => Number(id) === Number(item.CD_PESSOA_FISICA))) {
@@ -181,7 +189,6 @@ const EmergencyQueue = () => {
           }
         }
         
-        // Update previous refs
         const newStatusMap = new Map<number, string>();
         allResults.forEach(item => {
           newStatusMap.set(item.NR_ATENDIMENTO, item.DS_STATUS_ATENDIMENTO);
@@ -196,10 +203,9 @@ const EmergencyQueue = () => {
         });
         setApiMessage(null);
         
-        // Fetch wait time data when queue has results
         fetchWaitTimeData();
+        fetchWeeklyWaitTimeData();
       } else {
-        // Play sound if list became empty (was not empty before)
         if (!isFirstLoadRef.current && previousCountRef.current > 0) {
           playNotificationSound();
         }
@@ -208,6 +214,7 @@ const EmergencyQueue = () => {
         setQueueData(null);
         setApiMessage(lastMessage);
         setWaitTimeData([]);
+        setWeeklyWaitTimeData([]);
       }
       
       setLastUpdate(new Date());
@@ -216,7 +223,7 @@ const EmergencyQueue = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPatientIds]);
+  }, [currentPatientIds, playNotificationSound]);
 
   const fetchWaitTimeData = async () => {
     try {
@@ -235,6 +242,26 @@ const EmergencyQueue = () => {
       }
     } catch (error) {
       console.error("Erro ao buscar tempo médio de espera:", error);
+    }
+  };
+
+  const fetchWeeklyWaitTimeData = async () => {
+    try {
+      const headers = getApiHeaders();
+      const response = await fetch(
+        "https://appv2-back.samel.com.br/api/atendimento/obterMediaSemanaisAnteriores",
+        {
+          method: "GET",
+          headers,
+        }
+      );
+      
+      const data = await response.json();
+      if (data.status && data.dados && Array.isArray(data.dados)) {
+        setWeeklyWaitTimeData(data.dados);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar histórico semanal:", error);
     }
   };
 
@@ -265,11 +292,64 @@ const EmergencyQueue = () => {
     return "bg-muted text-muted-foreground";
   };
 
+  const getDayOfWeekIndex = (dayAbbr: string): number => {
+    const days: Record<string, number> = {
+      'DOM': 0, 'SEG': 1, 'TER': 2, 'QUA': 3, 'QUI': 4, 'SEX': 5, 'SAB': 6
+    };
+    return days[dayAbbr.toUpperCase()] ?? -1;
+  };
+
+  const getCurrentDayAbbr = (): string => {
+    const days = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB'];
+    return days[new Date().getDay()];
+  };
+
+  const getTodayWaitTime = (): string | null => {
+    if (waitTimeData.length === 0) return null;
+    const todayAbbr = getCurrentDayAbbr();
+    for (const sector of waitTimeData) {
+      const todayData = sector.dados.find(d => d.dia_semana.toUpperCase() === todayAbbr);
+      if (todayData) {
+        return todayData.tempo_medio_de_espera_em_minutos;
+      }
+    }
+    return null;
+  };
+
+  const getTodayQueueCount = (): string | null => {
+    if (waitTimeData.length === 0) return null;
+    const todayAbbr = getCurrentDayAbbr();
+    for (const sector of waitTimeData) {
+      const todayData = sector.dados.find(d => d.dia_semana.toUpperCase() === todayAbbr);
+      if (todayData) {
+        return todayData.qtd_paciente_fila;
+      }
+    }
+    return null;
+  };
+
+  const prepareChartData = (sectorData: WeeklyWaitTimeData[]) => {
+    const dayOrder = ['SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB', 'DOM'];
+    const currentDayAbbr = getCurrentDayAbbr();
+    
+    return dayOrder.map(day => {
+      const dayData = sectorData.find(d => d.dia_semana.toUpperCase() === day);
+      return {
+        dia: day,
+        tempo: dayData?.tempo_medio_em_minuto || 0,
+        isToday: day === currentDayAbbr,
+      };
+    });
+  };
+
+  const todayWaitTime = getTodayWaitTime();
+  const todayQueueCount = getTodayQueueCount();
+
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex flex-col h-screen bg-background">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
 
-      <main className="flex-1">
+      <main className="flex-1 overflow-y-auto pb-20">
         <div className="container mx-auto px-3 sm:px-6 py-4 sm:py-6 md:px-8 md:py-10">
           <div className="flex items-center justify-between mb-4">
             <div className="min-w-0 flex-1">
@@ -307,7 +387,6 @@ const EmergencyQueue = () => {
             </div>
           )}
 
-
           {isLoading ? (
             <div className="space-y-4">
               {[1, 2].map((i) => (
@@ -333,7 +412,7 @@ const EmergencyQueue = () => {
               <CardContent>
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <Ambulance className="h-16 w-16 text-muted-foreground/50 mb-4" />
-                <p className="text-muted-foreground">
+                  <p className="text-muted-foreground">
                     {apiMessage || "Nenhum atendimento de pronto socorro encontrado."}
                   </p>
                   {!apiMessage && (
@@ -346,63 +425,6 @@ const EmergencyQueue = () => {
             </Card>
           ) : (
             <div className="space-y-4">
-              {/* Wait Time Cards */}
-              {waitTimeData.length > 0 && (
-                <div className="mb-6">
-                  <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-                    <Timer className="h-5 w-5 text-primary" />
-                    Tempo Médio de Espera
-                  </h2>
-                  <div className="flex gap-3 overflow-x-auto pb-2 -mx-3 px-3 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 sm:overflow-visible scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                    {(() => {
-                      const cardColors = [
-                        'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/50',
-                        'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800/50',
-                        'bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800/50',
-                      ];
-                      let globalIndex = 0;
-                      return waitTimeData.map((sector, sectorIndex) => (
-                        sector.dados.map((dayData, dayIndex) => {
-                          const colorClass = cardColors[globalIndex % cardColors.length];
-                          globalIndex++;
-                          return (
-                            <Card key={`${sectorIndex}-${dayIndex}`} className={`${colorClass} min-w-[200px] flex-shrink-0 sm:min-w-0 sm:flex-shrink`}>
-                              <CardHeader className="pb-2 pt-4 px-4">
-                                <CardTitle className="text-sm font-medium text-muted-foreground">
-                                  {sector.setor_de_atendimento} - {dayData.dia_semana}
-                                </CardTitle>
-                              </CardHeader>
-                              <CardContent className="pb-4 px-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div className="flex items-center gap-2">
-                                    <Timer className="h-4 w-4 text-primary" />
-                                    <div>
-                                      <p className="text-xs text-muted-foreground">Tempo médio</p>
-                                      <p className="font-bold text-lg text-foreground">
-                                        {dayData.tempo_medio_de_espera_em_minutos} min
-                                      </p>
-                                    </div>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <Users className="h-4 w-4 text-primary" />
-                                    <div>
-                                      <p className="text-xs text-muted-foreground">Na fila</p>
-                                      <p className="font-bold text-lg text-foreground">
-                                        {dayData.qtd_paciente_fila}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          );
-                        })
-                      ));
-                    })()}
-                  </div>
-                </div>
-              )}
-
               {queueData.dados.map((item) => {
                 const isCurrentPatient = currentPatientIds.some(id => Number(id) === Number(item.CD_PESSOA_FISICA));
                 return (
@@ -464,7 +486,106 @@ const EmergencyQueue = () => {
         </div>
       </main>
 
-      <Footer />
+      {/* Accordion Sticky no Bottom */}
+      {queueData && queueData.dados.length > 0 && (
+        <div className="sticky bottom-0 left-0 right-0 z-20 bg-background/95 backdrop-blur-sm border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="weekly-chart" className="border-none">
+              <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                <div className="flex items-center gap-3 w-full">
+                  <div className="flex items-center justify-center h-9 w-9 rounded-full bg-primary/10">
+                    <BarChart3 className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="text-sm font-medium text-foreground">
+                      {todayWaitTime ? (
+                        <>Tempo médio hoje: <span className="text-primary font-bold">{todayWaitTime}min</span></>
+                      ) : (
+                        'Histórico de Espera'
+                      )}
+                    </p>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      {todayQueueCount && <span>{todayQueueCount} na fila</span>}
+                      {todayQueueCount && <span>•</span>}
+                      <span>Ver histórico semanal</span>
+                      <ChevronRight className="h-3 w-3" />
+                    </p>
+                  </div>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-4 pb-4">
+                <div className="max-h-[40vh] overflow-y-auto space-y-6">
+                  {weeklyWaitTimeData.length > 0 ? (
+                    weeklyWaitTimeData.map((sector, index) => {
+                      const chartData = prepareChartData(sector.dados);
+                      return (
+                        <div key={index} className="space-y-3">
+                          <h3 className="text-sm font-semibold text-foreground">
+                            {sector.setor_de_atendimento}
+                          </h3>
+                          <div className="h-48 w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <BarChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                                <XAxis 
+                                  dataKey="dia" 
+                                  tick={{ fontSize: 11 }}
+                                  tickLine={false}
+                                  axisLine={false}
+                                />
+                                <YAxis 
+                                  tick={{ fontSize: 11 }}
+                                  tickLine={false}
+                                  axisLine={false}
+                                  tickFormatter={(value) => `${value}min`}
+                                  width={50}
+                                />
+                                <Tooltip 
+                                  formatter={(value: number) => [`${value} minutos`, 'Tempo médio']}
+                                  labelFormatter={(label) => `Dia: ${label}`}
+                                  contentStyle={{
+                                    backgroundColor: 'hsl(var(--background))',
+                                    border: '1px solid hsl(var(--border))',
+                                    borderRadius: '8px',
+                                    fontSize: '12px',
+                                  }}
+                                />
+                                <Bar 
+                                  dataKey="tempo" 
+                                  radius={[4, 4, 0, 0]}
+                                >
+                                  {chartData.map((entry, idx) => (
+                                    <Cell 
+                                      key={`cell-${idx}`} 
+                                      fill={entry.isToday ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground) / 0.3)'} 
+                                    />
+                                  ))}
+                                </Bar>
+                              </BarChart>
+                            </ResponsiveContainer>
+                          </div>
+                          <p className="text-xs text-muted-foreground text-center">
+                            <span className="inline-flex items-center gap-1.5">
+                              <span className="w-3 h-3 rounded bg-primary"></span>
+                              Dia atual
+                            </span>
+                          </p>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                      <BarChart3 className="h-10 w-10 text-muted-foreground/50 mb-2" />
+                      <p className="text-sm text-muted-foreground">
+                        Dados históricos indisponíveis no momento.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+      )}
     </div>
   );
 };
