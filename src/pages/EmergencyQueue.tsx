@@ -561,7 +561,7 @@ const EmergencyQueue = () => {
                         <span>Espera: <span className="text-primary font-bold">{todayWaitTime}min</span></span>
                       )}
                       {currentHourFirstAttendance && (
-                        <span className="ml-2">• 1º atendimento: <span className="text-emerald-600 font-bold">{currentHourFirstAttendance} minutos</span></span>
+                        <span className="ml-2">• Tempo médio do 1º atendimento (agora): <span className="text-emerald-600 font-bold">{currentHourFirstAttendance} minutos</span></span>
                       )}
                       {!todayWaitTime && !currentHourFirstAttendance && 'Histórico de Espera'}
                     </p>
