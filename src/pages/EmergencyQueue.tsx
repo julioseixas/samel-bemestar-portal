@@ -3,12 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Ambulance, Clock, User, AlertCircle, RefreshCw, CheckCircle, BarChart3, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { getApiHeaders } from "@/lib/api-headers";
 import { jwtDecode } from "jwt-decode";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, AreaChart, Area } from "recharts";
 
 interface EmergencyQueueItem {
   CD_PESSOA_FISICA: number;
@@ -56,6 +57,16 @@ interface WeeklyWaitTimeSector {
   dados: WeeklyWaitTimeData[];
 }
 
+interface FirstAttendanceData {
+  hora_do_dia: string;
+  tempo_medio_em_minuto: number;
+}
+
+interface FirstAttendanceSector {
+  setor_de_atendimento: string;
+  dados: FirstAttendanceData[];
+}
+
 const EmergencyQueue = () => {
   const navigate = useNavigate();
   const [patientName, setPatientName] = useState("Paciente");
@@ -67,6 +78,7 @@ const EmergencyQueue = () => {
   const [currentPatientIds, setCurrentPatientIds] = useState<number[]>([]);
   const [waitTimeData, setWaitTimeData] = useState<WaitTimeSector[]>([]);
   const [weeklyWaitTimeData, setWeeklyWaitTimeData] = useState<WeeklyWaitTimeSector[]>([]);
+  const [firstAttendanceData, setFirstAttendanceData] = useState<FirstAttendanceSector[]>([]);
   const previousStatusRef = useRef<Map<number, string>>(new Map());
   const previousCountRef = useRef<number>(0);
   const isFirstLoadRef = useRef(true);
@@ -205,6 +217,7 @@ const EmergencyQueue = () => {
         
         fetchWaitTimeData();
         fetchWeeklyWaitTimeData();
+        fetchFirstAttendanceData();
       } else {
         if (!isFirstLoadRef.current && previousCountRef.current > 0) {
           playNotificationSound();
@@ -215,6 +228,7 @@ const EmergencyQueue = () => {
         setApiMessage(lastMessage);
         setWaitTimeData([]);
         setWeeklyWaitTimeData([]);
+        setFirstAttendanceData([]);
       }
       
       setLastUpdate(new Date());
@@ -262,6 +276,26 @@ const EmergencyQueue = () => {
       }
     } catch (error) {
       console.error("Erro ao buscar histórico semanal:", error);
+    }
+  };
+
+  const fetchFirstAttendanceData = async () => {
+    try {
+      const headers = getApiHeaders();
+      const response = await fetch(
+        "https://appv2-back.samel.com.br/api/atendimento/obterMediaPrimeiroAtendimento",
+        {
+          method: "GET",
+          headers,
+        }
+      );
+      
+      const data = await response.json();
+      if (data.status && data.dados && Array.isArray(data.dados)) {
+        setFirstAttendanceData(data.dados);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar tempo de primeiro atendimento:", error);
     }
   };
 
@@ -328,6 +362,18 @@ const EmergencyQueue = () => {
     return null;
   };
 
+  const getCurrentHourFirstAttendance = (): string | null => {
+    if (firstAttendanceData.length === 0) return null;
+    const currentHour = `${new Date().getHours()}h`;
+    for (const sector of firstAttendanceData) {
+      const hourData = sector.dados.find(d => d.hora_do_dia === currentHour);
+      if (hourData) {
+        return Math.round(hourData.tempo_medio_em_minuto).toString();
+      }
+    }
+    return null;
+  };
+
   const prepareChartData = (sectorData: WeeklyWaitTimeData[]) => {
     const dayOrder = ['SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB', 'DOM'];
     const currentDayAbbr = getCurrentDayAbbr();
@@ -342,8 +388,21 @@ const EmergencyQueue = () => {
     });
   };
 
+  const prepareHourlyChartData = (sectorData: FirstAttendanceData[]) => {
+    const currentHour = new Date().getHours();
+    return sectorData
+      .map(item => ({
+        hora: item.hora_do_dia,
+        tempo: item.tempo_medio_em_minuto,
+        hourNum: parseInt(item.hora_do_dia),
+        isCurrentHour: parseInt(item.hora_do_dia) === currentHour,
+      }))
+      .sort((a, b) => a.hourNum - b.hourNum);
+  };
+
   const todayWaitTime = getTodayWaitTime();
   const todayQueueCount = getTodayQueueCount();
+  const currentHourFirstAttendance = getCurrentHourFirstAttendance();
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -498,89 +557,170 @@ const EmergencyQueue = () => {
                   </div>
                   <div className="flex-1 text-left">
                     <p className="text-sm font-medium text-foreground">
-                      {todayWaitTime ? (
-                        <>Tempo médio hoje: <span className="text-primary font-bold">{todayWaitTime}min</span></>
-                      ) : (
-                        'Histórico de Espera'
+                      {todayWaitTime && (
+                        <span>Espera: <span className="text-primary font-bold">{todayWaitTime}min</span></span>
                       )}
+                      {currentHourFirstAttendance && (
+                        <span className="ml-2">• 1º atend.: <span className="text-emerald-600 font-bold">{currentHourFirstAttendance}min</span></span>
+                      )}
+                      {!todayWaitTime && !currentHourFirstAttendance && 'Histórico de Espera'}
                     </p>
                     <p className="text-xs text-muted-foreground flex items-center gap-1">
                       {todayQueueCount && <span>{todayQueueCount} na fila</span>}
                       {todayQueueCount && <span>•</span>}
-                      <span>Ver histórico semanal</span>
+                      <span>Ver histórico</span>
                       <ChevronRight className="h-3 w-3" />
                     </p>
                   </div>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4">
-                <div className="max-h-[40vh] overflow-y-auto space-y-6">
-                  {weeklyWaitTimeData.length > 0 ? (
-                    weeklyWaitTimeData.map((sector, index) => {
-                      const chartData = prepareChartData(sector.dados);
-                      return (
-                        <div key={index} className="space-y-3">
-                          <h3 className="text-sm font-semibold text-foreground">
-                            {sector.setor_de_atendimento}
-                          </h3>
-                          <div className="h-48 w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                              <BarChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                                <XAxis 
-                                  dataKey="dia" 
-                                  tick={{ fontSize: 11 }}
-                                  tickLine={false}
-                                  axisLine={false}
-                                />
-                                <YAxis 
-                                  tick={{ fontSize: 11 }}
-                                  tickLine={false}
-                                  axisLine={false}
-                                  tickFormatter={(value) => `${value}min`}
-                                  width={50}
-                                />
-                                <Tooltip 
-                                  formatter={(value: number) => [`${value} minutos`, 'Tempo médio']}
-                                  labelFormatter={(label) => `Dia: ${label}`}
-                                  contentStyle={{
-                                    backgroundColor: 'hsl(var(--background))',
-                                    border: '1px solid hsl(var(--border))',
-                                    borderRadius: '8px',
-                                    fontSize: '12px',
-                                  }}
-                                />
-                                <Bar 
-                                  dataKey="tempo" 
-                                  radius={[4, 4, 0, 0]}
-                                >
-                                  {chartData.map((entry, idx) => (
-                                    <Cell 
-                                      key={`cell-${idx}`} 
-                                      fill={entry.isToday ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground) / 0.3)'} 
+                <Tabs defaultValue="weekly" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 mb-4">
+                    <TabsTrigger value="weekly" className="text-xs sm:text-sm">📅 Histórico Semanal</TabsTrigger>
+                    <TabsTrigger value="hourly" className="text-xs sm:text-sm">⏰ Por Hora do Dia</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="weekly">
+                    <div className="max-h-[40vh] overflow-y-auto space-y-6">
+                      {weeklyWaitTimeData.length > 0 ? (
+                        weeklyWaitTimeData.map((sector, index) => {
+                          const chartData = prepareChartData(sector.dados);
+                          return (
+                            <div key={index} className="space-y-3">
+                              <h3 className="text-sm font-semibold text-foreground">
+                                {sector.setor_de_atendimento}
+                              </h3>
+                              <div className="h-48 w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                  <BarChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                                    <XAxis 
+                                      dataKey="dia" 
+                                      tick={{ fontSize: 11 }}
+                                      tickLine={false}
+                                      axisLine={false}
                                     />
-                                  ))}
-                                </Bar>
-                              </BarChart>
-                            </ResponsiveContainer>
-                          </div>
-                          <p className="text-xs text-muted-foreground text-center">
-                            <span className="inline-flex items-center gap-1.5">
-                              <span className="w-3 h-3 rounded bg-primary"></span>
-                              Dia atual
-                            </span>
+                                    <YAxis 
+                                      tick={{ fontSize: 11 }}
+                                      tickLine={false}
+                                      axisLine={false}
+                                      tickFormatter={(value) => `${value}min`}
+                                      width={50}
+                                    />
+                                    <Tooltip 
+                                      formatter={(value: number) => [`${value} minutos`, 'Tempo médio']}
+                                      labelFormatter={(label) => `Dia: ${label}`}
+                                      contentStyle={{
+                                        backgroundColor: 'hsl(var(--background))',
+                                        border: '1px solid hsl(var(--border))',
+                                        borderRadius: '8px',
+                                        fontSize: '12px',
+                                      }}
+                                    />
+                                    <Bar 
+                                      dataKey="tempo" 
+                                      radius={[4, 4, 0, 0]}
+                                    >
+                                      {chartData.map((entry, idx) => (
+                                        <Cell 
+                                          key={`cell-${idx}`} 
+                                          fill={entry.isToday ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground) / 0.3)'} 
+                                        />
+                                      ))}
+                                    </Bar>
+                                  </BarChart>
+                                </ResponsiveContainer>
+                              </div>
+                              <p className="text-xs text-muted-foreground text-center">
+                                <span className="inline-flex items-center gap-1.5">
+                                  <span className="w-3 h-3 rounded bg-primary"></span>
+                                  Dia atual
+                                </span>
+                              </p>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="flex flex-col items-center justify-center py-8 text-center">
+                          <BarChart3 className="h-10 w-10 text-muted-foreground/50 mb-2" />
+                          <p className="text-sm text-muted-foreground">
+                            Dados históricos indisponíveis no momento.
                           </p>
                         </div>
-                      );
-                    })
-                  ) : (
-                    <div className="flex flex-col items-center justify-center py-8 text-center">
-                      <BarChart3 className="h-10 w-10 text-muted-foreground/50 mb-2" />
-                      <p className="text-sm text-muted-foreground">
-                        Dados históricos indisponíveis no momento.
-                      </p>
+                      )}
                     </div>
-                  )}
-                </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="hourly">
+                    <div className="max-h-[40vh] overflow-y-auto space-y-6">
+                      {firstAttendanceData.length > 0 ? (
+                        firstAttendanceData.map((sector, index) => {
+                          const hourlyChartData = prepareHourlyChartData(sector.dados);
+                          return (
+                            <div key={index} className="space-y-3">
+                              <h3 className="text-sm font-semibold text-foreground">
+                                {sector.setor_de_atendimento}
+                              </h3>
+                              <div className="h-48 w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                  <AreaChart data={hourlyChartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                                    <defs>
+                                      <linearGradient id={`colorTempo-${index}`} x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                                      </linearGradient>
+                                    </defs>
+                                    <XAxis 
+                                      dataKey="hora" 
+                                      tick={{ fontSize: 10 }}
+                                      tickLine={false}
+                                      axisLine={false}
+                                      interval="preserveStartEnd"
+                                    />
+                                    <YAxis 
+                                      tick={{ fontSize: 11 }}
+                                      tickLine={false}
+                                      axisLine={false}
+                                      tickFormatter={(value) => `${Math.round(value)}min`}
+                                      width={50}
+                                    />
+                                    <Tooltip 
+                                      formatter={(value: number) => [`${Math.round(value)} minutos`, '1º Atendimento']}
+                                      labelFormatter={(label) => `Hora: ${label}`}
+                                      contentStyle={{
+                                        backgroundColor: 'hsl(var(--background))',
+                                        border: '1px solid hsl(var(--border))',
+                                        borderRadius: '8px',
+                                        fontSize: '12px',
+                                      }}
+                                    />
+                                    <Area 
+                                      type="monotone" 
+                                      dataKey="tempo" 
+                                      stroke="hsl(var(--primary))"
+                                      strokeWidth={2}
+                                      fill={`url(#colorTempo-${index})`}
+                                    />
+                                  </AreaChart>
+                                </ResponsiveContainer>
+                              </div>
+                              <p className="text-xs text-muted-foreground text-center">
+                                Tempo médio para 1º atendimento por hora do dia
+                              </p>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="flex flex-col items-center justify-center py-8 text-center">
+                          <Clock className="h-10 w-10 text-muted-foreground/50 mb-2" />
+                          <p className="text-sm text-muted-foreground">
+                            Dados por hora indisponíveis no momento.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
