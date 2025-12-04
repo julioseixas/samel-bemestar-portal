@@ -50,6 +50,7 @@ import AppointmentHistory from "./pages/AppointmentHistory";
 import QueueChoice from "./pages/QueueChoice";
 import EmergencyQueue from "./pages/EmergencyQueue";
 import ExamQueue from "./pages/ExamQueue";
+import ExamQueueDetails from "./pages/ExamQueueDetails";
 import ConsultationQueue from "./pages/ConsultationQueue";
 import ConsultationQueueDetails from "./pages/ConsultationQueueDetails";
 
@@ -109,6 +110,7 @@ const App = () => (
           <Route path="/queue-choice" element={<QueueChoice />} />
           <Route path="/emergency-queue" element={<EmergencyQueue />} />
           <Route path="/exam-queue" element={<ExamQueue />} />
+          <Route path="/exam-queue-details" element={<ExamQueueDetails />} />
           <Route path="/consultation-queue" element={<ConsultationQueue />} />
           <Route path="/consultation-queue-details" element={<ConsultationQueueDetails />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
