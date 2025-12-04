@@ -90,18 +90,11 @@ const QueueChoice = () => {
     }
   };
 
-  const getCurrentDayAbbr = (): string => {
-    const days = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB'];
-    return days[new Date().getDay()];
-  };
-
   const getTodayWaitTime = (): string | null => {
     if (waitTimeData.length === 0) return null;
-    const todayAbbr = getCurrentDayAbbr();
     for (const sector of waitTimeData) {
-      const todayData = sector.dados.find(d => d.dia_semana.toUpperCase() === todayAbbr);
-      if (todayData) {
-        return todayData.tempo_medio_de_espera_em_minutos;
+      if (sector.dados && sector.dados.length > 0) {
+        return sector.dados[0].tempo_medio_de_espera_em_minutos;
       }
     }
     return null;
@@ -109,11 +102,9 @@ const QueueChoice = () => {
 
   const getTodayQueueCount = (): string | null => {
     if (waitTimeData.length === 0) return null;
-    const todayAbbr = getCurrentDayAbbr();
     for (const sector of waitTimeData) {
-      const todayData = sector.dados.find(d => d.dia_semana.toUpperCase() === todayAbbr);
-      if (todayData) {
-        return todayData.qtd_paciente_fila;
+      if (sector.dados && sector.dados.length > 0) {
+        return sector.dados[0].qtd_paciente_fila;
       }
     }
     return null;
