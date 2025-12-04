@@ -274,14 +274,6 @@ const EmergencyQueue = () => {
             </div>
           )}
 
-          {queueData?.dsPacienteAguardaLabel && queueData?.dsPacienteAguarda && (
-            <div className="mb-4 p-3 bg-accent rounded-lg">
-              <p className="text-sm">
-                <span className="font-medium">{queueData.dsPacienteAguardaLabel}:</span>{" "}
-                {queueData.dsPacienteAguarda}
-              </p>
-            </div>
-          )}
 
           {isLoading ? (
             <div className="space-y-4">
