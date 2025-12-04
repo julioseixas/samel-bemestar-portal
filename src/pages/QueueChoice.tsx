@@ -199,9 +199,8 @@ const QueueChoice = () => {
                       <Clock className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <p className="text-2xl sm:text-3xl font-bold text-primary">
-                      {todayWaitTime || "--"}
+                      {todayWaitTime ? `${todayWaitTime} min` : "--"}
                     </p>
-                    <p className="text-xs text-muted-foreground">min espera</p>
                   </div>
                   
                   <div className="bg-background/80 rounded-lg p-3 text-center">
@@ -209,9 +208,9 @@ const QueueChoice = () => {
                       <Timer className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <p className="text-2xl sm:text-3xl font-bold text-emerald-600">
-                      {currentHourFirstAttendance || "--"}
+                      {currentHourFirstAttendance ? `${currentHourFirstAttendance} min` : "--"}
                     </p>
-                    <p className="text-xs text-muted-foreground">min 1º atend.</p>
+                    <p className="text-xs text-muted-foreground">1º atendimento</p>
                   </div>
                   
                   <div className="bg-background/80 rounded-lg p-3 text-center">
@@ -221,7 +220,6 @@ const QueueChoice = () => {
                     <p className="text-2xl sm:text-3xl font-bold text-amber-600">
                       {todayQueueCount || "--"}
                     </p>
-                    <p className="text-xs text-muted-foreground">na fila</p>
                   </div>
                 </div>
               )}
