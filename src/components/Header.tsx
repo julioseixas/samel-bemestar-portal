@@ -16,6 +16,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import samelLogo from "@/assets/samel-logo.png";
 
@@ -522,17 +523,26 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
                     </a>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    navigator.clipboard.writeText("(92) 9504-0866");
-                    toast({ title: "Copiado!", description: "Telefone copiado para a área de transferência." });
-                  }}
-                  className="h-9 w-9"
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          navigator.clipboard.writeText("(92) 9504-0866");
+                          toast({ title: "Copiado!", description: "Telefone copiado para a área de transferência." });
+                        }}
+                        className="h-9 w-9"
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Copiar telefone</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
               
               <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-muted/50">
@@ -547,17 +557,26 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
                     </a>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    navigator.clipboard.writeText("contato@samel.com.br");
-                    toast({ title: "Copiado!", description: "E-mail copiado para a área de transferência." });
-                  }}
-                  className="h-9 w-9"
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          navigator.clipboard.writeText("contato@samel.com.br");
+                          toast({ title: "Copiado!", description: "E-mail copiado para a área de transferência." });
+                        }}
+                        className="h-9 w-9"
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Copiar e-mail</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
             
