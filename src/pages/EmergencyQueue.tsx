@@ -3,7 +3,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Ambulance, Clock, User, AlertCircle, RefreshCw, CheckCircle } from "lucide-react";
+import { ArrowLeft, Ambulance, Clock, User, AlertCircle, RefreshCw, CheckCircle, Users, Timer } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { getApiHeaders } from "@/lib/api-headers";
@@ -34,6 +34,17 @@ interface EmergencyQueueResponse {
   status: boolean;
 }
 
+interface WaitTimeData {
+  dia_semana: string;
+  tempo_medio_de_espera_em_minutos: string;
+  qtd_paciente_fila: string;
+}
+
+interface WaitTimeSector {
+  setor_de_atendimento: string;
+  dados: WaitTimeData[];
+}
+
 const EmergencyQueue = () => {
   const navigate = useNavigate();
   const [patientName, setPatientName] = useState("Paciente");
@@ -43,6 +54,7 @@ const EmergencyQueue = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [currentPatientIds, setCurrentPatientIds] = useState<number[]>([]);
+  const [waitTimeData, setWaitTimeData] = useState<WaitTimeSector[]>([]);
   const previousStatusRef = useRef<Map<number, string>>(new Map());
   const previousCountRef = useRef<number>(0);
   const isFirstLoadRef = useRef(true);
@@ -183,6 +195,9 @@ const EmergencyQueue = () => {
           dados: allResults,
         });
         setApiMessage(null);
+        
+        // Fetch wait time data when queue has results
+        fetchWaitTimeData();
       } else {
         // Play sound if list became empty (was not empty before)
         if (!isFirstLoadRef.current && previousCountRef.current > 0) {
@@ -192,6 +207,7 @@ const EmergencyQueue = () => {
         isFirstLoadRef.current = false;
         setQueueData(null);
         setApiMessage(lastMessage);
+        setWaitTimeData([]);
       }
       
       setLastUpdate(new Date());
@@ -201,6 +217,26 @@ const EmergencyQueue = () => {
       setIsLoading(false);
     }
   }, [currentPatientIds]);
+
+  const fetchWaitTimeData = async () => {
+    try {
+      const headers = getApiHeaders();
+      const response = await fetch(
+        "https://appv2-back.samel.com.br/api/atendimento/obterMediaDiasSemana",
+        {
+          method: "GET",
+          headers,
+        }
+      );
+      
+      const data = await response.json();
+      if (data.status && data.dados && Array.isArray(data.dados)) {
+        setWaitTimeData(data.dados);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar tempo médio de espera:", error);
+    }
+  };
 
   useEffect(() => {
     if (currentPatientIds.length > 0) {
@@ -366,6 +402,51 @@ const EmergencyQueue = () => {
                   </Card>
                 );
               })}
+
+              {/* Wait Time Cards */}
+              {waitTimeData.length > 0 && (
+                <div className="mt-6">
+                  <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                    <Timer className="h-5 w-5 text-primary" />
+                    Tempo Médio de Espera
+                  </h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {waitTimeData.map((sector, sectorIndex) => (
+                      sector.dados.map((dayData, dayIndex) => (
+                        <Card key={`${sectorIndex}-${dayIndex}`} className="border-border/50">
+                          <CardHeader className="pb-2 pt-4 px-4">
+                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                              {sector.setor_de_atendimento} - {dayData.dia_semana}
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className="pb-4 px-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="flex items-center gap-2">
+                                <Timer className="h-4 w-4 text-primary" />
+                                <div>
+                                  <p className="text-xs text-muted-foreground">Tempo médio</p>
+                                  <p className="font-bold text-lg text-foreground">
+                                    {dayData.tempo_medio_de_espera_em_minutos} min
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Users className="h-4 w-4 text-primary" />
+                                <div>
+                                  <p className="text-xs text-muted-foreground">Na fila</p>
+                                  <p className="font-bold text-lg text-foreground">
+                                    {dayData.qtd_paciente_fila}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
