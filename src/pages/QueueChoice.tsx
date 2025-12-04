@@ -190,7 +190,7 @@ const QueueChoice = () => {
                   <div className="bg-background/80 rounded-lg p-3">
                     <div className="flex items-center justify-center gap-2">
                       <Timer className="h-4 w-4 text-emerald-600" />
-                      <span className="text-sm text-muted-foreground">1º atendimento:</span>
+                      <span className="text-sm text-muted-foreground">Tempo médio do 1º atendimento (agora):</span>
                       <span className="text-lg font-bold text-emerald-600">
                         {currentHourFirstAttendance ? `${currentHourFirstAttendance} min` : "--"}
                       </span>
