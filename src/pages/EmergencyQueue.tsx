@@ -154,7 +154,7 @@ const EmergencyQueue = () => {
           // Check for status changes
           if (!shouldPlaySound) {
             for (const item of allResults) {
-              if (currentPatientIds.includes(item.CD_PESSOA_FISICA)) {
+              if (currentPatientIds.some(id => Number(id) === Number(item.CD_PESSOA_FISICA))) {
                 const previousStatus = previousStatusRef.current.get(item.NR_ATENDIMENTO);
                 if (previousStatus && previousStatus !== item.DS_STATUS_ATENDIMENTO) {
                   shouldPlaySound = true;
@@ -322,7 +322,7 @@ const EmergencyQueue = () => {
           ) : (
             <div className="space-y-4">
               {queueData.dados.map((item) => {
-                const isCurrentPatient = currentPatientIds.includes(item.CD_PESSOA_FISICA);
+                const isCurrentPatient = currentPatientIds.some(id => Number(id) === Number(item.CD_PESSOA_FISICA));
                 return (
                   <Card 
                     key={item.NR_ATENDIMENTO}
