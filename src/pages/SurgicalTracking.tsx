@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Calendar, MapPin, User, ArrowLeft, Stethoscope, Check, FileText } from "lucide-react";
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -288,8 +287,6 @@ export default function SurgicalTracking() {
           )}
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -178,7 +177,6 @@ const EvaluateProfessional = () => {
             Carregando avaliações...
           </p>
         </main>
-        <Footer />
       </div>
     );
   }
@@ -280,7 +278,6 @@ const EvaluateProfessional = () => {
           </div>
         )}
       </main>
-      <Footer />
     </div>
   );
 };

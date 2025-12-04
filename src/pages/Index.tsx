@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { AppointmentBanner } from "@/components/AppointmentBanner";
 import { DashboardCard } from "@/components/DashboardCard";
 import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, ClipboardList, FolderOpen, FileSignature, CalendarX, Receipt, Star, History, Users } from "lucide-react";
@@ -649,8 +648,6 @@ const Index = () => {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };
