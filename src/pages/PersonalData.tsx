@@ -83,6 +83,14 @@ export default function PersonalData() {
   }, []);
 
   const handleEdit = () => {
+    // Extrair apenas os últimos 9 dígitos do telefone
+    const phoneDigitsOnly = (patientData?.numeroTelefone || "").replace(/\D/g, "");
+    const last9Digits = phoneDigitsOnly.slice(-9);
+    
+    setEditedData({
+      ...patientData!,
+      numeroTelefone: last9Digits,
+    });
     setIsEditing(true);
   };
 
@@ -99,9 +107,11 @@ export default function PersonalData() {
   };
 
   const formatPhoneMask = (value: string) => {
-    return value
-      .replace(/\D/g, "")
-      .slice(0, 9);
+    const digits = value.replace(/\D/g, "").slice(0, 9);
+    if (digits.length > 5) {
+      return digits.replace(/(\d{5})(\d)/, "$1-$2");
+    }
+    return digits;
   };
 
   const formatDddMask = (value: string) => {
@@ -110,8 +120,75 @@ export default function PersonalData() {
       .slice(0, 2);
   };
 
+  const formatCpfMask = (value: string) => {
+    return value
+      .replace(/\D/g, "")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d{1,2})/, "$1-$2")
+      .slice(0, 14);
+  };
+
+  const formatDateMask = (value: string) => {
+    return value
+      .replace(/\D/g, "")
+      .replace(/(\d{2})(\d)/, "$1/$2")
+      .replace(/(\d{2})(\d)/, "$1/$2")
+      .slice(0, 10);
+  };
+
   const handleSave = async () => {
     if (!editedData) return;
+
+    // Validar Nome
+    if (!editedData.nome || editedData.nome.trim().length < 3) {
+      toast({
+        title: "Erro",
+        description: "Nome deve ter pelo menos 3 caracteres.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validar CPF (11 dígitos)
+    if (!editedData.cpf || editedData.cpf.replace(/\D/g, "").length !== 11) {
+      toast({
+        title: "Erro",
+        description: "CPF inválido.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validar Data de Nascimento
+    if (!editedData.dataNascimento || editedData.dataNascimento.replace(/\D/g, "").length !== 8) {
+      toast({
+        title: "Erro",
+        description: "Data de nascimento inválida.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validar Sexo
+    if (!editedData.sexo) {
+      toast({
+        title: "Erro",
+        description: "Selecione o sexo.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validar RG
+    if (!editedData.rg || editedData.rg.trim().length < 5) {
+      toast({
+        title: "Erro",
+        description: "RG inválido.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     if (!editedData.dddTelefone || editedData.dddTelefone.length < 2) {
       toast({
@@ -122,7 +199,9 @@ export default function PersonalData() {
       return;
     }
 
-    if (!editedData.numeroTelefone || editedData.numeroTelefone.length < 8) {
+    // Extrair apenas dígitos do telefone para validação
+    const phoneDigits = editedData.numeroTelefone.replace(/\D/g, "");
+    if (!phoneDigits || phoneDigits.length < 8) {
       toast({
         title: "Erro",
         description: "Por favor, insira um telefone válido.",
@@ -279,7 +358,14 @@ export default function PersonalData() {
   };
 
   const formatPhone = (ddd: string, phone: string) => {
-    return `(${ddd}) ${phone.replace(/(\d{5})(\d{4})/, "$1-$2")}`;
+    // Extrair apenas os últimos 9 dígitos
+    const phoneDigitsOnly = phone.replace(/\D/g, "");
+    const last9Digits = phoneDigitsOnly.slice(-9);
+    
+    if (last9Digits.length === 9) {
+      return `(${ddd}) ${last9Digits.replace(/(\d{5})(\d{4})/, "$1-$2")}`;
+    }
+    return `(${ddd}) ${last9Digits}`;
   };
 
   const formatDate = (dateString: string) => {
@@ -390,78 +476,132 @@ export default function PersonalData() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Nome Completo</p>
-                    <p className="text-base font-medium text-foreground">{patientData.nome}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">CPF</p>
-                    <p className="text-base font-medium text-foreground">{formatCPF(patientData.cpf)}</p>
-                  </div>
-                </div>
-                <Separator />
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      Data de Nascimento
-                    </p>
-                    <p className="text-base font-medium text-foreground">{formatDate(patientData.dataNascimento)}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Sexo</p>
-                    <p className="text-base font-medium text-foreground">{getSexoLabel(patientData.sexo)}</p>
-                  </div>
-                </div>
-                <Separator />
                 {!isEditing ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground flex items-center gap-2">
-                        <Heart className="h-4 w-4" />
-                        Estado Civil
-                      </p>
-                      <p className="text-base font-medium text-foreground">{getEstadoCivilLabel(patientData.estadoCivil)}</p>
+                  <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Nome Completo</p>
+                        <p className="text-base font-medium text-foreground">{patientData.nome}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">CPF</p>
+                        <p className="text-base font-medium text-foreground">{formatCPF(patientData.cpf)}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground flex items-center gap-2">
-                        <FileText className="h-4 w-4" />
-                        RG
-                      </p>
-                      <p className="text-base font-medium text-foreground">{patientData.rg}</p>
+                    <Separator />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-muted-foreground flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          Data de Nascimento
+                        </p>
+                        <p className="text-base font-medium text-foreground">{formatDate(patientData.dataNascimento)}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Sexo</p>
+                        <p className="text-base font-medium text-foreground">{getSexoLabel(patientData.sexo)}</p>
+                      </div>
                     </div>
-                  </div>
+                    <Separator />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-muted-foreground flex items-center gap-2">
+                          <Heart className="h-4 w-4" />
+                          Estado Civil
+                        </p>
+                        <p className="text-base font-medium text-foreground">{getEstadoCivilLabel(patientData.estadoCivil)}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground flex items-center gap-2">
+                          <FileText className="h-4 w-4" />
+                          RG
+                        </p>
+                        <p className="text-base font-medium text-foreground">{patientData.rg}</p>
+                      </div>
+                    </div>
+                  </>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="estadoCivil">Estado Civil *</Label>
-                      <Select
-                        value={editedData?.estadoCivil || ""}
-                        onValueChange={(value) =>
-                          setEditedData({ ...editedData!, estadoCivil: value })
-                        }
-                      >
-                        <SelectTrigger id="estadoCivil">
-                          <SelectValue placeholder="Selecione o estado civil" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="1">Solteiro</SelectItem>
-                          <SelectItem value="2">Casado</SelectItem>
-                          <SelectItem value="3">Divorciado</SelectItem>
-                          <SelectItem value="4">Desquitado</SelectItem>
-                          <SelectItem value="5">Viúvo</SelectItem>
-                          <SelectItem value="6">Separado</SelectItem>
-                          <SelectItem value="7">Concubinato/União Estável</SelectItem>
-                        </SelectContent>
-                      </Select>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="nome">Nome Completo *</Label>
+                        <Input
+                          id="nome"
+                          value={editedData?.nome || ""}
+                          onChange={(e) => setEditedData({ ...editedData!, nome: e.target.value })}
+                          placeholder="Nome completo"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="cpf">CPF *</Label>
+                        <Input
+                          id="cpf"
+                          value={formatCpfMask(editedData?.cpf || "")}
+                          onChange={(e) => setEditedData({ ...editedData!, cpf: e.target.value.replace(/\D/g, "") })}
+                          placeholder="000.000.000-00"
+                          maxLength={14}
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground flex items-center gap-2">
-                        <FileText className="h-4 w-4" />
-                        RG
-                      </p>
-                      <p className="text-base font-medium text-foreground">{patientData.rg}</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="dataNascimento">Data de Nascimento *</Label>
+                        <Input
+                          id="dataNascimento"
+                          value={formatDateMask(editedData?.dataNascimento?.replace(/\D/g, "") || "")}
+                          onChange={(e) => setEditedData({ ...editedData!, dataNascimento: formatDateMask(e.target.value) })}
+                          placeholder="DD/MM/AAAA"
+                          maxLength={10}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="sexo">Sexo *</Label>
+                        <Select
+                          value={editedData?.sexo || ""}
+                          onValueChange={(value) => setEditedData({ ...editedData!, sexo: value })}
+                        >
+                          <SelectTrigger id="sexo">
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="M">Masculino</SelectItem>
+                            <SelectItem value="F">Feminino</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="estadoCivil">Estado Civil *</Label>
+                        <Select
+                          value={editedData?.estadoCivil || ""}
+                          onValueChange={(value) =>
+                            setEditedData({ ...editedData!, estadoCivil: value })
+                          }
+                        >
+                          <SelectTrigger id="estadoCivil">
+                            <SelectValue placeholder="Selecione o estado civil" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="1">Solteiro</SelectItem>
+                            <SelectItem value="2">Casado</SelectItem>
+                            <SelectItem value="3">Divorciado</SelectItem>
+                            <SelectItem value="4">Desquitado</SelectItem>
+                            <SelectItem value="5">Viúvo</SelectItem>
+                            <SelectItem value="6">Separado</SelectItem>
+                            <SelectItem value="7">Concubinato/União Estável</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="rg">RG *</Label>
+                        <Input
+                          id="rg"
+                          value={editedData?.rg || ""}
+                          onChange={(e) => setEditedData({ ...editedData!, rg: e.target.value })}
+                          placeholder="Número do RG"
+                        />
+                      </div>
                     </div>
                   </div>
                 )}
@@ -518,15 +658,15 @@ export default function PersonalData() {
                         <Label htmlFor="telefone">Telefone *</Label>
                         <Input
                           id="telefone"
-                          value={editedData?.numeroTelefone || ""}
+                          value={formatPhoneMask(editedData?.numeroTelefone || "")}
                           onChange={(e) =>
                             setEditedData({
                               ...editedData!,
-                              numeroTelefone: formatPhoneMask(e.target.value),
+                              numeroTelefone: e.target.value.replace(/\D/g, "").slice(0, 9),
                             })
                           }
-                          placeholder="999999999"
-                          maxLength={9}
+                          placeholder="99999-9999"
+                          maxLength={10}
                         />
                       </div>
                     </div>
