@@ -1,4 +1,4 @@
-import { User, KeyRound, UserCircle, LogOut, Moon, Sun, Bell, Phone, Mail, Copy } from "lucide-react";
+import { User, KeyRound, UserCircle, LogOut, Moon, Sun, Bell, Phone, Mail, Copy, BookOpen, Shield, HelpCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
@@ -320,6 +320,19 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
                 <DropdownMenuItem className="cursor-pointer" onClick={() => setShowContactDialog(true)}>
                   <Phone className="mr-2 h-4 w-4" />
                   <span>Contato</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="cursor-pointer" onClick={() => window.open("https://cartilha.samel.com.br", "_blank")}>
+                  <BookOpen className="mr-2 h-4 w-4" />
+                  <span>Cartilha Samel</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => window.open("https://www.samel.com.br/politica-de-privacidade/", "_blank")}>
+                  <Shield className="mr-2 h-4 w-4" />
+                  <span>Política de Privacidade</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => window.open("https://www.samel.com.br/sobre-nos/faq/", "_blank")}>
+                  <HelpCircle className="mr-2 h-4 w-4" />
+                  <span>FAQ</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
