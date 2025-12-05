@@ -518,78 +518,156 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
 
         {/* Modal de Contato */}
         <Dialog open={showContactDialog} onOpenChange={setShowContactDialog}>
-          <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-md">
+          <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-md max-h-[calc(100vh-1.5rem)] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-xl">Contato</DialogTitle>
             </DialogHeader>
             
-            <div className="space-y-4 py-4">
-              <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-muted/50">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                    <Phone className="h-5 w-5 text-primary" />
+            <div className="space-y-6 py-4">
+              {/* Central de Atendimento */}
+              <div>
+                <h4 className="text-sm font-semibold text-muted-foreground mb-2">Central de Atendimento</h4>
+                <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                      <Phone className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <a href="tel:+559221292200" className="font-medium text-foreground hover:text-primary transition-colors">
+                        (92) 2129-2200
+                      </a>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Telefone</p>
-                    <a href="tel:+559295040866" className="font-medium text-foreground hover:text-primary transition-colors">
-                      (92) 9504-0866
-                    </a>
-                  </div>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            navigator.clipboard.writeText("(92) 2129-2200");
+                            toast({ title: "Copiado!", description: "Telefone copiado para a área de transferência." });
+                          }}
+                          className="h-9 w-9"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Copiar telefone</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          navigator.clipboard.writeText("(92) 9504-0866");
-                          toast({ title: "Copiado!", description: "Telefone copiado para a área de transferência." });
-                        }}
-                        className="h-9 w-9"
-                      >
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Copiar telefone</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
               </div>
-              
-              <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-muted/50">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                    <Mail className="h-5 w-5 text-primary" />
+
+              {/* Suporte ao Aplicativo */}
+              <div>
+                <h4 className="text-sm font-semibold text-muted-foreground mb-2">Suporte ao Aplicativo</h4>
+                <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                      <Phone className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <a href="tel:+559295040866" className="font-medium text-foreground hover:text-primary transition-colors">
+                        (92) 9504-0866
+                      </a>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">E-mail</p>
-                    <a href="mailto:contato@samel.com.br" className="font-medium text-foreground hover:text-primary transition-colors">
-                      contato@samel.com.br
-                    </a>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            navigator.clipboard.writeText("(92) 9504-0866");
+                            toast({ title: "Copiado!", description: "Telefone copiado para a área de transferência." });
+                          }}
+                          className="h-9 w-9"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Copiar telefone</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </div>
+
+              {/* Ouvidoria */}
+              <div>
+                <h4 className="text-sm font-semibold text-muted-foreground mb-2">Ouvidoria</h4>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-muted/50">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                        <Phone className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <a href="tel:+5592994168385" className="font-medium text-foreground hover:text-primary transition-colors">
+                          (92) 99416-8385
+                        </a>
+                      </div>
+                    </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              navigator.clipboard.writeText("(92) 99416-8385");
+                              toast({ title: "Copiado!", description: "Telefone copiado para a área de transferência." });
+                            }}
+                            className="h-9 w-9"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Copiar telefone</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  
+                  <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-muted/50">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                        <Mail className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <a href="mailto:ouvidoria@samel.com.br" className="font-medium text-foreground hover:text-primary transition-colors text-sm sm:text-base break-all">
+                          ouvidoria@samel.com.br
+                        </a>
+                      </div>
+                    </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              navigator.clipboard.writeText("ouvidoria@samel.com.br");
+                              toast({ title: "Copiado!", description: "E-mail copiado para a área de transferência." });
+                            }}
+                            className="h-9 w-9"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Copiar e-mail</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                 </div>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          navigator.clipboard.writeText("contato@samel.com.br");
-                          toast({ title: "Copiado!", description: "E-mail copiado para a área de transferência." });
-                        }}
-                        className="h-9 w-9"
-                      >
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Copiar e-mail</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
               </div>
             </div>
             
