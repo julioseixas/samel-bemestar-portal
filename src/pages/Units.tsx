@@ -83,8 +83,9 @@ const Units = () => {
       );
 
       const data = await response.json();
+      console.log("Unidades recebidas:", data.dados?.length, data);
       
-      if (data.sucesso && data.dados) {
+      if (data.sucesso && Array.isArray(data.dados)) {
         setUnits(data.dados);
       }
     } catch (error) {
