@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Calendar, User, MapPin, Clock } from "lucide-react";
+import { ArrowLeft, Calendar, User, MapPin, Clock, Filter, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getApiHeaders } from "@/lib/api-headers";
 import { jwtDecode } from "jwt-decode";
@@ -38,6 +38,9 @@ const AppointmentHistory = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("todos");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("todos");
+  const [showFilters, setShowFilters] = useState(false);
+
+  const hasActiveFilters = statusFilter !== "todos" || typeFilter !== "todos";
 
   useEffect(() => {
     const patientData = localStorage.getItem("patientData");
@@ -221,41 +224,96 @@ const AppointmentHistory = () => {
             </Button>
           </div>
 
-          {/* Filtros */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 mb-4">
-            {/* Filtros de status */}
-            <div className="flex items-center gap-2 sm:gap-0">
-              <span className="text-xs text-muted-foreground font-medium shrink-0 sm:hidden">Status:</span>
-              <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                {filterButtons.map((filter) => (
-                  <Button
-                    key={filter.key}
-                    variant={statusFilter === filter.key ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setStatusFilter(filter.key)}
-                    className="text-[10px] xs:text-xs sm:text-sm h-7 sm:h-9 px-2 sm:px-3"
-                  >
-                    {filter.label}
-                  </Button>
-                ))}
+          {/* Botão de filtro mobile */}
+          <div className="sm:hidden mb-3">
+            <Button
+              variant={hasActiveFilters ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowFilters(!showFilters)}
+              className="w-full justify-between"
+            >
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4" />
+                <span>Filtros</span>
+                {hasActiveFilters && (
+                  <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-[10px]">
+                    {(statusFilter !== "todos" ? 1 : 0) + (typeFilter !== "todos" ? 1 : 0)}
+                  </Badge>
+                )}
+              </div>
+              {showFilters ? <X className="h-4 w-4" /> : null}
+            </Button>
+          </div>
+
+          {/* Filtros - Mobile (colapsável) */}
+          <div className={`sm:hidden overflow-hidden transition-all duration-300 ease-in-out ${showFilters ? "max-h-40 opacity-100 mb-4" : "max-h-0 opacity-0"}`}>
+            <div className="bg-muted/50 rounded-lg p-3 space-y-3">
+              {/* Filtros de status */}
+              <div>
+                <span className="text-xs text-muted-foreground font-medium mb-1.5 block">Status:</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {filterButtons.map((filter) => (
+                    <Button
+                      key={filter.key}
+                      variant={statusFilter === filter.key ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setStatusFilter(filter.key)}
+                      className="text-[10px] h-7 px-2"
+                    >
+                      {filter.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              {/* Filtros de tipo */}
+              <div>
+                <span className="text-xs text-muted-foreground font-medium mb-1.5 block">Tipo:</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {typeFilterButtons.map((filter) => (
+                    <Button
+                      key={filter.key}
+                      variant={typeFilter === filter.key ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setTypeFilter(filter.key)}
+                      className="text-[10px] h-7 px-2"
+                    >
+                      {filter.label}
+                    </Button>
+                  ))}
+                </div>
               </div>
             </div>
+          </div>
+
+          {/* Filtros - Desktop (sempre visível) */}
+          <div className="hidden sm:flex sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+            {/* Filtros de status */}
+            <div className="flex flex-wrap gap-2">
+              {filterButtons.map((filter) => (
+                <Button
+                  key={filter.key}
+                  variant={statusFilter === filter.key ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setStatusFilter(filter.key)}
+                  className="text-xs sm:text-sm h-9 px-3"
+                >
+                  {filter.label}
+                </Button>
+              ))}
+            </div>
             {/* Filtros de tipo */}
-            <div className="flex items-center gap-2 sm:gap-0">
-              <span className="text-xs text-muted-foreground font-medium shrink-0 sm:hidden">Tipo:</span>
-              <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                {typeFilterButtons.map((filter) => (
-                  <Button
-                    key={filter.key}
-                    variant={typeFilter === filter.key ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setTypeFilter(filter.key)}
-                    className="text-[10px] xs:text-xs sm:text-sm h-7 sm:h-9 px-2 sm:px-3"
-                  >
-                    {filter.label}
-                  </Button>
-                ))}
-              </div>
+            <div className="flex flex-wrap gap-2">
+              {typeFilterButtons.map((filter) => (
+                <Button
+                  key={filter.key}
+                  variant={typeFilter === filter.key ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setTypeFilter(filter.key)}
+                  className="text-xs sm:text-sm h-9 px-3"
+                >
+                  {filter.label}
+                </Button>
+              ))}
             </div>
           </div>
 
