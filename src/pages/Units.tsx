@@ -213,17 +213,20 @@ const Units = () => {
 
                   {/* Botões */}
                   <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 gap-2"
-                      onClick={() => openMapDialog(unit)}
-                    >
-                      <MapPin className="h-4 w-4" />
-                      Mapa
-                    </Button>
+                    {!unit.nome.toLowerCase().includes('telemedicina') && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 gap-2"
+                        onClick={() => openMapDialog(unit)}
+                      >
+                        <MapPin className="h-4 w-4" />
+                        Mapa
+                      </Button>
+                    )}
                     
-                    {unit.dddTelefone && unit.numeroTelefone && (
+                    {unit.dddTelefone && unit.numeroTelefone && 
+                     Number(unit.dddTelefone) !== 0 && Number(unit.numeroTelefone) !== 0 && (
                       <Button
                         variant="outline"
                         size="sm"
