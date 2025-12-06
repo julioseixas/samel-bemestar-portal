@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, MapPin, Phone, Building2 } from "lucide-react";
 import { getApiHeaders } from "@/lib/api-headers";
+import { MapDialog } from "@/components/MapDialog";
 import gsap from "gsap";
 
 interface Unit {
@@ -30,6 +31,8 @@ const Units = () => {
   const [loading, setLoading] = useState(true);
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
+  const [mapDialogOpen, setMapDialogOpen] = useState(false);
   const cardsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -120,11 +123,14 @@ const Units = () => {
     return parts.join(', ');
   };
 
-  const openGoogleMaps = (unit: Unit) => {
+  const openMapDialog = (unit: Unit) => {
+    setSelectedUnit(unit);
+    setMapDialogOpen(true);
+  };
+
+  const getMapLocation = (unit: Unit) => {
     const cep = String(unit.cep).replace(/\D/g, '');
-    const address = `${unit.logradouro}, ${unit.numeroLogradouro}, ${unit.bairro}, ${unit.municipio}, ${unit.uf}, ${cep}`;
-    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
-    window.open(url, '_blank');
+    return `${unit.logradouro}, ${unit.numeroLogradouro}, ${unit.bairro}, ${unit.municipio}, ${unit.uf}, CEP ${cep}`;
   };
 
   const callPhone = (ddd: string | number, number: string | number) => {
@@ -211,7 +217,7 @@ const Units = () => {
                       variant="outline"
                       size="sm"
                       className="flex-1 gap-2"
-                      onClick={() => openGoogleMaps(unit)}
+                      onClick={() => openMapDialog(unit)}
                     >
                       <MapPin className="h-4 w-4" />
                       Mapa
@@ -246,6 +252,16 @@ const Units = () => {
               Não foi possível carregar as unidades no momento.
             </p>
           </div>
+        )}
+
+        {/* Modal do Mapa */}
+        {selectedUnit && (
+          <MapDialog
+            open={mapDialogOpen}
+            onOpenChange={setMapDialogOpen}
+            location={getMapLocation(selectedUnit)}
+            unitName={selectedUnit.nome}
+          />
         )}
       </div>
     </div>
