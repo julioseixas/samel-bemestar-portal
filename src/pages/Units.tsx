@@ -147,15 +147,7 @@ const Units = () => {
       
       <div className="container mx-auto px-4 py-6 pb-10">
         {/* Header */}
-        <div className="mb-6 flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/dashboard")}
-            className="h-10 w-10 shrink-0"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
+        <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold text-foreground sm:text-2xl">
               Nossas Unidades
@@ -164,6 +156,14 @@ const Units = () => {
               {units.length > 0 ? `${units.length} unidades encontradas` : 'Carregando...'}
             </p>
           </div>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => navigate("/dashboard")}
+            className="h-10 w-10 shrink-0"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
         </div>
 
         {/* Loading */}
