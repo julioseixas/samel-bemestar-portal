@@ -87,9 +87,21 @@ export default function PersonalData() {
     const phoneDigitsOnly = (patientData?.numeroTelefone || "").replace(/\D/g, "");
     const last9Digits = phoneDigitsOnly.slice(-9);
     
+    // Formatar data de nascimento para DD/MM/YYYY se vier em formato ISO
+    const formatDateForEdit = (dateString: string) => {
+      if (!dateString) return "";
+      if (dateString.includes("/")) return dateString;
+      const date = new Date(dateString);
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    };
+    
     setEditedData({
       ...patientData!,
       numeroTelefone: last9Digits,
+      dataNascimento: formatDateForEdit(patientData?.dataNascimento || ""),
     });
     setIsEditing(true);
   };
