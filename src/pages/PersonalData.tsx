@@ -54,9 +54,8 @@ export default function PersonalData() {
       if (storedData) {
         const data = JSON.parse(storedData);
         // Mapear UF para estado se necessário
-        if (data.UF && !data.estado) {
-          data.estado = data.UF;
-        }
+        // Mapear UF para estado sempre que UF existir e estado não
+        data.estado = data.estado || data.UF || "";
         setPatientData(data);
         setEditedData(data);
         // Se não tiver nome no localStorage, usa o nome dos dados do paciente
@@ -277,8 +276,9 @@ export default function PersonalData() {
       return;
     }
 
-    // Estado é opcional - usa o valor original se não foi editado
-    if (!editedData.estado && !patientData?.estado && !patientData?.UF) {
+    // Estado - pega o valor com fallbacks antes de validar
+    const estadoValue = editedData.estado || patientData?.estado || patientData?.UF || "";
+    if (!estadoValue) {
       toast({
         title: "Erro",
         description: "Por favor, insira o estado.",
@@ -737,7 +737,7 @@ export default function PersonalData() {
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Estado</p>
-                        <p className="text-base font-medium text-foreground">{patientData.estado || "-"}</p>
+                        <p className="text-base font-medium text-foreground">{patientData.estado || patientData.UF || "-"}</p>
                       </div>
                     </div>
                     <Separator />
