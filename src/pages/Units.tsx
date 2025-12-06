@@ -187,10 +187,10 @@ const Units = () => {
               <div
                 key={unit.id}
                 data-unit-card
-                className="rounded-xl border border-border bg-card overflow-hidden"
+                className="rounded-xl border border-border bg-card overflow-hidden flex flex-col"
               >
                 {/* Imagem */}
-                <div className="aspect-video w-full bg-muted">
+                <div className="aspect-video w-full bg-muted flex-shrink-0">
                   {unit.foto ? (
                     <img
                       src={`data:image/jpeg;base64,${unit.foto}`}
@@ -205,17 +205,17 @@ const Units = () => {
                 </div>
 
                 {/* Conteúdo */}
-                <div className="p-4">
+                <div className="p-4 flex flex-col flex-grow">
                   <h3 className="font-bold text-foreground mb-2 line-clamp-1">
                     {unit.nome}
                   </h3>
                   
-                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2 flex-grow">
                     {formatAddress(unit)}
                   </p>
 
                   {/* Botões */}
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 mt-auto">
                     {!unit.nome.toLowerCase().includes('telemedicina') && (
                       <Button
                         variant="outline"
