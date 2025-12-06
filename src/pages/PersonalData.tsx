@@ -511,30 +511,31 @@ export default function PersonalData() {
     <div className="min-h-screen flex flex-col bg-background">
       <Header patientName={patientName} profilePhoto={profilePhoto} />
       
-      <main className="flex-1 container mx-auto px-4 py-6 sm:py-8">
+      <main className="flex-1 container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <div className="max-w-4xl mx-auto">
-          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm pb-4 -mx-4 px-4 border-b mb-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Dados Pessoais</h1>
-              <div className="flex gap-2">
+          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm pb-3 sm:pb-4 -mx-3 sm:-mx-4 px-3 sm:px-4 border-b mb-4 sm:mb-6">
+            <div className="flex items-center justify-between gap-2 pt-2">
+              <h1 className="text-lg sm:text-2xl md:text-3xl font-bold text-foreground truncate">Dados Pessoais</h1>
+              <div className="flex gap-1.5 sm:gap-2 flex-shrink-0">
                 {!isEditing ? (
                   <>
                     <Button
                       variant="default"
                       size="sm"
                       onClick={handleEdit}
-                      className="w-fit"
+                      className="h-8 sm:h-9 px-2.5 sm:px-3 text-xs sm:text-sm"
                     >
-                      <Edit className="h-4 w-4 mr-2" />
-                      Editar
+                      <Edit className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Editar</span>
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => navigate("/dashboard")}
-                      className="border-primary text-primary hover:bg-primary hover:text-primary-foreground w-fit"
+                      className="h-8 sm:h-9 px-2.5 sm:px-3 text-xs sm:text-sm border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                     >
-                      ← Voltar
+                      <span className="sm:hidden">←</span>
+                      <span className="hidden sm:inline">← Voltar</span>
                     </Button>
                   </>
                 ) : (
@@ -544,20 +545,20 @@ export default function PersonalData() {
                       size="sm"
                       onClick={handleSave}
                       disabled={isSaving}
-                      className="w-fit"
+                      className="h-8 sm:h-9 px-2.5 sm:px-3 text-xs sm:text-sm"
                     >
-                      <Save className="h-4 w-4 mr-2" />
-                      {isSaving ? "Salvando..." : "Salvar"}
+                      <Save className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">{isSaving ? "Salvando..." : "Salvar"}</span>
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={handleCancel}
                       disabled={isSaving}
-                      className="w-fit"
+                      className="h-8 sm:h-9 px-2.5 sm:px-3 text-xs sm:text-sm"
                     >
-                      <X className="h-4 w-4 mr-2" />
-                      Cancelar
+                      <X className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Cancelar</span>
                     </Button>
                   </>
                 )}
@@ -565,57 +566,57 @@ export default function PersonalData() {
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Informações Pessoais */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5 text-primary" />
+            <Card className="shadow-sm">
+              <CardHeader className="pb-3 sm:pb-6 px-4 sm:px-6">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <User className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   Informações Pessoais
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 sm:space-y-4 px-4 sm:px-6">
                 {!isEditing ? (
                   <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div>
-                        <p className="text-sm text-muted-foreground">Nome Completo</p>
-                        <p className="text-base font-medium text-foreground">{patientData.nome}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">Nome Completo</p>
+                        <p className="text-sm sm:text-base font-medium text-foreground break-words">{patientData.nome}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">CPF</p>
-                        <p className="text-base font-medium text-foreground">{formatCPF(patientData.cpf)}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">CPF</p>
+                        <p className="text-sm sm:text-base font-medium text-foreground">{formatCPF(patientData.cpf)}</p>
                       </div>
                     </div>
-                    <Separator />
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Separator className="my-2 sm:my-0" />
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
                       <div>
-                        <p className="text-sm text-muted-foreground flex items-center gap-2">
-                          <Calendar className="h-4 w-4" />
-                          Data de Nascimento
+                        <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1.5 sm:gap-2">
+                          <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                          Nascimento
                         </p>
-                        <p className="text-base font-medium text-foreground">{formatDate(patientData.dataNascimento)}</p>
+                        <p className="text-sm sm:text-base font-medium text-foreground">{formatDate(patientData.dataNascimento)}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Sexo</p>
-                        <p className="text-base font-medium text-foreground">{getSexoLabel(patientData.sexo)}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">Sexo</p>
+                        <p className="text-sm sm:text-base font-medium text-foreground">{getSexoLabel(patientData.sexo)}</p>
                       </div>
                     </div>
-                    <Separator />
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Separator className="my-2 sm:my-0" />
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
                       <div>
-                        <p className="text-sm text-muted-foreground flex items-center gap-2">
-                          <Heart className="h-4 w-4" />
+                        <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1.5 sm:gap-2">
+                          <Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                           Estado Civil
                         </p>
-                        <p className="text-base font-medium text-foreground">{getEstadoCivilLabel(patientData.estadoCivil)}</p>
+                        <p className="text-sm sm:text-base font-medium text-foreground">{getEstadoCivilLabel(patientData.estadoCivil)}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground flex items-center gap-2">
-                          <FileText className="h-4 w-4" />
+                        <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1.5 sm:gap-2">
+                          <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                           RG
                         </p>
-                        <p className="text-base font-medium text-foreground">{patientData.rg}</p>
+                        <p className="text-sm sm:text-base font-medium text-foreground">{patientData.rg}</p>
                       </div>
                     </div>
                   </>
@@ -708,21 +709,21 @@ export default function PersonalData() {
             </Card>
 
             {/* Contato */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Phone className="h-5 w-5 text-primary" />
+            <Card className="shadow-sm">
+              <CardHeader className="pb-3 sm:pb-6 px-4 sm:px-6">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <Phone className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   Contato
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <CardContent className="space-y-3 sm:space-y-4 px-4 sm:px-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <p className="text-sm text-muted-foreground flex items-center gap-2">
-                      <Mail className="h-4 w-4" />
+                    <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1.5 sm:gap-2">
+                      <Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       E-mail
                     </p>
-                    <p className="text-base font-medium text-foreground">
+                    <p className="text-sm sm:text-base font-medium text-foreground break-all">
                       {patientData.usuario?.email || "Não informado"}
                     </p>
                   </div>
@@ -775,52 +776,52 @@ export default function PersonalData() {
             </Card>
 
             {/* Endereço */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5 text-primary" />
+            <Card className="shadow-sm">
+              <CardHeader className="pb-3 sm:pb-6 px-4 sm:px-6">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   Endereço
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 sm:space-y-4 px-4 sm:px-6">
                 {!isEditing ? (
                   <>
                     <div>
-                      <p className="text-sm text-muted-foreground">Logradouro</p>
-                      <p className="text-base font-medium text-foreground">{patientData.logradouroResidencial}</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">Logradouro</p>
+                      <p className="text-sm sm:text-base font-medium text-foreground break-words">{patientData.logradouroResidencial}</p>
                     </div>
-                    <Separator />
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <Separator className="my-2 sm:my-0" />
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                       <div>
-                        <p className="text-sm text-muted-foreground">Número</p>
-                        <p className="text-base font-medium text-foreground">{patientData.numeroResidencial}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">Número</p>
+                        <p className="text-sm sm:text-base font-medium text-foreground">{patientData.numeroResidencial}</p>
                       </div>
-                      <div className="sm:col-span-2">
-                        <p className="text-sm text-muted-foreground">Complemento</p>
-                        <p className="text-base font-medium text-foreground">
+                      <div className="col-span-1 sm:col-span-2">
+                        <p className="text-xs sm:text-sm text-muted-foreground">Complemento</p>
+                        <p className="text-sm sm:text-base font-medium text-foreground break-words">
                           {patientData.complementoResidencial || "-"}
                         </p>
                       </div>
                     </div>
-                    <Separator />
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <Separator className="my-2 sm:my-0" />
+                    <div className="grid grid-cols-3 gap-2 sm:gap-4">
                       <div>
-                        <p className="text-sm text-muted-foreground">Bairro</p>
-                        <p className="text-base font-medium text-foreground">{patientData.bairro}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">Bairro</p>
+                        <p className="text-xs sm:text-base font-medium text-foreground">{patientData.bairro}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Cidade</p>
-                        <p className="text-base font-medium text-foreground">{patientData.municipio}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">Cidade</p>
+                        <p className="text-xs sm:text-base font-medium text-foreground">{patientData.municipio}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Estado</p>
-                        <p className="text-base font-medium text-foreground">{patientData.estado || patientData.UF || patientData.uf || patientData.clienteContratos?.[0]?.uf || "-"}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">Estado</p>
+                        <p className="text-xs sm:text-base font-medium text-foreground">{patientData.estado || patientData.UF || patientData.uf || patientData.clienteContratos?.[0]?.uf || "-"}</p>
                       </div>
                     </div>
-                    <Separator />
+                    <Separator className="my-2 sm:my-0" />
                     <div>
-                      <p className="text-sm text-muted-foreground">CEP</p>
-                      <p className="text-base font-medium text-foreground">{patientData.cepResidencial}</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">CEP</p>
+                      <p className="text-sm sm:text-base font-medium text-foreground">{patientData.cepResidencial}</p>
                     </div>
                   </>
                 ) : (
