@@ -557,7 +557,7 @@ export default function PersonalData() {
                         <Label htmlFor="dataNascimento">Data de Nascimento *</Label>
                         <Input
                           id="dataNascimento"
-                          value={formatDateMask(editedData?.dataNascimento?.replace(/\D/g, "") || "")}
+                          value={editedData?.dataNascimento || ""}
                           onChange={(e) => setEditedData({ ...editedData!, dataNascimento: formatDateMask(e.target.value) })}
                           placeholder="DD/MM/AAAA"
                           maxLength={10}
