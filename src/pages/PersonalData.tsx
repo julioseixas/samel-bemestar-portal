@@ -50,6 +50,7 @@ export default function PersonalData() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [editedData, setEditedData] = useState<PatientData | null>(null);
+  const [isLoadingCep, setIsLoadingCep] = useState(false);
 
   useEffect(() => {
     try {
@@ -132,6 +133,62 @@ export default function PersonalData() {
       .replace(/\D/g, "")
       .replace(/(\d{5})(\d)/, "$1-$2")
       .slice(0, 9);
+  };
+
+  const fetchAddressByCep = async (cep: string) => {
+    const cleanCep = cep.replace(/\D/g, "");
+    if (cleanCep.length !== 8) return;
+
+    setIsLoadingCep(true);
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+      const data = await response.json();
+      
+      if (data.erro) {
+        toast({
+          title: "CEP não encontrado",
+          description: "Verifique o CEP informado.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setEditedData((prev) => ({
+        ...prev!,
+        logradouroResidencial: data.logradouro || prev?.logradouroResidencial || "",
+        bairro: data.bairro || prev?.bairro || "",
+        municipio: data.localidade || prev?.municipio || "",
+        estado: data.uf || prev?.estado || "",
+      }));
+
+      toast({
+        title: "Endereço encontrado",
+        description: "Os campos foram preenchidos automaticamente.",
+      });
+    } catch (error) {
+      console.error("Erro ao buscar CEP:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível buscar o endereço.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingCep(false);
+    }
+  };
+
+  const handleCepChange = (value: string) => {
+    const formattedCep = formatCepMask(value);
+    setEditedData({
+      ...editedData!,
+      cepResidencial: formattedCep,
+    });
+
+    // Busca automática quando o CEP estiver completo (8 dígitos)
+    const cleanCep = formattedCep.replace(/\D/g, "");
+    if (cleanCep.length === 8) {
+      fetchAddressByCep(cleanCep);
+    }
   };
 
   const formatPhoneMask = (value: string) => {
@@ -767,18 +824,14 @@ export default function PersonalData() {
                 ) : (
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="cep">CEP *</Label>
+                      <Label htmlFor="cep">CEP * {isLoadingCep && <span className="text-xs text-muted-foreground ml-2">Buscando...</span>}</Label>
                       <Input
                         id="cep"
                         value={editedData?.cepResidencial || ""}
-                        onChange={(e) =>
-                          setEditedData({
-                            ...editedData!,
-                            cepResidencial: formatCepMask(e.target.value),
-                          })
-                        }
+                        onChange={(e) => handleCepChange(e.target.value)}
                         placeholder="00000-000"
                         maxLength={9}
+                        disabled={isLoadingCep}
                       />
                     </div>
                     <div>
