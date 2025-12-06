@@ -246,8 +246,8 @@ const AppointmentHistory = () => {
           </div>
 
           {/* Filtros - Mobile (colapsável) */}
-          <div className={`sm:hidden overflow-hidden transition-all duration-300 ease-in-out ${showFilters ? "max-h-40 opacity-100 mb-4" : "max-h-0 opacity-0"}`}>
-            <div className="bg-muted/50 rounded-lg p-3 space-y-3">
+          <div className={`sm:hidden overflow-hidden transition-all duration-300 ease-in-out ${showFilters ? "max-h-48 opacity-100 mb-4" : "max-h-0 opacity-0"}`}>
+            <div className="bg-muted/50 rounded-lg p-3 pb-4 space-y-3">
               {/* Filtros de status */}
               <div>
                 <span className="text-xs text-muted-foreground font-medium mb-1.5 block">Status:</span>
