@@ -430,42 +430,6 @@ export const TermsOfUseModal = ({ open, onOpenChange }: TermsOfUseModalProps) =>
               </div>
             </section>
 
-            <hr className="border-border my-6" />
-
-            {/* Orientações Pós-Operatório */}
-            <section>
-              <h2 className="text-lg sm:text-xl font-bold text-foreground mb-4">Orientações Pós-Operatório</h2>
-              
-              <p className="text-muted-foreground mb-4">
-                <strong className="text-foreground">Prezado(a) Paciente! Tudo bem?</strong>
-              </p>
-              
-              <p className="text-muted-foreground mb-4">
-                Somos o Serviço de Controle de Infecção Hospitalar (SCIH) Samel. Orientamos a você, em seu pós-operatório, que observe sua cirurgia por um período de 30 dias (corridos) e nos comunique caso ocorra alguma alteração.
-              </p>
-              
-              <p className="text-muted-foreground mb-3">
-                Estes são os sinais e sintomas que devem ser observados durante o período descrito acima:
-              </p>
-              
-              <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-2 mb-4">
-                <li>Febre</li>
-                <li>Calafrios</li>
-                <li>Secreção em Ferida Operatória</li>
-                <li>Dor local</li>
-                <li>Vermelhidão e calor no local da cirurgia</li>
-                <li>Edema</li>
-              </ul>
-              
-              <p className="text-muted-foreground mb-4">
-                Entre em contato no nosso WhatsApp <a href="https://wa.me/5592992844515" target="_blank" rel="noopener noreferrer" className="text-primary font-semibold hover:underline">(92) 99284-4515</a> se notar quaisquer alterações em seu pós-operatório.
-              </p>
-              
-              <p className="text-muted-foreground font-medium">
-                Desejamos uma boa recuperação!
-              </p>
-            </section>
-
           </div>
         </ScrollArea>
         
