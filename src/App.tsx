@@ -53,6 +53,7 @@ import ExamQueue from "./pages/ExamQueue";
 import ExamQueueDetails from "./pages/ExamQueueDetails";
 import ConsultationQueue from "./pages/ConsultationQueue";
 import ConsultationQueueDetails from "./pages/ConsultationQueueDetails";
+import Units from "./pages/Units";
 
 const queryClient = new QueryClient();
 
@@ -113,6 +114,7 @@ const App = () => (
           <Route path="/exam-queue-details" element={<ExamQueueDetails />} />
           <Route path="/consultation-queue" element={<ConsultationQueue />} />
           <Route path="/consultation-queue-details" element={<ConsultationQueueDetails />} />
+          <Route path="/units" element={<Units />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

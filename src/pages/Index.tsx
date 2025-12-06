@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Header } from "@/components/Header";
 import { AppointmentBanner } from "@/components/AppointmentBanner";
 import { DashboardCard } from "@/components/DashboardCard";
-import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, ClipboardList, FolderOpen, FileSignature, CalendarX, Receipt, Star, History, Users } from "lucide-react";
+import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, ClipboardList, FolderOpen, FileSignature, CalendarX, Receipt, Star, History, Users, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
@@ -642,6 +642,19 @@ const Index = () => {
                 buttonText="Avaliar Agora"
                 variant="warning"
                 onClick={() => navigate("/rate-appointments")}
+                />
+              </div>
+              
+              <div data-card>
+                <DashboardCard
+                title="NOSSAS UNIDADES"
+                description="Conheça todas as unidades da Samel"
+                icon={MapPin}
+                iconColor="text-primary"
+                buttonText="Ver Unidades"
+                variant="default"
+                useDashboardColor={true}
+                onClick={() => navigate("/units")}
                 />
               </div>
             </div>
