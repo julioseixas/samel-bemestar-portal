@@ -1,0 +1,17 @@
+services:
+  portal-paciente-prod-front:
+    container_name: portal-paciente-prod-front
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "16000:80"        # host:container
+    restart: always
+    networks:
+      - 'portal-paciente-front-inet'
+networks:
+  portal-paciente-front-inet:
+    ipam:
+      driver: default
+      config:
+      - subnet: '172.60.177.0/24'
