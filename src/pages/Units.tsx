@@ -182,7 +182,7 @@ const Units = () => {
 
         {/* Grid de unidades */}
         {!loading && units.length > 0 && (
-          <div ref={cardsRef} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div ref={cardsRef} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 items-stretch">
             {units.map((unit) => (
               <div
                 key={unit.id}
