@@ -513,53 +513,55 @@ export default function PersonalData() {
       
       <main className="flex-1 container mx-auto px-4 py-6 sm:py-8">
         <div className="max-w-4xl mx-auto">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Dados Pessoais</h1>
-            <div className="flex gap-2">
-              {!isEditing ? (
-                <>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={handleEdit}
-                    className="w-fit"
-                  >
-                    <Edit className="h-4 w-4 mr-2" />
-                    Editar
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigate("/dashboard")}
-                    className="border-primary text-primary hover:bg-primary hover:text-primary-foreground w-fit"
-                  >
-                    ← Voltar
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={handleSave}
-                    disabled={isSaving}
-                    className="w-fit"
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    {isSaving ? "Salvando..." : "Salvar"}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCancel}
-                    disabled={isSaving}
-                    className="w-fit"
-                  >
-                    <X className="h-4 w-4 mr-2" />
-                    Cancelar
-                  </Button>
-                </>
-              )}
+          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm pb-4 -mx-4 px-4 border-b mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Dados Pessoais</h1>
+              <div className="flex gap-2">
+                {!isEditing ? (
+                  <>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={handleEdit}
+                      className="w-fit"
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Editar
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate("/dashboard")}
+                      className="border-primary text-primary hover:bg-primary hover:text-primary-foreground w-fit"
+                    >
+                      ← Voltar
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={handleSave}
+                      disabled={isSaving}
+                      className="w-fit"
+                    >
+                      <Save className="h-4 w-4 mr-2" />
+                      {isSaving ? "Salvando..." : "Salvar"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCancel}
+                      disabled={isSaving}
+                      className="w-fit"
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Cancelar
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
 
