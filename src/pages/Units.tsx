@@ -111,13 +111,16 @@ const Units = () => {
   };
 
   const formatAddress = (unit: Unit) => {
+    const hasNumero = unit.numeroLogradouro && String(unit.numeroLogradouro) !== '0' && String(unit.numeroLogradouro).trim() !== '';
+    const hasCep = unit.cep && String(unit.cep).replace(/\D/g, '') !== '0' && String(unit.cep).replace(/\D/g, '') !== '00000000';
+    
     const parts = [
       unit.logradouro,
-      unit.numeroLogradouro ? `nº ${unit.numeroLogradouro}` : null,
+      hasNumero ? `nº ${unit.numeroLogradouro}` : null,
       unit.complementoLogradouro,
       unit.bairro,
-      `${unit.municipio}/${unit.uf}`,
-      `CEP: ${formatCep(unit.cep)}`
+      unit.municipio && unit.uf ? `${unit.municipio}/${unit.uf}` : null,
+      hasCep ? `CEP: ${formatCep(unit.cep)}` : null
     ].filter(Boolean);
     
     return parts.join(', ');
