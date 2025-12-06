@@ -121,7 +121,8 @@ const Units = () => {
   };
 
   const openGoogleMaps = (unit: Unit) => {
-    const address = `${unit.logradouro}, ${unit.numeroLogradouro}, ${unit.bairro}, ${unit.municipio}, ${unit.uf}`;
+    const cep = String(unit.cep).replace(/\D/g, '');
+    const address = `${unit.logradouro}, ${unit.numeroLogradouro}, ${unit.bairro}, ${unit.municipio}, ${unit.uf}, ${cep}`;
     const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
     window.open(url, '_blank');
   };
