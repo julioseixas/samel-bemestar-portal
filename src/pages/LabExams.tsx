@@ -270,7 +270,7 @@ const LabExams = () => {
     setLoadingProgressExams(true);
     try {
       const response = await fetch(
-        `http://localhost:3210/prontuario/exames/buscarExamesLabPaciente?cd_pessoa_fisica=${cdPessoaFisica}`,
+        `https://api-prontuario.samel.com.br/prontuario/exames/buscarExamesLabPaciente?cd_pessoa_fisica=${cdPessoaFisica}`,
         {
           method: "GET",
           headers: {
