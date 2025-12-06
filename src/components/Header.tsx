@@ -1,4 +1,4 @@
-import { User, KeyRound, UserCircle, LogOut, Moon, Sun, Bell, Phone, Mail, Copy, BookOpen, Shield, HelpCircle } from "lucide-react";
+import { User, KeyRound, UserCircle, LogOut, Moon, Sun, Bell, Phone, Mail, Copy, BookOpen, Shield, HelpCircle, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
@@ -18,6 +18,7 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
+import { TermsOfUseModal } from "@/components/TermsOfUseModal";
 import samelLogo from "@/assets/samel-logo.png";
 
 interface Notification {
@@ -50,6 +51,7 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
   const [isMarkingAsRead, setIsMarkingAsRead] = useState(false);
   const [isMarkingAllAsRead, setIsMarkingAllAsRead] = useState(false);
   const [showContactDialog, setShowContactDialog] = useState(false);
+  const [showTermsDialog, setShowTermsDialog] = useState(false);
 
   const loadNotifications = () => {
     const storedNotifications = localStorage.getItem('notifications');
@@ -329,6 +331,10 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
                 <DropdownMenuItem className="cursor-pointer" onClick={() => window.open("https://www.samel.com.br/politica-de-privacidade/", "_blank")}>
                   <Shield className="mr-2 h-4 w-4" />
                   <span>Política de Privacidade</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => setShowTermsDialog(true)}>
+                  <FileText className="mr-2 h-4 w-4" />
+                  <span>Termos de Uso</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="cursor-pointer" onClick={() => window.open("https://www.samel.com.br/sobre-nos/faq/", "_blank")}>
                   <HelpCircle className="mr-2 h-4 w-4" />
@@ -678,6 +684,9 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Modal de Termos de Uso */}
+        <TermsOfUseModal open={showTermsDialog} onOpenChange={setShowTermsDialog} />
       </header>
     );
   };
