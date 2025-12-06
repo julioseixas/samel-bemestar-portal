@@ -292,22 +292,31 @@ export default function PersonalData() {
         return `${day}/${month}/${year}`;
       };
 
+      // Função para formatar CEP com máscara XXXXX-XXX
+      const formatCepWithMask = (cep: string) => {
+        const cleanCep = cep.replace(/\D/g, "");
+        if (cleanCep.length === 8) {
+          return `${cleanCep.slice(0, 5)}-${cleanCep.slice(5)}`;
+        }
+        return cep;
+      };
+
       const payload = {
         nome: editedData.nome || patientData?.nome || "",
         dataNascimento: formatDateToBR(editedData.dataNascimento || patientData?.dataNascimento || ""),
         dddTelefone: editedData.dddTelefone || patientData?.dddTelefone || "",
-        cpf: (editedData.cpf || patientData?.cpf || "").replace(/\D/g, ""),
+        cpf: (editedData.cpf || patientData?.cpf || "").replace(/\D/g, ""), // Sem máscara
         estadoCivil: editedData.estadoCivil || patientData?.estadoCivil || "",
-        rg: editedData.rg || patientData?.rg || "",
+        rg: (editedData.rg || patientData?.rg || "").replace(/\D/g, ""), // Sem máscara
         sexo: editedData.sexo || patientData?.sexo || "",
         estado: editedData.estado || patientData?.estado || patientData?.UF || "",
         cidade: editedData.municipio || patientData?.municipio || "",
         bairro: editedData.bairro || patientData?.bairro || "",
         logradouroResidencial: editedData.logradouroResidencial || patientData?.logradouroResidencial || "",
-        cepResidencial: editedData.cepResidencial || patientData?.cepResidencial || "",
+        cepResidencial: formatCepWithMask(editedData.cepResidencial || patientData?.cepResidencial || ""), // Com máscara XXXXX-XXX
         id: editedData.id || patientData?.id || "",
         numeroResidencial: parseInt(editedData.numeroResidencial || patientData?.numeroResidencial || "0"),
-        numeroTelefone: editedData.numeroTelefone || patientData?.numeroTelefone || "",
+        numeroTelefone: (editedData.numeroTelefone || patientData?.numeroTelefone || "").replace(/\D/g, ""), // Sem máscara, sem DDD
         complementoResidencial: editedData.complementoResidencial || patientData?.complementoResidencial || "",
       };
 
