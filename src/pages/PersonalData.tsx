@@ -834,7 +834,7 @@ export default function PersonalData() {
                         <Label htmlFor="estado">Estado *</Label>
                         <Input
                           id="estado"
-                          value={editedData?.estado || ""}
+                          value={editedData?.estado || patientData?.estado || patientData?.UF || ""}
                           onChange={(e) =>
                             setEditedData({ ...editedData!, estado: e.target.value })
                           }
