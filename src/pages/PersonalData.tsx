@@ -513,8 +513,8 @@ export default function PersonalData() {
       
       <main className="flex-1 container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <div className="max-w-4xl mx-auto">
-          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm pb-3 sm:pb-4 -mx-3 sm:-mx-4 px-3 sm:px-4 border-b mb-4 sm:mb-6">
-            <div className="flex items-center justify-between gap-2 pt-2">
+          <div className="sticky top-14 sm:top-16 md:top-20 z-10 bg-background/95 backdrop-blur-sm pb-3 sm:pb-4 -mx-3 sm:-mx-4 px-3 sm:px-4 border-b mb-4 sm:mb-6">
+            <div className="flex items-center justify-between gap-2 pt-3 sm:pt-2">
               <h1 className="text-lg sm:text-2xl md:text-3xl font-bold text-foreground truncate">Dados Pessoais</h1>
               <div className="flex gap-1.5 sm:gap-2 flex-shrink-0">
                 {!isEditing ? (
