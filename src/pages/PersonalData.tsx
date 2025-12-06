@@ -102,6 +102,7 @@ export default function PersonalData() {
       ...patientData!,
       numeroTelefone: last9Digits,
       dataNascimento: formatDateForEdit(patientData?.dataNascimento || ""),
+      estado: patientData?.estado || patientData?.UF || "", // Garantir que estado é preenchido
     });
     setIsEditing(true);
   };
