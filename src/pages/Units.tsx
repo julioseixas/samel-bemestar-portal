@@ -190,7 +190,7 @@ const Units = () => {
                 className="rounded-xl border border-border bg-card overflow-hidden flex flex-col"
               >
                 {/* Imagem */}
-                <div className="aspect-video w-full bg-muted flex-shrink-0">
+                <div className="h-40 w-full bg-muted flex-shrink-0">
                   {unit.foto ? (
                     <img
                       src={`data:image/jpeg;base64,${unit.foto}`}
