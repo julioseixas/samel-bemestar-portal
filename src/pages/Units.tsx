@@ -228,8 +228,8 @@ const Units = () => {
                       </Button>
                     )}
                     
-                    {unit.dddTelefone && unit.numeroTelefone && 
-                     Number(unit.dddTelefone) !== 0 && Number(unit.numeroTelefone) !== 0 && (
+                    {Boolean(unit.dddTelefone) && Boolean(unit.numeroTelefone) && 
+                     Number(unit.dddTelefone) !== 0 && Number(unit.numeroTelefone) !== 0 ? (
                       <Button
                         variant="outline"
                         size="sm"
@@ -239,7 +239,7 @@ const Units = () => {
                         <Phone className="h-4 w-4" />
                         Ligar
                       </Button>
-                    )}
+                    ) : null}
                   </div>
                 </div>
               </div>
