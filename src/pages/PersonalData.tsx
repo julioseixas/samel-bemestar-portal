@@ -32,7 +32,13 @@ interface PatientData {
   bairro: string;
   municipio: string;
   estado?: string;
-  UF?: string; // API retorna o estado nesta chave
+  UF?: string;
+  uf?: string; // API pode retornar em minúsculo
+  clienteContratos?: Array<{
+    uf?: string;
+    UF?: string;
+    [key: string]: unknown;
+  }>;
 }
 
 export default function PersonalData() {
@@ -53,9 +59,15 @@ export default function PersonalData() {
 
       if (storedData) {
         const data = JSON.parse(storedData);
-        // Mapear UF para estado se necessário
-        // Mapear UF para estado sempre que UF existir e estado não
-        data.estado = data.estado || data.UF || "";
+        
+        // Buscar uf de clienteContratos[0] - API retorna em minúsculo
+        const ufFromContratos = data.clienteContratos?.[0]?.uf || 
+                                data.clienteContratos?.[0]?.UF || "";
+        
+        // Mapear para estado usando todos os fallbacks
+        data.estado = data.estado || data.UF || data.uf || ufFromContratos;
+        data.UF = data.UF || data.uf || ufFromContratos;
+        
         setPatientData(data);
         setEditedData(data);
         // Se não tiver nome no localStorage, usa o nome dos dados do paciente
@@ -97,11 +109,15 @@ export default function PersonalData() {
       return `${day}/${month}/${year}`;
     };
     
+    // Buscar uf de clienteContratos se necessário
+    const ufFromContratos = patientData?.clienteContratos?.[0]?.uf || 
+                            patientData?.clienteContratos?.[0]?.UF || "";
+    
     setEditedData({
       ...patientData!,
       numeroTelefone: last9Digits,
       dataNascimento: formatDateForEdit(patientData?.dataNascimento || ""),
-      estado: patientData?.estado || patientData?.UF || "", // Garantir que estado é preenchido
+      estado: patientData?.estado || patientData?.UF || patientData?.uf || ufFromContratos,
     });
     setIsEditing(true);
   };
@@ -276,8 +292,10 @@ export default function PersonalData() {
       return;
     }
 
-    // Estado - pega o valor com fallbacks antes de validar
-    const estadoValue = editedData.estado || patientData?.estado || patientData?.UF || "";
+    // Estado - pega o valor com fallbacks incluindo clienteContratos
+    const ufFromContratos = patientData?.clienteContratos?.[0]?.uf || 
+                            patientData?.clienteContratos?.[0]?.UF || "";
+    const estadoValue = editedData.estado || patientData?.estado || patientData?.UF || patientData?.uf || ufFromContratos;
     if (!estadoValue) {
       toast({
         title: "Erro",
@@ -737,7 +755,7 @@ export default function PersonalData() {
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Estado</p>
-                        <p className="text-base font-medium text-foreground">{patientData.estado || patientData.UF || "-"}</p>
+                        <p className="text-base font-medium text-foreground">{patientData.estado || patientData.UF || patientData.uf || patientData.clienteContratos?.[0]?.uf || "-"}</p>
                       </div>
                     </div>
                     <Separator />
