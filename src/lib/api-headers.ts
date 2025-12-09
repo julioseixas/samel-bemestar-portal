@@ -1,15 +1,31 @@
 import { jwtDecode } from "jwt-decode";
+import { getCookie } from "@/lib/cookie-storage";
+
+/**
+ * Obtém o token de autenticação do localStorage ou cookies (fallback)
+ */
+const getAuthToken = (): string => {
+  // Primeiro tenta localStorage
+  let userToken = localStorage.getItem("user");
+  
+  // Fallback para cookies se localStorage estiver vazio
+  if (!userToken) {
+    userToken = getCookie("auth_token");
+  }
+  
+  if (!userToken) {
+    throw new Error("Token de autenticação não encontrado");
+  }
+  
+  return userToken;
+};
 
 /**
  * Retorna os headers padrão para requisições à API Samel
  * Inclui automaticamente o token de autenticação decodificado
  */
 export const getApiHeaders = (): HeadersInit => {
-  const userToken = localStorage.getItem("user") || "";
-  
-  if (!userToken) {
-    throw new Error("Token de autenticação não encontrado");
-  }
+  const userToken = getAuthToken();
 
   try {
     const decoded: any = jwtDecode(userToken);

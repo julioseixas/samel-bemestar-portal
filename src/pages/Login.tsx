@@ -8,6 +8,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
 import { getApiHeaders } from "@/lib/api-headers";
+import { saveAuthToCookies } from "@/lib/cookie-storage";
 import samelLogo from "@/assets/samel-logo.png";
 
 const Login = () => {
@@ -117,6 +118,15 @@ const Login = () => {
             localStorage.setItem('user', data.dados2);
 
             localStorage.setItem("patientData", JSON.stringify(decoded));
+
+            // Salva dados nos cookies para persistência em iOS WebViews
+            saveAuthToCookies({
+              token: data.dados2,
+              titular: titular,
+              patientData: decoded,
+              listToSchedule: listAllPacient,
+              rating: titular.rating?.toString() || '0',
+            });
 
             if (decoded.cd_pessoa_fisica || decoded.id) {
               const idCliente = decoded.cd_pessoa_fisica || decoded.id;
