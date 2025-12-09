@@ -4,6 +4,7 @@ import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getApiHeaders } from "@/lib/api-headers";
+import { clearAuthCookies } from "@/lib/cookie-storage";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -276,6 +277,9 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
     
     // Limpa qualquer outro dado remanescente
     localStorage.clear();
+    
+    // Limpa cookies de autenticação
+    clearAuthCookies();
     
     // Redireciona para a página de login
     navigate("/");
