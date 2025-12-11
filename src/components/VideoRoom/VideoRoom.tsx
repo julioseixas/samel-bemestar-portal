@@ -123,22 +123,15 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
   };
 
 
-  // Determine main view participant (pinned or active speaker or first remote)
-  const mainParticipantId = useMemo(() => {
-    if (pinnedParticipant && participantIds.includes(pinnedParticipant)) {
-      return pinnedParticipant;
-    }
-    // Find first remote participant (not local)
-    const remoteParticipant = participantIds.find(
-      (id) => id !== localParticipant?.id
-    );
-    return remoteParticipant || participantIds[0] || null;
-  }, [participantIds, pinnedParticipant, localParticipant]);
-
-  // Other participants for the grid/thumbnails
-  const thumbnailParticipants = useMemo(() => {
-    return participantIds.filter((id) => id !== mainParticipantId);
-  }, [participantIds, mainParticipantId]);
+  // Calculate grid columns based on participant count
+  const gridClass = useMemo(() => {
+    const count = participantIds.length;
+    if (count <= 1) return "grid-cols-1";
+    if (count === 2) return "grid-cols-1 sm:grid-cols-2";
+    if (count <= 4) return "grid-cols-2";
+    if (count <= 6) return "grid-cols-2 sm:grid-cols-3";
+    return "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4";
+  }, [participantIds.length]);
 
   if (isJoining) {
     return (
@@ -177,42 +170,21 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Video Area */}
+        {/* Video Area - Grid Layout */}
         <div
           className={cn(
-            "flex-1 flex flex-col p-4 pb-24 overflow-hidden",
+            "flex-1 p-4 pb-24 overflow-auto",
             (chatOpen || participantsOpen) && "lg:mr-80"
           )}
         >
-          {/* Main View */}
-          <div className="flex-1 mb-4">
-            {mainParticipantId ? (
-              <ParticipantView
-                participantId={mainParticipantId}
-                isLocal={mainParticipantId === localParticipant?.id}
-                isMainView
-                isPinned={pinnedParticipant === mainParticipantId}
-                onPin={(id) =>
-                  setPinnedParticipant((prev) => (prev === id ? null : id))
-                }
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-muted rounded-xl">
-                <p className="text-muted-foreground">
-                  Aguardando outros participantes...
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Thumbnails */}
-          {thumbnailParticipants.length > 0 && (
-            <div className="flex gap-2 overflow-x-auto pb-2">
-              {thumbnailParticipants.map((id) => (
-                <div key={id} className="w-40 flex-shrink-0">
+          {participantIds.length > 0 ? (
+            <div className={cn("grid gap-3 h-full auto-rows-fr", gridClass)}>
+              {participantIds.map((id) => (
+                <div key={id} className="min-h-[200px]">
                   <ParticipantView
                     participantId={id}
                     isLocal={id === localParticipant?.id}
+                    isMainView={participantIds.length <= 2}
                     isPinned={pinnedParticipant === id}
                     onPin={(participantId) =>
                       setPinnedParticipant((prev) =>
@@ -222,6 +194,12 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
                   />
                 </div>
               ))}
+            </div>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-muted rounded-xl">
+              <p className="text-muted-foreground">
+                Aguardando participantes...
+              </p>
             </div>
           )}
         </div>
