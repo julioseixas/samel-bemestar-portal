@@ -185,6 +185,26 @@ const VideoConsultation = () => {
 
   // Connected state - video room
   if (connectionState === "connected" && roomData) {
+    console.log("[VideoConsultation] Passing to VideoRoom:", {
+      roomId: roomData.roomId,
+      tokenPresent: !!roomData.token,
+      tokenLength: roomData.token?.length,
+      participantName: roomData.participantName,
+    });
+    
+    if (!roomData.token) {
+      console.error("[VideoConsultation] Token is missing!");
+      return (
+        <div className="min-h-screen bg-background flex items-center justify-center p-4">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Erro de autenticação</AlertTitle>
+            <AlertDescription>Token de acesso não disponível. Tente novamente.</AlertDescription>
+          </Alert>
+        </div>
+      );
+    }
+    
     return (
       <VideoRoom
         roomId={roomData.roomId}
