@@ -139,16 +139,21 @@ export const MapDialog = ({ open, onOpenChange, location, unitName }: MapDialogP
                   {isLoadingLocation ? "Obtendo..." : showRoute ? "Ver Local" : "Ver Rota"}
                 </span>
               </Button>
-              <a
-                href={directionsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-xs sm:text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 sm:h-10 px-2 sm:px-4"
+              <Button
+                variant="outline"
+                asChild
+                className="flex-1 text-xs sm:text-sm h-9 sm:h-10 px-2 sm:px-4"
               >
-                <ExternalLink className="h-3.5 w-3.5 xs:h-4 xs:w-4" />
-                <span className="hidden xs:inline">Abrir no Google Maps</span>
-                <span className="xs:hidden">Google Maps</span>
-              </a>
+                <a
+                  href={directionsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink className="h-3.5 w-3.5 xs:h-4 xs:w-4 xs:mr-2" />
+                  <span className="hidden xs:inline">Abrir no Google Maps</span>
+                  <span className="xs:hidden">Google Maps</span>
+                </a>
+              </Button>
             </div>
             <Button 
               variant="outline" 
