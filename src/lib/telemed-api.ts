@@ -99,7 +99,7 @@ export const createRoom = async (
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${samelToken}`,
+      "Authorization": samelToken,
     },
     body: JSON.stringify({
       cd_medico: cdMedico,
