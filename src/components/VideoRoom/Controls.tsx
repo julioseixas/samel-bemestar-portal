@@ -12,6 +12,7 @@ import {
   Settings,
   MessageSquare,
   Users,
+  MoreVertical,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -256,15 +257,62 @@ const Controls: React.FC<ControlsProps> = ({
           )}
         </Button>
 
-        {/* Chat Toggle */}
+        {/* Chat Toggle - hidden on mobile, shown in more menu */}
         <Button
           variant={chatOpen ? "default" : "secondary"}
           size="icon"
           onClick={onToggleChat}
-          className="h-10 w-10 sm:h-11 sm:w-11"
+          className="hidden sm:flex h-11 w-11"
         >
-          <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5" />
+          <MessageSquare className="h-5 w-5" />
         </Button>
+
+        {/* Participants Toggle - hidden on mobile */}
+        <Button
+          variant={participantsOpen ? "default" : "secondary"}
+          size="icon"
+          onClick={onToggleParticipants}
+          className="hidden sm:flex h-11 w-11"
+        >
+          <Users className="h-5 w-5" />
+        </Button>
+
+        {/* Mobile More Options Menu */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="secondary"
+              size="icon"
+              className="sm:hidden h-10 w-10"
+            >
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="center" className="w-48">
+            <DropdownMenuItem onClick={onToggleChat}>
+              <MessageSquare className="h-4 w-4 mr-2" />
+              {chatOpen ? "Fechar Chat" : "Abrir Chat"}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onToggleParticipants}>
+              <Users className="h-4 w-4 mr-2" />
+              {participantsOpen ? "Fechar Participantes" : "Ver Participantes"}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleToggleScreenShare}>
+              {localScreenShareOn ? (
+                <>
+                  <MonitorOff className="h-4 w-4 mr-2" />
+                  Parar Compartilhamento
+                </>
+              ) : (
+                <>
+                  <Monitor className="h-4 w-4 mr-2" />
+                  Compartilhar Tela
+                </>
+              )}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {/* Leave Button */}
         <Button
