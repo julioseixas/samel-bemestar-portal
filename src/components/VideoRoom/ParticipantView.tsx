@@ -89,7 +89,7 @@ const ParticipantView: React.FC<ParticipantViewProps> = ({
           playsInline
           muted={isLocal}
           className={cn(
-            "w-full h-full object-cover",
+            "w-full h-full object-contain bg-black",
             isLocal && "transform scale-x-[-1]"
           )}
         />
