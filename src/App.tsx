@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import SignupDetails from "./pages/SignupDetails";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import ExamResults from "./pages/ExamResults";
 import ExamRequestChoice from "./pages/ExamRequestChoice";
@@ -79,6 +80,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/signup/details" element={<SignupDetails />} />
+            <Route path="/redefinirsenha/:hash" element={<ResetPassword />} />
             
             {/* Rotas Protegidas */}
             <Route path="/dashboard" element={<Protected><Index /></Protected>} />
