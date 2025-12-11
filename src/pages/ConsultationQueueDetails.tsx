@@ -251,8 +251,8 @@ const ConsultationQueueDetails = () => {
                         {isCurrentPatient && (
                           <span className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-xs sm:text-sm font-bold px-2 py-1 sm:px-4 sm:py-1.5 rounded-full shadow-md flex items-center gap-1 sm:gap-1.5 animate-fade-in whitespace-nowrap">
                             <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
-                            <span className="hidden sm:inline">Sua Posição</span>
-                            <span className="sm:hidden">Você</span>
+                            <span className="hidden sm:inline">{patientName}</span>
+                            <span className="sm:hidden">{patientName.split(' ')[0]}</span>
                           </span>
                         )}
                       </CardTitle>
