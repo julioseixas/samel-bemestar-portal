@@ -57,21 +57,24 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
   const [pinnedParticipant, setPinnedParticipant] = useState<string | null>(null);
   const [isJoining, setIsJoining] = useState(true);
 
-  // Join meeting on mount
+  // Monitora quando o meeting é joined via joinWithoutUserInteraction
   useEffect(() => {
-    const joinMeeting = async () => {
-      try {
-        console.log("[VideoRoom] Joining meeting...");
-        await join();
-        setIsJoining(false);
-      } catch (error) {
-        console.error("[VideoRoom] Failed to join:", error);
-        toast.error("Falha ao entrar na sala");
+    if (localParticipant) {
+      console.log("[VideoRoom] Local participant ready:", localParticipant.id);
+      setIsJoining(false);
+    }
+  }, [localParticipant]);
+
+  // Timeout para loading state
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (isJoining) {
+        console.log("[VideoRoom] Join timeout - forcing loading off");
         setIsJoining(false);
       }
-    };
-    joinMeeting();
-  }, []);
+    }, 10000);
+    return () => clearTimeout(timeout);
+  }, [isJoining]);
 
   // Handle fullscreen
   const toggleFullscreen = () => {
@@ -253,6 +256,26 @@ const VideoRoom: React.FC<VideoRoomProps> = ({
   participantName,
   onLeave,
 }) => {
+  console.log("[VideoRoom] Rendering with:", { 
+    roomId, 
+    tokenPresent: !!token && token.length > 0,
+    tokenLength: token?.length,
+    participantName 
+  });
+
+  // Validar token antes de renderizar
+  if (!token || token.length === 0) {
+    console.error("[VideoRoom] Token inválido ou ausente!");
+    return (
+      <div className="fixed inset-0 bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <p className="text-lg font-medium text-destructive">Erro: Token não disponível</p>
+          <Button onClick={onLeave}>Voltar</Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <MeetingProvider
       config={{
@@ -260,9 +283,10 @@ const VideoRoom: React.FC<VideoRoomProps> = ({
         micEnabled: true,
         webcamEnabled: true,
         name: participantName,
-        debugMode: false,
+        debugMode: true,
       }}
       token={token}
+      joinWithoutUserInteraction={true}
     >
       <MeetingView onLeave={onLeave} roomName={`Consulta - ${roomId}`} />
     </MeetingProvider>
