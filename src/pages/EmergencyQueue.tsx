@@ -503,7 +503,7 @@ const EmergencyQueue = () => {
                           <div className="flex items-center gap-2 mb-3">
                             <span className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-xs font-bold px-3 py-1 rounded-full shadow-md flex items-center gap-1.5">
                               <CheckCircle className="h-3 w-3" />
-                              Você está na fila
+                              {item.NM_PESSOA_FISICA_PACIENTE}
                             </span>
                           </div>
                         )}
