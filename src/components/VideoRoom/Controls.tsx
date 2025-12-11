@@ -156,30 +156,30 @@ const Controls: React.FC<ControlsProps> = ({
   };
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t p-4">
-      <div className="flex items-center justify-center gap-2 sm:gap-4">
+    <div className="absolute bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t p-2 sm:p-4 safe-area-pb">
+      <div className="flex items-center justify-center gap-1 sm:gap-2 flex-wrap max-w-full">
         {/* Mic Toggle with Dropdown */}
         <div className="flex items-center">
           <Button
             variant={localMicOn ? "secondary" : "destructive"}
-            size="lg"
+            size="icon"
             onClick={handleToggleMic}
-            className="rounded-r-none"
+            className="h-10 w-10 sm:h-11 sm:w-11 rounded-r-none"
           >
             {localMicOn ? (
-              <Mic className="h-5 w-5" />
+              <Mic className="h-4 w-4 sm:h-5 sm:w-5" />
             ) : (
-              <MicOff className="h-5 w-5" />
+              <MicOff className="h-4 w-4 sm:h-5 sm:w-5" />
             )}
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant={localMicOn ? "secondary" : "destructive"}
-                size="lg"
-                className="rounded-l-none border-l px-2"
+                size="icon"
+                className="h-10 w-6 sm:h-11 sm:w-8 rounded-l-none border-l"
               >
-                <Settings className="h-4 w-4" />
+                <Settings className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="center">
@@ -204,24 +204,24 @@ const Controls: React.FC<ControlsProps> = ({
         <div className="flex items-center">
           <Button
             variant={localWebcamOn ? "secondary" : "destructive"}
-            size="lg"
+            size="icon"
             onClick={handleToggleWebcam}
-            className="rounded-r-none"
+            className="h-10 w-10 sm:h-11 sm:w-11 rounded-r-none"
           >
             {localWebcamOn ? (
-              <Video className="h-5 w-5" />
+              <Video className="h-4 w-4 sm:h-5 sm:w-5" />
             ) : (
-              <VideoOff className="h-5 w-5" />
+              <VideoOff className="h-4 w-4 sm:h-5 sm:w-5" />
             )}
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant={localWebcamOn ? "secondary" : "destructive"}
-                size="lg"
-                className="rounded-l-none border-l px-2"
+                size="icon"
+                className="h-10 w-6 sm:h-11 sm:w-8 rounded-l-none border-l"
               >
-                <Settings className="h-4 w-4" />
+                <Settings className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="center">
@@ -242,12 +242,12 @@ const Controls: React.FC<ControlsProps> = ({
           </DropdownMenu>
         </div>
 
-        {/* Screen Share */}
+        {/* Screen Share - hidden on mobile */}
         <Button
           variant={localScreenShareOn ? "default" : "secondary"}
-          size="lg"
+          size="icon"
           onClick={handleToggleScreenShare}
-          className="hidden sm:flex"
+          className="hidden sm:flex h-11 w-11"
         >
           {localScreenShareOn ? (
             <MonitorOff className="h-5 w-5" />
@@ -259,30 +259,21 @@ const Controls: React.FC<ControlsProps> = ({
         {/* Chat Toggle */}
         <Button
           variant={chatOpen ? "default" : "secondary"}
-          size="lg"
+          size="icon"
           onClick={onToggleChat}
+          className="h-10 w-10 sm:h-11 sm:w-11"
         >
-          <MessageSquare className="h-5 w-5" />
-        </Button>
-
-        {/* Participants Toggle */}
-        <Button
-          variant={participantsOpen ? "default" : "secondary"}
-          size="lg"
-          onClick={onToggleParticipants}
-          className="hidden sm:flex"
-        >
-          <Users className="h-5 w-5" />
+          <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5" />
         </Button>
 
         {/* Leave Button */}
         <Button
           variant="destructive"
-          size="lg"
+          size="icon"
           onClick={onLeave}
-          className="ml-4"
+          className="h-10 w-10 sm:h-11 sm:w-auto sm:px-4 ml-1 sm:ml-2"
         >
-          <PhoneOff className="h-5 w-5 mr-2" />
+          <PhoneOff className="h-4 w-4 sm:h-5 sm:w-5 sm:mr-2" />
           <span className="hidden sm:inline">Sair</span>
         </Button>
       </div>
