@@ -16,9 +16,13 @@ interface RoomCheckResponse {
 }
 
 interface CreateRoomResponse {
-  createRoom: {
-    roomId: string;
-    token: string;
+  status: string;
+  message: string;
+  data: {
+    createRoom: {
+      roomId: string;
+      token: string;
+    };
   };
 }
 
@@ -114,11 +118,11 @@ export const createRoom = async (
 
   const data: CreateRoomResponse = await response.json();
   
-  console.log("[Telemed] Room created:", data.createRoom.roomId);
+  console.log("[Telemed] Room created:", data.data.createRoom.roomId);
   
   return {
-    roomId: data.createRoom.roomId,
-    videoSdkToken: data.createRoom.token,
+    roomId: data.data.createRoom.roomId,
+    videoSdkToken: data.data.createRoom.token,
   };
 };
 
