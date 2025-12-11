@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useReducer, useCallback } from "react";
 import { MeetingProvider, useMeeting } from "@videosdk.live/react-sdk";
 import { toast } from "sonner";
 import ParticipantView from "./ParticipantView";
@@ -21,12 +21,18 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
   onLeave,
   roomName,
 }) => {
+  // State declarations first
+  const [chatOpen, setChatOpen] = useState(false);
+  const [participantsOpen, setParticipantsOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [pinnedParticipant, setPinnedParticipant] = useState<string | null>(null);
+  const [isJoining, setIsJoining] = useState(true);
+  const [participantIds, setParticipantIds] = useState<string[]>([]);
+
   const {
-    join,
     leave,
     participants,
     localParticipant,
-    meetingId,
   } = useMeeting({
     onMeetingJoined: () => {
       console.log("[VideoRoom] Meeting joined");
@@ -38,11 +44,11 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
       onLeave();
     },
     onParticipantJoined: (participant) => {
-      console.log("[VideoRoom] Participant joined:", participant.displayName);
+      console.log("[VideoRoom] Participant joined:", participant.displayName, "ID:", participant.id);
       toast.info(`${participant.displayName || "Participante"} entrou`);
     },
     onParticipantLeft: (participant) => {
-      console.log("[VideoRoom] Participant left:", participant.displayName);
+      console.log("[VideoRoom] Participant left:", participant.displayName, "ID:", participant.id);
       toast.info(`${participant.displayName || "Participante"} saiu`);
     },
     onError: (error) => {
@@ -51,11 +57,25 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
     },
   });
 
-  const [chatOpen, setChatOpen] = useState(false);
-  const [participantsOpen, setParticipantsOpen] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [pinnedParticipant, setPinnedParticipant] = useState<string | null>(null);
-  const [isJoining, setIsJoining] = useState(true);
+  // Sync participant IDs with the participants Map
+  useEffect(() => {
+    const currentIds = [...participants.keys()];
+    console.log("[VideoRoom] Syncing participants:", currentIds);
+    setParticipantIds(currentIds);
+  }, [participants.size]);
+
+  // Also update on any participants change
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentIds = [...participants.keys()];
+      if (currentIds.length !== participantIds.length || 
+          currentIds.some((id, i) => id !== participantIds[i])) {
+        console.log("[VideoRoom] Detected participant change via interval:", currentIds);
+        setParticipantIds(currentIds);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [participants, participantIds]);
 
   // Monitora quando o meeting é joined via joinWithoutUserInteraction
   useEffect(() => {
@@ -102,10 +122,6 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
     leave();
   };
 
-  // Get participant IDs
-  const participantIds = useMemo(() => {
-    return [...participants.keys()];
-  }, [participants]);
 
   // Determine main view participant (pinned or active speaker or first remote)
   const mainParticipantId = useMemo(() => {
