@@ -1,18 +1,18 @@
 /**
  * Módulo de gerenciamento de cookies para persistência de sessão
  * Implementa sliding expiration: cada vez que o usuário abre o app, renova por +30 dias
+ * 
+ * IMPORTANTE: Para evitar erro "Request Header Or Cookie Too Large" (erro 400),
+ * salvamos apenas o token JWT no cookie. Os dados completos são extraídos do JWT
+ * ao restaurar a sessão.
  */
+
+import { jwtDecode } from 'jwt-decode';
 
 const COOKIE_EXPIRATION_DAYS = 30;
 
-// Nomes dos cookies de autenticação
-const AUTH_COOKIES = {
-  TOKEN: 'auth_token',
-  TITULAR: 'auth_titular',
-  PATIENT_DATA: 'auth_patient_data',
-  LIST_TO_SCHEDULE: 'auth_list_to_schedule',
-  RATING: 'auth_rating',
-} as const;
+// Nome do cookie de autenticação (apenas o token)
+const AUTH_TOKEN_COOKIE = 'auth_token';
 
 /**
  * Define um cookie com expiração em dias
@@ -62,35 +62,50 @@ export const deleteCookie = (name: string): void => {
 };
 
 /**
+ * Limpa cookies antigos que podem estar causando problemas
+ * Remove cookies grandes que eram usados na versão anterior
+ */
+const clearLegacyCookies = (): void => {
+  const legacyCookies = [
+    'auth_titular',
+    'auth_patient_data', 
+    'auth_list_to_schedule',
+    'auth_rating'
+  ];
+  
+  legacyCookies.forEach(cookieName => {
+    deleteCookie(cookieName);
+  });
+};
+
+/**
  * Salva dados de autenticação nos cookies
- * Chamado após login bem-sucedido
+ * OTIMIZADO: Salva apenas o token JWT para evitar erro de cookie muito grande
+ * Os dados completos são extraídos do JWT ao restaurar a sessão
  */
 export const saveAuthToCookies = (data: {
   token: string;
-  titular: any;
-  patientData: any;
-  listToSchedule: any[];
+  titular?: any;
+  patientData?: any;
+  listToSchedule?: any[];
   rating?: string;
 }): void => {
   try {
-    setCookie(AUTH_COOKIES.TOKEN, data.token, COOKIE_EXPIRATION_DAYS);
-    setCookie(AUTH_COOKIES.TITULAR, JSON.stringify(data.titular), COOKIE_EXPIRATION_DAYS);
-    setCookie(AUTH_COOKIES.PATIENT_DATA, JSON.stringify(data.patientData), COOKIE_EXPIRATION_DAYS);
-    setCookie(AUTH_COOKIES.LIST_TO_SCHEDULE, JSON.stringify(data.listToSchedule), COOKIE_EXPIRATION_DAYS);
+    // Limpa cookies antigos que podem estar causando o erro 400
+    clearLegacyCookies();
     
-    if (data.rating) {
-      setCookie(AUTH_COOKIES.RATING, data.rating, COOKIE_EXPIRATION_DAYS);
-    }
+    // Salva apenas o token JWT (que já contém todas as informações necessárias)
+    setCookie(AUTH_TOKEN_COOKIE, data.token, COOKIE_EXPIRATION_DAYS);
     
-    console.log('[CookieStorage] Dados de autenticação salvos nos cookies');
+    console.log('[CookieStorage] Token de autenticação salvo no cookie');
   } catch (error) {
-    console.error('[CookieStorage] Erro ao salvar dados nos cookies:', error);
+    console.error('[CookieStorage] Erro ao salvar token no cookie:', error);
   }
 };
 
 /**
  * Recupera dados de autenticação dos cookies
- * Retorna null se não houver dados ou se estiverem inválidos
+ * OTIMIZADO: Extrai dados diretamente do JWT armazenado no cookie
  */
 export const getAuthFromCookies = (): {
   token: string;
@@ -100,62 +115,93 @@ export const getAuthFromCookies = (): {
   rating: string;
 } | null => {
   try {
-    const token = getCookie(AUTH_COOKIES.TOKEN);
-    const titularStr = getCookie(AUTH_COOKIES.TITULAR);
-    const patientDataStr = getCookie(AUTH_COOKIES.PATIENT_DATA);
-    const listToScheduleStr = getCookie(AUTH_COOKIES.LIST_TO_SCHEDULE);
-    const rating = getCookie(AUTH_COOKIES.RATING);
+    const token = getCookie(AUTH_TOKEN_COOKIE);
     
     // Se não houver token, não há sessão válida
     if (!token) {
       return null;
     }
     
-    // Parse dos dados JSON
-    const titular = titularStr ? JSON.parse(titularStr) : null;
-    const patientData = patientDataStr ? JSON.parse(patientDataStr) : null;
-    const listToSchedule = listToScheduleStr ? JSON.parse(listToScheduleStr) : [];
+    // Decodifica o JWT para extrair os dados
+    const decoded: any = jwtDecode(token);
     
-    // Verifica se os dados essenciais existem
-    if (!titular || !patientData) {
-      return null;
+    // Reconstrói os dados a partir do JWT (mesma lógica do Login.tsx)
+    const titularCompleto = decoded.clienteContratos?.[0] || {};
+    
+    const cdPessoaFisica = decoded.cdPessoaFisica || 
+                           decoded.cd_pessoa_fisica || 
+                           titularCompleto.cdPessoaFisica || 
+                           titularCompleto.cd_pessoa_fisica || 
+                           decoded.id;
+    
+    const titular = {
+      ...titularCompleto,
+      tipoBeneficiario: decoded.tipoBeneficiario || titularCompleto.tipoBeneficiario,
+      nome: decoded.nome || titularCompleto.nome,
+      id: decoded.id || titularCompleto.id,
+      cpf: decoded.cpf || titularCompleto.cpf,
+      codigoCarteirinha: decoded.codigoCarteirinha || titularCompleto.codigoCarteirinha || null,
+      idade: decoded.idade || titularCompleto.idade,
+      sexo: decoded.sexo || titularCompleto.sexo,
+      email: decoded.usuario?.email || decoded.email || titularCompleto.email,
+      idUsuario: decoded.usuario?.id || titularCompleto.idUsuario,
+      clienteContratos: decoded.clienteContratos,
+      ieGravida: decoded.ieGravida || titularCompleto.ieGravida,
+      rating: decoded.rating || titularCompleto.rating,
+      tipo: "Titular",
+      cdPessoaFisica: cdPessoaFisica
+    };
+    
+    const listToSchedule: any[] = [titular];
+
+    if (decoded.dependentes && decoded.dependentes.length > 0) {
+      decoded.dependentes.forEach((dependente: any) => {
+        listToSchedule.push({
+          ...dependente,
+          tipo: "Dependente",
+          cpf: dependente.cpf
+        });
+      });
     }
     
-    console.log('[CookieStorage] Dados de autenticação recuperados dos cookies');
+    console.log('[CookieStorage] Dados de autenticação recuperados do cookie');
     
     return {
       token,
       titular,
-      patientData,
+      patientData: decoded,
       listToSchedule,
-      rating: rating || '0',
+      rating: titular.rating?.toString() || '0',
     };
   } catch (error) {
-    console.error('[CookieStorage] Erro ao recuperar dados dos cookies:', error);
+    console.error('[CookieStorage] Erro ao recuperar dados do cookie:', error);
     return null;
   }
 };
 
 /**
- * Renova a expiração de todos os cookies de autenticação
+ * Renova a expiração do cookie de autenticação
  * Implementa sliding expiration: cada abertura do app renova por +30 dias
  */
 export const renewAuthCookies = (): boolean => {
   try {
-    const authData = getAuthFromCookies();
+    const token = getCookie(AUTH_TOKEN_COOKIE);
     
-    if (!authData) {
-      console.log('[CookieStorage] Nenhum dado de autenticação para renovar');
+    if (!token) {
+      console.log('[CookieStorage] Nenhum token para renovar');
       return false;
     }
     
-    // Re-salva os dados com nova expiração
-    saveAuthToCookies(authData);
+    // Limpa cookies antigos primeiro
+    clearLegacyCookies();
     
-    console.log('[CookieStorage] Expiração dos cookies renovada por mais 30 dias');
+    // Re-salva o token com nova expiração
+    setCookie(AUTH_TOKEN_COOKIE, token, COOKIE_EXPIRATION_DAYS);
+    
+    console.log('[CookieStorage] Expiração do cookie renovada por mais 30 dias');
     return true;
   } catch (error) {
-    console.error('[CookieStorage] Erro ao renovar cookies:', error);
+    console.error('[CookieStorage] Erro ao renovar cookie:', error);
     return false;
   }
 };
@@ -166,9 +212,11 @@ export const renewAuthCookies = (): boolean => {
  */
 export const clearAuthCookies = (): void => {
   try {
-    Object.values(AUTH_COOKIES).forEach(cookieName => {
-      deleteCookie(cookieName);
-    });
+    // Remove o token atual
+    deleteCookie(AUTH_TOKEN_COOKIE);
+    
+    // Remove também cookies legados que podem existir
+    clearLegacyCookies();
     
     console.log('[CookieStorage] Cookies de autenticação removidos');
   } catch (error) {
@@ -180,6 +228,6 @@ export const clearAuthCookies = (): void => {
  * Verifica se existe uma sessão válida nos cookies
  */
 export const hasValidCookieSession = (): boolean => {
-  const token = getCookie(AUTH_COOKIES.TOKEN);
+  const token = getCookie(AUTH_TOKEN_COOKIE);
   return !!token;
 };
