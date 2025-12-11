@@ -5,7 +5,9 @@
 const TELEMED_BASE_URL = "https://telemed.samel.com.br/api/prontuario/telemedicina";
 
 interface TelemedTokenResponse {
-  token: string;
+  data: {
+    token: string;
+  };
 }
 
 interface RoomCheckResponse {
@@ -44,7 +46,7 @@ export const getTelemedToken = async (): Promise<string> => {
 
   const data: TelemedTokenResponse = await response.json();
   console.log("[Telemed] Token obtained successfully");
-  return data.token;
+  return data.data.token;
 };
 
 /**
