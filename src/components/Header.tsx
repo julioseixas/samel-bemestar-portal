@@ -137,6 +137,13 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
   };
 
   const handleNotificationClick = (notification: Notification) => {
+    // Se for notificação de Pesquisa de Satisfação, redireciona para avaliação
+    if (notification.DS_TITULO === "Pesquisa e Satisfação") {
+      setShowNotificationListDialog(false);
+      navigate("/rate-appointments");
+      return;
+    }
+    
     setSelectedNotification(notification);
     setShowNotificationListDialog(false);
     setShowNotificationDetailDialog(true);
