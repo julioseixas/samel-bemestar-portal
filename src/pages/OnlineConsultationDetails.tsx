@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getApiHeaders } from "@/lib/api-headers";
 import { toast } from "sonner";
-import { Calendar, User, Stethoscope, Clock, AlertCircle, Camera, Mail } from "lucide-react";
+import { Calendar, User, Stethoscope, Clock, AlertCircle, Camera, Mail, Video } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 const OnlineConsultationDetails = () => {
@@ -572,13 +572,29 @@ const OnlineConsultationDetails = () => {
                               </AlertDescription>
                             </Alert>
                             
-                            <Button
-                              onClick={() => handleViewQueue(appointment)}
-                              className="w-full mt-2"
-                              variant="default"
-                            >
-                              Ver Fila de Atendimento
-                            </Button>
+                            <div className="flex flex-col gap-2 mt-2">
+                              <Button
+                                onClick={() => {
+                                  if (appointment.linkSalaConsulta) {
+                                    window.open(appointment.linkSalaConsulta, '_blank');
+                                  } else {
+                                    toast.error("Link da sala de consulta não disponível");
+                                  }
+                                }}
+                                className="w-full"
+                                variant="default"
+                              >
+                                <Video className="h-4 w-4 mr-2" />
+                                Entrar na Sala de Consulta
+                              </Button>
+                              <Button
+                                onClick={() => handleViewQueue(appointment)}
+                                className="w-full"
+                                variant="outline"
+                              >
+                                Ver Fila de Atendimento
+                              </Button>
+                            </div>
                           </>
                         ) : (
                           <>
