@@ -300,6 +300,9 @@ const VideoRoom: React.FC<VideoRoomProps> = ({
         webcamEnabled: true,
         name: participantName,
         debugMode: true,
+        multiStream: false,
+        maxResolution: 'hd',
+        defaultCamera: 'front',
       }}
       token={token}
       joinWithoutUserInteraction={true}
