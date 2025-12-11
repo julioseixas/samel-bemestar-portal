@@ -22,7 +22,7 @@ const VideoConsultation = () => {
   } | null>(null);
 
   // Get params from URL
-  const nrAtendimento = searchParams.get("nr_atendimento");
+  const nrAtendimento = searchParams.get("nrAtendimento");
   const cdMedico = searchParams.get("cd_medico");
   const cdPessoaFisica = searchParams.get("cd_pessoa_fisica");
   const patientName = searchParams.get("patient_name") || "Paciente";

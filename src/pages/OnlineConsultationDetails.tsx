@@ -577,7 +577,7 @@ const OnlineConsultationDetails = () => {
                                 onClick={() => {
                                   // Navigate to video consultation with required params
                                   const params = new URLSearchParams({
-                                    nr_atendimento: String(appointment.id),
+                                    nrAtendimento: String(appointment.nrAtendimento),
                                     cd_medico: String(appointment.idProfissional),
                                     cd_pessoa_fisica: String(appointment.idCliente),
                                     patient_name: appointment.nomeCliente || "Paciente",
