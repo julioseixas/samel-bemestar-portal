@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useReducer, useCallback } from "react";
 import { MeetingProvider, useMeeting } from "@videosdk.live/react-sdk";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ParticipantView from "./ParticipantView";
 import Controls from "./Controls";
@@ -21,6 +22,8 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
   onLeave,
   roomName,
 }) => {
+  const navigate = useNavigate();
+  
   // State declarations first
   const [chatOpen, setChatOpen] = useState(false);
   const [participantsOpen, setParticipantsOpen] = useState(false);
@@ -238,6 +241,7 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
         chatOpen={chatOpen}
         participantsOpen={participantsOpen}
         onLeave={handleLeave}
+        onViewQueue={() => navigate("/telemedicine-queue")}
       />
     </div>
   );

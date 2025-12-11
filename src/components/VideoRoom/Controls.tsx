@@ -13,6 +13,7 @@ import {
   MessageSquare,
   Users,
   MoreVertical,
+  ListOrdered,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -31,6 +32,7 @@ interface ControlsProps {
   chatOpen: boolean;
   participantsOpen: boolean;
   onLeave: () => void;
+  onViewQueue?: () => void;
 }
 
 interface MediaDevice {
@@ -45,6 +47,7 @@ const Controls: React.FC<ControlsProps> = ({
   chatOpen,
   participantsOpen,
   onLeave,
+  onViewQueue,
 }) => {
   const {
     toggleMic,
@@ -297,6 +300,12 @@ const Controls: React.FC<ControlsProps> = ({
               <Users className="h-4 w-4 mr-2" />
               {participantsOpen ? "Fechar Participantes" : "Ver Participantes"}
             </DropdownMenuItem>
+            {onViewQueue && (
+              <DropdownMenuItem onClick={onViewQueue}>
+                <ListOrdered className="h-4 w-4 mr-2" />
+                Ver Fila de Atendimento
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleToggleScreenShare}>
               {localScreenShareOn ? (
