@@ -35,7 +35,37 @@ export const MapDialog = ({ open, onOpenChange, location, unitName }: MapDialogP
     ? `https://www.google.com/maps/embed/v1/directions?key=${apiKey}&origin=${encodeURIComponent(userLocation)}&destination=${encodedLocation}&mode=driving`
     : `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodedLocation}`;
   
-  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodedLocation}`;
+  const openMapsApp = () => {
+    const userAgent = navigator.userAgent || (navigator as any).vendor || "";
+    const isAndroid = /android/i.test(userAgent);
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+    
+    let mapsUrl: string;
+    
+    if (isAndroid) {
+      // Deep link para app de mapas no Android
+      mapsUrl = `geo:0,0?q=${encodedLocation}`;
+    } else if (isIOS) {
+      // Deep link para Google Maps no iOS, com fallback para Apple Maps
+      mapsUrl = `comgooglemaps://?q=${encodedLocation}`;
+      
+      // Tenta abrir Google Maps, se falhar abre Apple Maps
+      const timeout = setTimeout(() => {
+        window.location.href = `maps://maps.apple.com/?q=${encodedLocation}`;
+      }, 500);
+      
+      window.location.href = mapsUrl;
+      
+      // Cancela o fallback se o app abrir
+      window.addEventListener('blur', () => clearTimeout(timeout), { once: true });
+      return;
+    } else {
+      // Fallback para web
+      mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedLocation}`;
+    }
+    
+    window.location.href = mapsUrl;
+  };
 
   const handleShowRoute = () => {
     if (showRoute) {
@@ -141,18 +171,12 @@ export const MapDialog = ({ open, onOpenChange, location, unitName }: MapDialogP
               </Button>
               <Button
                 variant="outline"
-                asChild
+                onClick={openMapsApp}
                 className="flex-1 text-xs sm:text-sm h-9 sm:h-10 px-2 sm:px-4"
               >
-                <a
-                  href={directionsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <ExternalLink className="h-3.5 w-3.5 xs:h-4 xs:w-4 xs:mr-2" />
-                  <span className="hidden xs:inline">Abrir no Google Maps</span>
-                  <span className="xs:hidden">Google Maps</span>
-                </a>
+                <ExternalLink className="h-3.5 w-3.5 xs:h-4 xs:w-4 xs:mr-2" />
+                <span className="hidden xs:inline">Abrir no Google Maps</span>
+                <span className="xs:hidden">Google Maps</span>
               </Button>
             </div>
             <Button 
