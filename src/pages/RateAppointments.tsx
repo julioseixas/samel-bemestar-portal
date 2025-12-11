@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,6 +49,7 @@ interface PerguntasResponse {
 
 const RateAppointments = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
@@ -61,6 +62,7 @@ const RateAppointments = () => {
   const [loadingPerguntas, setLoadingPerguntas] = useState(false);
   const [hoveredStars, setHoveredStars] = useState<{ [key: number]: number }>({});
   const [submitting, setSubmitting] = useState(false);
+  const autoOpenedRef = useRef(false);
 
   useEffect(() => {
     const patientData = localStorage.getItem("patientData");
@@ -125,6 +127,21 @@ const RateAppointments = () => {
       }
 
       setAppointments(allPendingEvaluations);
+      
+      // Auto-open modal if nr_atendimento is in URL params
+      const nrAtendimentoParam = searchParams.get("nr_atendimento");
+      if (nrAtendimentoParam && !autoOpenedRef.current) {
+        autoOpenedRef.current = true;
+        const targetAppointment = allPendingEvaluations.find(
+          (a) => a.nr_atendimento === parseInt(nrAtendimentoParam)
+        );
+        if (targetAppointment) {
+          // Use setTimeout to ensure state is updated before opening modal
+          setTimeout(() => {
+            handleCardClick(targetAppointment);
+          }, 100);
+        }
+      }
     } catch (error) {
       console.error("Erro ao buscar avaliações pendentes:", error);
       toast({

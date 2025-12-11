@@ -24,6 +24,7 @@ import samelLogo from "@/assets/samel-logo.png";
 
 interface Notification {
   NR_SEQUENCIA: number;
+  NR_ATENDIMENTO?: number;
   CD_USUARIO: number;
   CD_PESSOA_FISICA: number;
   DATA_FORMATADA: string;
@@ -137,10 +138,11 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
   };
 
   const handleNotificationClick = (notification: Notification) => {
-    // Se for notificação de Pesquisa de Satisfação, redireciona para avaliação
+    // Se for notificação de Pesquisa de Satisfação, redireciona para avaliação com nr_atendimento
     if (notification.DS_TITULO === "Pesquisa e Satisfação") {
       setShowNotificationListDialog(false);
-      navigate("/rate-appointments");
+      const nrAtendimento = notification.NR_ATENDIMENTO;
+      navigate(`/rate-appointments${nrAtendimento ? `?nr_atendimento=${nrAtendimento}` : ''}`);
       return;
     }
     
