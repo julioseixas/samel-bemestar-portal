@@ -575,11 +575,14 @@ const OnlineConsultationDetails = () => {
                             <div className="flex flex-col gap-2 mt-2">
                               <Button
                                 onClick={() => {
-                                  if (appointment.linkSalaConsulta) {
-                                    window.open(appointment.linkSalaConsulta, '_blank');
-                                  } else {
-                                    toast.error("Link da sala de consulta não disponível");
-                                  }
+                                  // Navigate to video consultation with required params
+                                  const params = new URLSearchParams({
+                                    nr_atendimento: String(appointment.id),
+                                    cd_medico: String(appointment.idProfissional),
+                                    cd_pessoa_fisica: String(appointment.idCliente),
+                                    patient_name: appointment.nomeCliente || "Paciente",
+                                  });
+                                  navigate(`/video-consultation?${params.toString()}`);
                                 }}
                                 className="w-full"
                                 variant="default"
