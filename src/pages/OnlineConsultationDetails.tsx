@@ -76,30 +76,25 @@ const OnlineConsultationDetails = () => {
   const fetchAppointments = async (patientDataString: string) => {
     try {
       const patientData = JSON.parse(patientDataString);
-      const cpf = patientData.cpf?.replace(/\D/g, '') || '';
-      
-      if (!cpf) {
-        toast.error("CPF do paciente não encontrado");
-        setLoading(false);
-        return;
-      }
+      const headers = getApiHeaders();
 
       const response = await fetch(
-        `https://telemed.samel.com.br/api/prontuario/telemedicina/getAvailableConsultations/${cpf}`,
+        "https://appv2-back.samel.com.br/api/Agenda/ListarAgendamentosTele",
         {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json"
-          }
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            idCliente: String(patientData.id)
+          })
         }
       );
 
       const data = await response.json();
 
-      if (data.status) {
-        setAppointments(data.data || []);
+      if (data.sucesso) {
+        setAppointments(data.dados || []);
       } else {
-        toast.error(data.message || "Erro ao carregar agendamentos");
+        toast.error(data.mensagem || "Erro ao carregar agendamentos");
       }
     } catch (error) {
       toast.error("Erro ao carregar agendamentos de telemedicina");
@@ -190,7 +185,7 @@ const OnlineConsultationDetails = () => {
 
         // 1. Confirmar abertura do atendimento
         const confirmPayload = {
-          idAgendamento: selectedAppointment.NR_ATENDIMENTO
+          idAgendamento: selectedAppointment.id
         };
 
         const confirmResponse = await fetch(
@@ -207,8 +202,8 @@ const OnlineConsultationDetails = () => {
         if (confirmData.sucesso) {
           // 2. Listar fila
           const queuePayload = {
-            idAgenda: selectedAppointment.NR_ATENDIMENTO,
-            idCliente: String(selectedAppointment.CD_PESSOA_FISICA)
+            idAgenda: selectedAppointment.idAgenda,
+            idCliente: String(patientData.id)
           };
 
           const queueResponse = await fetch(
@@ -288,10 +283,10 @@ const OnlineConsultationDetails = () => {
       const headers = getApiHeaders();
       
       const payload = {
-        idMedico: String(appointment.CD_MEDICO || ""),
-        idCliente: String(appointment.CD_PESSOA_FISICA || ""),
+        idMedico: String(appointment.idProfissional || ""),
+        idCliente: String(patientData.id || ""),
         email: email,
-        idAgendamento: appointment.NR_ATENDIMENTO || 0,
+        idAgendamento: appointment.id || 0,
         idDependente: patientData.tipo === "Dependente" ? String(patientData.id) : ""
       };
 
@@ -343,8 +338,8 @@ const OnlineConsultationDetails = () => {
       const headers = getApiHeaders();
 
       const queuePayload = {
-        idAgenda: appointment.NR_ATENDIMENTO,
-        idCliente: String(appointment.CD_PESSOA_FISICA)
+        idAgenda: appointment.idAgenda,
+        idCliente: String(patientData.id)
       };
 
       const queueResponse = await fetch(
@@ -388,9 +383,9 @@ const OnlineConsultationDetails = () => {
 
       // 1. Validar o token
       const validatePayload = {
-        idCliente: String(selectedAppointment.CD_PESSOA_FISICA),
+        idCliente: String(patientData.id),
         nrToken: tokenInput,
-        idAgendamento: selectedAppointment.NR_ATENDIMENTO,
+        idAgendamento: selectedAppointment.id,
         idDependente: String(patientData.id)
       };
 
@@ -412,7 +407,7 @@ const OnlineConsultationDetails = () => {
 
       // 2. Confirmar abertura do atendimento
       const confirmPayload = {
-        idAgendamento: selectedAppointment.NR_ATENDIMENTO
+        idAgendamento: selectedAppointment.id
       };
 
       await fetch(
@@ -426,8 +421,8 @@ const OnlineConsultationDetails = () => {
 
       // 3. Listar fila
       const queuePayload = {
-        idAgenda: selectedAppointment.NR_ATENDIMENTO,
-        idCliente: String(selectedAppointment.CD_PESSOA_FISICA)
+        idAgenda: selectedAppointment.idAgenda,
+        idCliente: String(patientData.id)
       };
 
       const queueResponse = await fetch(
@@ -524,7 +519,7 @@ const OnlineConsultationDetails = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {appointments.map((appointment, index) => {
-                const hasCheckedIn = appointment.IE_STATUS_AGENDA === "R";
+                const hasCheckedIn = appointment.possuiAtendimento === "S";
                 
                 return (
                   <Card key={index}>
@@ -540,7 +535,7 @@ const OnlineConsultationDetails = () => {
                           <User className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                           <div>
                             <p className="text-xs text-muted-foreground">Paciente</p>
-                            <p className="font-medium">{appointment.NM_PACIENTE || "Não informado"}</p>
+                            <p className="font-medium">{appointment.nomeCliente || "Não informado"}</p>
                           </div>
                         </div>
 
@@ -548,7 +543,15 @@ const OnlineConsultationDetails = () => {
                           <Stethoscope className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                           <div>
                             <p className="text-xs text-muted-foreground">Profissional</p>
-                            <p className="font-medium">{appointment.NM_GUERRA || "Não informado"}</p>
+                            <p className="font-medium">{appointment.nomeProfissional || "Não informado"}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-2">
+                          <Stethoscope className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">Especialidade</p>
+                            <p className="font-medium">{appointment.descricaoEspecialidade || "Não informada"}</p>
                           </div>
                         </div>
 
@@ -556,7 +559,7 @@ const OnlineConsultationDetails = () => {
                           <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                           <div>
                             <p className="text-xs text-muted-foreground">Horário</p>
-                            <p className="font-medium">{formatDateTime(appointment.DT_AGENDA)}</p>
+                            <p className="font-medium">{formatDateTime(appointment.dataAgenda)}</p>
                           </div>
                         </div>
 
@@ -574,10 +577,10 @@ const OnlineConsultationDetails = () => {
                                 onClick={() => {
                                   // Navigate to video consultation with required params
                                   const params = new URLSearchParams({
-                                    nr_atendimento: String(appointment.NR_ATENDIMENTO),
-                                    cd_medico: String(appointment.CD_MEDICO),
-                                    cd_pessoa_fisica: String(appointment.CD_PESSOA_FISICA),
-                                    patient_name: appointment.NM_PACIENTE || "Paciente",
+                                    nr_atendimento: String(appointment.id),
+                                    cd_medico: String(appointment.idProfissional),
+                                    cd_pessoa_fisica: String(appointment.idCliente),
+                                    patient_name: appointment.nomeCliente || "Paciente",
                                   });
                                   navigate(`/video-consultation?${params.toString()}`);
                                 }}
