@@ -214,9 +214,31 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
 
   // Handle sending message
   const handleSendMessage = useCallback((messageText: string) => {
+    if (!localParticipant) return;
+    
     console.log("[VideoRoom] Sending message:", messageText);
+    
+    // Create local message object
+    const newMessage: ChatMessage = {
+      id: `${Date.now()}-${localParticipant.id}-${Math.random()}`,
+      senderId: localParticipant.id,
+      senderName: localParticipant.displayName || "Você",
+      message: messageText,
+      timestamp: new Date(),
+    };
+    
+    // Add to local state immediately
+    setMessages((prev) => {
+      const updated = [...prev, newMessage];
+      if (meetingId) {
+        sessionMessages.set(meetingId, updated);
+      }
+      return updated;
+    });
+    
+    // Publish to other participants
     publish(messageText, { persist: true });
-  }, [publish]);
+  }, [publish, localParticipant, meetingId]);
 
   // Reset unread count when chat is opened
   useEffect(() => {
