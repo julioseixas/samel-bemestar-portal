@@ -10,6 +10,7 @@ import { Maximize2, Minimize2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getApiHeaders } from "@/lib/api-headers";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 // Sound notification helper
 const playMessageSound = () => {
@@ -35,7 +36,30 @@ const playMessageSound = () => {
   }
 };
 
-// Store messages outside component to persist during session
+// Sound for participant joining
+const playParticipantJoinSound = () => {
+  try {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    // Distinct sound for participant joining - ascending tone
+    oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4
+    oscillator.frequency.linearRampToValueAtTime(660, audioContext.currentTime + 0.2); // E5
+    oscillator.frequency.linearRampToValueAtTime(880, audioContext.currentTime + 0.4); // A5
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.5);
+  } catch (error) {
+    console.error("[VideoRoom] Error playing join sound:", error);
+  }
+};
 const sessionMessages: Map<string, ChatMessage[]> = new Map();
 
 interface VideoRoomProps {
@@ -77,6 +101,9 @@ const MeetingView: React.FC<{
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
 
+  // Push notifications hook
+  const { sendNotification } = usePushNotifications(idCliente);
+
   const {
     leave,
     participants,
@@ -92,9 +119,25 @@ const MeetingView: React.FC<{
       toast.info("Você saiu da consulta");
       onLeave();
     },
-    onParticipantJoined: (participant) => {
+    onParticipantJoined: async (participant) => {
       console.log("[VideoRoom] Participant joined:", participant.displayName, "ID:", participant.id);
       toast.info(`${participant.displayName || "Participante"} entrou`);
+      
+      // Play sound when participant joins
+      playParticipantJoinSound();
+      
+      // Show browser notification if tab is in background
+      if (document.hidden && Notification.permission === "granted") {
+        try {
+          new Notification("Consulta Online - Samel", {
+            body: `${participant.displayName || "O profissional"} entrou na sala de consulta!`,
+            icon: "/favicon.png",
+            tag: `participant-joined-${participant.id}`
+          });
+        } catch (error) {
+          console.error("[VideoRoom] Error showing notification:", error);
+        }
+      }
     },
     onParticipantLeft: (participant) => {
       console.log("[VideoRoom] Participant left:", participant.displayName, "ID:", participant.id);

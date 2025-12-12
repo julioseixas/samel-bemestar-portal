@@ -8,9 +8,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getApiHeaders } from "@/lib/api-headers";
 import { toast } from "sonner";
-import { Calendar, User, Stethoscope, Clock, AlertCircle, Camera, Mail, Video } from "lucide-react";
+import { Calendar, User, Stethoscope, Clock, AlertCircle, Camera, Mail, Video, Bell } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { TelemedicineHelpSection } from "@/components/TelemedicineHelpSection";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 const OnlineConsultationDetails = () => {
   const navigate = useNavigate();
@@ -28,8 +29,18 @@ const OnlineConsultationDetails = () => {
   const [isValidatingToken, setIsValidatingToken] = useState(false);
   const [queueData, setQueueData] = useState<any>(null);
   const [loadingQueue, setLoadingQueue] = useState(false);
+  const [patientId, setPatientId] = useState<string>("");
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+
+  // Push notifications hook
+  const { 
+    permission, 
+    isSubscribed, 
+    isPushSupported, 
+    subscribe,
+    isLoading: isPushLoading 
+  } = usePushNotifications(patientId);
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -52,6 +63,12 @@ const OnlineConsultationDetails = () => {
     }
 
     if (storedSelectedPatient) {
+      try {
+        const patientData = JSON.parse(storedSelectedPatient);
+        setPatientId(String(patientData.id || ""));
+      } catch (e) {
+        console.error("Error parsing patient data:", e);
+      }
       fetchAppointments(storedSelectedPatient);
     } else {
       toast.error("Nenhum paciente selecionado");
@@ -497,6 +514,26 @@ const OnlineConsultationDetails = () => {
           </div>
 
           <TelemedicineHelpSection variant="full" />
+
+          {/* Push Notification Permission Banner */}
+          {isPushSupported && permission !== "granted" && !isSubscribed && (
+            <Alert className="mb-4 border-primary bg-primary/10">
+              <Bell className="h-4 w-4 text-primary" />
+              <AlertDescription className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <span className="text-sm">
+                  Ative as notificações para saber quando o médico entrar na sala
+                </span>
+                <Button
+                  size="sm"
+                  onClick={subscribe}
+                  disabled={isPushLoading}
+                  className="whitespace-nowrap"
+                >
+                  {isPushLoading ? "Ativando..." : "Ativar Notificações"}
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
 
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
