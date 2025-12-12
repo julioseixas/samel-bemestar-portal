@@ -581,6 +581,8 @@ const OnlineConsultationDetails = () => {
                                     cd_medico: String(appointment.idProfissional),
                                     cd_pessoa_fisica: String(appointment.idCliente),
                                     patient_name: appointment.nomeCliente || "Paciente",
+                                    idAgenda: String(appointment.idAgenda),
+                                    idCliente: String(appointment.idCliente),
                                   });
                                   navigate(`/video-consultation?${params.toString()}`);
                                 }}

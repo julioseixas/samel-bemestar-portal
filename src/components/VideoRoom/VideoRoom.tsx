@@ -9,6 +9,7 @@ import ParticipantsList from "./ParticipantsList";
 import { Maximize2, Minimize2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getApiHeaders } from "@/lib/api-headers";
 
 // Sound notification helper
 const playMessageSound = () => {
@@ -42,12 +43,21 @@ interface VideoRoomProps {
   token: string;
   participantName: string;
   onLeave: () => void;
+  idAgenda?: string;
+  idCliente?: string;
 }
 
 // Inner component that uses the meeting hooks
-const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
+const MeetingView: React.FC<{ 
+  onLeave: () => void; 
+  roomName: string;
+  idAgenda?: string;
+  idCliente?: string;
+}> = ({
   onLeave,
   roomName,
+  idAgenda,
+  idCliente,
 }) => {
   const navigate = useNavigate();
   
@@ -313,6 +323,42 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
     leave();
   };
 
+  // Handle view queue - call API first then navigate
+  const handleViewQueue = useCallback(async () => {
+    if (!idAgenda || !idCliente) {
+      toast.error("Dados da fila não disponíveis");
+      navigate("/telemedicine-queue");
+      return;
+    }
+
+    try {
+      const headers = getApiHeaders();
+      const response = await fetch(
+        "https://api-portalpaciente-web.samel.com.br/api/Agenda/ListarFilaTele",
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            idAgenda: idAgenda,
+            idCliente: idCliente
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.sucesso && data.dados) {
+        localStorage.setItem("telemedicineQueueData", JSON.stringify(data.dados));
+        navigate("/telemedicine-queue");
+      } else {
+        toast.error(data.mensagem || "Erro ao obter informações da fila");
+      }
+    } catch (error) {
+      console.error("[VideoRoom] Error fetching queue:", error);
+      toast.error("Erro ao carregar fila de atendimento");
+    }
+  }, [idAgenda, idCliente, navigate]);
+
 
   // Calculate grid columns based on participant count
   const gridClass = useMemo(() => {
@@ -443,7 +489,7 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
         chatOpen={chatOpen}
         participantsOpen={participantsOpen}
         onLeave={handleLeave}
-        onViewQueue={() => navigate("/telemedicine-queue")}
+        onViewQueue={handleViewQueue}
         unreadMessages={unreadMessages}
       />
     </div>
@@ -456,12 +502,16 @@ const VideoRoom: React.FC<VideoRoomProps> = ({
   token,
   participantName,
   onLeave,
+  idAgenda,
+  idCliente,
 }) => {
   console.log("[VideoRoom] Rendering with:", { 
     roomId, 
     tokenPresent: !!token && token.length > 0,
     tokenLength: token?.length,
-    participantName 
+    participantName,
+    idAgenda,
+    idCliente,
   });
 
   // Validar token antes de renderizar
@@ -492,7 +542,7 @@ const VideoRoom: React.FC<VideoRoomProps> = ({
       token={token}
       joinWithoutUserInteraction={true}
     >
-      <MeetingView onLeave={onLeave} roomName={`Consulta - ${roomId}`} />
+      <MeetingView onLeave={onLeave} roomName={`Consulta - ${roomId}`} idAgenda={idAgenda} idCliente={idCliente} />
     </MeetingProvider>
   );
 };

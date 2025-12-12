@@ -26,6 +26,8 @@ const VideoConsultation = () => {
   const cdMedico = searchParams.get("cd_medico");
   const cdPessoaFisica = searchParams.get("cd_pessoa_fisica");
   const patientName = searchParams.get("patient_name") || "Paciente";
+  const idAgenda = searchParams.get("idAgenda");
+  const idCliente = searchParams.get("idCliente");
 
   useEffect(() => {
     const initializeRoom = async () => {
@@ -211,6 +213,8 @@ const VideoConsultation = () => {
         token={roomData.token}
         participantName={roomData.participantName}
         onLeave={handleLeaveRoom}
+        idAgenda={idAgenda || undefined}
+        idCliente={idCliente || undefined}
       />
     );
   }
