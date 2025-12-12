@@ -255,12 +255,44 @@ export const usePushNotifications = (idCliente?: string) => {
     checkSubscription();
   }, [isPushSupported]);
 
+  // Send a test notification locally (for confirming notifications work)
+  const sendTestNotification = useCallback(() => {
+    if (!('Notification' in window) || Notification.permission !== 'granted') {
+      console.log('[Push] Cannot send test notification - permission not granted');
+      return false;
+    }
+
+    try {
+      const notification = new Notification('🔔 Notificações Ativadas!', {
+        body: 'Você receberá alertas quando o médico entrar na sala de consulta.',
+        icon: '/favicon.png',
+        tag: 'test-notification',
+        requireInteraction: false
+      });
+
+      notification.onclick = () => {
+        window.focus();
+        notification.close();
+      };
+
+      // Auto close after 5 seconds
+      setTimeout(() => notification.close(), 5000);
+
+      console.log('[Push] Test notification sent successfully');
+      return true;
+    } catch (error) {
+      console.error('[Push] Error sending test notification:', error);
+      return false;
+    }
+  }, []);
+
   return {
     ...state,
     isPushSupported: isPushSupported(),
     requestPermission,
     subscribe,
     unsubscribe,
-    sendNotification
+    sendNotification,
+    sendTestNotification
   };
 };
