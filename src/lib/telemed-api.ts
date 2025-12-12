@@ -11,8 +11,11 @@ interface TelemedTokenResponse {
 }
 
 interface RoomCheckResponse {
-  ID_SALA?: string;
-  status?: boolean;
+  status: boolean;
+  message: string;
+  data: {
+    ID_SALA: string;
+  };
 }
 
 interface CreateRoomResponse {
@@ -80,12 +83,12 @@ export const getRoomByAtendimento = async (
 
   const data: RoomCheckResponse = await response.json();
   
-  if (!data.ID_SALA || data.status === false) {
+  if (!data.data?.ID_SALA || data.status === false) {
     console.log("[Telemed] Room check returned empty/false");
     return null;
   }
 
-  console.log("[Telemed] Existing room found:", data.ID_SALA);
+  console.log("[Telemed] Existing room found:", data.data.ID_SALA);
   return data;
 };
 
@@ -173,11 +176,11 @@ export const getOrCreateVideoRoom = async (
   // Step 2: Check if room exists
   const existingRoom = await getRoomByAtendimento(nrAtendimento, samelToken);
 
-  if (existingRoom?.ID_SALA) {
+  if (existingRoom?.data?.ID_SALA) {
     // Room exists, use existing room with the current token
-    console.log("[Telemed] Using existing room:", existingRoom.ID_SALA);
+    console.log("[Telemed] Using existing room:", existingRoom.data.ID_SALA);
     return { 
-      roomId: existingRoom.ID_SALA, 
+      roomId: existingRoom.data.ID_SALA, 
       videoSdkToken: samelToken 
     };
   }
