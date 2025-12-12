@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,9 +21,6 @@ interface QueueItem {
 
 const TelemedicineQueue = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const fromCall = searchParams.get("fromCall") === "true";
-  
   const [patientName, setPatientName] = useState("");
   const [profilePhoto, setProfilePhoto] = useState("");
   const [queueData, setQueueData] = useState<QueueItem[]>([]);
@@ -102,7 +99,7 @@ const TelemedicineQueue = () => {
               </h2>
               <Button
                 variant="outline"
-                onClick={() => fromCall ? navigate(-1) : navigate("/online-consultation-details")}
+                onClick={() => navigate("/online-consultation-details")}
                 className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
                 size="sm"
               >
