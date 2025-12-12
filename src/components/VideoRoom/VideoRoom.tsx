@@ -6,11 +6,19 @@ import ParticipantView from "./ParticipantView";
 import Controls from "./Controls";
 import ChatPanel, { ChatMessage } from "./ChatPanel";
 import ParticipantsList from "./ParticipantsList";
-import { Maximize2, Minimize2, Loader2 } from "lucide-react";
+import { Maximize2, Minimize2, Loader2, Clock, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getApiHeaders } from "@/lib/api-headers";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Sound notification helper
 const playMessageSound = () => {
@@ -100,6 +108,9 @@ const MeetingView: React.FC<{
   const [participantIds, setParticipantIds] = useState<string[]>([]);
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [queueModalOpen, setQueueModalOpen] = useState(false);
+  const [queueData, setQueueData] = useState<any[]>([]);
+  const [queueLoading, setQueueLoading] = useState(false);
 
   // Push notifications hook
   const { sendNotification } = usePushNotifications(idCliente);
@@ -376,13 +387,15 @@ const MeetingView: React.FC<{
     leave();
   };
 
-  // Handle view queue - call API first then navigate
+  // Handle view queue - show in modal instead of navigating
   const handleViewQueue = useCallback(async () => {
     if (!idAgenda || !idCliente) {
       toast.error("Dados da fila não disponíveis");
-      navigate("/telemedicine-queue");
       return;
     }
+
+    setQueueModalOpen(true);
+    setQueueLoading(true);
 
     try {
       const headers = getApiHeaders();
@@ -401,16 +414,24 @@ const MeetingView: React.FC<{
       const data = await response.json();
 
       if (data.sucesso && data.dados) {
-        localStorage.setItem("telemedicineQueueData", JSON.stringify(data.dados));
-        navigate("/telemedicine-queue");
+        setQueueData(data.dados);
       } else {
         toast.error(data.mensagem || "Erro ao obter informações da fila");
+        setQueueData([]);
       }
     } catch (error) {
       console.error("[VideoRoom] Error fetching queue:", error);
       toast.error("Erro ao carregar fila de atendimento");
+      setQueueData([]);
+    } finally {
+      setQueueLoading(false);
     }
-  }, [idAgenda, idCliente, navigate]);
+  }, [idAgenda, idCliente]);
+
+  // Check if patient is alone (only local participant)
+  const isPatientAlone = useMemo(() => {
+    return participantIds.length === 1 && participantIds[0] === localParticipant?.id;
+  }, [participantIds, localParticipant?.id]);
 
 
   // Calculate grid columns based on participant count
@@ -440,22 +461,47 @@ const MeetingView: React.FC<{
   return (
     <div className="fixed inset-0 bg-background flex flex-col">
       {/* Top Bar */}
-      <div className="flex items-center justify-between p-4 border-b bg-background/95 backdrop-blur">
-        <div className="flex items-center gap-3">
-          <h1 className="text-lg font-semibold truncate max-w-[200px] sm:max-w-none">
-            {roomName}
-          </h1>
-          <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-            {participantIds.length} participante(s)
-          </span>
+      <div className="flex flex-col border-b bg-background/95 backdrop-blur">
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center gap-3">
+            <h1 className="text-lg font-semibold truncate max-w-[200px] sm:max-w-none">
+              {roomName}
+            </h1>
+            <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+              {participantIds.length} participante(s)
+            </span>
+          </div>
+          <Button variant="ghost" size="icon" onClick={toggleFullscreen}>
+            {isFullscreen ? (
+              <Minimize2 className="h-5 w-5" />
+            ) : (
+              <Maximize2 className="h-5 w-5" />
+            )}
+          </Button>
         </div>
-        <Button variant="ghost" size="icon" onClick={toggleFullscreen}>
-          {isFullscreen ? (
-            <Minimize2 className="h-5 w-5" />
-          ) : (
-            <Maximize2 className="h-5 w-5" />
-          )}
-        </Button>
+        
+        {/* Waiting message when patient is alone */}
+        {isPatientAlone && (
+          <div className="px-4 pb-3">
+            <div className="flex items-center gap-3 p-3 bg-primary/10 border border-primary/20 rounded-lg">
+              <Clock className="h-5 w-5 text-primary flex-shrink-0 animate-pulse" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground">
+                  Aguarde, o profissional entrará em instantes
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Enquanto isso, você pode{" "}
+                  <button 
+                    onClick={handleViewQueue}
+                    className="text-primary hover:underline font-medium"
+                  >
+                    ver sua posição na fila
+                  </button>
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Main Content */}
@@ -551,6 +597,85 @@ const MeetingView: React.FC<{
         nrAtendimento={nrAtendimento}
         cdMedico={cdMedico}
       />
+
+      {/* Queue Modal */}
+      <Dialog open={queueModalOpen} onOpenChange={setQueueModalOpen}>
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[calc(100vh-1.5rem)] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Fila de Atendimento
+            </DialogTitle>
+          </DialogHeader>
+          
+          {queueLoading ? (
+            <div className="space-y-3">
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-24 w-full" />
+            </div>
+          ) : queueData.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
+              <p>Nenhum dado de fila disponível</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {queueData.map((item, index) => {
+                const isCurrentPatient = item.idCliente === idCliente;
+                const statusDisplay = ["AC", "O", "M"].includes(item.status) 
+                  ? item.statusDescricao 
+                  : "Paciente ainda não chegou";
+                
+                return (
+                  <Card 
+                    key={index} 
+                    className={cn(
+                      "transition-all",
+                      isCurrentPatient && "ring-2 ring-primary bg-primary/5"
+                    )}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-medium text-sm">
+                              Posição {index + 1}
+                            </span>
+                            {isCurrentPatient && (
+                              <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
+                                Você
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Horário: {item.horario || "-"}
+                          </p>
+                          {item.horaChegada && (
+                            <p className="text-xs text-muted-foreground">
+                              Check-in: {item.horaChegada}
+                            </p>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <span className={cn(
+                            "text-xs px-2 py-1 rounded-full",
+                            isCurrentPatient 
+                              ? "bg-primary/20 text-primary" 
+                              : "bg-muted text-muted-foreground"
+                          )}>
+                            {statusDisplay}
+                          </span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
