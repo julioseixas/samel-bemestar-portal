@@ -2,8 +2,14 @@ import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { X, Send, ArrowLeft } from "lucide-react";
+import { X, Send, ArrowLeft, KeyRound, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export interface ChatMessage {
   id: string;
@@ -13,21 +19,68 @@ export interface ChatMessage {
   timestamp: Date;
 }
 
+interface TokenData {
+  NR_SEQUENCIA: number;
+  NR_ATENDIMENTO: number;
+  CD_MEDICO: string;
+  DS_TOKEN: string;
+  DT_VALIDADE: string;
+  VALIDADO: string;
+}
+
 interface ChatPanelProps {
   onClose: () => void;
   messages: ChatMessage[];
   onSendMessage: (message: string) => void;
   localParticipantId?: string;
+  nrAtendimento?: string;
 }
 
 const ChatPanel: React.FC<ChatPanelProps> = ({ 
   onClose, 
   messages, 
   onSendMessage,
-  localParticipantId 
+  localParticipantId,
+  nrAtendimento,
 }) => {
   const [message, setMessage] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [tokenLoading, setTokenLoading] = useState(false);
+  const [tokenData, setTokenData] = useState<TokenData | null>(null);
+  const [tokenPopoverOpen, setTokenPopoverOpen] = useState(false);
+
+  const fetchToken = async () => {
+    if (!nrAtendimento) {
+      toast.error("Dados do atendimento não disponíveis");
+      return;
+    }
+
+    setTokenLoading(true);
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/telemedicina/buscarTokenConsultaTelemed/${nrAtendimento}`
+      );
+      const data: TokenData[] = await response.json();
+      
+      if (data && data.length > 0) {
+        setTokenData(data[0]);
+      } else {
+        setTokenData(null);
+        toast.info("Nenhum token disponível no momento");
+      }
+    } catch (error) {
+      console.error("[ChatPanel] Error fetching token:", error);
+      toast.error("Erro ao buscar token");
+      setTokenData(null);
+    } finally {
+      setTokenLoading(false);
+    }
+  };
+
+  const handleTokenClick = () => {
+    setTokenPopoverOpen(true);
+    fetchToken();
+  };
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -79,14 +132,51 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
             </span>
           )}
         </div>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={onClose}
-          className="hidden lg:flex h-8 w-8"
-        >
-          <X className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-1">
+          <Popover open={tokenPopoverOpen} onOpenChange={setTokenPopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleTokenClick}
+                className="h-8 w-8"
+                title="Ver token do médico"
+              >
+                {tokenLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <KeyRound className="h-4 w-4" />
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-4" align="end">
+              <div className="text-center">
+                <p className="text-xs text-muted-foreground mb-2">Token do Médico</p>
+                {tokenLoading ? (
+                  <div className="flex items-center justify-center py-2">
+                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                  </div>
+                ) : tokenData ? (
+                  <p className="text-3xl font-bold tracking-widest text-primary">
+                    {tokenData.DS_TOKEN}
+                  </p>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Nenhum token disponível
+                  </p>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={onClose}
+            className="hidden lg:flex h-8 w-8"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Messages - responsive with proper flex sizing */}
