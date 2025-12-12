@@ -1,17 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useMeeting, usePubSub } from "@videosdk.live/react-sdk";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { X, Send, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface ChatPanelProps {
-  onClose: () => void;
-  onNewMessage?: () => void;
-}
-
-interface ChatMessage {
+export interface ChatMessage {
   id: string;
   senderId: string;
   senderName: string;
@@ -19,126 +13,21 @@ interface ChatMessage {
   timestamp: Date;
 }
 
-// Store messages outside component to persist during session
-const sessionMessages: Map<string, ChatMessage[]> = new Map();
+interface ChatPanelProps {
+  onClose: () => void;
+  messages: ChatMessage[];
+  onSendMessage: (message: string) => void;
+  localParticipantId?: string;
+}
 
-const ChatPanel: React.FC<ChatPanelProps> = ({ onClose, onNewMessage }) => {
+const ChatPanel: React.FC<ChatPanelProps> = ({ 
+  onClose, 
+  messages, 
+  onSendMessage,
+  localParticipantId 
+}) => {
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { localParticipant, meetingId } = useMeeting();
-
-  // Load persisted messages on mount
-  useEffect(() => {
-    if (meetingId) {
-      const existingMessages = sessionMessages.get(meetingId) || [];
-      setMessages(existingMessages);
-    }
-  }, [meetingId]);
-
-  // Parse message helper - handles both JSON and plain text
-  const parseMessage = (data: any): ChatMessage | null => {
-    try {
-      // VideoSDK wraps the message - data.message contains what we published
-      let messageContent = data.message;
-      let senderName = data.senderName || "Participante";
-      let timestamp = data.timestamp ? new Date(data.timestamp) : new Date();
-
-      // Try to parse if it's a JSON string
-      if (typeof messageContent === "string") {
-        try {
-          const parsed = JSON.parse(messageContent);
-          if (parsed.message) {
-            messageContent = parsed.message;
-            senderName = parsed.senderName || senderName;
-            timestamp = parsed.timestamp ? new Date(parsed.timestamp) : timestamp;
-          }
-        } catch {
-          // Not JSON, use as plain text - this is fine
-        }
-      }
-
-      // If message is still an object, stringify it for display
-      if (typeof messageContent === "object") {
-        messageContent = messageContent.message || JSON.stringify(messageContent);
-      }
-
-      return {
-        id: `${Date.now()}-${data.senderId}-${Math.random()}`,
-        senderId: data.senderId,
-        senderName,
-        message: String(messageContent),
-        timestamp,
-      };
-    } catch (error) {
-      console.error("[ChatPanel] Error parsing message:", error);
-      return null;
-    }
-  };
-
-  // Use PubSub for chat
-  const { publish } = usePubSub("CHAT", {
-    onMessageReceived: (data: any) => {
-      console.log("[ChatPanel] Received raw message:", data);
-      
-      const newMessage = parseMessage(data);
-      if (!newMessage) return;
-
-      // Check for duplicates
-      setMessages((prev) => {
-        const isDuplicate = prev.some(
-          (m) => m.senderId === newMessage.senderId && 
-                 m.message === newMessage.message &&
-                 Math.abs(m.timestamp.getTime() - newMessage.timestamp.getTime()) < 2000
-        );
-        
-        if (isDuplicate) {
-          console.log("[ChatPanel] Duplicate message ignored");
-          return prev;
-        }
-
-        const updated = [...prev, newMessage];
-        
-        // Persist messages for this meeting
-        if (meetingId) {
-          sessionMessages.set(meetingId, updated);
-        }
-        
-        // Notify parent about new message (for unread counter)
-        if (newMessage.senderId !== localParticipant?.id) {
-          onNewMessage?.();
-        }
-        
-        return updated;
-      });
-    },
-    onOldMessagesReceived: (oldMessages: any[]) => {
-      console.log("[ChatPanel] Received old messages:", oldMessages);
-      
-      if (!oldMessages || oldMessages.length === 0) return;
-      
-      const parsedMessages: ChatMessage[] = [];
-      for (const data of oldMessages) {
-        const parsed = parseMessage(data);
-        if (parsed) parsedMessages.push(parsed);
-      }
-
-      setMessages((prev) => {
-        // Merge old messages avoiding duplicates
-        const existingIds = new Set(prev.map(m => m.id));
-        const newOldMessages = parsedMessages.filter(m => !existingIds.has(m.id));
-        const merged = [...newOldMessages, ...prev].sort(
-          (a, b) => a.timestamp.getTime() - b.timestamp.getTime()
-        );
-        
-        if (meetingId) {
-          sessionMessages.set(meetingId, merged);
-        }
-        
-        return merged;
-      });
-    },
-  });
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -152,10 +41,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ onClose, onNewMessage }) => {
 
   const handleSend = () => {
     if (!message.trim()) return;
-
-    // Send as plain text for simplicity
-    publish(message.trim(), { persist: true });
-
+    onSendMessage(message.trim());
     setMessage("");
   };
 
@@ -213,7 +99,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ onClose, onNewMessage }) => {
               </div>
             ) : (
               messages.map((msg) => {
-                const isLocal = msg.senderId === localParticipant?.id;
+                const isLocal = msg.senderId === localParticipantId;
                 return (
                   <div
                     key={msg.id}
