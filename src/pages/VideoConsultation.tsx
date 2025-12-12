@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { Loader2, AlertCircle, Video } from "lucide-react";
+import { Loader2, AlertCircle, Video, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import VideoRoom from "@/components/VideoRoom/VideoRoom";
+import AudioTest from "@/components/VideoRoom/AudioTest";
 import { getOrCreateVideoRoom } from "@/lib/telemed-api";
 
 type ConnectionState = "loading" | "ready" | "connected" | "error";
@@ -146,10 +148,13 @@ const VideoConsultation = () => {
           <div className="space-y-2">
             <h1 className="text-2xl font-bold">Sala pronta!</h1>
             <p className="text-muted-foreground">
-              Sua sala de consulta está preparada. Clique no botão abaixo para
-              entrar.
+              Sua sala de consulta está preparada. Teste seu áudio antes de entrar.
             </p>
           </div>
+          
+          {/* Audio Test Section */}
+          <AudioTest />
+          
           <div className="bg-muted rounded-lg p-4 text-left space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Sala:</span>
