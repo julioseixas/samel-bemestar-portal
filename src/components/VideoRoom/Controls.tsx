@@ -254,6 +254,14 @@ const Controls: React.FC<ControlsProps> = ({
 
   return (
     <div className="absolute bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t p-2 sm:p-4 safe-area-pb">
+      {/* Mobile Help Button - Full Width on second row */}
+      <div className="sm:hidden w-full mb-2">
+        <VideoCallHelpDialog 
+          fullWidth 
+          className="w-full h-10 justify-center"
+        />
+      </div>
+      
       <div className="flex items-center justify-center gap-1 sm:gap-2 flex-wrap max-w-full">
         {/* Mic Toggle with Dropdown */}
         <div className="flex items-center">
@@ -395,8 +403,10 @@ const Controls: React.FC<ControlsProps> = ({
           </Button>
         )}
 
-        {/* Help Button */}
-        <VideoCallHelpDialog />
+        {/* Help Button - Desktop only (mobile is in separate row above) */}
+        <div className="hidden sm:block">
+          <VideoCallHelpDialog />
+        </div>
 
         {/* Mobile More Options Menu */}
         <DropdownMenu>

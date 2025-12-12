@@ -145,19 +145,25 @@ export const TelemedicineHelpSection = ({ variant = "full" }: TelemedicineHelpPr
 };
 
 // Componente de ajuda para dentro da videochamada
-export const VideoCallHelpDialog = () => {
+interface VideoCallHelpDialogProps {
+  className?: string;
+  fullWidth?: boolean;
+}
+
+export const VideoCallHelpDialog = ({ className, fullWidth }: VideoCallHelpDialogProps) => {
   const [open, setOpen] = useState(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button 
-          variant="ghost" 
-          size="icon" 
-          className="h-10 w-10 sm:h-11 sm:w-11"
+          variant="outline" 
+          size={fullWidth ? "default" : "icon"}
+          className={className || "h-10 w-10 sm:h-11 sm:w-11"}
           title="Ajuda"
         >
           <HelpCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+          {fullWidth && <span className="ml-2">Ajuda</span>}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[calc(100vh-1.5rem)] overflow-y-auto">
