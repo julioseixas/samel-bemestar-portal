@@ -232,14 +232,14 @@ const Controls: React.FC<ControlsProps> = ({
         </div>
 
 
-        {/* Chat Toggle - hidden on mobile, shown in more menu */}
+        {/* Chat Toggle - visible on all screen sizes */}
         <Button
           variant={chatOpen ? "default" : "secondary"}
           size="icon"
           onClick={onToggleChat}
-          className="hidden sm:flex h-11 w-11 relative"
+          className="h-10 w-10 sm:h-11 sm:w-11 relative"
         >
-          <MessageSquare className="h-5 w-5" />
+          <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5" />
           {unreadMessages > 0 && !chatOpen && (
             <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center">
               {unreadMessages > 9 ? "9+" : unreadMessages}
@@ -269,15 +269,6 @@ const Controls: React.FC<ControlsProps> = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="center" className="w-48">
-            <DropdownMenuItem onClick={onToggleChat} className="relative">
-              <MessageSquare className="h-4 w-4 mr-2" />
-              {chatOpen ? "Fechar Chat" : "Abrir Chat"}
-              {unreadMessages > 0 && !chatOpen && (
-                <span className="ml-auto bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                  {unreadMessages > 9 ? "9+" : unreadMessages}
-                </span>
-              )}
-            </DropdownMenuItem>
             <DropdownMenuItem onClick={onToggleParticipants}>
               <Users className="h-4 w-4 mr-2" />
               {participantsOpen ? "Fechar Participantes" : "Ver Participantes"}
