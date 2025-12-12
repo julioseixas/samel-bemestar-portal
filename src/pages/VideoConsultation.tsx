@@ -215,6 +215,7 @@ const VideoConsultation = () => {
         onLeave={handleLeaveRoom}
         idAgenda={idAgenda || undefined}
         idCliente={idCliente || undefined}
+        nrAtendimento={nrAtendimento || undefined}
       />
     );
   }
