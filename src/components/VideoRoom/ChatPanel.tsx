@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { X, Send, ArrowLeft, KeyRound, Loader2, RefreshCw, Plus } from "lucide-react";
+import { X, Send, ArrowLeft, KeyRound, Loader2, RefreshCw, Plus, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import {
@@ -79,14 +79,29 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
     }
   };
 
+  const copyToken = async () => {
+    if (!tokenData?.DS_TOKEN) return;
+    
+    try {
+      await navigator.clipboard.writeText(tokenData.DS_TOKEN);
+      toast.success("Token copiado!");
+    } catch (error) {
+      console.error("[ChatPanel] Error copying token:", error);
+      toast.error("Erro ao copiar token");
+    }
+  };
+
+  const canGenerateToken = !tokenData || tokenData.VALIDADO === "N";
+
   const generateToken = async () => {
     if (!nrAtendimento || !cdMedico) {
       toast.error("Dados do atendimento não disponíveis");
       return;
     }
 
-    if (tokenData) {
-      toast.warning("Você já possui um token gerado");
+    // Check if token exists and is validated
+    if (tokenData && tokenData.VALIDADO === "S") {
+      toast.warning("Token já validado, não é possível gerar um novo");
       return;
     }
 
@@ -109,8 +124,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
 
       if (data.status === true && data.data?.ds_token) {
         const token = data.data.ds_token;
-        // Send token in chat automatically
-        onSendMessage(`Aqui está o meu token: ${token}`);
+        // Send token in chat automatically with new format
+        onSendMessage(`Meu token: ${token}`);
         toast.success("Token gerado e enviado no chat!");
         // Refresh token list
         await fetchToken();
@@ -161,6 +176,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
   };
 
   const hasExistingToken = !!tokenData;
+  const isTokenValidated = tokenData?.VALIDADO === "S";
 
   return (
     <div className="flex flex-col h-full bg-background overflow-hidden">
@@ -207,9 +223,23 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
                     <Loader2 className="h-5 w-5 animate-spin text-primary" />
                   </div>
                 ) : tokenData ? (
-                  <p className="text-3xl font-bold tracking-widest text-primary">
-                    {tokenData.DS_TOKEN}
-                  </p>
+                  <div className="space-y-2">
+                    <p className="text-3xl font-bold tracking-widest text-primary">
+                      {tokenData.DS_TOKEN}
+                    </p>
+                    {isTokenValidated && (
+                      <p className="text-xs text-green-600 font-medium">✓ Token validado</p>
+                    )}
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={copyToken}
+                      className="w-full"
+                    >
+                      <Copy className="h-3 w-3 mr-2" />
+                      Copiar Token
+                    </Button>
+                  </div>
                 ) : (
                   <p className="text-sm text-muted-foreground">
                     Nenhum token disponível
@@ -234,9 +264,9 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
                     variant="default" 
                     size="sm" 
                     onClick={generateToken}
-                    disabled={generatingToken || tokenLoading || hasExistingToken}
+                    disabled={generatingToken || tokenLoading || isTokenValidated}
                     className="w-full"
-                    title={hasExistingToken ? "Você já possui um token gerado" : "Gerar novo token"}
+                    title={isTokenValidated ? "Token já validado" : hasExistingToken ? "Substituir token atual" : "Gerar novo token"}
                   >
                     {generatingToken ? (
                       <Loader2 className="h-3 w-3 animate-spin mr-2" />
