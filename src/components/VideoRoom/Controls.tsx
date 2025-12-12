@@ -26,6 +26,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { getApiHeaders } from "@/lib/api-headers";
+import { VideoCallHelpDialog } from "@/components/TelemedicineHelpSection";
 
 interface ControlsProps {
   onToggleChat: () => void;
@@ -393,6 +394,9 @@ const Controls: React.FC<ControlsProps> = ({
             )}
           </Button>
         )}
+
+        {/* Help Button */}
+        <VideoCallHelpDialog />
 
         {/* Mobile More Options Menu */}
         <DropdownMenu>

@@ -10,6 +10,7 @@ import { getApiHeaders } from "@/lib/api-headers";
 import { toast } from "sonner";
 import { Calendar, User, Stethoscope, Clock, AlertCircle, Camera, Mail, Video } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { TelemedicineHelpSection } from "@/components/TelemedicineHelpSection";
 
 const OnlineConsultationDetails = () => {
   const navigate = useNavigate();
@@ -494,6 +495,8 @@ const OnlineConsultationDetails = () => {
               Visualize suas consultas de telemedicina agendadas
             </p>
           </div>
+
+          <TelemedicineHelpSection variant="full" />
 
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
