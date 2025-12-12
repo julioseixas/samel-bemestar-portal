@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useReducer, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { MeetingProvider, useMeeting } from "@videosdk.live/react-sdk";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -9,6 +9,30 @@ import ParticipantsList from "./ParticipantsList";
 import { Maximize2, Minimize2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+// Sound notification helper
+const playMessageSound = () => {
+  try {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    // Pleasant notification sound - two quick tones
+    oscillator.frequency.setValueAtTime(880, audioContext.currentTime); // A5
+    oscillator.frequency.setValueAtTime(1100, audioContext.currentTime + 0.1); // C#6
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.3);
+  } catch (error) {
+    console.error("[VideoRoom] Error playing sound:", error);
+  }
+};
 
 interface VideoRoomProps {
   roomId: string;
@@ -37,6 +61,14 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
   useEffect(() => {
     if (chatOpen) {
       setUnreadMessages(0);
+    }
+  }, [chatOpen]);
+
+  // Handle new message notification
+  const handleNewMessage = useCallback(() => {
+    if (!chatOpen) {
+      setUnreadMessages(prev => prev + 1);
+      playMessageSound();
     }
   }, [chatOpen]);
 
@@ -221,7 +253,7 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
             {chatOpen && (
               <ChatPanel 
                 onClose={() => setChatOpen(false)} 
-                onNewMessage={() => !chatOpen && setUnreadMessages(prev => prev + 1)}
+                onNewMessage={handleNewMessage}
               />
             )}
             {participantsOpen && !chatOpen && (
@@ -237,7 +269,7 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
           {chatOpen && (
             <ChatPanel 
               onClose={() => setChatOpen(false)} 
-              onNewMessage={() => !chatOpen && setUnreadMessages(prev => prev + 1)}
+              onNewMessage={handleNewMessage}
             />
           )}
           {participantsOpen && !chatOpen && (
