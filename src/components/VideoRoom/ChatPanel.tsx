@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { X, Send, ArrowLeft, KeyRound, Loader2 } from "lucide-react";
+import { X, Send, ArrowLeft, KeyRound, Loader2, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import {
@@ -150,8 +150,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-4" align="end">
-              <div className="text-center">
-                <p className="text-xs text-muted-foreground mb-2">Token do Médico</p>
+              <div className="text-center space-y-3">
+                <p className="text-xs text-muted-foreground">Token do Médico</p>
                 {tokenLoading ? (
                   <div className="flex items-center justify-center py-2">
                     <Loader2 className="h-5 w-5 animate-spin text-primary" />
@@ -165,6 +165,20 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
                     Nenhum token disponível
                   </p>
                 )}
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={fetchToken}
+                  disabled={tokenLoading}
+                  className="w-full"
+                >
+                  {tokenLoading ? (
+                    <Loader2 className="h-3 w-3 animate-spin mr-2" />
+                  ) : (
+                    <RefreshCw className="h-3 w-3 mr-2" />
+                  )}
+                  Atualizar
+                </Button>
               </div>
             </PopoverContent>
           </Popover>
