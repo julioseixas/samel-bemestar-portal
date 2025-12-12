@@ -464,8 +464,8 @@ const MeetingView: React.FC<{
       <div className="flex flex-col border-b bg-background/95 backdrop-blur">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
-            <h1 className="text-lg font-semibold truncate max-w-[200px] sm:max-w-none">
-              {roomName}
+            <h1 className="text-lg font-semibold">
+              Consulta Online
             </h1>
             <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
               {participantIds.length} participante(s)
@@ -596,6 +596,7 @@ const MeetingView: React.FC<{
         unreadMessages={unreadMessages}
         nrAtendimento={nrAtendimento}
         cdMedico={cdMedico}
+        roomId={meetingId}
       />
 
       {/* Queue Modal */}

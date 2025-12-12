@@ -14,6 +14,8 @@ import {
   ListOrdered,
   Key,
   Loader2,
+  Hash,
+  Copy,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -38,6 +40,7 @@ interface ControlsProps {
   unreadMessages?: number;
   nrAtendimento?: string;
   cdMedico?: string;
+  roomId?: string;
 }
 
 interface MediaDevice {
@@ -65,6 +68,7 @@ const Controls: React.FC<ControlsProps> = ({
   unreadMessages = 0,
   nrAtendimento,
   cdMedico,
+  roomId,
 }) => {
   const {
     toggleMic,
@@ -412,11 +416,29 @@ const Controls: React.FC<ControlsProps> = ({
               <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="center" className="w-48">
+          <DropdownMenuContent align="center" className="w-56">
             <DropdownMenuItem onClick={onToggleParticipants}>
               <Users className="h-4 w-4 mr-2" />
               {participantsOpen ? "Fechar Participantes" : "Ver Participantes"}
             </DropdownMenuItem>
+            {roomId && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel className="text-xs text-muted-foreground">
+                  ID da Sala
+                </DropdownMenuLabel>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    navigator.clipboard.writeText(roomId);
+                    toast.success("ID da sala copiado!");
+                  }}
+                >
+                  <Hash className="h-4 w-4 mr-2" />
+                  <span className="truncate font-mono text-xs">{roomId}</span>
+                  <Copy className="h-3 w-3 ml-auto opacity-50" />
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
 
