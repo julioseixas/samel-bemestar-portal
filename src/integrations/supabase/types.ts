@@ -14,7 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      push_audit_logs: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          id: string
+          nr_atendimento: string | null
+          recipient_id_cliente: string
+          sender_id_cliente: string | null
+          success: boolean
+          title: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          nr_atendimento?: string | null
+          recipient_id_cliente: string
+          sender_id_cliente?: string | null
+          success: boolean
+          title?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          nr_atendimento?: string | null
+          recipient_id_cliente?: string
+          sender_id_cliente?: string | null
+          success?: boolean
+          title?: string | null
+        }
+        Relationships: []
+      }
+      push_rate_limits: {
+        Row: {
+          action_type: string
+          created_at: string | null
+          id: string
+          id_cliente: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string | null
+          id?: string
+          id_cliente: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string | null
+          id?: string
+          id_cliente?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string | null
+          endpoint: string
+          id: string
+          id_cliente: string
+          last_used_at: string | null
+          p256dh: string
+          user_agent: string | null
+        }
+        Insert: {
+          auth: string
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          id_cliente: string
+          last_used_at?: string | null
+          p256dh: string
+          user_agent?: string | null
+        }
+        Update: {
+          auth?: string
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          id_cliente?: string
+          last_used_at?: string | null
+          p256dh?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
