@@ -91,7 +91,7 @@ const Controls: React.FC<ControlsProps> = ({
     setIsFetchingToken(true);
     try {
       const response = await fetch(
-        `http://localhost:3000/api/telemedicina/listarTokenConsultaTelemed?nr_atendimento=${nrAtendimento}`,
+        `https://telemed.samel.com.br/api/prontuario/telemedicina/buscarTokenConsultaTelemed/${nrAtendimento}`,
         {
           method: "GET",
           headers: getApiHeaders(),
@@ -132,7 +132,7 @@ const Controls: React.FC<ControlsProps> = ({
     setIsGeneratingToken(true);
     try {
       const response = await fetch(
-        "http://localhost:3000/api/telemedicina/criarTokenConsultaTelemed",
+        "https://telemed.samel.com.br/api/prontuario/telemedicina/criarTokenConsultaTelemed",
         {
           method: "POST",
           headers: {
