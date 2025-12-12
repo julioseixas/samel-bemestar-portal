@@ -61,7 +61,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
     setTokenLoading(true);
     try {
       const response = await fetch(
-        `https://telemed.samel.com.br/api/prontuario/telemedicina/buscarTokenConsultaTelemed/${nrAtendimento}`
+        `https://appv2-back.samel.com.br/api/telemedicina/buscarTokenConsultaTelemed/${nrAtendimento}`
       );
       const data: TokenData[] = await response.json();
       
@@ -108,7 +108,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
     setGeneratingToken(true);
     try {
       const response = await fetch(
-        "https://telemed.samel.com.br/api/prontuario/telemedicina/criarTokenConsultaTelemed",
+        "https://appv2-back.samel.com.br/api/telemedicina/criarTokenConsultaTelemed",
         {
           method: "POST",
           headers: {
