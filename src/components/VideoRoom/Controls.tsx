@@ -153,7 +153,7 @@ const Controls: React.FC<ControlsProps> = ({
             variant={localMicOn ? "secondary" : "destructive"}
             size="icon"
             onClick={handleToggleMic}
-            className="h-10 w-10 sm:h-11 sm:w-11 rounded-r-none"
+            className="h-10 w-10 sm:h-11 sm:w-11 sm:rounded-r-none"
           >
             {localMicOn ? (
               <Mic className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -166,9 +166,9 @@ const Controls: React.FC<ControlsProps> = ({
               <Button
                 variant={localMicOn ? "secondary" : "destructive"}
                 size="icon"
-                className="h-10 w-6 sm:h-11 sm:w-8 rounded-l-none border-l"
+                className="hidden sm:flex h-11 w-8 rounded-l-none border-l"
               >
-                <Settings className="h-3 w-3 sm:h-4 sm:w-4" />
+                <Settings className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="center">
@@ -195,7 +195,7 @@ const Controls: React.FC<ControlsProps> = ({
             variant={localWebcamOn ? "secondary" : "destructive"}
             size="icon"
             onClick={handleToggleWebcam}
-            className="h-10 w-10 sm:h-11 sm:w-11 rounded-r-none"
+            className="h-10 w-10 sm:h-11 sm:w-11 sm:rounded-r-none"
           >
             {localWebcamOn ? (
               <Video className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -208,9 +208,9 @@ const Controls: React.FC<ControlsProps> = ({
               <Button
                 variant={localWebcamOn ? "secondary" : "destructive"}
                 size="icon"
-                className="h-10 w-6 sm:h-11 sm:w-8 rounded-l-none border-l"
+                className="hidden sm:flex h-11 w-8 rounded-l-none border-l"
               >
-                <Settings className="h-3 w-3 sm:h-4 sm:w-4" />
+                <Settings className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="center">
