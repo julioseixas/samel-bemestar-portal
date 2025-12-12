@@ -100,8 +100,17 @@ const Controls: React.FC<ControlsProps> = ({
       
       const data = await response.json();
       
-      if (data.status && data.data) {
-        setTokenData(data.data);
+      // API returns an array directly
+      if (Array.isArray(data) && data.length > 0) {
+        const tokenInfo = data[0];
+        setTokenData({
+          visibilidade: "",
+          token: tokenInfo.DS_TOKEN,
+          idMedico: parseInt(tokenInfo.CD_MEDICO) || 0,
+          idPaciente: 0,
+          atendimentoId: tokenInfo.NR_ATENDIMENTO,
+          VALIDADO: tokenInfo.VALIDADO,
+        });
       } else {
         setTokenData(null);
       }
