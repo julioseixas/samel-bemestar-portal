@@ -112,17 +112,16 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
           }),
         }
       );
-      const data = await response.json();
+      const token = await response.text();
 
-      if (data.status === true && data.data?.ds_token) {
-        const token = data.data.ds_token;
+      if (token && token.trim()) {
         // Send token in chat automatically with new format
-        onSendMessage(`Meu token: ${token}`);
+        onSendMessage(`Meu token: ${token.trim()}`);
         toast.success("Token gerado e enviado no chat!");
         // Refresh token list
         await fetchToken();
       } else {
-        toast.error(data.message || "Erro ao gerar token");
+        toast.error("Erro ao gerar token");
       }
     } catch (error) {
       console.error("[ChatPanel] Error generating token:", error);
