@@ -174,12 +174,16 @@ export const getOrCreateVideoRoom = async (
   const existingRoom = await getRoomByAtendimento(nrAtendimento, samelToken);
 
   if (existingRoom?.ID_SALA) {
-    // Room exists, but we need a fresh VideoSDK token
-    // Create a new room to get a valid token (the API handles this)
-    console.log("[Telemed] Room exists, getting fresh token...");
+    // Room exists, use existing room with the current token
+    console.log("[Telemed] Using existing room:", existingRoom.ID_SALA);
+    return { 
+      roomId: existingRoom.ID_SALA, 
+      videoSdkToken: samelToken 
+    };
   }
 
-  // Step 3: Create room (or get fresh token for existing room)
+  // Step 3: Create new room only if none exists
+  console.log("[Telemed] No existing room, creating new one...");
   const { roomId, videoSdkToken } = await createRoom(
     cdMedico,
     samelToken,
