@@ -31,6 +31,7 @@ const ParticipantView: React.FC<ParticipantViewProps> = ({
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const screenShareRef = useRef<HTMLVideoElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   // Handle webcam stream
   useEffect(() => {
@@ -41,6 +42,16 @@ const ParticipantView: React.FC<ParticipantViewProps> = ({
       videoRef.current.play().catch(console.error);
     }
   }, [webcamStream, webcamOn]);
+
+  // Handle audio stream (only for remote participants to avoid echo)
+  useEffect(() => {
+    if (audioRef.current && micStream && micOn && !isLocal) {
+      const mediaStream = new MediaStream();
+      mediaStream.addTrack(micStream.track);
+      audioRef.current.srcObject = mediaStream;
+      audioRef.current.play().catch(console.error);
+    }
+  }, [micStream, micOn, isLocal]);
 
   // Handle screen share stream
   useEffect(() => {
@@ -149,6 +160,9 @@ const ParticipantView: React.FC<ParticipantViewProps> = ({
           <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
         </div>
       )}
+
+      {/* Hidden audio element for remote participants */}
+      {!isLocal && <audio ref={audioRef} autoPlay playsInline />}
     </div>
   );
 };
