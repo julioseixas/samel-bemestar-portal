@@ -6,8 +6,6 @@ import {
   MicOff,
   Video,
   VideoOff,
-  Monitor,
-  MonitorOff,
   PhoneOff,
   Settings,
   MessageSquare,
@@ -54,10 +52,8 @@ const Controls: React.FC<ControlsProps> = ({
   const {
     toggleMic,
     toggleWebcam,
-    toggleScreenShare,
     localMicOn,
     localWebcamOn,
-    localScreenShareOn,
     changeMic,
     changeWebcam,
   } = useMeeting();
@@ -147,19 +143,6 @@ const Controls: React.FC<ControlsProps> = ({
     toast.info(localWebcamOn ? "Câmera desligada" : "Câmera ligada");
   };
 
-  const handleToggleScreenShare = async () => {
-    try {
-      await toggleScreenShare();
-      toast.info(
-        localScreenShareOn
-          ? "Compartilhamento encerrado"
-          : "Compartilhando tela"
-      );
-    } catch (error) {
-      console.error("Error toggling screen share:", error);
-      toast.error("Erro ao compartilhar tela");
-    }
-  };
 
   return (
     <div className="absolute bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t p-2 sm:p-4 safe-area-pb">
@@ -248,19 +231,6 @@ const Controls: React.FC<ControlsProps> = ({
           </DropdownMenu>
         </div>
 
-        {/* Screen Share - hidden on mobile */}
-        <Button
-          variant={localScreenShareOn ? "default" : "secondary"}
-          size="icon"
-          onClick={handleToggleScreenShare}
-          className="hidden sm:flex h-11 w-11"
-        >
-          {localScreenShareOn ? (
-            <MonitorOff className="h-5 w-5" />
-          ) : (
-            <Monitor className="h-5 w-5" />
-          )}
-        </Button>
 
         {/* Chat Toggle - hidden on mobile, shown in more menu */}
         <Button
@@ -318,21 +288,7 @@ const Controls: React.FC<ControlsProps> = ({
                 Ver Fila de Atendimento
               </DropdownMenuItem>
             )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleToggleScreenShare}>
-              {localScreenShareOn ? (
-                <>
-                  <MonitorOff className="h-4 w-4 mr-2" />
-                  Parar Compartilhamento
-                </>
-              ) : (
-                <>
-                  <Monitor className="h-4 w-4 mr-2" />
-                  Compartilhar Tela
-                </>
-              )}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
+            </DropdownMenuContent>
         </DropdownMenu>
 
         {/* Leave Button */}
