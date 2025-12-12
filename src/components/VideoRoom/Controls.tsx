@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useMeeting } from "@videosdk.live/react-sdk";
+import { useMeeting, usePubSub } from "@videosdk.live/react-sdk";
 import { Button } from "@/components/ui/button";
 import {
   Mic,
@@ -12,6 +12,8 @@ import {
   Users,
   MoreVertical,
   ListOrdered,
+  Key,
+  Loader2,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -23,6 +25,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { getApiHeaders } from "@/lib/api-headers";
 
 interface ControlsProps {
   onToggleChat: () => void;
@@ -32,12 +35,22 @@ interface ControlsProps {
   onLeave: () => void;
   onViewQueue?: () => void;
   unreadMessages?: number;
+  nrAtendimento?: string;
+  cdMedico?: string;
 }
 
 interface MediaDevice {
   deviceId: string;
   label: string;
   kind: MediaDeviceKind;
+}
+
+interface TokenData {
+  visibilidade: string;
+  token: string;
+  idMedico: number;
+  idPaciente: number;
+  atendimentoId: number;
 }
 
 const Controls: React.FC<ControlsProps> = ({
@@ -48,6 +61,8 @@ const Controls: React.FC<ControlsProps> = ({
   onLeave,
   onViewQueue,
   unreadMessages = 0,
+  nrAtendimento,
+  cdMedico,
 }) => {
   const {
     toggleMic,
@@ -58,10 +73,92 @@ const Controls: React.FC<ControlsProps> = ({
     changeWebcam,
   } = useMeeting();
 
+  const { publish } = usePubSub("CHAT");
+
   const [audioDevices, setAudioDevices] = useState<MediaDevice[]>([]);
   const [videoDevices, setVideoDevices] = useState<MediaDevice[]>([]);
   const [selectedAudioDevice, setSelectedAudioDevice] = useState<string>("");
   const [selectedVideoDevice, setSelectedVideoDevice] = useState<string>("");
+  const [tokenData, setTokenData] = useState<TokenData | null>(null);
+  const [isGeneratingToken, setIsGeneratingToken] = useState(false);
+  const [isFetchingToken, setIsFetchingToken] = useState(false);
+
+  // Fetch existing token
+  const fetchToken = async () => {
+    if (!nrAtendimento) return;
+    
+    setIsFetchingToken(true);
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/telemedicina/listarTokenConsultaTelemed?nr_atendimento=${nrAtendimento}`,
+        {
+          method: "GET",
+          headers: getApiHeaders(),
+        }
+      );
+      
+      const data = await response.json();
+      
+      if (data.status && data.data) {
+        setTokenData(data.data);
+      } else {
+        setTokenData(null);
+      }
+    } catch (error) {
+      console.error("Error fetching token:", error);
+    } finally {
+      setIsFetchingToken(false);
+    }
+  };
+
+  // Generate new token
+  const handleGenerateToken = async () => {
+    if (!nrAtendimento || !cdMedico) {
+      toast.error("Dados insuficientes para gerar token");
+      return;
+    }
+
+    setIsGeneratingToken(true);
+    try {
+      const response = await fetch(
+        "http://localhost:3000/api/telemedicina/criarTokenConsultaTelemed",
+        {
+          method: "POST",
+          headers: {
+            ...getApiHeaders(),
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            nr_atendimento: parseInt(nrAtendimento),
+            cd_medico: cdMedico,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.status && data.data?.ds_token) {
+        const tokenMessage = `Aqui está o meu token: ${data.data.ds_token}`;
+        publish(tokenMessage, { persist: true });
+        toast.success("Token gerado e enviado no chat!");
+        await fetchToken();
+      } else {
+        toast.error(data.message || "Erro ao gerar token");
+      }
+    } catch (error) {
+      console.error("Error generating token:", error);
+      toast.error("Erro ao gerar token");
+    } finally {
+      setIsGeneratingToken(false);
+    }
+  };
+
+  // Fetch token on mount
+  useEffect(() => {
+    if (nrAtendimento) {
+      fetchToken();
+    }
+  }, [nrAtendimento]);
 
   // Enumerate devices
   useEffect(() => {
@@ -266,6 +363,24 @@ const Controls: React.FC<ControlsProps> = ({
             className="h-10 w-10 sm:h-11 sm:w-11"
           >
             <ListOrdered className="h-4 w-4 sm:h-5 sm:w-5" />
+          </Button>
+        )}
+
+        {/* Token Button - visible on all screen sizes */}
+        {nrAtendimento && cdMedico && (
+          <Button
+            variant={tokenData ? "outline" : "secondary"}
+            size="icon"
+            onClick={handleGenerateToken}
+            disabled={isGeneratingToken || isFetchingToken || !!tokenData}
+            className="h-10 w-10 sm:h-11 sm:w-11"
+            title={tokenData ? "Token já gerado" : "Gerar Token"}
+          >
+            {isGeneratingToken || isFetchingToken ? (
+              <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+            ) : (
+              <Key className="h-4 w-4 sm:h-5 sm:w-5" />
+            )}
           </Button>
         )}
 
