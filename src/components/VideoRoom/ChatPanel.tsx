@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { X, Send, ArrowLeft, KeyRound, Loader2, RefreshCw } from "lucide-react";
+import { X, Send, ArrowLeft, KeyRound, Loader2, RefreshCw, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import {
@@ -34,6 +34,7 @@ interface ChatPanelProps {
   onSendMessage: (message: string) => void;
   localParticipantId?: string;
   nrAtendimento?: string;
+  cdMedico?: string;
 }
 
 const ChatPanel: React.FC<ChatPanelProps> = ({ 
@@ -42,12 +43,14 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
   onSendMessage,
   localParticipantId,
   nrAtendimento,
+  cdMedico,
 }) => {
   const [message, setMessage] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const [tokenLoading, setTokenLoading] = useState(false);
   const [tokenData, setTokenData] = useState<TokenData | null>(null);
   const [tokenPopoverOpen, setTokenPopoverOpen] = useState(false);
+  const [generatingToken, setGeneratingToken] = useState(false);
 
   const fetchToken = async () => {
     if (!nrAtendimento) {
@@ -66,7 +69,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
         setTokenData(data[0]);
       } else {
         setTokenData(null);
-        toast.info("Nenhum token disponível no momento");
       }
     } catch (error) {
       console.error("[ChatPanel] Error fetching token:", error);
@@ -74,6 +76,52 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
       setTokenData(null);
     } finally {
       setTokenLoading(false);
+    }
+  };
+
+  const generateToken = async () => {
+    if (!nrAtendimento || !cdMedico) {
+      toast.error("Dados do atendimento não disponíveis");
+      return;
+    }
+
+    if (tokenData) {
+      toast.warning("Você já possui um token gerado");
+      return;
+    }
+
+    setGeneratingToken(true);
+    try {
+      const response = await fetch(
+        "http://localhost:3000/api/telemedicina/criarTokenConsultaTelemed",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            nr_atendimento: Number(nrAtendimento),
+            cd_medico: cdMedico,
+          }),
+        }
+      );
+      const data = await response.json();
+
+      if (data.status === true && data.data?.ds_token) {
+        const token = data.data.ds_token;
+        // Send token in chat automatically
+        onSendMessage(`Aqui está o meu token: ${token}`);
+        toast.success("Token gerado e enviado no chat!");
+        // Refresh token list
+        await fetchToken();
+      } else {
+        toast.error(data.message || "Erro ao gerar token");
+      }
+    } catch (error) {
+      console.error("[ChatPanel] Error generating token:", error);
+      toast.error("Erro ao gerar token");
+    } finally {
+      setGeneratingToken(false);
     }
   };
 
@@ -111,6 +159,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
       minute: "2-digit",
     });
   };
+
+  const hasExistingToken = !!tokenData;
 
   return (
     <div className="flex flex-col h-full bg-background overflow-hidden">
@@ -151,7 +201,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
             </PopoverTrigger>
             <PopoverContent className="w-auto p-4" align="end">
               <div className="text-center space-y-3">
-                <p className="text-xs text-muted-foreground">Token do Médico</p>
+                <p className="text-xs text-muted-foreground">Token da Consulta</p>
                 {tokenLoading ? (
                   <div className="flex items-center justify-center py-2">
                     <Loader2 className="h-5 w-5 animate-spin text-primary" />
@@ -165,20 +215,37 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
                     Nenhum token disponível
                   </p>
                 )}
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={fetchToken}
-                  disabled={tokenLoading}
-                  className="w-full"
-                >
-                  {tokenLoading ? (
-                    <Loader2 className="h-3 w-3 animate-spin mr-2" />
-                  ) : (
-                    <RefreshCw className="h-3 w-3 mr-2" />
-                  )}
-                  Atualizar
-                </Button>
+                <div className="flex flex-col gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={fetchToken}
+                    disabled={tokenLoading}
+                    className="w-full"
+                  >
+                    {tokenLoading ? (
+                      <Loader2 className="h-3 w-3 animate-spin mr-2" />
+                    ) : (
+                      <RefreshCw className="h-3 w-3 mr-2" />
+                    )}
+                    Atualizar
+                  </Button>
+                  <Button 
+                    variant="default" 
+                    size="sm" 
+                    onClick={generateToken}
+                    disabled={generatingToken || tokenLoading || hasExistingToken}
+                    className="w-full"
+                    title={hasExistingToken ? "Você já possui um token gerado" : "Gerar novo token"}
+                  >
+                    {generatingToken ? (
+                      <Loader2 className="h-3 w-3 animate-spin mr-2" />
+                    ) : (
+                      <Plus className="h-3 w-3 mr-2" />
+                    )}
+                    Gerar Token
+                  </Button>
+                </div>
               </div>
             </PopoverContent>
           </Popover>

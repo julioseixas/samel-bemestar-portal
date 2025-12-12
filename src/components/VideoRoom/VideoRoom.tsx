@@ -46,6 +46,7 @@ interface VideoRoomProps {
   idAgenda?: string;
   idCliente?: string;
   nrAtendimento?: string;
+  cdMedico?: string;
 }
 
 // Inner component that uses the meeting hooks
@@ -55,12 +56,14 @@ const MeetingView: React.FC<{
   idAgenda?: string;
   idCliente?: string;
   nrAtendimento?: string;
+  cdMedico?: string;
 }> = ({
   onLeave,
   roomName,
   idAgenda,
   idCliente,
   nrAtendimento,
+  cdMedico,
 }) => {
   const navigate = useNavigate();
   
@@ -454,6 +457,7 @@ const MeetingView: React.FC<{
                 onSendMessage={handleSendMessage}
                 localParticipantId={localParticipant?.id}
                 nrAtendimento={nrAtendimento}
+                cdMedico={cdMedico}
               />
             )}
             {participantsOpen && !chatOpen && (
@@ -473,6 +477,7 @@ const MeetingView: React.FC<{
               onSendMessage={handleSendMessage}
               localParticipantId={localParticipant?.id}
               nrAtendimento={nrAtendimento}
+              cdMedico={cdMedico}
             />
           )}
           {participantsOpen && !chatOpen && (
@@ -510,6 +515,7 @@ const VideoRoom: React.FC<VideoRoomProps> = ({
   idAgenda,
   idCliente,
   nrAtendimento,
+  cdMedico,
 }) => {
   console.log("[VideoRoom] Rendering with:", { 
     roomId, 
@@ -549,7 +555,7 @@ const VideoRoom: React.FC<VideoRoomProps> = ({
       token={token}
       joinWithoutUserInteraction={true}
     >
-      <MeetingView onLeave={onLeave} roomName={`Consulta - ${roomId}`} idAgenda={idAgenda} idCliente={idCliente} nrAtendimento={nrAtendimento} />
+      <MeetingView onLeave={onLeave} roomName={`Consulta - ${roomId}`} idAgenda={idAgenda} idCliente={idCliente} nrAtendimento={nrAtendimento} cdMedico={cdMedico} />
     </MeetingProvider>
   );
 };
