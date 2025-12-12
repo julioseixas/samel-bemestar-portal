@@ -51,6 +51,7 @@ interface TokenData {
   idMedico: number;
   idPaciente: number;
   atendimentoId: number;
+  VALIDADO?: string;
 }
 
 const Controls: React.FC<ControlsProps> = ({
@@ -111,10 +112,20 @@ const Controls: React.FC<ControlsProps> = ({
     }
   };
 
+  // Check if token can be generated
+  const canGenerateToken = !tokenData || tokenData.VALIDADO !== "S";
+  const isTokenValidated = tokenData?.VALIDADO === "S";
+
   // Generate new token
   const handleGenerateToken = async () => {
     if (!nrAtendimento || !cdMedico) {
       toast.error("Dados insuficientes para gerar token");
+      return;
+    }
+
+    // Check if token is validated
+    if (tokenData && tokenData.VALIDADO === "S") {
+      toast.warning("Token já validado, não é possível gerar um novo");
       return;
     }
 
@@ -138,7 +149,7 @@ const Controls: React.FC<ControlsProps> = ({
       const data = await response.json();
 
       if (data.status && data.data?.ds_token) {
-        const tokenMessage = `Aqui está o meu token: ${data.data.ds_token}`;
+        const tokenMessage = `Meu token: ${data.data.ds_token}`;
         publish(tokenMessage, { persist: true });
         toast.success("Token gerado e enviado no chat!");
         await fetchToken();
@@ -372,9 +383,9 @@ const Controls: React.FC<ControlsProps> = ({
             variant={tokenData ? "outline" : "secondary"}
             size="icon"
             onClick={handleGenerateToken}
-            disabled={isGeneratingToken || isFetchingToken || !!tokenData}
+            disabled={isGeneratingToken || isFetchingToken || isTokenValidated}
             className="h-10 w-10 sm:h-11 sm:w-11"
-            title={tokenData ? "Token já gerado" : "Gerar Token"}
+            title={isTokenValidated ? "Token já validado" : tokenData ? "Substituir token" : "Gerar Token"}
           >
             {isGeneratingToken || isFetchingToken ? (
               <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
