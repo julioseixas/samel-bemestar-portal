@@ -160,6 +160,12 @@ const MeetingView: React.FC<{
     onMessageReceived: (data: any) => {
       console.log("[VideoRoom] Received raw message:", data, "chatOpen:", chatOpen);
       
+      // IGNORE messages from self - we already added them locally in handleSendMessage
+      if (data.senderId === localParticipant?.id) {
+        console.log("[VideoRoom] Ignoring own message from PubSub");
+        return;
+      }
+      
       const newMessage = parseMessage(data);
       if (!newMessage) return;
 
@@ -187,18 +193,16 @@ const MeetingView: React.FC<{
       });
 
       // Notify for new message from others when chat is closed
-      if (newMessage.senderId !== localParticipant?.id) {
-        console.log("[VideoRoom] Message from other participant, chatOpen:", chatOpen);
-        // Use functional update to check current chatOpen state
-        setChatOpen(currentChatOpen => {
-          if (!currentChatOpen) {
-            console.log("[VideoRoom] Chat is closed, incrementing unread and playing sound");
-            setUnreadMessages(prev => prev + 1);
-            playMessageSound();
-          }
-          return currentChatOpen; // Don't change the state
-        });
-      }
+      console.log("[VideoRoom] Message from other participant, chatOpen:", chatOpen);
+      // Use functional update to check current chatOpen state
+      setChatOpen(currentChatOpen => {
+        if (!currentChatOpen) {
+          console.log("[VideoRoom] Chat is closed, incrementing unread and playing sound");
+          setUnreadMessages(prev => prev + 1);
+          playMessageSound();
+        }
+        return currentChatOpen; // Don't change the state
+      });
     },
     onOldMessagesReceived: (oldMessages: any[]) => {
       console.log("[VideoRoom] Received old messages:", oldMessages);
