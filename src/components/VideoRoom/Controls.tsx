@@ -257,6 +257,18 @@ const Controls: React.FC<ControlsProps> = ({
           <Users className="h-5 w-5" />
         </Button>
 
+        {/* Queue Button - visible on all screen sizes */}
+        {onViewQueue && (
+          <Button
+            variant="secondary"
+            size="icon"
+            onClick={onViewQueue}
+            className="h-10 w-10 sm:h-11 sm:w-11"
+          >
+            <ListOrdered className="h-4 w-4 sm:h-5 sm:w-5" />
+          </Button>
+        )}
+
         {/* Mobile More Options Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -273,13 +285,7 @@ const Controls: React.FC<ControlsProps> = ({
               <Users className="h-4 w-4 mr-2" />
               {participantsOpen ? "Fechar Participantes" : "Ver Participantes"}
             </DropdownMenuItem>
-            {onViewQueue && (
-              <DropdownMenuItem onClick={onViewQueue}>
-                <ListOrdered className="h-4 w-4 mr-2" />
-                Ver Fila de Atendimento
-              </DropdownMenuItem>
-            )}
-            </DropdownMenuContent>
+          </DropdownMenuContent>
         </DropdownMenu>
 
         {/* Leave Button */}
