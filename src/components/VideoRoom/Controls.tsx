@@ -254,13 +254,6 @@ const Controls: React.FC<ControlsProps> = ({
 
   return (
     <div className="absolute bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t p-2 sm:p-4 safe-area-pb">
-      {/* Mobile Help Button - Full Width on second row */}
-      <div className="sm:hidden w-full mb-2">
-        <VideoCallHelpDialog 
-          fullWidth 
-          className="w-full h-10 justify-center"
-        />
-      </div>
       
       <div className="flex items-center justify-center gap-1 sm:gap-2 flex-wrap max-w-full">
         {/* Mic Toggle with Dropdown */}
@@ -437,6 +430,14 @@ const Controls: React.FC<ControlsProps> = ({
           <PhoneOff className="h-4 w-4 sm:h-5 sm:w-5 sm:mr-2" />
           <span className="hidden sm:inline">Sair</span>
         </Button>
+      </div>
+      
+      {/* Mobile Help Button - Full Width below controls */}
+      <div className="sm:hidden w-full mt-2">
+        <VideoCallHelpDialog 
+          fullWidth 
+          className="w-full h-10 justify-center"
+        />
       </div>
     </div>
   );
