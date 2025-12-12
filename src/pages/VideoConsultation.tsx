@@ -216,6 +216,7 @@ const VideoConsultation = () => {
         idAgenda={idAgenda || undefined}
         idCliente={idCliente || undefined}
         nrAtendimento={nrAtendimento || undefined}
+        cdMedico={cdMedico || undefined}
       />
     );
   }
