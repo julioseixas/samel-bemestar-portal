@@ -375,7 +375,7 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
 
         {/* Side Panel - Desktop */}
         {(chatOpen || participantsOpen) && (
-          <div className="hidden lg:flex lg:flex-col w-80 border-l h-full">
+          <div className="hidden lg:flex lg:flex-col w-80 border-l absolute right-0 top-[73px] bottom-[80px]">
             {chatOpen && (
               <ChatPanel 
                 onClose={() => setChatOpen(false)}
