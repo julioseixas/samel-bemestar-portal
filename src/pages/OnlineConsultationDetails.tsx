@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getApiHeaders } from "@/lib/api-headers";
 import { toast } from "sonner";
-import { Calendar, User, Stethoscope, Clock, AlertCircle, Camera, Mail, Video, Bell } from "lucide-react";
+import { Calendar, User, Stethoscope, Clock, AlertCircle, Camera, Mail, Video, Bell, CheckCircle, XCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { TelemedicineHelpSection } from "@/components/TelemedicineHelpSection";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
@@ -39,8 +39,20 @@ const OnlineConsultationDetails = () => {
     isSubscribed, 
     isPushSupported, 
     subscribe,
-    isLoading: isPushLoading 
+    isLoading: isPushLoading,
+    sendTestNotification
   } = usePushNotifications(patientId);
+
+  // Handle subscribe with test notification
+  const handleSubscribe = async () => {
+    const success = await subscribe();
+    if (success) {
+      // Send a test notification to confirm it works
+      setTimeout(() => {
+        sendTestNotification();
+      }, 500);
+    }
+  };
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -515,24 +527,49 @@ const OnlineConsultationDetails = () => {
 
           <TelemedicineHelpSection variant="full" />
 
-          {/* Push Notification Permission Banner */}
-          {isPushSupported && permission !== "granted" && !isSubscribed && (
-            <Alert className="mb-4 border-primary bg-primary/10">
-              <Bell className="h-4 w-4 text-primary" />
-              <AlertDescription className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <span className="text-sm">
-                  Ative as notificações para saber quando o médico entrar na sala
-                </span>
-                <Button
-                  size="sm"
-                  onClick={subscribe}
-                  disabled={isPushLoading}
-                  className="whitespace-nowrap"
-                >
-                  {isPushLoading ? "Ativando..." : "Ativar Notificações"}
-                </Button>
-              </AlertDescription>
-            </Alert>
+          {/* Push Notification Banners */}
+          {isPushSupported && (
+            <>
+              {/* Success Banner - Notifications Active */}
+              {isSubscribed && permission === "granted" && (
+                <Alert className="mb-4 border-green-500 bg-green-500/10">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <AlertDescription className="text-sm text-green-700 dark:text-green-400">
+                    <strong>Notificações ativadas!</strong> Você será avisado quando o médico entrar na sala de consulta.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Permission Denied Banner */}
+              {permission === "denied" && (
+                <Alert className="mb-4 border-destructive bg-destructive/10">
+                  <XCircle className="h-4 w-4 text-destructive" />
+                  <AlertDescription className="text-sm text-destructive">
+                    <strong>Notificações bloqueadas.</strong> Para ativar, acesse as configurações do navegador e permita notificações para este site.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Prompt to Enable - Not subscribed yet */}
+              {permission !== "denied" && !isSubscribed && (
+                <Alert className="mb-4 border-primary bg-primary/10">
+                  <Bell className="h-4 w-4 text-primary" />
+                  <AlertDescription className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <span className="text-sm">
+                      Ative as notificações para saber quando o médico entrar na sala
+                    </span>
+                    <Button
+                      size="sm"
+                      onClick={handleSubscribe}
+                      disabled={isPushLoading}
+                      className="whitespace-nowrap"
+                    >
+                      {isPushLoading ? "Ativando..." : "Ativar Notificações"}
+                    </Button>
+                  </AlertDescription>
+                </Alert>
+              )}
+            </>
           )}
 
           {loading ? (
