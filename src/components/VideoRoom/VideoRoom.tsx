@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import { MeetingProvider, useMeeting } from "@videosdk.live/react-sdk";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { MeetingProvider, useMeeting, usePubSub } from "@videosdk.live/react-sdk";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ParticipantView from "./ParticipantView";
 import Controls from "./Controls";
-import ChatPanel from "./ChatPanel";
+import ChatPanel, { ChatMessage } from "./ChatPanel";
 import ParticipantsList from "./ParticipantsList";
 import { Maximize2, Minimize2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,9 @@ const playMessageSound = () => {
   }
 };
 
+// Store messages outside component to persist during session
+const sessionMessages: Map<string, ChatMessage[]> = new Map();
+
 interface VideoRoomProps {
   roomId: string;
   token: string;
@@ -56,26 +59,13 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
   const [isJoining, setIsJoining] = useState(true);
   const [participantIds, setParticipantIds] = useState<string[]>([]);
   const [unreadMessages, setUnreadMessages] = useState(0);
-
-  // Reset unread count when chat is opened
-  useEffect(() => {
-    if (chatOpen) {
-      setUnreadMessages(0);
-    }
-  }, [chatOpen]);
-
-  // Handle new message notification
-  const handleNewMessage = useCallback(() => {
-    if (!chatOpen) {
-      setUnreadMessages(prev => prev + 1);
-      playMessageSound();
-    }
-  }, [chatOpen]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   const {
     leave,
     participants,
     localParticipant,
+    meetingId,
   } = useMeeting({
     onMeetingJoined: () => {
       console.log("[VideoRoom] Meeting joined");
@@ -99,6 +89,142 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
       toast.error("Erro na videochamada: " + error.message);
     },
   });
+
+  // Load persisted messages on mount
+  useEffect(() => {
+    if (meetingId) {
+      const existingMessages = sessionMessages.get(meetingId) || [];
+      setMessages(existingMessages);
+      console.log("[VideoRoom] Loaded persisted messages:", existingMessages.length);
+    }
+  }, [meetingId]);
+
+  // Parse message helper - handles both JSON and plain text
+  const parseMessage = useCallback((data: any): ChatMessage | null => {
+    try {
+      // VideoSDK wraps the message - data.message contains what we published
+      let messageContent = data.message;
+      let senderName = data.senderName || "Participante";
+      let timestamp = data.timestamp ? new Date(data.timestamp) : new Date();
+
+      // Try to parse if it's a JSON string
+      if (typeof messageContent === "string") {
+        try {
+          const parsed = JSON.parse(messageContent);
+          if (parsed.message) {
+            messageContent = parsed.message;
+            senderName = parsed.senderName || senderName;
+            timestamp = parsed.timestamp ? new Date(parsed.timestamp) : timestamp;
+          }
+        } catch {
+          // Not JSON, use as plain text - this is fine
+        }
+      }
+
+      // If message is still an object, stringify it for display
+      if (typeof messageContent === "object") {
+        messageContent = messageContent.message || JSON.stringify(messageContent);
+      }
+
+      return {
+        id: `${Date.now()}-${data.senderId}-${Math.random()}`,
+        senderId: data.senderId,
+        senderName,
+        message: String(messageContent),
+        timestamp,
+      };
+    } catch (error) {
+      console.error("[VideoRoom] Error parsing message:", error);
+      return null;
+    }
+  }, []);
+
+  // Use PubSub for chat - THIS IS ALWAYS ACTIVE regardless of chat panel state
+  const { publish } = usePubSub("CHAT", {
+    onMessageReceived: (data: any) => {
+      console.log("[VideoRoom] Received raw message:", data, "chatOpen:", chatOpen);
+      
+      const newMessage = parseMessage(data);
+      if (!newMessage) return;
+
+      // Check for duplicates and add message
+      setMessages((prev) => {
+        const isDuplicate = prev.some(
+          (m) => m.senderId === newMessage.senderId && 
+                 m.message === newMessage.message &&
+                 Math.abs(m.timestamp.getTime() - newMessage.timestamp.getTime()) < 2000
+        );
+        
+        if (isDuplicate) {
+          console.log("[VideoRoom] Duplicate message ignored");
+          return prev;
+        }
+
+        const updated = [...prev, newMessage];
+        
+        // Persist messages for this meeting
+        if (meetingId) {
+          sessionMessages.set(meetingId, updated);
+        }
+        
+        return updated;
+      });
+
+      // Notify for new message from others when chat is closed
+      if (newMessage.senderId !== localParticipant?.id) {
+        console.log("[VideoRoom] Message from other participant, chatOpen:", chatOpen);
+        // Use functional update to check current chatOpen state
+        setChatOpen(currentChatOpen => {
+          if (!currentChatOpen) {
+            console.log("[VideoRoom] Chat is closed, incrementing unread and playing sound");
+            setUnreadMessages(prev => prev + 1);
+            playMessageSound();
+          }
+          return currentChatOpen; // Don't change the state
+        });
+      }
+    },
+    onOldMessagesReceived: (oldMessages: any[]) => {
+      console.log("[VideoRoom] Received old messages:", oldMessages);
+      
+      if (!oldMessages || oldMessages.length === 0) return;
+      
+      const parsedMessages: ChatMessage[] = [];
+      for (const data of oldMessages) {
+        const parsed = parseMessage(data);
+        if (parsed) parsedMessages.push(parsed);
+      }
+
+      setMessages((prev) => {
+        // Merge old messages avoiding duplicates
+        const existingIds = new Set(prev.map(m => m.id));
+        const newOldMessages = parsedMessages.filter(m => !existingIds.has(m.id));
+        const merged = [...newOldMessages, ...prev].sort(
+          (a, b) => a.timestamp.getTime() - b.timestamp.getTime()
+        );
+        
+        if (meetingId) {
+          sessionMessages.set(meetingId, merged);
+        }
+        
+        return merged;
+      });
+    },
+  });
+
+  // Handle sending message
+  const handleSendMessage = useCallback((messageText: string) => {
+    console.log("[VideoRoom] Sending message:", messageText);
+    publish(messageText, { persist: true });
+  }, [publish]);
+
+  // Reset unread count when chat is opened
+  useEffect(() => {
+    if (chatOpen) {
+      console.log("[VideoRoom] Chat opened, resetting unread count");
+      setUnreadMessages(0);
+    }
+  }, [chatOpen]);
 
   // Sync participant IDs with the participants Map
   useEffect(() => {
@@ -247,13 +373,15 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
           )}
         </div>
 
-        {/* Side Panel */}
+        {/* Side Panel - Desktop */}
         {(chatOpen || participantsOpen) && (
-          <div className="hidden lg:block w-80 border-l">
+          <div className="hidden lg:flex lg:flex-col w-80 border-l h-full">
             {chatOpen && (
               <ChatPanel 
-                onClose={() => setChatOpen(false)} 
-                onNewMessage={handleNewMessage}
+                onClose={() => setChatOpen(false)}
+                messages={messages}
+                onSendMessage={handleSendMessage}
+                localParticipantId={localParticipant?.id}
               />
             )}
             {participantsOpen && !chatOpen && (
@@ -265,11 +393,13 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
 
       {/* Mobile Side Panel (overlay) */}
       {(chatOpen || participantsOpen) && (
-        <div className="lg:hidden fixed inset-0 z-50 bg-background">
+        <div className="lg:hidden fixed inset-0 z-50 bg-background flex flex-col">
           {chatOpen && (
             <ChatPanel 
-              onClose={() => setChatOpen(false)} 
-              onNewMessage={handleNewMessage}
+              onClose={() => setChatOpen(false)}
+              messages={messages}
+              onSendMessage={handleSendMessage}
+              localParticipantId={localParticipant?.id}
             />
           )}
           {participantsOpen && !chatOpen && (
