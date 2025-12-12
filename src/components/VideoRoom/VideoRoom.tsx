@@ -31,6 +31,14 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
   const [pinnedParticipant, setPinnedParticipant] = useState<string | null>(null);
   const [isJoining, setIsJoining] = useState(true);
   const [participantIds, setParticipantIds] = useState<string[]>([]);
+  const [unreadMessages, setUnreadMessages] = useState(0);
+
+  // Reset unread count when chat is opened
+  useEffect(() => {
+    if (chatOpen) {
+      setUnreadMessages(0);
+    }
+  }, [chatOpen]);
 
   const {
     leave,
@@ -210,7 +218,12 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
         {/* Side Panel */}
         {(chatOpen || participantsOpen) && (
           <div className="hidden lg:block w-80 border-l">
-            {chatOpen && <ChatPanel onClose={() => setChatOpen(false)} />}
+            {chatOpen && (
+              <ChatPanel 
+                onClose={() => setChatOpen(false)} 
+                onNewMessage={() => !chatOpen && setUnreadMessages(prev => prev + 1)}
+              />
+            )}
             {participantsOpen && !chatOpen && (
               <ParticipantsList onClose={() => setParticipantsOpen(false)} />
             )}
@@ -221,7 +234,12 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
       {/* Mobile Side Panel (overlay) */}
       {(chatOpen || participantsOpen) && (
         <div className="lg:hidden fixed inset-0 z-50 bg-background">
-          {chatOpen && <ChatPanel onClose={() => setChatOpen(false)} />}
+          {chatOpen && (
+            <ChatPanel 
+              onClose={() => setChatOpen(false)} 
+              onNewMessage={() => !chatOpen && setUnreadMessages(prev => prev + 1)}
+            />
+          )}
           {participantsOpen && !chatOpen && (
             <ParticipantsList onClose={() => setParticipantsOpen(false)} />
           )}
@@ -242,6 +260,7 @@ const MeetingView: React.FC<{ onLeave: () => void; roomName: string }> = ({
         participantsOpen={participantsOpen}
         onLeave={handleLeave}
         onViewQueue={() => navigate("/telemedicine-queue")}
+        unreadMessages={unreadMessages}
       />
     </div>
   );

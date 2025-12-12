@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 
 interface ChatPanelProps {
   onClose: () => void;
+  onNewMessage?: () => void;
 }
 
 interface ChatMessage {
@@ -21,7 +22,7 @@ interface ChatMessage {
 // Store messages outside component to persist during session
 const sessionMessages: Map<string, ChatMessage[]> = new Map();
 
-const ChatPanel: React.FC<ChatPanelProps> = ({ onClose }) => {
+const ChatPanel: React.FC<ChatPanelProps> = ({ onClose, onNewMessage }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -103,6 +104,11 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ onClose }) => {
           sessionMessages.set(meetingId, updated);
         }
         
+        // Notify parent about new message (for unread counter)
+        if (newMessage.senderId !== localParticipant?.id) {
+          onNewMessage?.();
+        }
+        
         return updated;
       });
     },
@@ -168,7 +174,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="flex flex-col h-full bg-background overflow-hidden">
       {/* Header - responsive */}
       <div className="flex items-center justify-between p-3 sm:p-4 border-b shrink-0">
         <div className="flex items-center gap-2">
@@ -197,49 +203,51 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ onClose }) => {
         </Button>
       </div>
 
-      {/* Messages - responsive */}
-      <ScrollArea className="flex-1 p-3 sm:p-4" ref={scrollRef}>
-        <div className="space-y-3 sm:space-y-4">
-          {messages.length === 0 ? (
-            <div className="text-center text-muted-foreground text-xs sm:text-sm py-6 sm:py-8">
-              Nenhuma mensagem ainda. Inicie uma conversa!
-            </div>
-          ) : (
-            messages.map((msg) => {
-              const isLocal = msg.senderId === localParticipant?.id;
-              return (
-                <div
-                  key={msg.id}
-                  className={cn(
-                    "flex flex-col gap-0.5 sm:gap-1",
-                    isLocal ? "items-end" : "items-start"
-                  )}
-                >
-                  <span className="text-[10px] sm:text-xs text-muted-foreground px-1">
-                    {isLocal ? "Você" : msg.senderName}
-                  </span>
+      {/* Messages - responsive with proper flex sizing */}
+      <div className="flex-1 min-h-0 overflow-hidden">
+        <ScrollArea className="h-full" ref={scrollRef}>
+          <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
+            {messages.length === 0 ? (
+              <div className="text-center text-muted-foreground text-xs sm:text-sm py-6 sm:py-8">
+                Nenhuma mensagem ainda. Inicie uma conversa!
+              </div>
+            ) : (
+              messages.map((msg) => {
+                const isLocal = msg.senderId === localParticipant?.id;
+                return (
                   <div
+                    key={msg.id}
                     className={cn(
-                      "max-w-[85%] sm:max-w-[80%] rounded-lg px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm break-words",
-                      isLocal
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted"
+                      "flex flex-col gap-0.5 sm:gap-1",
+                      isLocal ? "items-end" : "items-start"
                     )}
                   >
-                    {msg.message}
+                    <span className="text-[10px] sm:text-xs text-muted-foreground px-1">
+                      {isLocal ? "Você" : msg.senderName}
+                    </span>
+                    <div
+                      className={cn(
+                        "max-w-[85%] sm:max-w-[80%] rounded-lg px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm break-words",
+                        isLocal
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted"
+                      )}
+                    >
+                      {msg.message}
+                    </div>
+                    <span className="text-[10px] sm:text-xs text-muted-foreground px-1">
+                      {formatTime(msg.timestamp)}
+                    </span>
                   </div>
-                  <span className="text-[10px] sm:text-xs text-muted-foreground px-1">
-                    {formatTime(msg.timestamp)}
-                  </span>
-                </div>
-              );
-            })
-          )}
-        </div>
-      </ScrollArea>
+                );
+              })
+            )}
+          </div>
+        </ScrollArea>
+      </div>
 
-      {/* Input - responsive */}
-      <div className="p-3 sm:p-4 border-t shrink-0 pb-safe">
+      {/* Input - responsive and always visible */}
+      <div className="p-3 sm:p-4 border-t shrink-0 bg-background">
         <div className="flex gap-2">
           <Input
             placeholder="Digite sua mensagem..."

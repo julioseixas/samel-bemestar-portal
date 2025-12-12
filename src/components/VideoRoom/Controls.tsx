@@ -33,6 +33,7 @@ interface ControlsProps {
   participantsOpen: boolean;
   onLeave: () => void;
   onViewQueue?: () => void;
+  unreadMessages?: number;
 }
 
 interface MediaDevice {
@@ -48,6 +49,7 @@ const Controls: React.FC<ControlsProps> = ({
   participantsOpen,
   onLeave,
   onViewQueue,
+  unreadMessages = 0,
 }) => {
   const {
     toggleMic,
@@ -265,9 +267,14 @@ const Controls: React.FC<ControlsProps> = ({
           variant={chatOpen ? "default" : "secondary"}
           size="icon"
           onClick={onToggleChat}
-          className="hidden sm:flex h-11 w-11"
+          className="hidden sm:flex h-11 w-11 relative"
         >
           <MessageSquare className="h-5 w-5" />
+          {unreadMessages > 0 && !chatOpen && (
+            <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center">
+              {unreadMessages > 9 ? "9+" : unreadMessages}
+            </span>
+          )}
         </Button>
 
         {/* Participants Toggle - hidden on mobile */}
@@ -292,9 +299,14 @@ const Controls: React.FC<ControlsProps> = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="center" className="w-48">
-            <DropdownMenuItem onClick={onToggleChat}>
+            <DropdownMenuItem onClick={onToggleChat} className="relative">
               <MessageSquare className="h-4 w-4 mr-2" />
               {chatOpen ? "Fechar Chat" : "Abrir Chat"}
+              {unreadMessages > 0 && !chatOpen && (
+                <span className="ml-auto bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {unreadMessages > 9 ? "9+" : unreadMessages}
+                </span>
+              )}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={onToggleParticipants}>
               <Users className="h-4 w-4 mr-2" />
