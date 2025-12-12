@@ -333,7 +333,7 @@ const MeetingView: React.FC<{
   const handleViewQueue = useCallback(async () => {
     if (!idAgenda || !idCliente) {
       toast.error("Dados da fila não disponíveis");
-      navigate("/telemedicine-queue");
+      navigate("/telemedicine-queue?fromCall=true");
       return;
     }
 
@@ -355,7 +355,7 @@ const MeetingView: React.FC<{
 
       if (data.sucesso && data.dados) {
         localStorage.setItem("telemedicineQueueData", JSON.stringify(data.dados));
-        navigate("/telemedicine-queue");
+        navigate("/telemedicine-queue?fromCall=true");
       } else {
         toast.error(data.mensagem || "Erro ao obter informações da fila");
       }
