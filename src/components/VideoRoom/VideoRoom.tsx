@@ -501,6 +501,8 @@ const MeetingView: React.FC<{
         onLeave={handleLeave}
         onViewQueue={handleViewQueue}
         unreadMessages={unreadMessages}
+        nrAtendimento={nrAtendimento}
+        cdMedico={cdMedico}
       />
     </div>
   );
