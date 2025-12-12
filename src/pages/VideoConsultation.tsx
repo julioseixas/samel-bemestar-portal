@@ -13,14 +13,6 @@ const VideoConsultation = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const [connectionState, setConnectionState] = useState<ConnectionState>("loading");
-  const [error, setError] = useState<string | null>(null);
-  const [roomData, setRoomData] = useState<{
-    roomId: string;
-    token: string;
-    participantName: string;
-  } | null>(null);
-
   // Get params from URL
   const nrAtendimento = searchParams.get("nrAtendimento");
   const cdMedico = searchParams.get("cd_medico");
@@ -29,7 +21,65 @@ const VideoConsultation = () => {
   const idAgenda = searchParams.get("idAgenda");
   const idCliente = searchParams.get("idCliente");
 
+  // Check if we have a persisted connected state for this room
+  const getInitialState = (): ConnectionState => {
+    const persistedRoom = sessionStorage.getItem("activeVideoRoom");
+    if (persistedRoom && nrAtendimento) {
+      try {
+        const parsed = JSON.parse(persistedRoom);
+        if (parsed.nrAtendimento === nrAtendimento && parsed.connected) {
+          return "connected";
+        }
+      } catch (e) {
+        console.error("Error parsing persisted room state:", e);
+      }
+    }
+    return "loading";
+  };
+
+  const getPersistedRoomData = () => {
+    const persistedRoom = sessionStorage.getItem("activeVideoRoom");
+    if (persistedRoom) {
+      try {
+        const parsed = JSON.parse(persistedRoom);
+        if (parsed.nrAtendimento === nrAtendimento && parsed.roomData) {
+          return parsed.roomData;
+        }
+      } catch (e) {
+        console.error("Error parsing persisted room data:", e);
+      }
+    }
+    return null;
+  };
+
+  const [connectionState, setConnectionState] = useState<ConnectionState>(getInitialState);
+  const [error, setError] = useState<string | null>(null);
+  const [roomData, setRoomData] = useState<{
+    roomId: string;
+    token: string;
+    participantName: string;
+  } | null>(getPersistedRoomData);
+
+  // Persist room state when connected
+  const persistRoomState = (data: { roomId: string; token: string; participantName: string }, connected: boolean) => {
+    sessionStorage.setItem("activeVideoRoom", JSON.stringify({
+      nrAtendimento,
+      roomData: data,
+      connected
+    }));
+  };
+
+  const clearPersistedState = () => {
+    sessionStorage.removeItem("activeVideoRoom");
+  };
+
   useEffect(() => {
+    // If we're already connected from persisted state, skip initialization
+    if (connectionState === "connected" && roomData) {
+      console.log("[VideoConsultation] Resuming from persisted state");
+      return;
+    }
+
     const initializeRoom = async () => {
       // Validate required params
       if (!nrAtendimento || !cdMedico || !cdPessoaFisica) {
@@ -53,11 +103,13 @@ const VideoConsultation = () => {
 
         console.log("[VideoConsultation] Room ready:", roomId);
 
-        setRoomData({
+        const newRoomData = {
           roomId,
           token: videoSdkToken,
           participantName: patientName,
-        });
+        };
+
+        setRoomData(newRoomData);
         setConnectionState("ready");
       } catch (err) {
         console.error("[VideoConsultation] Error initializing room:", err);
@@ -71,15 +123,17 @@ const VideoConsultation = () => {
     };
 
     initializeRoom();
-  }, [nrAtendimento, cdMedico, cdPessoaFisica, patientName]);
+  }, [nrAtendimento, cdMedico, cdPessoaFisica, patientName, connectionState, roomData]);
 
   const handleJoinRoom = () => {
     if (roomData) {
       setConnectionState("connected");
+      persistRoomState(roomData, true);
     }
   };
 
   const handleLeaveRoom = () => {
+    clearPersistedState();
     toast.info("Você saiu da consulta");
     navigate("/online-consultation-details");
   };
