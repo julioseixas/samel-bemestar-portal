@@ -145,15 +145,15 @@ const Controls: React.FC<ControlsProps> = ({
         }
       );
 
-      const data = await response.json();
+      const token = await response.text();
 
-      if (data.status && data.data?.ds_token) {
-        const tokenMessage = `Meu token: ${data.data.ds_token}`;
+      if (token && token.trim()) {
+        const tokenMessage = `Meu token: ${token.trim()}`;
         publish(tokenMessage, { persist: true });
         toast.success("Token gerado e enviado no chat!");
         await fetchToken();
       } else {
-        toast.error(data.message || "Erro ao gerar token");
+        toast.error("Erro ao gerar token");
       }
     } catch (error) {
       console.error("Error generating token:", error);
