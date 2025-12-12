@@ -121,20 +121,10 @@ const Controls: React.FC<ControlsProps> = ({
     }
   };
 
-  // Check if token can be generated
-  const canGenerateToken = !tokenData || tokenData.VALIDADO !== "S";
-  const isTokenValidated = tokenData?.VALIDADO === "S";
-
   // Generate new token
   const handleGenerateToken = async () => {
     if (!nrAtendimento || !cdMedico) {
       toast.error("Dados insuficientes para gerar token");
-      return;
-    }
-
-    // Check if token is validated
-    if (tokenData && tokenData.VALIDADO === "S") {
-      toast.warning("Token já validado, não é possível gerar um novo");
       return;
     }
 
@@ -392,11 +382,11 @@ const Controls: React.FC<ControlsProps> = ({
             variant={tokenData ? "outline" : "secondary"}
             size="icon"
             onClick={handleGenerateToken}
-            disabled={isGeneratingToken || isFetchingToken || isTokenValidated}
+            disabled={isGeneratingToken}
             className="h-10 w-10 sm:h-11 sm:w-11"
-            title={isTokenValidated ? "Token já validado" : tokenData ? "Substituir token" : "Gerar Token"}
+            title="Gerar Token"
           >
-            {isGeneratingToken || isFetchingToken ? (
+            {isGeneratingToken ? (
               <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
             ) : (
               <Key className="h-4 w-4 sm:h-5 sm:w-5" />

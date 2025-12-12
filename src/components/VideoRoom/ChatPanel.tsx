@@ -91,17 +91,9 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
     }
   };
 
-  const canGenerateToken = !tokenData || tokenData.VALIDADO === "N";
-
   const generateToken = async () => {
     if (!nrAtendimento || !cdMedico) {
       toast.error("Dados do atendimento não disponíveis");
-      return;
-    }
-
-    // Check if token exists and is validated
-    if (tokenData && tokenData.VALIDADO === "S") {
-      toast.warning("Token já validado, não é possível gerar um novo");
       return;
     }
 
@@ -175,7 +167,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
     });
   };
 
-  const hasExistingToken = !!tokenData;
   const isTokenValidated = tokenData?.VALIDADO === "S";
 
   return (
@@ -264,9 +255,9 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
                     variant="default" 
                     size="sm" 
                     onClick={generateToken}
-                    disabled={generatingToken || tokenLoading || isTokenValidated}
+                    disabled={generatingToken}
                     className="w-full"
-                    title={isTokenValidated ? "Token já validado" : hasExistingToken ? "Substituir token atual" : "Gerar novo token"}
+                    title="Gerar novo token"
                   >
                     {generatingToken ? (
                       <Loader2 className="h-3 w-3 animate-spin mr-2" />
