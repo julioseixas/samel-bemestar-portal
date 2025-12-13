@@ -90,10 +90,10 @@ const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="center" className="w-72 p-3">
+      <PopoverContent align="center" className="w-80 p-3">
         <div className="space-y-3">
           <div className="text-sm font-medium">Fundo Virtual</div>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-2">
             {BACKGROUND_OPTIONS.map((option) => (
               <button
                 key={option.id}
@@ -110,7 +110,7 @@ const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
               >
                 {option.type === "none" ? (
                   <div className="w-full h-full flex items-center justify-center bg-muted">
-                    <Ban className="h-5 w-5 text-muted-foreground" />
+                    <Ban className="h-6 w-6 text-muted-foreground" />
                   </div>
                 ) : option.type === "blur-light" || option.type === "blur-strong" ? (
                   <div 
@@ -120,20 +120,28 @@ const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
                       filter: `blur(${option.blurLevel === 5 ? 2 : 4}px)`,
                     }}
                   >
-                    <span className="text-[10px] font-medium text-foreground/80" style={{ filter: "blur(0)" }}>
+                    <span className="text-xs font-medium text-foreground/80" style={{ filter: "blur(0)" }}>
                       {option.blurLevel === 5 ? "Leve" : "Forte"}
                     </span>
                   </div>
                 ) : (
                   <img
-                    src={option.preview}
+                    src={option.preview?.replace("w=100", "w=300").replace("q=60", "q=80")}
                     alt={option.label}
                     className="w-full h-full object-cover"
                   />
                 )}
+                {/* Label overlay */}
+                <div className="absolute bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm px-2 py-1">
+                  <span className="text-xs font-medium">{option.label}</span>
+                </div>
                 {selectedBackground === option.id && (
-                  <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                    <div className="w-3 h-3 bg-primary rounded-full" />
+                  <div className="absolute top-1 right-1">
+                    <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                      <svg className="w-2.5 h-2.5 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
                   </div>
                 )}
               </button>

@@ -461,26 +461,44 @@ const Controls: React.FC<ControlsProps> = ({
                   <div className="pt-2 pb-1">
                     <p className="text-sm font-medium text-muted-foreground">Fundo Virtual</p>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-3">
                     {BACKGROUND_OPTIONS.map((option) => (
-                      <Button
+                      <button
                         key={option.id}
-                        variant={selectedBackground === option.id ? "default" : "outline"}
-                        className="h-12 justify-start"
                         onClick={() => onSelectBackground(option)}
                         disabled={isBackgroundProcessing}
+                        className={cn(
+                          "relative aspect-video rounded-lg border-2 overflow-hidden transition-all",
+                          selectedBackground === option.id
+                            ? "border-primary ring-2 ring-primary/30"
+                            : "border-border",
+                          isBackgroundProcessing && "opacity-50"
+                        )}
                       >
                         {option.type === "image" && option.preview ? (
                           <img 
-                            src={option.preview} 
+                            src={option.preview.replace("w=100", "w=300").replace("q=60", "q=80")} 
                             alt={option.label} 
-                            className="h-5 w-5 mr-2 rounded object-cover"
+                            className="w-full h-full object-cover"
                           />
                         ) : (
-                          <Sparkles className="h-5 w-5 mr-2" />
+                          <div className="w-full h-full flex items-center justify-center bg-muted">
+                            <Sparkles className="h-6 w-6 text-muted-foreground" />
+                          </div>
                         )}
-                        <span className="text-sm truncate">{option.label}</span>
-                      </Button>
+                        <div className="absolute bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm px-2 py-1">
+                          <span className="text-xs font-medium">{option.label}</span>
+                        </div>
+                        {selectedBackground === option.id && (
+                          <div className="absolute top-1 right-1">
+                            <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                              <svg className="w-2.5 h-2.5 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                          </div>
+                        )}
+                      </button>
                     ))}
                   </div>
                 </>
