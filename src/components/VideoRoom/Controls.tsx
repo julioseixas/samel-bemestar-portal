@@ -446,14 +446,22 @@ const Controls: React.FC<ControlsProps> = ({
                 <DropdownMenuLabel className="text-xs text-muted-foreground">
                   Fundo Virtual
                 </DropdownMenuLabel>
-                {BACKGROUND_OPTIONS.slice(0, 3).map((option) => (
+                {BACKGROUND_OPTIONS.map((option) => (
                   <DropdownMenuItem
                     key={option.id}
                     onClick={() => onSelectBackground(option)}
                     disabled={isBackgroundProcessing}
                     className={cn(selectedBackground === option.id && "bg-accent")}
                   >
-                    <Sparkles className="h-4 w-4 mr-2" />
+                    {option.type === "image" && option.preview ? (
+                      <img 
+                        src={option.preview} 
+                        alt={option.label} 
+                        className="h-4 w-4 mr-2 rounded object-cover"
+                      />
+                    ) : (
+                      <Sparkles className="h-4 w-4 mr-2" />
+                    )}
                     {option.label}
                   </DropdownMenuItem>
                 ))}
