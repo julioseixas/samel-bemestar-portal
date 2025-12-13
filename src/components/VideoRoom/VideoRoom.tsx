@@ -373,6 +373,20 @@ const MeetingView: React.FC<{
         return;
       }
 
+      if (window.AndroidNotificationBridge && window.AndroidNotificationBridge.enterNativePictureInPicture) {
+        try {
+          // Chamamos a função Kotlin/Java que move a Activity para PiP
+          window.AndroidNotificationBridge.enterNativePictureInPicture();
+          setIsPipActive(true);
+          // Não usamos o toast.success aqui, pois a transição nativa pode ser imediata e sem feedback visual do JS
+          return; // Termina a função aqui, não executa o código do navegador
+        } catch (error) {
+          // Em caso de erro na comunicação Bridge (raro, mas possível)
+          toast.error("Erro ao ativar PiP nativo do Android.");
+          return;
+        }
+      }
+
       // Find the first remote participant's video, or local if alone
       const remoteId = participantIds.find((id) => id !== localParticipant?.id) || localParticipant?.id;
       if (!remoteId) {
