@@ -299,8 +299,8 @@ const AppointmentDetails = () => {
         const especialidadeSelecionada = especialidades.find(e => e.id.toString() === selectedEspecialidade);
         const dsEspecialidade = especialidadeSelecionada?.descricao || "Especialidade";
         
-        // Função para filtrar agendas duplicadas, mantendo apenas a mais recente
-        const filtrarAgendasMaisRecentes = (arr: any[]) => {
+        // Função para filtrar agendas duplicadas, mantendo apenas a mais antiga (primeira disponível)
+        const filtrarAgendasMaisAntigas = (arr: any[]) => {
           const finalList: any[] = [];
 
           for (let i = 0; i < arr.length; i++) {
@@ -309,8 +309,8 @@ const AppointmentDetails = () => {
 
             for (let j = 0; j < finalList.length; j++) {
               if (finalList[j].idAgenda === atual.idAgenda) {
-                // Se já existe, mantém o mais recente
-                if (new Date(atual.dataAgenda2) > new Date(finalList[j].dataAgenda2)) {
+                // Se já existe, mantém o mais antigo (primeira data disponível)
+                if (new Date(atual.dataAgenda2) < new Date(finalList[j].dataAgenda2)) {
                   finalList[j] = atual;
                 }
                 existe = true;
@@ -326,7 +326,7 @@ const AppointmentDetails = () => {
         };
 
         // Filtrar profissionais duplicados antes de transformar os dados
-        const profissionaisFiltrados = filtrarAgendasMaisRecentes(data.dados);
+        const profissionaisFiltrados = filtrarAgendasMaisAntigas(data.dados);
         
         // Transformar dados da API para o formato esperado pelo componente
         const profissionaisGroups = [{
