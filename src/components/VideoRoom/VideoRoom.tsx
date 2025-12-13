@@ -473,6 +473,12 @@ const MeetingView: React.FC<{
   // Handle background selection
   const handleSelectBackground = useCallback(
     async (option: BackgroundOption) => {
+      // Em WebView, desabilita completamente fundos virtuais diferentes de "nenhum"
+      if (isWebView && option.type !== "none") {
+        toast.error("Fundo virtual não é suportado dentro do aplicativo. Acesse pelo navegador para usar essa função.");
+        return;
+      }
+
       setIsBackgroundProcessing(true);
 
       try {
@@ -545,7 +551,7 @@ const MeetingView: React.FC<{
         setIsBackgroundProcessing(false);
       }
     },
-    [changeWebcam],
+    [changeWebcam, isWebView],
   );
 
   // Check if patient is alone (only local participant)
