@@ -29,7 +29,13 @@ import {
   ListOrdered,
   Clock,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Sparkles,
+  PictureInPicture2,
+  Bell,
+  Hash,
+  Copy,
+  Volume2
 } from "lucide-react";
 
 interface TelemedicineHelpProps {
@@ -80,11 +86,33 @@ export const TelemedicineHelpSection = ({ variant = "full" }: TelemedicineHelpPr
               </AccordionContent>
             </AccordionItem>
 
+            <AccordionItem value="notifications">
+              <AccordionTrigger className="text-sm font-medium">
+                <span className="flex items-center gap-2">
+                  <Bell className="h-4 w-4 text-primary" />
+                  Passo 2: Ativar Notificações
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="text-sm text-muted-foreground space-y-3">
+                <p>Ative as notificações para ser avisado quando o médico entrar na sala:</p>
+                <ul className="list-disc pl-6 space-y-1">
+                  <li>Clique em "Ativar notificações" quando solicitado</li>
+                  <li>Permita as notificações no seu navegador</li>
+                  <li>Use o botão "Testar" para verificar se está funcionando</li>
+                  <li>Você receberá um alerta sonoro e visual quando o médico entrar</li>
+                </ul>
+                <div className="flex items-center gap-2 p-2 bg-primary/10 rounded-lg border border-primary/20">
+                  <Volume2 className="h-4 w-4 text-primary flex-shrink-0" />
+                  <p className="text-xs">Mantenha o som do dispositivo ligado para ouvir os alertas.</p>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
             <AccordionItem value="enter">
               <AccordionTrigger className="text-sm font-medium">
                 <span className="flex items-center gap-2">
                   <Video className="h-4 w-4 text-primary" />
-                  Passo 2: Entrar na Sala de Consulta
+                  Passo 3: Entrar na Sala de Consulta
                 </span>
               </AccordionTrigger>
               <AccordionContent className="text-sm text-muted-foreground space-y-3">
@@ -112,8 +140,8 @@ export const TelemedicineHelpSection = ({ variant = "full" }: TelemedicineHelpPr
                 <p>Depois do check-in, você pode acompanhar sua posição na fila:</p>
                 <ul className="list-disc pl-6 space-y-1">
                   <li>Clique em "Ver Fila de Atendimento" para ver sua posição</li>
+                  <li>Durante a chamada, a fila aparece em uma janela sem sair da consulta</li>
                   <li>Acompanhe o status do seu atendimento em tempo real</li>
-                  <li>Você será notificado quando for sua vez</li>
                 </ul>
               </AccordionContent>
             </AccordionItem>
@@ -132,6 +160,7 @@ export const TelemedicineHelpSection = ({ variant = "full" }: TelemedicineHelpPr
                   <li><strong>Dispositivo:</strong> Verifique se câmera e microfone estão funcionando</li>
                   <li><strong>Documentos:</strong> Tenha em mãos exames e receitas anteriores, se necessário</li>
                   <li><strong>Privacidade:</strong> Certifique-se de estar em um ambiente privado</li>
+                  <li><strong>Fones:</strong> Use fones de ouvido para melhor qualidade de áudio</li>
                 </ul>
               </AccordionContent>
             </AccordionItem>
@@ -198,11 +227,21 @@ export const VideoCallHelpDialog = ({ className, fullWidth }: VideoCallHelpDialo
 
             <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
               <div className="flex items-center justify-center h-8 w-8 rounded-full bg-secondary">
+                <Sparkles className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="font-medium">Fundo Virtual</p>
+                <p className="text-muted-foreground text-xs">Aplique efeitos de desfoque (leve ou forte) ou escolha uma imagem de fundo para sua câmera. Disponível no menu em dispositivos móveis.</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+              <div className="flex items-center justify-center h-8 w-8 rounded-full bg-secondary">
                 <MessageSquare className="h-4 w-4" />
               </div>
               <div>
                 <p className="font-medium">Chat</p>
-                <p className="text-muted-foreground text-xs">Abra o chat para enviar mensagens de texto durante a consulta. Um indicador vermelho mostra mensagens não lidas.</p>
+                <p className="text-muted-foreground text-xs">Abra o chat para enviar mensagens de texto durante a consulta. Um indicador vermelho mostra mensagens não lidas e você ouvirá um som ao receber novas mensagens.</p>
               </div>
             </div>
 
@@ -212,7 +251,17 @@ export const VideoCallHelpDialog = ({ className, fullWidth }: VideoCallHelpDialo
               </div>
               <div>
                 <p className="font-medium">Participantes</p>
-                <p className="text-muted-foreground text-xs">Veja a lista de pessoas na chamada (disponível no menu em dispositivos móveis).</p>
+                <p className="text-muted-foreground text-xs">Veja a lista de pessoas na chamada. Um som será tocado quando alguém entrar ou sair.</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+              <div className="flex items-center justify-center h-8 w-8 rounded-full bg-secondary">
+                <PictureInPicture2 className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="font-medium">Picture-in-Picture</p>
+                <p className="text-muted-foreground text-xs">Clique no ícone no canto superior para ver o vídeo em uma janela flutuante enquanto usa outros aplicativos.</p>
               </div>
             </div>
 
@@ -222,7 +271,7 @@ export const VideoCallHelpDialog = ({ className, fullWidth }: VideoCallHelpDialo
               </div>
               <div>
                 <p className="font-medium">Fila de Atendimento</p>
-                <p className="text-muted-foreground text-xs">Clique para ver sua posição na fila de atendimento.</p>
+                <p className="text-muted-foreground text-xs">Clique para ver sua posição na fila. A fila aparece em uma janela sem sair da consulta.</p>
               </div>
             </div>
 
@@ -232,7 +281,17 @@ export const VideoCallHelpDialog = ({ className, fullWidth }: VideoCallHelpDialo
               </div>
               <div>
                 <p className="font-medium">Token</p>
-                <p className="text-muted-foreground text-xs">Gere um token de identificação se solicitado pelo profissional de saúde. O token será enviado automaticamente no chat.</p>
+                <p className="text-muted-foreground text-xs">Gere um token de 4 dígitos se solicitado pelo profissional. O token será enviado automaticamente no chat.</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+              <div className="flex items-center justify-center h-8 w-8 rounded-full bg-secondary">
+                <Hash className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="font-medium">ID da Sala</p>
+                <p className="text-muted-foreground text-xs">No menu de opções, você pode copiar o ID da sala para compartilhar com o suporte técnico se necessário.</p>
               </div>
             </div>
 
@@ -254,6 +313,8 @@ export const VideoCallHelpDialog = ({ className, fullWidth }: VideoCallHelpDialo
               <li>Posicione a câmera na altura dos olhos para melhor contato visual</li>
               <li>Use fones de ouvido para melhor qualidade de áudio</li>
               <li>Se tiver problemas de conexão, tente desligar a câmera temporariamente</li>
+              <li>Use o fundo virtual para maior privacidade em ambientes movimentados</li>
+              <li>Ative as notificações para ser avisado quando o médico entrar</li>
             </ul>
           </div>
         </div>
