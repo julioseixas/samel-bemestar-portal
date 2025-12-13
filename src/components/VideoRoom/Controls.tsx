@@ -26,6 +26,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { getApiHeaders } from "@/lib/api-headers";
@@ -424,9 +431,9 @@ const Controls: React.FC<ControlsProps> = ({
           <VideoCallHelpDialog />
         </div>
 
-        {/* Mobile More Options Menu */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+        {/* Mobile More Options - Bottom Sheet */}
+        <Drawer>
+          <DrawerTrigger asChild>
             <Button
               variant="secondary"
               size="icon"
@@ -434,59 +441,75 @@ const Controls: React.FC<ControlsProps> = ({
             >
               <MoreVertical className="h-4 w-4" />
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="center" className="w-56">
-            <DropdownMenuItem onClick={onToggleParticipants}>
-              <Users className="h-4 w-4 mr-2" />
-              {participantsOpen ? "Fechar Participantes" : "Ver Participantes"}
-            </DropdownMenuItem>
-            {onSelectBackground && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuLabel className="text-xs text-muted-foreground">
-                  Fundo Virtual
-                </DropdownMenuLabel>
-                {BACKGROUND_OPTIONS.map((option) => (
-                  <DropdownMenuItem
-                    key={option.id}
-                    onClick={() => onSelectBackground(option)}
-                    disabled={isBackgroundProcessing}
-                    className={cn(selectedBackground === option.id && "bg-accent")}
+          </DrawerTrigger>
+          <DrawerContent className="px-4 pb-8">
+            <DrawerHeader className="pb-2">
+              <DrawerTitle>Mais opções</DrawerTitle>
+            </DrawerHeader>
+            <div className="space-y-2">
+              <Button
+                variant={participantsOpen ? "default" : "outline"}
+                className="w-full justify-start h-12"
+                onClick={onToggleParticipants}
+              >
+                <Users className="h-5 w-5 mr-3" />
+                {participantsOpen ? "Fechar Participantes" : "Ver Participantes"}
+              </Button>
+              
+              {onSelectBackground && (
+                <>
+                  <div className="pt-2 pb-1">
+                    <p className="text-sm font-medium text-muted-foreground">Fundo Virtual</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {BACKGROUND_OPTIONS.map((option) => (
+                      <Button
+                        key={option.id}
+                        variant={selectedBackground === option.id ? "default" : "outline"}
+                        className="h-12 justify-start"
+                        onClick={() => onSelectBackground(option)}
+                        disabled={isBackgroundProcessing}
+                      >
+                        {option.type === "image" && option.preview ? (
+                          <img 
+                            src={option.preview} 
+                            alt={option.label} 
+                            className="h-5 w-5 mr-2 rounded object-cover"
+                          />
+                        ) : (
+                          <Sparkles className="h-5 w-5 mr-2" />
+                        )}
+                        <span className="text-sm truncate">{option.label}</span>
+                      </Button>
+                    ))}
+                  </div>
+                </>
+              )}
+              
+              {roomId && (
+                <>
+                  <div className="pt-2 pb-1">
+                    <p className="text-sm font-medium text-muted-foreground">ID da Sala</p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-between h-12"
+                    onClick={() => {
+                      navigator.clipboard.writeText(roomId);
+                      toast.success("ID da sala copiado!");
+                    }}
                   >
-                    {option.type === "image" && option.preview ? (
-                      <img 
-                        src={option.preview} 
-                        alt={option.label} 
-                        className="h-4 w-4 mr-2 rounded object-cover"
-                      />
-                    ) : (
-                      <Sparkles className="h-4 w-4 mr-2" />
-                    )}
-                    {option.label}
-                  </DropdownMenuItem>
-                ))}
-              </>
-            )}
-            {roomId && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuLabel className="text-xs text-muted-foreground">
-                  ID da Sala
-                </DropdownMenuLabel>
-                <DropdownMenuItem 
-                  onClick={() => {
-                    navigator.clipboard.writeText(roomId);
-                    toast.success("ID da sala copiado!");
-                  }}
-                >
-                  <Hash className="h-4 w-4 mr-2" />
-                  <span className="truncate font-mono text-xs">{roomId}</span>
-                  <Copy className="h-3 w-3 ml-auto opacity-50" />
-                </DropdownMenuItem>
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+                    <div className="flex items-center">
+                      <Hash className="h-5 w-5 mr-3" />
+                      <span className="font-mono text-sm truncate max-w-[200px]">{roomId}</span>
+                    </div>
+                    <Copy className="h-4 w-4 opacity-50" />
+                  </Button>
+                </>
+              )}
+            </div>
+          </DrawerContent>
+        </Drawer>
 
         {/* Leave Button */}
         <Button
