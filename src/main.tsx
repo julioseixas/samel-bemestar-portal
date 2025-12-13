@@ -2,6 +2,13 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 
+// Extend Window interface for Android PIP support
+declare global {
+  interface Window {
+    handlePictureInPictureChange?: (isInPictureInPictureMode: boolean) => void;
+  }
+}
+
 /**
  * Função chamada pelo código Kotlin/Android quando o app entra ou sai do modo PIP.
  * O Android executa: window.handlePictureInPictureChange(true)
@@ -9,7 +16,7 @@ import "./index.css";
  *
  * @param {boolean} isInPictureInPictureMode - true se o app está em PIP, false caso contrário.
  */
-window.handlePictureInPictureChange = (isInPictureInPictureMode) => {
+window.handlePictureInPictureChange = (isInPictureInPictureMode: boolean) => {
   console.log("PIP Status (Recebido do Android):", isInPictureInPictureMode);
 
   // O próximo passo será usar essa informação para atualizar o estado React

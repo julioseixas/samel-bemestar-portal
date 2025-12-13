@@ -16,6 +16,7 @@ import {
   Loader2,
   Hash,
   Copy,
+  Sparkles,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -29,6 +30,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { getApiHeaders } from "@/lib/api-headers";
 import { VideoCallHelpDialog } from "@/components/TelemedicineHelpSection";
+import BackgroundSelector, { BackgroundOption, BACKGROUND_OPTIONS } from "./BackgroundSelector";
 
 interface ControlsProps {
   onToggleChat: () => void;
@@ -41,6 +43,9 @@ interface ControlsProps {
   nrAtendimento?: string;
   cdMedico?: string;
   roomId?: string;
+  selectedBackground?: string;
+  onSelectBackground?: (option: BackgroundOption) => void;
+  isBackgroundProcessing?: boolean;
 }
 
 interface MediaDevice {
@@ -69,6 +74,9 @@ const Controls: React.FC<ControlsProps> = ({
   nrAtendimento,
   cdMedico,
   roomId,
+  selectedBackground = "none",
+  onSelectBackground,
+  isBackgroundProcessing = false,
 }) => {
   const {
     toggleMic,
@@ -344,6 +352,17 @@ const Controls: React.FC<ControlsProps> = ({
           </DropdownMenu>
         </div>
 
+        {/* Background Selector - Desktop only */}
+        {onSelectBackground && (
+          <div className="hidden sm:block">
+            <BackgroundSelector
+              selectedBackground={selectedBackground}
+              onSelectBackground={onSelectBackground}
+              isProcessing={isBackgroundProcessing}
+            />
+          </div>
+        )}
+
 
         {/* Chat Toggle - visible on all screen sizes */}
         <Button
@@ -421,6 +440,25 @@ const Controls: React.FC<ControlsProps> = ({
               <Users className="h-4 w-4 mr-2" />
               {participantsOpen ? "Fechar Participantes" : "Ver Participantes"}
             </DropdownMenuItem>
+            {onSelectBackground && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel className="text-xs text-muted-foreground">
+                  Fundo Virtual
+                </DropdownMenuLabel>
+                {BACKGROUND_OPTIONS.slice(0, 3).map((option) => (
+                  <DropdownMenuItem
+                    key={option.id}
+                    onClick={() => onSelectBackground(option)}
+                    disabled={isBackgroundProcessing}
+                    className={cn(selectedBackground === option.id && "bg-accent")}
+                  >
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    {option.label}
+                  </DropdownMenuItem>
+                ))}
+              </>
+            )}
             {roomId && (
               <>
                 <DropdownMenuSeparator />

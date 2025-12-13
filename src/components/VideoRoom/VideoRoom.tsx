@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { MeetingProvider, useMeeting, usePubSub } from "@videosdk.live/react-sdk";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { MeetingProvider, useMeeting, usePubSub, createCameraVideoTrack } from "@videosdk.live/react-sdk";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ParticipantView from "./ParticipantView";
 import Controls from "./Controls";
 import ChatPanel, { ChatMessage } from "./ChatPanel";
 import ParticipantsList from "./ParticipantsList";
+import { BackgroundOption, BACKGROUND_OPTIONS } from "./BackgroundSelector";
 import { Maximize2, Minimize2, Loader2, Clock, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -99,11 +100,22 @@ const MeetingView: React.FC<{
   const [queueModalOpen, setQueueModalOpen] = useState(false);
   const [queueData, setQueueData] = useState<any[]>([]);
   const [queueLoading, setQueueLoading] = useState(false);
+  const [selectedBackground, setSelectedBackground] = useState<string>("none");
+  const [isBackgroundProcessing, setIsBackgroundProcessing] = useState(false);
+  const processorRef = useRef<any>(null);
 
   // Push notifications hook
   const { sendNotification } = usePushNotifications(idCliente);
 
-  const { leave, participants, localParticipant, meetingId } = useMeeting({
+  // Load saved background preference
+  useEffect(() => {
+    const savedBg = localStorage.getItem("videoroom-background");
+    if (savedBg) {
+      setSelectedBackground(savedBg);
+    }
+  }, []);
+
+  const { leave, participants, localParticipant, meetingId, changeWebcam } = useMeeting({
     onMeetingJoined: () => {
       console.log("[VideoRoom] Meeting joined");
       toast.success("Você entrou na consulta");
@@ -409,6 +421,75 @@ const MeetingView: React.FC<{
     }
   }, [idAgenda, idCliente]);
 
+  // Handle background selection
+  const handleSelectBackground = useCallback(async (option: BackgroundOption) => {
+    setIsBackgroundProcessing(true);
+    
+    try {
+      // Stop existing processor if any
+      if (processorRef.current) {
+        try {
+          await processorRef.current.stop();
+        } catch (e) {
+          console.log("[VideoRoom] Error stopping previous processor:", e);
+        }
+        processorRef.current = null;
+      }
+      
+      if (option.type === "none") {
+        // Create a clean camera track without processing
+        const cleanStream = await createCameraVideoTrack({});
+        await changeWebcam(cleanStream);
+        
+        setSelectedBackground("none");
+        localStorage.setItem("videoroom-background", "none");
+        toast.success("Fundo removido");
+      } else {
+        // Dynamically import the processor only when needed
+        const { VirtualBackgroundProcessor } = await import("@videosdk.live/videosdk-media-processor-web");
+        
+        // Create new camera track
+        const cameraStream = await createCameraVideoTrack({});
+        
+        // Create and initialize processor
+        const processor = new VirtualBackgroundProcessor();
+        
+        if (!processor.ready) {
+          await processor.init();
+        }
+        
+        let processedStream: MediaStream;
+        
+        // Configure based on type
+        if (option.type === "blur-light" || option.type === "blur-strong") {
+          processedStream = await processor.start(cameraStream, {
+            type: "blur",
+          });
+        } else if (option.type === "image" && option.imageUrl) {
+          processedStream = await processor.start(cameraStream, {
+            type: "image",
+            imageUrl: option.imageUrl,
+          });
+        } else {
+          throw new Error("Invalid background type");
+        }
+        
+        // Apply the processed stream to the meeting
+        await changeWebcam(processedStream);
+        
+        processorRef.current = processor;
+        setSelectedBackground(option.id);
+        localStorage.setItem("videoroom-background", option.id);
+        toast.success(`Fundo "${option.label}" aplicado`);
+      }
+    } catch (error) {
+      console.error("[VideoRoom] Error applying background:", error);
+      toast.error("Erro ao aplicar fundo virtual. Este recurso pode não ser suportado no seu navegador.");
+    } finally {
+      setIsBackgroundProcessing(false);
+    }
+  }, [changeWebcam]);
+
   // Check if patient is alone (only local participant)
   const isPatientAlone = useMemo(() => {
     return participantIds.length === 1 && participantIds[0] === localParticipant?.id;
@@ -551,6 +632,9 @@ const MeetingView: React.FC<{
         nrAtendimento={nrAtendimento}
         cdMedico={cdMedico}
         roomId={meetingId}
+        selectedBackground={selectedBackground}
+        onSelectBackground={handleSelectBackground}
+        isBackgroundProcessing={isBackgroundProcessing}
       />
 
       {/* Queue Modal */}
