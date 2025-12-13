@@ -53,6 +53,7 @@ interface ControlsProps {
   selectedBackground?: string;
   onSelectBackground?: (option: BackgroundOption) => void;
   isBackgroundProcessing?: boolean;
+  isWebView?: boolean;
 }
 
 interface MediaDevice {
@@ -84,6 +85,7 @@ const Controls: React.FC<ControlsProps> = ({
   selectedBackground = "none",
   onSelectBackground,
   isBackgroundProcessing = false,
+  isWebView = false,
 }) => {
   const {
     toggleMic,
@@ -356,8 +358,8 @@ const Controls: React.FC<ControlsProps> = ({
           </DropdownMenu>
         </div>
 
-        {/* Background Selector - Desktop only */}
-        {onSelectBackground && (
+        {/* Background Selector - Desktop only, hidden in WebView */}
+        {onSelectBackground && !isWebView && (
           <div className="hidden sm:block">
             <BackgroundSelector
               selectedBackground={selectedBackground}
@@ -453,7 +455,8 @@ const Controls: React.FC<ControlsProps> = ({
                 {participantsOpen ? "Fechar Participantes" : "Ver Participantes"}
               </Button>
               
-              {onSelectBackground && (
+              {/* Background options - hidden in WebView */}
+              {onSelectBackground && !isWebView && (
                 <>
                   <div className="pt-2 pb-1">
                     <p className="text-sm font-medium text-muted-foreground">Fundo Virtual</p>
