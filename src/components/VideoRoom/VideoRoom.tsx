@@ -607,12 +607,6 @@ const MeetingView: React.FC<{
               </Button>
             )}
             
-            {/* Fullscreen Button - hidden in WebView and mobile */}
-            {!isWebView && (
-              <Button variant="ghost" size="icon" onClick={toggleFullscreen} className="hidden sm:flex">
-                {isFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
-              </Button>
-            )}
           </div>
         </div>
 
