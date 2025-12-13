@@ -16,12 +16,21 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-if (
-  (window as any).__webpack_public_path__ === undefined &&
-  (navigator.userAgent.toLowerCase().includes("wv") || navigator.userAgent.toLowerCase().includes("webview"))
-) {
-  (window as any).__webpack_public_path__ = "https://samel-bemestar-portal.lovable.app/";
-}
+(function () {
+  // Verifica se a variável já existe ou se estamos em um ambiente que precisa de correção (WebView)
+  const isWebView =
+    navigator.userAgent.toLowerCase().includes("wv") || navigator.userAgent.toLowerCase().includes("webview");
+
+  if (isWebView || (window as any).__webpack_public_path__ === undefined) {
+    // Define explicitamente o caminho base para a raiz do seu domínio, conforme a URL do erro.
+    (window as any).__webpack_public_path__ = "https://samel-bemestar-portal.lovable.app/";
+
+    // Embora não seja a variável primária do erro, adicionamos a do Vite/outros por segurança
+    (window as any).__vite_public_path__ = "https://samel-bemestar-portal.lovable.app/";
+
+    console.log("[VideoRoom] Corrigido __webpack_public_path__ para:", (window as any).__webpack_public_path__);
+  }
+})();
 
 // Sound notification helper
 const playMessageSound = () => {
@@ -268,7 +277,6 @@ const MeetingView: React.FC<{
       });
     },
     onOldMessagesReceived: (oldMessages: any[]) => {
-
       if (!oldMessages || oldMessages.length === 0) return;
 
       const parsedMessages: ChatMessage[] = [];
