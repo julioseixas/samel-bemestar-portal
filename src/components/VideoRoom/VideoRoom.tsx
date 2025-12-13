@@ -16,6 +16,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
+if (
+  (window as any).__webpack_public_path__ === undefined &&
+  (navigator.userAgent.toLowerCase().includes("wv") || navigator.userAgent.toLowerCase().includes("webview"))
+) {
+  (window as any).__webpack_public_path__ = "https://samel-bemestar-portal.lovable.app/";
+}
+
 // Sound notification helper
 const playMessageSound = () => {
   try {
@@ -408,14 +415,14 @@ const MeetingView: React.FC<{
       }
 
       // Find the first remote participant's video, or local if alone
-      const remoteId = participantIds.find(id => id !== localParticipant?.id) || localParticipant?.id;
+      const remoteId = participantIds.find((id) => id !== localParticipant?.id) || localParticipant?.id;
       if (!remoteId) {
         toast.error("Nenhum vídeo disponível para PiP");
         return;
       }
 
       // Find the video element for this participant
-      const videoElements = document.querySelectorAll('video');
+      const videoElements = document.querySelectorAll("video");
       let targetVideo: HTMLVideoElement | null = null;
 
       for (const video of videoElements) {
@@ -444,7 +451,7 @@ const MeetingView: React.FC<{
     const handlePipExit = () => {
       setIsPipActive(false);
     };
-    
+
     document.addEventListener("leavepictureinpicture", handlePipExit);
     return () => {
       document.removeEventListener("leavepictureinpicture", handlePipExit);
@@ -495,73 +502,76 @@ const MeetingView: React.FC<{
   }, [idAgenda, idCliente]);
 
   // Handle background selection
-  const handleSelectBackground = useCallback(async (option: BackgroundOption) => {
-    setIsBackgroundProcessing(true);
-    
-    try {
-      // Stop existing processor if any
-      if (processorRef.current) {
-        try {
-          await processorRef.current.stop();
-        } catch (e) {
-          console.log("[VideoRoom] Error stopping previous processor:", e);
+  const handleSelectBackground = useCallback(
+    async (option: BackgroundOption) => {
+      setIsBackgroundProcessing(true);
+
+      try {
+        // Stop existing processor if any
+        if (processorRef.current) {
+          try {
+            await processorRef.current.stop();
+          } catch (e) {
+            console.log("[VideoRoom] Error stopping previous processor:", e);
+          }
+          processorRef.current = null;
         }
-        processorRef.current = null;
-      }
-      
-      if (option.type === "none") {
-        // Create a clean camera track without processing
-        const cleanStream = await createCameraVideoTrack({});
-        await changeWebcam(cleanStream);
-        
-        setSelectedBackground("none");
-        localStorage.setItem("videoroom-background", "none");
-        toast.success("Fundo removido");
-      } else {
-        // Dynamically import the processor only when needed
-        const { VirtualBackgroundProcessor } = await import("@videosdk.live/videosdk-media-processor-web");
-        
-        // Create new camera track
-        const cameraStream = await createCameraVideoTrack({});
-        
-        // Create and initialize processor
-        const processor = new VirtualBackgroundProcessor();
-        
-        if (!processor.ready) {
-          await processor.init();
-        }
-        
-        let processedStream: MediaStream;
-        
-        // Configure based on type
-        if (option.type === "blur-light" || option.type === "blur-strong") {
-          processedStream = await processor.start(cameraStream, {
-            type: "blur",
-          });
-        } else if (option.type === "image" && option.imageUrl) {
-          processedStream = await processor.start(cameraStream, {
-            type: "image",
-            imageUrl: option.imageUrl,
-          });
+
+        if (option.type === "none") {
+          // Create a clean camera track without processing
+          const cleanStream = await createCameraVideoTrack({});
+          await changeWebcam(cleanStream);
+
+          setSelectedBackground("none");
+          localStorage.setItem("videoroom-background", "none");
+          toast.success("Fundo removido");
         } else {
-          throw new Error("Invalid background type");
+          // Dynamically import the processor only when needed
+          const { VirtualBackgroundProcessor } = await import("@videosdk.live/videosdk-media-processor-web");
+
+          // Create new camera track
+          const cameraStream = await createCameraVideoTrack({});
+
+          // Create and initialize processor
+          const processor = new VirtualBackgroundProcessor();
+
+          if (!processor.ready) {
+            await processor.init();
+          }
+
+          let processedStream: MediaStream;
+
+          // Configure based on type
+          if (option.type === "blur-light" || option.type === "blur-strong") {
+            processedStream = await processor.start(cameraStream, {
+              type: "blur",
+            });
+          } else if (option.type === "image" && option.imageUrl) {
+            processedStream = await processor.start(cameraStream, {
+              type: "image",
+              imageUrl: option.imageUrl,
+            });
+          } else {
+            throw new Error("Invalid background type");
+          }
+
+          // Apply the processed stream to the meeting
+          await changeWebcam(processedStream);
+
+          processorRef.current = processor;
+          setSelectedBackground(option.id);
+          localStorage.setItem("videoroom-background", option.id);
+          toast.success(`Fundo "${option.label}" aplicado`);
         }
-        
-        // Apply the processed stream to the meeting
-        await changeWebcam(processedStream);
-        
-        processorRef.current = processor;
-        setSelectedBackground(option.id);
-        localStorage.setItem("videoroom-background", option.id);
-        toast.success(`Fundo "${option.label}" aplicado`);
+      } catch (error) {
+        console.error("[VideoRoom] Error applying background:", error);
+        toast.error("Erro ao aplicar fundo virtual. Este recurso pode não ser suportado no seu navegador.");
+      } finally {
+        setIsBackgroundProcessing(false);
       }
-    } catch (error) {
-      console.error("[VideoRoom] Error applying background:", error);
-      toast.error("Erro ao aplicar fundo virtual. Este recurso pode não ser suportado no seu navegador.");
-    } finally {
-      setIsBackgroundProcessing(false);
-    }
-  }, [changeWebcam]);
+    },
+    [changeWebcam],
+  );
 
   // Check if patient is alone (only local participant)
   const isPatientAlone = useMemo(() => {
@@ -603,17 +613,16 @@ const MeetingView: React.FC<{
           </div>
           <div className="flex items-center gap-1">
             {/* PiP Button - always visible */}
-            {'pictureInPictureEnabled' in document && (
-              <Button 
-                variant={isPipActive ? "default" : "ghost"} 
-                size="icon" 
+            {"pictureInPictureEnabled" in document && (
+              <Button
+                variant={isPipActive ? "default" : "ghost"}
+                size="icon"
                 onClick={togglePictureInPicture}
                 title="Picture-in-Picture"
               >
                 <PictureInPicture2 className="h-5 w-5" />
               </Button>
             )}
-            
           </div>
         </div>
 
