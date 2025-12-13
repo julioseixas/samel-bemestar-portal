@@ -255,8 +255,30 @@ export const usePushNotifications = (idCliente?: string) => {
     checkSubscription();
   }, [isPushSupported]);
 
+  // Trigger notification via Android bridge (for WebView)
+  const triggerAndroidNotification = useCallback((title: string, message: string) => {
+    if (window.AndroidNotificationBridge) {
+      window.AndroidNotificationBridge.triggerTestNotification(title, message);
+      console.log('[Push] Android notification triggered:', title, message);
+      return true;
+    }
+    console.log('[Push] AndroidNotificationBridge not available');
+    return false;
+  }, []);
+
   // Send a test notification locally (for confirming notifications work)
   const sendTestNotification = useCallback(() => {
+    const title = "Alerta do Médico";
+    const message = "O Doutor entrou na sala de atendimento.";
+
+    // Try Android bridge first (for WebView)
+    if (window.AndroidNotificationBridge) {
+      window.AndroidNotificationBridge.triggerTestNotification(title, message);
+      console.log('[Push] Test notification sent via Android bridge');
+      return true;
+    }
+
+    // Fallback to browser notification
     if (!('Notification' in window) || Notification.permission !== 'granted') {
       console.log('[Push] Cannot send test notification - permission not granted');
       return false;
@@ -293,6 +315,7 @@ export const usePushNotifications = (idCliente?: string) => {
     subscribe,
     unsubscribe,
     sendNotification,
-    sendTestNotification
+    sendTestNotification,
+    triggerAndroidNotification
   };
 };
