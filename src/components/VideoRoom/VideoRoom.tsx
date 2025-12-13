@@ -15,7 +15,22 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { importVirtualBackgroundProcessor } from "@/lib/videosdk-helper";
+
+(function () {
+  // Verifica se a variável já existe ou se estamos em um ambiente que precisa de correção (WebView)
+  const isWebView =
+    navigator.userAgent.toLowerCase().includes("wv") || navigator.userAgent.toLowerCase().includes("webview");
+
+  if (isWebView || (window as any).__webpack_public_path__ === undefined) {
+    // Define explicitamente o caminho base para a raiz do seu domínio, conforme a URL do erro.
+    (window as any).__webpack_public_path__ = "https://samel-bemestar-portal.lovable.app/";
+
+    // Embora não seja a variável primária do erro, adicionamos a do Vite/outros por segurança
+    (window as any).__vite_public_path__ = "https://samel-bemestar-portal.lovable.app/";
+
+    console.log("[VideoRoom] Corrigido __webpack_public_path__ para:", (window as any).__webpack_public_path__);
+  }
+})();
 
 // Sound notification helper
 const playMessageSound = () => {
@@ -473,12 +488,6 @@ const MeetingView: React.FC<{
   // Handle background selection
   const handleSelectBackground = useCallback(
     async (option: BackgroundOption) => {
-      // Em WebView, desabilita completamente fundos virtuais diferentes de "nenhum"
-      if (isWebView && option.type !== "none") {
-        toast.error("Fundo virtual não é suportado dentro do aplicativo. Acesse pelo navegador para usar essa função.");
-        return;
-      }
-
       setIsBackgroundProcessing(true);
 
       try {
@@ -501,8 +510,8 @@ const MeetingView: React.FC<{
           localStorage.setItem("videoroom-background", "none");
           toast.success("Fundo removido");
         } else {
-          // Importa o processor usando o helper que configura o publicPath para WebViews
-          const VirtualBackgroundProcessor = await importVirtualBackgroundProcessor();
+          // Dynamically import the processor only when needed
+          const { VirtualBackgroundProcessor } = await import("@videosdk.live/videosdk-media-processor-web");
 
           // Create new camera track
           const cameraStream = await createCameraVideoTrack({});
@@ -538,20 +547,13 @@ const MeetingView: React.FC<{
           localStorage.setItem("videoroom-background", option.id);
           toast.success(`Fundo "${option.label}" aplicado`);
         }
-      } catch (error: any) {
-        console.error("[VideoRoom] Error applying background:", error);
-        
-        // Mensagem específica para o erro de publicPath
-        if (error?.message?.includes("publicPath")) {
-          toast.error("Fundo virtual não suportado neste navegador. Use o navegador Chrome ou Safari.");
-        } else {
-          toast.error("Erro ao aplicar fundo virtual. Este recurso pode não ser suportado no seu navegador.");
-        }
+      } catch (error) {
+        toast.error("Erro ao aplicar fundo virtual. Este recurso pode não ser suportado no seu navegador.");
       } finally {
         setIsBackgroundProcessing(false);
       }
     },
-    [changeWebcam, isWebView],
+    [changeWebcam],
   );
 
   // Check if patient is alone (only local participant)
@@ -709,7 +711,6 @@ const MeetingView: React.FC<{
         selectedBackground={selectedBackground}
         onSelectBackground={handleSelectBackground}
         isBackgroundProcessing={isBackgroundProcessing}
-        isWebView={isWebView}
       />
 
       {/* Queue Modal */}
