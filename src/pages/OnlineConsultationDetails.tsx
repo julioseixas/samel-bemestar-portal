@@ -528,7 +528,7 @@ const OnlineConsultationDetails = () => {
           <TelemedicineHelpSection variant="full" />
 
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               {[1, 2, 3].map((i) => (
                 <Card key={i}>
                   <CardContent className="py-6">
@@ -549,7 +549,7 @@ const OnlineConsultationDetails = () => {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               {appointments.map((appointment, index) => {
                 const hasCheckedIn = appointment.possuiAtendimento === "S";
                 
