@@ -22,6 +22,7 @@ interface Profissional {
   nome: string;
   ieSexo: string;
   dsEspecialidade: string;
+  dsComplemento?: string | null;
   unidade: Unidade;
   ie_sigla_conselho: string;
   nr_conselho: string;
@@ -151,7 +152,9 @@ const ExamProfessionals = () => {
                             <Stethoscope className="h-8 w-8 text-primary" />
                           </div>
                           <div className="flex-1">
-                            <CardTitle className="text-base sm:text-lg">{profissional.nome}</CardTitle>
+                            <CardTitle className="text-base sm:text-lg">
+                              {profissional.nome}{profissional.dsComplemento ? ` - ${profissional.dsComplemento}` : ''}
+                            </CardTitle>
                             <Badge variant="outline" className="mt-1">
                               {profissional.ie_sigla_conselho} {profissional.nr_conselho}
                             </Badge>

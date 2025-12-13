@@ -23,6 +23,7 @@ interface Profissional {
   id: string;
   nome: string;
   dsEspecialidade: string;
+  dsComplemento?: string | null;
   ieSexo: string;
   ie_sigla_conselho: string;
   nr_conselho: string;
@@ -193,7 +194,7 @@ const AppointmentProfessionals = () => {
                             </div>
                             <div className="flex-1">
                               <CardTitle className="text-base sm:text-lg">
-                                {profissional.nome}
+                                {profissional.nome}{profissional.dsComplemento ? ` - ${profissional.dsComplemento}` : ''}
                               </CardTitle>
                               <Badge variant="outline" className="mt-1">
                                 {profissional.ie_sigla_conselho} {profissional.nr_conselho}
