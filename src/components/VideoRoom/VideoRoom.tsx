@@ -11,12 +11,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getApiHeaders } from "@/lib/api-headers";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -26,17 +21,17 @@ const playMessageSound = () => {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
-    
+
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
-    
+
     // Pleasant notification sound - two quick tones
     oscillator.frequency.setValueAtTime(880, audioContext.currentTime); // A5
     oscillator.frequency.setValueAtTime(1100, audioContext.currentTime + 0.1); // C#6
-    
+
     gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-    
+
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.3);
   } catch (error) {
@@ -50,18 +45,18 @@ const playParticipantJoinSound = () => {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
-    
+
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
-    
+
     // Distinct sound for participant joining - ascending tone
     oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4
     oscillator.frequency.linearRampToValueAtTime(660, audioContext.currentTime + 0.2); // E5
     oscillator.frequency.linearRampToValueAtTime(880, audioContext.currentTime + 0.4); // A5
-    
+
     gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-    
+
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.5);
   } catch (error) {
@@ -82,23 +77,16 @@ interface VideoRoomProps {
 }
 
 // Inner component that uses the meeting hooks
-const MeetingView: React.FC<{ 
-  onLeave: () => void; 
+const MeetingView: React.FC<{
+  onLeave: () => void;
   roomName: string;
   idAgenda?: string;
   idCliente?: string;
   nrAtendimento?: string;
   cdMedico?: string;
-}> = ({
-  onLeave,
-  roomName,
-  idAgenda,
-  idCliente,
-  nrAtendimento,
-  cdMedico,
-}) => {
+}> = ({ onLeave, roomName, idAgenda, idCliente, nrAtendimento, cdMedico }) => {
   const navigate = useNavigate();
-  
+
   // State declarations first
   const [chatOpen, setChatOpen] = useState(false);
   const [participantsOpen, setParticipantsOpen] = useState(false);
@@ -115,12 +103,7 @@ const MeetingView: React.FC<{
   // Push notifications hook
   const { sendNotification } = usePushNotifications(idCliente);
 
-  const {
-    leave,
-    participants,
-    localParticipant,
-    meetingId,
-  } = useMeeting({
+  const { leave, participants, localParticipant, meetingId } = useMeeting({
     onMeetingJoined: () => {
       console.log("[VideoRoom] Meeting joined");
       toast.success("Você entrou na consulta");
@@ -133,17 +116,17 @@ const MeetingView: React.FC<{
     onParticipantJoined: async (participant) => {
       console.log("[VideoRoom] Participant joined:", participant.displayName, "ID:", participant.id);
       toast.info(`${participant.displayName || "Participante"} entrou`);
-      
+
       // Play sound when participant joins
       playParticipantJoinSound();
-      
+
       // Show browser notification if tab is in background
       if (document.hidden && Notification.permission === "granted") {
         try {
           new Notification("Consulta Online - Samel", {
             body: `${participant.displayName || "O profissional"} entrou na sala de consulta!`,
             icon: "/favicon.png",
-            tag: `participant-joined-${participant.id}`
+            tag: `participant-joined-${participant.id}`,
           });
         } catch (error) {
           console.error("[VideoRoom] Error showing notification:", error);
@@ -213,46 +196,47 @@ const MeetingView: React.FC<{
   const { publish } = usePubSub("CHAT", {
     onMessageReceived: (data: any) => {
       console.log("[VideoRoom] Received raw message:", data, "chatOpen:", chatOpen);
-      
+
       // IGNORE messages from self - we already added them locally in handleSendMessage
       if (data.senderId === localParticipant?.id) {
         console.log("[VideoRoom] Ignoring own message from PubSub");
         return;
       }
-      
+
       const newMessage = parseMessage(data);
       if (!newMessage) return;
 
       // Check for duplicates and add message
       setMessages((prev) => {
         const isDuplicate = prev.some(
-          (m) => m.senderId === newMessage.senderId && 
-                 m.message === newMessage.message &&
-                 Math.abs(m.timestamp.getTime() - newMessage.timestamp.getTime()) < 2000
+          (m) =>
+            m.senderId === newMessage.senderId &&
+            m.message === newMessage.message &&
+            Math.abs(m.timestamp.getTime() - newMessage.timestamp.getTime()) < 2000,
         );
-        
+
         if (isDuplicate) {
           console.log("[VideoRoom] Duplicate message ignored");
           return prev;
         }
 
         const updated = [...prev, newMessage];
-        
+
         // Persist messages for this meeting
         if (meetingId) {
           sessionMessages.set(meetingId, updated);
         }
-        
+
         return updated;
       });
 
       // Notify for new message from others when chat is closed
       console.log("[VideoRoom] Message from other participant, chatOpen:", chatOpen);
       // Use functional update to check current chatOpen state
-      setChatOpen(currentChatOpen => {
+      setChatOpen((currentChatOpen) => {
         if (!currentChatOpen) {
           console.log("[VideoRoom] Chat is closed, incrementing unread and playing sound");
-          setUnreadMessages(prev => prev + 1);
+          setUnreadMessages((prev) => prev + 1);
           playMessageSound();
         }
         return currentChatOpen; // Don't change the state
@@ -260,9 +244,9 @@ const MeetingView: React.FC<{
     },
     onOldMessagesReceived: (oldMessages: any[]) => {
       console.log("[VideoRoom] Received old messages:", oldMessages);
-      
+
       if (!oldMessages || oldMessages.length === 0) return;
-      
+
       const parsedMessages: ChatMessage[] = [];
       for (const data of oldMessages) {
         const parsed = parseMessage(data);
@@ -271,48 +255,49 @@ const MeetingView: React.FC<{
 
       setMessages((prev) => {
         // Merge old messages avoiding duplicates
-        const existingIds = new Set(prev.map(m => m.id));
-        const newOldMessages = parsedMessages.filter(m => !existingIds.has(m.id));
-        const merged = [...newOldMessages, ...prev].sort(
-          (a, b) => a.timestamp.getTime() - b.timestamp.getTime()
-        );
-        
+        const existingIds = new Set(prev.map((m) => m.id));
+        const newOldMessages = parsedMessages.filter((m) => !existingIds.has(m.id));
+        const merged = [...newOldMessages, ...prev].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+
         if (meetingId) {
           sessionMessages.set(meetingId, merged);
         }
-        
+
         return merged;
       });
     },
   });
 
   // Handle sending message
-  const handleSendMessage = useCallback((messageText: string) => {
-    if (!localParticipant) return;
-    
-    console.log("[VideoRoom] Sending message:", messageText);
-    
-    // Create local message object
-    const newMessage: ChatMessage = {
-      id: `${Date.now()}-${localParticipant.id}-${Math.random()}`,
-      senderId: localParticipant.id,
-      senderName: localParticipant.displayName || "Você",
-      message: messageText,
-      timestamp: new Date(),
-    };
-    
-    // Add to local state immediately
-    setMessages((prev) => {
-      const updated = [...prev, newMessage];
-      if (meetingId) {
-        sessionMessages.set(meetingId, updated);
-      }
-      return updated;
-    });
-    
-    // Publish to other participants
-    publish(messageText, { persist: true });
-  }, [publish, localParticipant, meetingId]);
+  const handleSendMessage = useCallback(
+    (messageText: string) => {
+      if (!localParticipant) return;
+
+      console.log("[VideoRoom] Sending message:", messageText);
+
+      // Create local message object
+      const newMessage: ChatMessage = {
+        id: `${Date.now()}-${localParticipant.id}-${Math.random()}`,
+        senderId: localParticipant.id,
+        senderName: localParticipant.displayName || "Você",
+        message: messageText,
+        timestamp: new Date(),
+      };
+
+      // Add to local state immediately
+      setMessages((prev) => {
+        const updated = [...prev, newMessage];
+        if (meetingId) {
+          sessionMessages.set(meetingId, updated);
+        }
+        return updated;
+      });
+
+      // Publish to other participants
+      publish(messageText, { persist: true });
+    },
+    [publish, localParticipant, meetingId],
+  );
 
   // Reset unread count when chat is opened
   useEffect(() => {
@@ -333,8 +318,7 @@ const MeetingView: React.FC<{
   useEffect(() => {
     const interval = setInterval(() => {
       const currentIds = [...participants.keys()];
-      if (currentIds.length !== participantIds.length || 
-          currentIds.some((id, i) => id !== participantIds[i])) {
+      if (currentIds.length !== participantIds.length || currentIds.some((id, i) => id !== participantIds[i])) {
         console.log("[VideoRoom] Detected participant change via interval:", currentIds);
         setParticipantIds(currentIds);
       }
@@ -399,17 +383,14 @@ const MeetingView: React.FC<{
 
     try {
       const headers = getApiHeaders();
-      const response = await fetch(
-        "https://api-portalpaciente-web.samel.com.br/api/Agenda/ListarFilaTele",
-        {
-          method: "POST",
-          headers,
-          body: JSON.stringify({
-            idAgenda: idAgenda,
-            idCliente: idCliente
-          })
-        }
-      );
+      const response = await fetch("https://api-portalpaciente-web.samel.com.br/api/Agenda/ListarFilaTele", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          idAgenda: idAgenda,
+          idCliente: idCliente,
+        }),
+      });
 
       const data = await response.json();
 
@@ -433,7 +414,6 @@ const MeetingView: React.FC<{
     return participantIds.length === 1 && participantIds[0] === localParticipant?.id;
   }, [participantIds, localParticipant?.id]);
 
-
   // Calculate grid columns based on participant count
   const gridClass = useMemo(() => {
     const count = participantIds.length;
@@ -450,9 +430,7 @@ const MeetingView: React.FC<{
         <div className="text-center space-y-4">
           <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
           <p className="text-lg font-medium">Entrando na consulta...</p>
-          <p className="text-sm text-muted-foreground">
-            Aguarde enquanto conectamos você
-          </p>
+          <p className="text-sm text-muted-foreground">Aguarde enquanto conectamos você</p>
         </div>
       </div>
     );
@@ -464,37 +442,26 @@ const MeetingView: React.FC<{
       <div className="flex flex-col border-b bg-background/95 backdrop-blur">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
-            <h1 className="text-lg font-semibold">
-              Consulta Online
-            </h1>
+            <h1 className="text-lg font-semibold">Consulta Online</h1>
             <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
               {participantIds.length} participante(s)
             </span>
           </div>
           <Button variant="ghost" size="icon" onClick={toggleFullscreen}>
-            {isFullscreen ? (
-              <Minimize2 className="h-5 w-5" />
-            ) : (
-              <Maximize2 className="h-5 w-5" />
-            )}
+            {isFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
           </Button>
         </div>
-        
+
         {/* Waiting message when patient is alone */}
         {isPatientAlone && (
           <div className="px-4 pb-3">
             <div className="flex items-center gap-3 p-3 bg-primary/10 border border-primary/20 rounded-lg">
               <Clock className="h-5 w-5 text-primary flex-shrink-0 animate-pulse" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground">
-                  Aguarde, o profissional entrará em instantes
-                </p>
+                <p className="text-sm font-medium text-foreground">Aguarde, o profissional entrará em instantes</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Enquanto isso, você pode{" "}
-                  <button 
-                    onClick={handleViewQueue}
-                    className="text-primary hover:underline font-medium"
-                  >
+                  <button onClick={handleViewQueue} className="text-primary hover:underline font-medium">
                     ver sua posição na fila
                   </button>
                 </p>
@@ -507,12 +474,7 @@ const MeetingView: React.FC<{
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Video Area - Grid Layout */}
-        <div
-          className={cn(
-            "flex-1 p-4 pb-24 overflow-auto",
-            (chatOpen || participantsOpen) && "lg:mr-80"
-          )}
-        >
+        <div className={cn("flex-1 p-4 pb-24 overflow-auto", (chatOpen || participantsOpen) && "lg:mr-80")}>
           {participantIds.length > 0 ? (
             <div className={cn("grid gap-3 h-full auto-rows-fr", gridClass)}>
               {participantIds.map((id) => (
@@ -523,9 +485,7 @@ const MeetingView: React.FC<{
                     isMainView={participantIds.length <= 2}
                     isPinned={pinnedParticipant === id}
                     onPin={(participantId) =>
-                      setPinnedParticipant((prev) =>
-                        prev === participantId ? null : participantId
-                      )
+                      setPinnedParticipant((prev) => (prev === participantId ? null : participantId))
                     }
                   />
                 </div>
@@ -533,9 +493,7 @@ const MeetingView: React.FC<{
             </div>
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-muted rounded-xl">
-              <p className="text-muted-foreground">
-                Aguardando participantes...
-              </p>
+              <p className="text-muted-foreground">Aguardando participantes...</p>
             </div>
           )}
         </div>
@@ -544,7 +502,7 @@ const MeetingView: React.FC<{
         {(chatOpen || participantsOpen) && (
           <div className="hidden lg:flex lg:flex-col w-80 border-l absolute right-0 top-[73px] bottom-[80px]">
             {chatOpen && (
-              <ChatPanel 
+              <ChatPanel
                 onClose={() => setChatOpen(false)}
                 messages={messages}
                 onSendMessage={handleSendMessage}
@@ -553,9 +511,7 @@ const MeetingView: React.FC<{
                 cdMedico={cdMedico}
               />
             )}
-            {participantsOpen && !chatOpen && (
-              <ParticipantsList onClose={() => setParticipantsOpen(false)} />
-            )}
+            {participantsOpen && !chatOpen && <ParticipantsList onClose={() => setParticipantsOpen(false)} />}
           </div>
         )}
       </div>
@@ -564,7 +520,7 @@ const MeetingView: React.FC<{
       {(chatOpen || participantsOpen) && (
         <div className="lg:hidden fixed inset-0 z-50 bg-background flex flex-col">
           {chatOpen && (
-            <ChatPanel 
+            <ChatPanel
               onClose={() => setChatOpen(false)}
               messages={messages}
               onSendMessage={handleSendMessage}
@@ -573,9 +529,7 @@ const MeetingView: React.FC<{
               cdMedico={cdMedico}
             />
           )}
-          {participantsOpen && !chatOpen && (
-            <ParticipantsList onClose={() => setParticipantsOpen(false)} />
-          )}
+          {participantsOpen && !chatOpen && <ParticipantsList onClose={() => setParticipantsOpen(false)} />}
         </div>
       )}
 
@@ -608,7 +562,7 @@ const MeetingView: React.FC<{
               Fila de Atendimento
             </DialogTitle>
           </DialogHeader>
-          
+
           {queueLoading ? (
             <div className="space-y-3">
               <Skeleton className="h-24 w-full" />
@@ -624,47 +578,38 @@ const MeetingView: React.FC<{
             <div className="space-y-3">
               {queueData.map((item, index) => {
                 const isCurrentPatient = item.idCliente === idCliente;
-                const statusDisplay = ["AC", "O", "M"].includes(item.status) 
-                  ? item.statusDescricao 
+                const statusDisplay = ["AC", "O", "M"].includes(item.status)
+                  ? item.statusDescricao
                   : "Paciente ainda não chegou";
-                
+
                 return (
-                  <Card 
-                    key={index} 
-                    className={cn(
-                      "transition-all",
-                      isCurrentPatient && "ring-2 ring-primary bg-primary/5"
-                    )}
+                  <Card
+                    key={index}
+                    className={cn("transition-all", isCurrentPatient && "ring-2 ring-primary bg-primary/5")}
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium text-sm">
-                              Posição {index + 1}
-                            </span>
+                            <span className="font-medium text-sm">Posição {index + 1}</span>
                             {isCurrentPatient && (
                               <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
                                 Você
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-muted-foreground">
-                            Horário: {item.horario || "-"}
-                          </p>
+                          <p className="text-xs text-muted-foreground">Horário: {item.horario || "-"}</p>
                           {item.horaChegada && (
-                            <p className="text-xs text-muted-foreground">
-                              Check-in: {item.horaChegada}
-                            </p>
+                            <p className="text-xs text-muted-foreground">Check-in: {item.horaChegada}</p>
                           )}
                         </div>
                         <div className="text-right">
-                          <span className={cn(
-                            "text-xs px-2 py-1 rounded-full",
-                            isCurrentPatient 
-                              ? "bg-primary/20 text-primary" 
-                              : "bg-muted text-muted-foreground"
-                          )}>
+                          <span
+                            className={cn(
+                              "text-xs px-2 py-1 rounded-full",
+                              isCurrentPatient ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground",
+                            )}
+                          >
                             {statusDisplay}
                           </span>
                         </div>
@@ -692,8 +637,8 @@ const VideoRoom: React.FC<VideoRoomProps> = ({
   nrAtendimento,
   cdMedico,
 }) => {
-  console.log("[VideoRoom] Rendering with:", { 
-    roomId, 
+  console.log("[VideoRoom] Rendering with:", {
+    roomId,
     tokenPresent: !!token && token.length > 0,
     tokenLength: token?.length,
     participantName,
@@ -724,13 +669,20 @@ const VideoRoom: React.FC<VideoRoomProps> = ({
         name: participantName,
         debugMode: true,
         multiStream: false,
-        maxResolution: 'hd',
-        defaultCamera: 'front',
+        maxResolution: "hd",
+        defaultCamera: "front",
       }}
       token={token}
       joinWithoutUserInteraction={true}
     >
-      <MeetingView onLeave={onLeave} roomName={`Consulta - ${roomId}`} idAgenda={idAgenda} idCliente={idCliente} nrAtendimento={nrAtendimento} cdMedico={cdMedico} />
+      <MeetingView
+        onLeave={onLeave}
+        roomName={`Consulta - ${roomId}`}
+        idAgenda={idAgenda}
+        idCliente={idCliente}
+        nrAtendimento={nrAtendimento}
+        cdMedico={cdMedico}
+      />
     </MeetingProvider>
   );
 };
