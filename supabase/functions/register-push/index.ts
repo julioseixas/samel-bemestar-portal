@@ -9,6 +9,8 @@ const corsHeaders = {
 // Whitelist of valid push service domains
 const VALID_PUSH_SERVICES = [
   'fcm.googleapis.com',
+  'push.google.com',
+  'content-push.googleapis.com',
   'updates.push.services.mozilla.com',
   'notify.windows.com',
   'push.apple.com',
@@ -76,9 +78,13 @@ serve(async (req) => {
       );
     }
 
+    // Log the endpoint for debugging
+    console.log('[register-push] Received endpoint:', subscription.endpoint);
+
     // Validate endpoint is from a legitimate push service
     if (!isValidEndpoint(subscription.endpoint)) {
-      console.error('[register-push] Invalid push service endpoint:', subscription.endpoint);
+      console.error('[register-push] Invalid push service endpoint. Endpoint:', subscription.endpoint);
+      console.error('[register-push] Hostname extracted:', new URL(subscription.endpoint).hostname);
       return new Response(
         JSON.stringify({ error: 'Invalid push service endpoint' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
