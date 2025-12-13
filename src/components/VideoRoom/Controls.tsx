@@ -135,7 +135,7 @@ const Controls: React.FC<ControlsProps> = ({
         setTokenData(null);
       }
     } catch (error) {
-      console.error("Error fetching token:", error);
+      // Error fetching token
     } finally {
       setIsFetchingToken(false);
     }
@@ -176,7 +176,6 @@ const Controls: React.FC<ControlsProps> = ({
         toast.error("Erro ao gerar token");
       }
     } catch (error) {
-      console.error("Error generating token:", error);
       toast.error("Erro ao gerar token");
     } finally {
       setIsGeneratingToken(false);
@@ -225,7 +224,7 @@ const Controls: React.FC<ControlsProps> = ({
           setSelectedVideoDevice(video[0].deviceId);
         }
       } catch (error) {
-        console.error("Error enumerating devices:", error);
+        // Error enumerating devices
       }
     };
 
@@ -244,7 +243,6 @@ const Controls: React.FC<ControlsProps> = ({
       await changeMic(deviceId);
       toast.success("Microfone alterado");
     } catch (error) {
-      console.error("Error changing mic:", error);
       toast.error("Erro ao alterar microfone");
     }
   };
@@ -255,7 +253,6 @@ const Controls: React.FC<ControlsProps> = ({
       await changeWebcam(deviceId);
       toast.success("Câmera alterada");
     } catch (error) {
-      console.error("Error changing camera:", error);
       toast.error("Erro ao alterar câmera");
     }
   };

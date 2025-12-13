@@ -42,7 +42,6 @@ export const usePushNotifications = (idCliente?: string) => {
   // Register service worker
   const registerServiceWorker = useCallback(async (): Promise<ServiceWorkerRegistration | null> => {
     if (!('serviceWorker' in navigator)) {
-      console.log('[Push] Service Worker not supported');
       return null;
     }
 
@@ -50,15 +49,12 @@ export const usePushNotifications = (idCliente?: string) => {
       const registration = await navigator.serviceWorker.register('/sw.js', {
         scope: '/'
       });
-      console.log('[Push] Service Worker registered:', registration.scope);
       
       // Wait for the service worker to be ready
       await navigator.serviceWorker.ready;
-      console.log('[Push] Service Worker ready');
       
       return registration;
     } catch (error) {
-      console.error('[Push] Service Worker registration failed:', error);
       return null;
     }
   }, []);
@@ -69,13 +65,11 @@ export const usePushNotifications = (idCliente?: string) => {
       const { data, error } = await supabase.functions.invoke('get-vapid-public-key');
       
       if (error) {
-        console.error('[Push] Error fetching VAPID key:', error);
         return null;
       }
       
       return data?.publicKey || null;
     } catch (error) {
-      console.error('[Push] Error fetching VAPID key:', error);
       return null;
     }
   }, []);
@@ -83,7 +77,6 @@ export const usePushNotifications = (idCliente?: string) => {
   // Request notification permission
   const requestPermission = useCallback(async (): Promise<NotificationPermission> => {
     if (!('Notification' in window)) {
-      console.log('[Push] Notifications not supported');
       return 'denied';
     }
 
@@ -108,7 +101,6 @@ export const usePushNotifications = (idCliente?: string) => {
       
       return permission;
     } catch (error) {
-      console.error('[Push] Error requesting permission:', error);
       return 'denied';
     }
   }, []);
@@ -116,7 +108,6 @@ export const usePushNotifications = (idCliente?: string) => {
   // Subscribe to push notifications
   const subscribe = useCallback(async (): Promise<boolean> => {
     if (!idCliente) {
-      console.error('[Push] No idCliente provided');
       return false;
     }
 
@@ -154,8 +145,6 @@ export const usePushNotifications = (idCliente?: string) => {
         applicationServerKey: applicationServerKey.buffer as ArrayBuffer
       });
 
-      console.log('[Push] Push subscription created:', subscription);
-
       // 5. Send subscription to server
       const { error } = await supabase.functions.invoke('register-push', {
         body: {
@@ -170,11 +159,9 @@ export const usePushNotifications = (idCliente?: string) => {
       }
 
       setState(prev => ({ ...prev, isSubscribed: true, isLoading: false }));
-      console.log('[Push] Subscription registered successfully');
       return true;
 
     } catch (error) {
-      console.error('[Push] Subscription error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       setState(prev => ({ ...prev, isLoading: false, error: errorMessage }));
       toast.error('Erro ao ativar notificações. Tente novamente.');
@@ -190,13 +177,11 @@ export const usePushNotifications = (idCliente?: string) => {
       
       if (subscription) {
         await subscription.unsubscribe();
-        console.log('[Push] Unsubscribed successfully');
       }
       
       setState(prev => ({ ...prev, isSubscribed: false }));
       return true;
     } catch (error) {
-      console.error('[Push] Unsubscribe error:', error);
       return false;
     }
   }, []);
@@ -226,14 +211,11 @@ export const usePushNotifications = (idCliente?: string) => {
       });
 
       if (error) {
-        console.error('[Push] Error sending notification:', error);
         return false;
       }
 
-      console.log('[Push] Notification sent:', data);
       return data?.success || false;
     } catch (error) {
-      console.error('[Push] Error sending notification:', error);
       return false;
     }
   }, [idCliente]);
@@ -248,7 +230,7 @@ export const usePushNotifications = (idCliente?: string) => {
         const subscription = await registration.pushManager.getSubscription();
         setState(prev => ({ ...prev, isSubscribed: !!subscription }));
       } catch (error) {
-        console.log('[Push] Error checking subscription:', error);
+        // Error checking subscription
       }
     };
 
@@ -259,10 +241,8 @@ export const usePushNotifications = (idCliente?: string) => {
   const triggerAndroidNotification = useCallback((title: string, message: string) => {
     if (window.AndroidNotificationBridge) {
       window.AndroidNotificationBridge.triggerTestNotification(title, message);
-      console.log('[Push] Android notification triggered:', title, message);
       return true;
     }
-    console.log('[Push] AndroidNotificationBridge not available');
     return false;
   }, []);
 
@@ -274,13 +254,11 @@ export const usePushNotifications = (idCliente?: string) => {
     // Try Android bridge first (for WebView)
     if (window.AndroidNotificationBridge) {
       window.AndroidNotificationBridge.triggerTestNotification(title, message);
-      console.log('[Push] Test notification sent via Android bridge');
       return true;
     }
 
     // Fallback to browser notification
     if (!('Notification' in window) || Notification.permission !== 'granted') {
-      console.log('[Push] Cannot send test notification - permission not granted');
       return false;
     }
 
@@ -300,10 +278,8 @@ export const usePushNotifications = (idCliente?: string) => {
       // Auto close after 5 seconds
       setTimeout(() => notification.close(), 5000);
 
-      console.log('[Push] Test notification sent successfully');
       return true;
     } catch (error) {
-      console.error('[Push] Error sending test notification:', error);
       return false;
     }
   }, []);

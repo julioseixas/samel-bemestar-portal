@@ -79,7 +79,7 @@ const OnlineConsultationDetails = () => {
         const patientData = JSON.parse(storedSelectedPatient);
         setPatientId(String(patientData.id || ""));
       } catch (e) {
-        console.error("Error parsing patient data:", e);
+        // Error parsing patient data
       }
       fetchAppointments(storedSelectedPatient);
     } else {
@@ -526,60 +526,6 @@ const OnlineConsultationDetails = () => {
           </div>
 
           <TelemedicineHelpSection variant="full" />
-
-          {/* Push Notification Banners - DEBUG: Always visible */}
-          <Alert className="mb-4 border-green-500 bg-green-500/10">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <AlertDescription className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <span className="text-sm text-green-700 dark:text-green-400">
-                <strong>Notificações ativadas!</strong> Você será avisado quando o médico entrar na sala.
-              </span>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={sendTestNotification}
-                className="whitespace-nowrap border-green-500 text-green-700 hover:bg-green-500/20 dark:text-green-400"
-              >
-                <Bell className="h-3 w-3 mr-1" />
-                Testar
-              </Button>
-            </AlertDescription>
-          </Alert>
-
-          {isPushSupported && (
-            <>
-
-              {/* Permission Denied Banner */}
-              {permission === "denied" && (
-                <Alert className="mb-4 border-destructive bg-destructive/10">
-                  <XCircle className="h-4 w-4 text-destructive" />
-                  <AlertDescription className="text-sm text-destructive">
-                    <strong>Notificações bloqueadas.</strong> Para ativar, acesse as configurações do navegador e permita notificações para este site.
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              {/* Prompt to Enable - Not subscribed yet */}
-              {permission !== "denied" && !isSubscribed && (
-                <Alert className="mb-4 border-primary bg-primary/10">
-                  <Bell className="h-4 w-4 text-primary" />
-                  <AlertDescription className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                    <span className="text-sm">
-                      Ative as notificações para saber quando o médico entrar na sala
-                    </span>
-                    <Button
-                      size="sm"
-                      onClick={handleSubscribe}
-                      disabled={isPushLoading}
-                      className="whitespace-nowrap"
-                    >
-                      {isPushLoading ? "Ativando..." : "Ativar Notificações"}
-                    </Button>
-                  </AlertDescription>
-                </Alert>
-              )}
-            </>
-          )}
 
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

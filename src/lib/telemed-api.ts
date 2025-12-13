@@ -38,8 +38,6 @@ interface CreateConsultationRoomResponse {
  * Step 1: Get Samel Telemed token
  */
 export const getTelemedToken = async (): Promise<string> => {
-  console.log("[Telemed] Getting token...");
-  
   const response = await fetch(`${TELEMED_BASE_URL}/token`, {
     method: "GET",
     headers: {
@@ -52,7 +50,6 @@ export const getTelemedToken = async (): Promise<string> => {
   }
 
   const data: TelemedTokenResponse = await response.json();
-  console.log("[Telemed] Token obtained successfully");
   return data.data.token;
 };
 
@@ -63,8 +60,6 @@ export const getRoomByAtendimento = async (
   nrAtendimento: number | string,
   samelToken: string
 ): Promise<RoomCheckResponse | null> => {
-  console.log("[Telemed] Checking existing room for atendimento:", nrAtendimento);
-  
   const response = await fetch(
     `${TELEMED_BASE_URL}/room/getRoomByAtendimento/${nrAtendimento}`,
     {
@@ -77,18 +72,15 @@ export const getRoomByAtendimento = async (
   );
 
   if (!response.ok) {
-    console.log("[Telemed] No existing room found or error");
     return null;
   }
 
   const data: RoomCheckResponse = await response.json();
   
   if (!data.data?.ID_SALA || data.status === false) {
-    console.log("[Telemed] Room check returned empty/false");
     return null;
   }
 
-  console.log("[Telemed] Existing room found:", data.data.ID_SALA);
   return data;
 };
 
@@ -100,8 +92,6 @@ export const createRoom = async (
   samelToken: string,
   nrAtendimento: number | string
 ): Promise<{ roomId: string; videoSdkToken: string }> => {
-  console.log("[Telemed] Creating new room...");
-  
   const response = await fetch(`${TELEMED_BASE_URL}/room/createRoom`, {
     method: "POST",
     headers: {
@@ -121,8 +111,6 @@ export const createRoom = async (
 
   const data: CreateRoomResponse = await response.json();
   
-  console.log("[Telemed] Room created:", data.data.createRoom.roomId);
-  
   return {
     roomId: data.data.createRoom.roomId,
     videoSdkToken: data.data.createRoom.token,
@@ -137,8 +125,6 @@ export const createConsultationRoom = async (
   idSala: string,
   nrAtendimento: string | number
 ): Promise<boolean> => {
-  console.log("[Telemed] Persisting room in database...");
-  
   const response = await fetch(`${TELEMED_BASE_URL}/createConsultationRoom`, {
     method: "POST",
     headers: {
@@ -152,12 +138,10 @@ export const createConsultationRoom = async (
   });
 
   if (!response.ok) {
-    console.error("[Telemed] Failed to persist room");
     return false;
   }
 
   const data: CreateConsultationRoomResponse = await response.json();
-  console.log("[Telemed] Room persisted, rows affected:", data.rowsAffected);
   
   return data.success || (data.rowsAffected !== undefined && data.rowsAffected >= 1);
 };
@@ -177,8 +161,6 @@ export const getOrCreateVideoRoom = async (
   const existingRoom = await getRoomByAtendimento(nrAtendimento, samelToken);
 
   if (existingRoom?.data?.ID_SALA) {
-    // Room exists, use existing room with the current token
-    console.log("[Telemed] Using existing room:", existingRoom.data.ID_SALA);
     return { 
       roomId: existingRoom.data.ID_SALA, 
       videoSdkToken: samelToken 
@@ -186,7 +168,6 @@ export const getOrCreateVideoRoom = async (
   }
 
   // Step 3: Create new room only if none exists
-  console.log("[Telemed] No existing room, creating new one...");
   const { roomId, videoSdkToken } = await createRoom(
     cdMedico,
     samelToken,

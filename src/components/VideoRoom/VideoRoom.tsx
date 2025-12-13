@@ -43,7 +43,7 @@ const playMessageSound = () => {
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.3);
   } catch (error) {
-    console.error("[VideoRoom] Error playing sound:", error);
+    // Error playing sound
   }
 };
 
@@ -68,7 +68,7 @@ const playParticipantJoinSound = () => {
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.5);
   } catch (error) {
-    console.error("[VideoRoom] Error playing join sound:", error);
+    // Error playing join sound
   }
 };
 const sessionMessages: Map<string, ChatMessage[]> = new Map();

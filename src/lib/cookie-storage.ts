@@ -96,10 +96,8 @@ export const saveAuthToCookies = (data: {
     
     // Salva apenas o token JWT (que já contém todas as informações necessárias)
     setCookie(AUTH_TOKEN_COOKIE, data.token, COOKIE_EXPIRATION_DAYS);
-    
-    console.log('[CookieStorage] Token de autenticação salvo no cookie');
   } catch (error) {
-    console.error('[CookieStorage] Erro ao salvar token no cookie:', error);
+    // Error saving auth to cookies
   }
 };
 
@@ -164,8 +162,6 @@ export const getAuthFromCookies = (): {
       });
     }
     
-    console.log('[CookieStorage] Dados de autenticação recuperados do cookie');
-    
     return {
       token,
       titular,
@@ -174,7 +170,6 @@ export const getAuthFromCookies = (): {
       rating: titular.rating?.toString() || '0',
     };
   } catch (error) {
-    console.error('[CookieStorage] Erro ao recuperar dados do cookie:', error);
     return null;
   }
 };
@@ -188,7 +183,6 @@ export const renewAuthCookies = (): boolean => {
     const token = getCookie(AUTH_TOKEN_COOKIE);
     
     if (!token) {
-      console.log('[CookieStorage] Nenhum token para renovar');
       return false;
     }
     
@@ -198,10 +192,8 @@ export const renewAuthCookies = (): boolean => {
     // Re-salva o token com nova expiração
     setCookie(AUTH_TOKEN_COOKIE, token, COOKIE_EXPIRATION_DAYS);
     
-    console.log('[CookieStorage] Expiração do cookie renovada por mais 30 dias');
     return true;
   } catch (error) {
-    console.error('[CookieStorage] Erro ao renovar cookie:', error);
     return false;
   }
 };
@@ -217,10 +209,8 @@ export const clearAuthCookies = (): void => {
     
     // Remove também cookies legados que podem existir
     clearLegacyCookies();
-    
-    console.log('[CookieStorage] Cookies de autenticação removidos');
   } catch (error) {
-    console.error('[CookieStorage] Erro ao limpar cookies:', error);
+    // Error clearing auth cookies
   }
 };
 
