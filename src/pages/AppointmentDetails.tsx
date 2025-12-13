@@ -338,6 +338,7 @@ const AppointmentDetails = () => {
             id: prof.id.toString(),
             nome: prof.nome,
             dsEspecialidade: dsEspecialidade,
+            dsComplemento: prof.dsComplemento || null,
             ieSexo: prof.ieSexo,
             ie_sigla_conselho: prof.ieSiglaConselho,
             nr_conselho: prof.nrConselho,
