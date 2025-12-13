@@ -709,6 +709,7 @@ const MeetingView: React.FC<{
         selectedBackground={selectedBackground}
         onSelectBackground={handleSelectBackground}
         isBackgroundProcessing={isBackgroundProcessing}
+        isWebView={isWebView}
       />
 
       {/* Queue Modal */}
