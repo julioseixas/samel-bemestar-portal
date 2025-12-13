@@ -9,6 +9,7 @@ declare global {
     handlePictureInPictureChange?: (isInPictureInPictureMode: boolean) => void;
     AndroidNotificationBridge?: {
       triggerTestNotification: (title: string, message: string) => void;
+      setPipPermission: (isAllowed: boolean) => void;
     };
   }
 }
