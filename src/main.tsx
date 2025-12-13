@@ -10,6 +10,7 @@ declare global {
     AndroidNotificationBridge?: {
       triggerTestNotification: (title: string, message: string) => void;
       setPipPermission: (isAllowed: boolean) => void;
+      enterNativePictureInPicture: () => void;
     };
   }
 }
@@ -24,16 +25,18 @@ declare global {
 window.handlePictureInPictureChange = (isInPictureInPictureMode: boolean) => {
   console.log("PIP Status (Recebido do Android):", isInPictureInPictureMode);
 
-  // O próximo passo será usar essa informação para atualizar o estado React
-  // (ex: usando um Context/Redux) e fazer ajustes visuais via CSS/Classes.
-
   if (isInPictureInPictureMode) {
     document.body.classList.add("pip-active");
-    // Adicionar lógica de UI aqui (ex: pausar animações)
   } else {
     document.body.classList.remove("pip-active");
-    // Remover lógica de UI
   }
+
+  // Dispatch custom event for React components to listen
+  window.dispatchEvent(
+    new CustomEvent("androidPipModeChange", {
+      detail: { isInPipMode: isInPictureInPictureMode },
+    })
+  );
 };
 
 createRoot(document.getElementById("root")!).render(<App />);
