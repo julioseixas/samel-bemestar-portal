@@ -137,16 +137,13 @@ const MeetingView: React.FC<{
 
   const { leave, participants, localParticipant, meetingId, changeWebcam } = useMeeting({
     onMeetingJoined: () => {
-      console.log("[VideoRoom] Meeting joined");
       toast.success("Você entrou na consulta");
     },
     onMeetingLeft: () => {
-      console.log("[VideoRoom] Meeting left");
       toast.info("Você saiu da consulta");
       onLeave();
     },
     onParticipantJoined: async (participant) => {
-      console.log("[VideoRoom] Participant joined:", participant.displayName, "ID:", participant.id);
       toast.info(`${participant.displayName || "Participante"} entrou`);
 
       // Play sound when participant joins
@@ -158,7 +155,6 @@ const MeetingView: React.FC<{
       // Try Android bridge first (for WebView)
       if (window.AndroidNotificationBridge) {
         window.AndroidNotificationBridge.triggerTestNotification(notificationTitle, notificationBody);
-        console.log("[VideoRoom] Notification sent via Android bridge");
       } else if (document.hidden && Notification.permission === "granted") {
         // Fallback to browser notification if tab is in background
         try {
@@ -168,16 +164,14 @@ const MeetingView: React.FC<{
             tag: `participant-joined-${participant.id}`,
           });
         } catch (error) {
-          console.error("[VideoRoom] Error showing notification:", error);
+          // Error showing notification
         }
       }
     },
     onParticipantLeft: (participant) => {
-      console.log("[VideoRoom] Participant left:", participant.displayName, "ID:", participant.id);
       toast.info(`${participant.displayName || "Participante"} saiu`);
     },
     onError: (error) => {
-      console.error("[VideoRoom] Error:", error);
       toast.error("Erro na videochamada: " + error.message);
     },
   });
@@ -187,7 +181,6 @@ const MeetingView: React.FC<{
     if (meetingId) {
       const existingMessages = sessionMessages.get(meetingId) || [];
       setMessages(existingMessages);
-      console.log("[VideoRoom] Loaded persisted messages:", existingMessages.length);
     }
   }, [meetingId]);
 
@@ -226,7 +219,6 @@ const MeetingView: React.FC<{
         timestamp,
       };
     } catch (error) {
-      console.error("[VideoRoom] Error parsing message:", error);
       return null;
     }
   }, []);
@@ -234,11 +226,8 @@ const MeetingView: React.FC<{
   // Use PubSub for chat - THIS IS ALWAYS ACTIVE regardless of chat panel state
   const { publish } = usePubSub("CHAT", {
     onMessageReceived: (data: any) => {
-      console.log("[VideoRoom] Received raw message:", data, "chatOpen:", chatOpen);
-
       // IGNORE messages from self - we already added them locally in handleSendMessage
       if (data.senderId === localParticipant?.id) {
-        console.log("[VideoRoom] Ignoring own message from PubSub");
         return;
       }
 
@@ -255,7 +244,6 @@ const MeetingView: React.FC<{
         );
 
         if (isDuplicate) {
-          console.log("[VideoRoom] Duplicate message ignored");
           return prev;
         }
 
@@ -270,11 +258,9 @@ const MeetingView: React.FC<{
       });
 
       // Notify for new message from others when chat is closed
-      console.log("[VideoRoom] Message from other participant, chatOpen:", chatOpen);
       // Use functional update to check current chatOpen state
       setChatOpen((currentChatOpen) => {
         if (!currentChatOpen) {
-          console.log("[VideoRoom] Chat is closed, incrementing unread and playing sound");
           setUnreadMessages((prev) => prev + 1);
           playMessageSound();
         }
@@ -282,7 +268,6 @@ const MeetingView: React.FC<{
       });
     },
     onOldMessagesReceived: (oldMessages: any[]) => {
-      console.log("[VideoRoom] Received old messages:", oldMessages);
 
       if (!oldMessages || oldMessages.length === 0) return;
 
@@ -312,8 +297,6 @@ const MeetingView: React.FC<{
     (messageText: string) => {
       if (!localParticipant) return;
 
-      console.log("[VideoRoom] Sending message:", messageText);
-
       // Create local message object
       const newMessage: ChatMessage = {
         id: `${Date.now()}-${localParticipant.id}-${Math.random()}`,
@@ -341,7 +324,6 @@ const MeetingView: React.FC<{
   // Reset unread count when chat is opened
   useEffect(() => {
     if (chatOpen) {
-      console.log("[VideoRoom] Chat opened, resetting unread count");
       setUnreadMessages(0);
     }
   }, [chatOpen]);
@@ -349,7 +331,6 @@ const MeetingView: React.FC<{
   // Sync participant IDs with the participants Map
   useEffect(() => {
     const currentIds = [...participants.keys()];
-    console.log("[VideoRoom] Syncing participants:", currentIds);
     setParticipantIds(currentIds);
   }, [participants.size]);
 
@@ -358,7 +339,6 @@ const MeetingView: React.FC<{
     const interval = setInterval(() => {
       const currentIds = [...participants.keys()];
       if (currentIds.length !== participantIds.length || currentIds.some((id, i) => id !== participantIds[i])) {
-        console.log("[VideoRoom] Detected participant change via interval:", currentIds);
         setParticipantIds(currentIds);
       }
     }, 1000);
@@ -368,7 +348,6 @@ const MeetingView: React.FC<{
   // Monitora quando o meeting é joined via joinWithoutUserInteraction
   useEffect(() => {
     if (localParticipant) {
-      console.log("[VideoRoom] Local participant ready:", localParticipant.id);
       setIsJoining(false);
     }
   }, [localParticipant]);
@@ -377,7 +356,6 @@ const MeetingView: React.FC<{
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (isJoining) {
-        console.log("[VideoRoom] Join timeout - forcing loading off");
         setIsJoining(false);
       }
     }, 10000);
@@ -441,7 +419,6 @@ const MeetingView: React.FC<{
       setIsPipActive(true);
       toast.success("Modo Picture-in-Picture ativado");
     } catch (error) {
-      console.error("[VideoRoom] PiP error:", error);
       toast.error("Seu navegador não suporta Picture-in-Picture");
     }
   }, [participantIds, localParticipant?.id]);
@@ -493,7 +470,6 @@ const MeetingView: React.FC<{
         setQueueData([]);
       }
     } catch (error) {
-      console.error("[VideoRoom] Error fetching queue:", error);
       toast.error("Erro ao carregar fila de atendimento");
       setQueueData([]);
     } finally {
@@ -512,7 +488,7 @@ const MeetingView: React.FC<{
           try {
             await processorRef.current.stop();
           } catch (e) {
-            console.log("[VideoRoom] Error stopping previous processor:", e);
+            // Error stopping processor
           }
           processorRef.current = null;
         }
@@ -564,7 +540,6 @@ const MeetingView: React.FC<{
           toast.success(`Fundo "${option.label}" aplicado`);
         }
       } catch (error) {
-        console.error("[VideoRoom] Error applying background:", error);
         toast.error("Erro ao aplicar fundo virtual. Este recurso pode não ser suportado no seu navegador.");
       } finally {
         setIsBackgroundProcessing(false);
@@ -814,19 +789,8 @@ const VideoRoom: React.FC<VideoRoomProps> = ({
   nrAtendimento,
   cdMedico,
 }) => {
-  console.log("[VideoRoom] Rendering with:", {
-    roomId,
-    tokenPresent: !!token && token.length > 0,
-    tokenLength: token?.length,
-    participantName,
-    idAgenda,
-    idCliente,
-    nrAtendimento,
-  });
-
   // Validar token antes de renderizar
   if (!token || token.length === 0) {
-    console.error("[VideoRoom] Token inválido ou ausente!");
     return (
       <div className="fixed inset-0 bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
