@@ -416,6 +416,24 @@ const MeetingView: React.FC<{
     };
   }, []);
 
+  // Android PiP permission control
+  const setAndroidPipPermission = useCallback((isAllowed: boolean) => {
+    if (window.AndroidNotificationBridge?.setPipPermission) {
+      window.AndroidNotificationBridge.setPipPermission(isAllowed);
+    }
+  }, []);
+
+  // Control Android PiP permission on component lifecycle
+  useEffect(() => {
+    // Allow PiP when entering the call screen
+    setAndroidPipPermission(true);
+
+    return () => {
+      // Block PiP when leaving/unmounting the screen
+      setAndroidPipPermission(false);
+    };
+  }, [setAndroidPipPermission]);
+
   // Handle leave
   const handleLeave = () => {
     leave();
