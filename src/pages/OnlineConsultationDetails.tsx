@@ -527,29 +527,27 @@ const OnlineConsultationDetails = () => {
 
           <TelemedicineHelpSection variant="full" />
 
-          {/* Push Notification Banners */}
+          {/* Push Notification Banners - DEBUG: Always visible */}
+          <Alert className="mb-4 border-green-500 bg-green-500/10">
+            <CheckCircle className="h-4 w-4 text-green-600" />
+            <AlertDescription className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <span className="text-sm text-green-700 dark:text-green-400">
+                <strong>Notificações ativadas!</strong> Você será avisado quando o médico entrar na sala.
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={sendTestNotification}
+                className="whitespace-nowrap border-green-500 text-green-700 hover:bg-green-500/20 dark:text-green-400"
+              >
+                <Bell className="h-3 w-3 mr-1" />
+                Testar
+              </Button>
+            </AlertDescription>
+          </Alert>
+
           {isPushSupported && (
             <>
-              {/* Success Banner - Notifications Active */}
-              {isSubscribed && permission === "granted" && (
-                <Alert className="mb-4 border-green-500 bg-green-500/10">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  <AlertDescription className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                    <span className="text-sm text-green-700 dark:text-green-400">
-                      <strong>Notificações ativadas!</strong> Você será avisado quando o médico entrar na sala.
-                    </span>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={sendTestNotification}
-                      className="whitespace-nowrap border-green-500 text-green-700 hover:bg-green-500/20 dark:text-green-400"
-                    >
-                      <Bell className="h-3 w-3 mr-1" />
-                      Testar
-                    </Button>
-                  </AlertDescription>
-                </Alert>
-              )}
 
               {/* Permission Denied Banner */}
               {permission === "denied" && (
