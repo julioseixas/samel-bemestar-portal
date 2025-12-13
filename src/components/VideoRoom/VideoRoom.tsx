@@ -7,7 +7,7 @@ import Controls from "./Controls";
 import ChatPanel, { ChatMessage } from "./ChatPanel";
 import ParticipantsList from "./ParticipantsList";
 import { BackgroundOption, BACKGROUND_OPTIONS } from "./BackgroundSelector";
-import { Maximize2, Minimize2, Loader2, Clock, Users } from "lucide-react";
+import { Maximize2, Minimize2, Loader2, Clock, Users, PictureInPicture2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getApiHeaders } from "@/lib/api-headers";
@@ -102,7 +102,20 @@ const MeetingView: React.FC<{
   const [queueLoading, setQueueLoading] = useState(false);
   const [selectedBackground, setSelectedBackground] = useState<string>("none");
   const [isBackgroundProcessing, setIsBackgroundProcessing] = useState(false);
+  const [isPipActive, setIsPipActive] = useState(false);
   const processorRef = useRef<any>(null);
+  const pipVideoRef = useRef<HTMLVideoElement | null>(null);
+
+  // Detect if running in WebView (Android or iOS)
+  const isWebView = useMemo(() => {
+    const ua = navigator.userAgent.toLowerCase();
+    return (
+      ua.includes("wv") || // Android WebView
+      ua.includes("webview") ||
+      (window as any).AndroidBridge !== undefined ||
+      (window as any).webkit?.messageHandlers !== undefined
+    );
+  }, []);
 
   // Push notifications hook
   const { sendNotification } = usePushNotifications(idCliente);
@@ -378,6 +391,59 @@ const MeetingView: React.FC<{
     };
   }, []);
 
+  // Toggle Picture-in-Picture mode
+  const togglePictureInPicture = useCallback(async () => {
+    try {
+      if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture();
+        setIsPipActive(false);
+        return;
+      }
+
+      // Find the first remote participant's video, or local if alone
+      const remoteId = participantIds.find(id => id !== localParticipant?.id) || localParticipant?.id;
+      if (!remoteId) {
+        toast.error("Nenhum vídeo disponível para PiP");
+        return;
+      }
+
+      // Find the video element for this participant
+      const videoElements = document.querySelectorAll('video');
+      let targetVideo: HTMLVideoElement | null = null;
+
+      for (const video of videoElements) {
+        if (video.srcObject && (video.srcObject as MediaStream).active) {
+          targetVideo = video;
+          break;
+        }
+      }
+
+      if (!targetVideo) {
+        toast.error("Nenhum stream de vídeo ativo para PiP");
+        return;
+      }
+
+      await targetVideo.requestPictureInPicture();
+      setIsPipActive(true);
+      toast.success("Modo Picture-in-Picture ativado");
+    } catch (error) {
+      console.error("[VideoRoom] PiP error:", error);
+      toast.error("Seu navegador não suporta Picture-in-Picture");
+    }
+  }, [participantIds, localParticipant?.id]);
+
+  // Listen for PiP exit
+  useEffect(() => {
+    const handlePipExit = () => {
+      setIsPipActive(false);
+    };
+    
+    document.addEventListener("leavepictureinpicture", handlePipExit);
+    return () => {
+      document.removeEventListener("leavepictureinpicture", handlePipExit);
+    };
+  }, []);
+
   // Handle leave
   const handleLeave = () => {
     leave();
@@ -528,9 +594,26 @@ const MeetingView: React.FC<{
               {participantIds.length} participante(s)
             </span>
           </div>
-          <Button variant="ghost" size="icon" onClick={toggleFullscreen}>
-            {isFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
-          </Button>
+          <div className="flex items-center gap-1">
+            {/* PiP Button - always visible */}
+            {'pictureInPictureEnabled' in document && (
+              <Button 
+                variant={isPipActive ? "default" : "ghost"} 
+                size="icon" 
+                onClick={togglePictureInPicture}
+                title="Picture-in-Picture"
+              >
+                <PictureInPicture2 className="h-5 w-5" />
+              </Button>
+            )}
+            
+            {/* Fullscreen Button - hidden in WebView */}
+            {!isWebView && (
+              <Button variant="ghost" size="icon" onClick={toggleFullscreen}>
+                {isFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Waiting message when patient is alone */}
