@@ -70,29 +70,6 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
   const [showContactDialog, setShowContactDialog] = useState(false);
   const [showTermsDialog, setShowTermsDialog] = useState(false);
 
-  const ThemeWrapper = ({ children }) => {
-    const { theme, setTheme } = useTheme();
-
-    // 1. Expõe a função para o Android
-    useEffect(() => {
-      // Expor a função globalmente para o WebView nativo
-      window.setThemeFromAndroid = (newTheme) => {
-        setTheme(newTheme);
-        // Opcional: Persistir no localStorage se next-themes não o fizer imediatamente
-      };
-
-      // 2. Opcional: Notificar o Android sobre o tema atual ao carregar
-      if (window.AndroidBridge && typeof window.AndroidBridge.notifyThemeChange === "function") {
-        window.AndroidBridge.notifyThemeChange(theme);
-      }
-
-      return () => {
-        window.setThemeFromAndroid = null;
-      };
-    }, [setTheme, theme]);
-
-    return <>{children}</>;
-  };
 
   const loadNotifications = () => {
     const storedNotifications = localStorage.getItem("notifications");
