@@ -6,6 +6,9 @@ import "./index.css";
 declare global {
   interface Window {
     handlePictureInPictureChange?: (isInPictureInPictureMode: boolean) => void;
+    AndroidNotificationBridge?: {
+      triggerTestNotification: (title: string, message: string) => void;
+    };
   }
 }
 

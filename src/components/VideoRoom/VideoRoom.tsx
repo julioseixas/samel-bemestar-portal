@@ -118,7 +118,7 @@ const MeetingView: React.FC<{
   }, []);
 
   // Push notifications hook
-  const { sendNotification } = usePushNotifications(idCliente);
+  const { sendNotification, triggerAndroidNotification } = usePushNotifications(idCliente);
 
   // Load saved background preference
   useEffect(() => {
@@ -145,11 +145,18 @@ const MeetingView: React.FC<{
       // Play sound when participant joins
       playParticipantJoinSound();
 
-      // Show browser notification if tab is in background
-      if (document.hidden && Notification.permission === "granted") {
+      const notificationTitle = "Consulta Online - Samel";
+      const notificationBody = `${participant.displayName || "O profissional"} entrou na sala de consulta!`;
+
+      // Try Android bridge first (for WebView)
+      if (window.AndroidNotificationBridge) {
+        window.AndroidNotificationBridge.triggerTestNotification(notificationTitle, notificationBody);
+        console.log("[VideoRoom] Notification sent via Android bridge");
+      } else if (document.hidden && Notification.permission === "granted") {
+        // Fallback to browser notification if tab is in background
         try {
-          new Notification("Consulta Online - Samel", {
-            body: `${participant.displayName || "O profissional"} entrou na sala de consulta!`,
+          new Notification(notificationTitle, {
+            body: notificationBody,
             icon: "/favicon.png",
             tag: `participant-joined-${participant.id}`,
           });
