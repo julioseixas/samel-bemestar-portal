@@ -41,19 +41,11 @@ const VideoConsultation = () => {
       }
 
       try {
-        console.log("[VideoConsultation] Initializing room...", {
-          nrAtendimento,
-          cdMedico,
-          cdPessoaFisica,
-        });
-
         const { roomId, videoSdkToken } = await getOrCreateVideoRoom(
           nrAtendimento,
           cdMedico,
           cdPessoaFisica
         );
-
-        console.log("[VideoConsultation] Room ready:", roomId);
 
         setRoomData({
           roomId,
@@ -62,7 +54,6 @@ const VideoConsultation = () => {
         });
         setConnectionState("ready");
       } catch (err) {
-        console.error("[VideoConsultation] Error initializing room:", err);
         setError(
           err instanceof Error
             ? err.message
@@ -192,15 +183,7 @@ const VideoConsultation = () => {
 
   // Connected state - video room
   if (connectionState === "connected" && roomData) {
-    console.log("[VideoConsultation] Passing to VideoRoom:", {
-      roomId: roomData.roomId,
-      tokenPresent: !!roomData.token,
-      tokenLength: roomData.token?.length,
-      participantName: roomData.participantName,
-    });
-    
     if (!roomData.token) {
-      console.error("[VideoConsultation] Token is missing!");
       return (
         <div className="min-h-screen bg-background flex items-center justify-center p-4">
           <Alert variant="destructive">

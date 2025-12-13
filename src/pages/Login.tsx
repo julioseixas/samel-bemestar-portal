@@ -152,7 +152,7 @@ const Login = () => {
                   localStorage.setItem("notifications", JSON.stringify(notificacoesData.dados));
                 }
               } catch (notifError) {
-                console.error("Erro ao buscar notificações:", notifError);
+                // Error fetching notifications
               }
 
               // Busca a foto do perfil
@@ -174,7 +174,7 @@ const Login = () => {
                   localStorage.setItem("profilePhoto", fotoData.dados);
                 }
               } catch (fotoError) {
-                console.error("Erro ao buscar foto de perfil:", fotoError);
+                // Error fetching profile photo
               }
 
               // Busca agendamentos (consultas e exames)
@@ -217,11 +217,11 @@ const Login = () => {
                   exames: examesData
                 }));
               } catch (appointmentsError) {
-                console.error("Erro ao buscar agendamentos:", appointmentsError);
+                // Error fetching appointments
               }
             }
           } catch (jwtError) {
-            console.error("Erro ao processar JWT:", jwtError);
+            // Error processing JWT
           }
         }
 
