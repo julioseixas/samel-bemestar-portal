@@ -16,13 +16,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-if (
-  (window as any).__webpack_public_path__ === undefined &&
-  (navigator.userAgent.toLowerCase().includes("wv") || navigator.userAgent.toLowerCase().includes("webview"))
-) {
-  (window as any).__webpack_public_path__ = "https://samel-bemestar-portal.lovable.app/";
-}
-
 // Sound notification helper
 const playMessageSound = () => {
   try {
@@ -112,17 +105,6 @@ const MeetingView: React.FC<{
   const [isPipActive, setIsPipActive] = useState(false);
   const processorRef = useRef<any>(null);
   const pipVideoRef = useRef<HTMLVideoElement | null>(null);
-
-  // Detect if running in WebView (Android or iOS)
-  const isWebView = useMemo(() => {
-    const ua = navigator.userAgent.toLowerCase();
-    return (
-      ua.includes("wv") || // Android WebView
-      ua.includes("webview") ||
-      (window as any).AndroidBridge !== undefined ||
-      (window as any).webkit?.messageHandlers !== undefined
-    );
-  }, []);
 
   // Push notifications hook
   const { sendNotification, triggerAndroidNotification } = usePushNotifications(idCliente);
@@ -268,7 +250,6 @@ const MeetingView: React.FC<{
       });
     },
     onOldMessagesReceived: (oldMessages: any[]) => {
-
       if (!oldMessages || oldMessages.length === 0) return;
 
       const parsedMessages: ChatMessage[] = [];
