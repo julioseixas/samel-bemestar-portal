@@ -71,7 +71,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
         setTokenData(null);
       }
     } catch (error) {
-      console.error("[ChatPanel] Error fetching token:", error);
       toast.error("Erro ao buscar token");
       setTokenData(null);
     } finally {
@@ -86,7 +85,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
       await navigator.clipboard.writeText(tokenData.DS_TOKEN);
       toast.success("Token copiado!");
     } catch (error) {
-      console.error("[ChatPanel] Error copying token:", error);
       toast.error("Erro ao copiar token");
     }
   };
@@ -124,7 +122,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
         toast.error("Erro ao gerar token");
       }
     } catch (error) {
-      console.error("[ChatPanel] Error generating token:", error);
       toast.error("Erro ao gerar token");
     } finally {
       setGeneratingToken(false);

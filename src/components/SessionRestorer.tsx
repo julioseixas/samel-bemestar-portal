@@ -24,29 +24,19 @@ export const SessionRestorer = () => {
         const existingToken = localStorage.getItem("user");
         
         if (existingToken) {
-          // Sessão existe no localStorage - apenas renova expiração dos cookies
-          console.log("[SessionRestorer] Sessão encontrada no localStorage, renovando cookies...");
           renewAuthCookies();
           return;
         }
         
-        // localStorage vazio - tenta restaurar dos cookies
-        console.log("[SessionRestorer] localStorage vazio, tentando restaurar dos cookies...");
-        
         if (!hasValidCookieSession()) {
-          console.log("[SessionRestorer] Nenhuma sessão válida nos cookies");
           return;
         }
         
         const authData = getAuthFromCookies();
         
         if (!authData) {
-          console.log("[SessionRestorer] Dados de autenticação inválidos nos cookies");
           return;
         }
-        
-        // Restaura dados no localStorage
-        console.log("[SessionRestorer] Restaurando sessão dos cookies para localStorage...");
         
         localStorage.setItem("user", authData.token);
         localStorage.setItem("titular", JSON.stringify(authData.titular));
@@ -54,10 +44,7 @@ export const SessionRestorer = () => {
         localStorage.setItem("listToSchedule", JSON.stringify(authData.listToSchedule));
         localStorage.setItem("rating", authData.rating);
         
-        // Renova expiração dos cookies (sliding expiration)
         renewAuthCookies();
-        
-        console.log("[SessionRestorer] Sessão restaurada com sucesso!");
         
         // Força reload para aplicar a sessão restaurada
         // Apenas se estamos na página de login
@@ -65,7 +52,7 @@ export const SessionRestorer = () => {
           window.location.href = "/dashboard";
         }
       } catch (error) {
-        console.error("[SessionRestorer] Erro ao restaurar sessão:", error);
+        // Error restoring session
       }
     };
 
