@@ -103,7 +103,6 @@ const MeetingView: React.FC<{
   const [selectedBackground, setSelectedBackground] = useState<string>("none");
   const [isBackgroundProcessing, setIsBackgroundProcessing] = useState(false);
   const [isPipActive, setIsPipActive] = useState(false);
-  const [isAndroidPipMode, setIsAndroidPipMode] = useState(false);
   const processorRef = useRef<any>(null);
   const pipVideoRef = useRef<HTMLVideoElement | null>(null);
 
@@ -374,21 +373,6 @@ const MeetingView: React.FC<{
         return;
       }
 
-      if (window.AndroidNotificationBridge && window.AndroidNotificationBridge.enterNativePictureInPicture) {
-        toast.error("Picture sendo ativado");
-        try {
-          // Chamamos a função Kotlin/Java que move a Activity para PiP
-          window.AndroidNotificationBridge.enterNativePictureInPicture();
-          setIsPipActive(true);
-          // Não usamos o toast.success aqui, pois a transição nativa pode ser imediata e sem feedback visual do JS
-          return; // Termina a função aqui, não executa o código do navegador
-        } catch (error) {
-          // Em caso de erro na comunicação Bridge (raro, mas possível)
-          toast.error("Erro ao ativar PiP nativo do Android.");
-          return;
-        }
-      }
-
       // Find the first remote participant's video, or local if alone
       const remoteId = participantIds.find((id) => id !== localParticipant?.id) || localParticipant?.id;
       if (!remoteId) {
@@ -449,24 +433,6 @@ const MeetingView: React.FC<{
       setAndroidPipPermission(false);
     };
   }, [setAndroidPipPermission]);
-
-  // Listen for Android PiP mode changes
-  useEffect(() => {
-    const handleAndroidPipChange = (event: CustomEvent<{ isInPipMode: boolean }>) => {
-      setIsAndroidPipMode(event.detail.isInPipMode);
-      // Close side panels and modal when entering PiP
-      if (event.detail.isInPipMode) {
-        setChatOpen(false);
-        setParticipantsOpen(false);
-        setQueueModalOpen(false);
-      }
-    };
-
-    window.addEventListener("androidPipModeChange", handleAndroidPipChange as EventListener);
-    return () => {
-      window.removeEventListener("androidPipModeChange", handleAndroidPipChange as EventListener);
-    };
-  }, []);
 
   // Handle leave
   const handleLeave = () => {
@@ -610,65 +576,57 @@ const MeetingView: React.FC<{
 
   return (
     <div className="fixed inset-0 bg-background flex flex-col">
-      {/* Top Bar - hidden in Android PiP mode */}
-      {!isAndroidPipMode && (
-        <div className="flex flex-col border-b bg-background/95 backdrop-blur">
-          <div className="flex items-center justify-between p-4">
-            <div className="flex items-center gap-3">
-              <h1 className="text-lg font-semibold">Consulta Online</h1>
-              <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-                {participantIds.length} participante(s)
-              </span>
-            </div>
-            <div className="flex items-center gap-1">
-              {/* PiP Button - always visible */}
-              {"pictureInPictureEnabled" in document && (
-                <Button
-                  variant={isPipActive ? "default" : "ghost"}
-                  size="icon"
-                  onClick={togglePictureInPicture}
-                  title="Picture-in-Picture"
-                >
-                  <PictureInPicture2 className="h-5 w-5" />
-                </Button>
-              )}
-            </div>
+      {/* Top Bar */}
+      <div className="flex flex-col border-b bg-background/95 backdrop-blur">
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center gap-3">
+            <h1 className="text-lg font-semibold">Consulta Online</h1>
+            <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+              {participantIds.length} participante(s)
+            </span>
           </div>
+          <div className="flex items-center gap-1">
+            {/* PiP Button - always visible */}
+            {"pictureInPictureEnabled" in document && (
+              <Button
+                variant={isPipActive ? "default" : "ghost"}
+                size="icon"
+                onClick={togglePictureInPicture}
+                title="Picture-in-Picture"
+              >
+                <PictureInPicture2 className="h-5 w-5" />
+              </Button>
+            )}
+          </div>
+        </div>
 
-          {/* Waiting message when patient is alone */}
-          {isPatientAlone && (
-            <div className="px-4 pb-3">
-              <div className="flex items-center gap-3 p-3 bg-primary/10 border border-primary/20 rounded-lg">
-                <Clock className="h-5 w-5 text-primary flex-shrink-0 animate-pulse" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground">Aguarde, o profissional entrará em instantes</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Enquanto isso, você pode{" "}
-                    <button onClick={handleViewQueue} className="text-primary hover:underline font-medium">
-                      ver sua posição na fila
-                    </button>
-                  </p>
-                </div>
+        {/* Waiting message when patient is alone */}
+        {isPatientAlone && (
+          <div className="px-4 pb-3">
+            <div className="flex items-center gap-3 p-3 bg-primary/10 border border-primary/20 rounded-lg">
+              <Clock className="h-5 w-5 text-primary flex-shrink-0 animate-pulse" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground">Aguarde, o profissional entrará em instantes</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Enquanto isso, você pode{" "}
+                  <button onClick={handleViewQueue} className="text-primary hover:underline font-medium">
+                    ver sua posição na fila
+                  </button>
+                </p>
               </div>
             </div>
-          )}
-        </div>
-      )}
+          </div>
+        )}
+      </div>
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Video Area - Grid Layout (fullscreen in PiP mode) */}
-        <div
-          className={cn(
-            "flex-1 overflow-auto",
-            isAndroidPipMode ? "p-0" : "p-4 pb-24",
-            (chatOpen || participantsOpen) && !isAndroidPipMode && "lg:mr-80",
-          )}
-        >
+        {/* Video Area - Grid Layout */}
+        <div className={cn("flex-1 p-4 pb-24 overflow-auto", (chatOpen || participantsOpen) && "lg:mr-80")}>
           {participantIds.length > 0 ? (
-            <div className={cn("grid gap-3 h-full auto-rows-fr", isAndroidPipMode && "gap-0", gridClass)}>
+            <div className={cn("grid gap-3 h-full auto-rows-fr", gridClass)}>
               {participantIds.map((id) => (
-                <div key={id} className={cn("min-h-[200px]", isAndroidPipMode && "min-h-0")}>
+                <div key={id} className="min-h-[200px]">
                   <ParticipantView
                     participantId={id}
                     isLocal={id === localParticipant?.id}
@@ -688,8 +646,8 @@ const MeetingView: React.FC<{
           )}
         </div>
 
-        {/* Side Panel - Desktop (hidden in PiP mode) */}
-        {!isAndroidPipMode && (chatOpen || participantsOpen) && (
+        {/* Side Panel - Desktop */}
+        {(chatOpen || participantsOpen) && (
           <div className="hidden lg:flex lg:flex-col w-80 border-l absolute right-0 top-[73px] bottom-[80px]">
             {chatOpen && (
               <ChatPanel
@@ -706,8 +664,8 @@ const MeetingView: React.FC<{
         )}
       </div>
 
-      {/* Mobile Side Panel (overlay) - hidden in PiP mode */}
-      {!isAndroidPipMode && (chatOpen || participantsOpen) && (
+      {/* Mobile Side Panel (overlay) */}
+      {(chatOpen || participantsOpen) && (
         <div className="lg:hidden fixed inset-0 z-50 bg-background flex flex-col">
           {chatOpen && (
             <ChatPanel
@@ -723,102 +681,98 @@ const MeetingView: React.FC<{
         </div>
       )}
 
-      {/* Controls - hidden in PiP mode */}
-      {!isAndroidPipMode && (
-        <Controls
-          onToggleChat={() => {
-            setChatOpen(!chatOpen);
-            if (!chatOpen) setParticipantsOpen(false);
-          }}
-          onToggleParticipants={() => {
-            setParticipantsOpen(!participantsOpen);
-            if (!participantsOpen) setChatOpen(false);
-          }}
-          chatOpen={chatOpen}
-          participantsOpen={participantsOpen}
-          onLeave={handleLeave}
-          onViewQueue={handleViewQueue}
-          unreadMessages={unreadMessages}
-          nrAtendimento={nrAtendimento}
-          cdMedico={cdMedico}
-          roomId={meetingId}
-          selectedBackground={selectedBackground}
-          onSelectBackground={handleSelectBackground}
-          isBackgroundProcessing={isBackgroundProcessing}
-        />
-      )}
+      {/* Controls */}
+      <Controls
+        onToggleChat={() => {
+          setChatOpen(!chatOpen);
+          if (!chatOpen) setParticipantsOpen(false);
+        }}
+        onToggleParticipants={() => {
+          setParticipantsOpen(!participantsOpen);
+          if (!participantsOpen) setChatOpen(false);
+        }}
+        chatOpen={chatOpen}
+        participantsOpen={participantsOpen}
+        onLeave={handleLeave}
+        onViewQueue={handleViewQueue}
+        unreadMessages={unreadMessages}
+        nrAtendimento={nrAtendimento}
+        cdMedico={cdMedico}
+        roomId={meetingId}
+        selectedBackground={selectedBackground}
+        onSelectBackground={handleSelectBackground}
+        isBackgroundProcessing={isBackgroundProcessing}
+      />
 
-      {/* Queue Modal - hidden in PiP mode */}
-      {!isAndroidPipMode && (
-        <Dialog open={queueModalOpen} onOpenChange={setQueueModalOpen}>
-          <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[calc(100vh-1.5rem)] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Fila de Atendimento
-              </DialogTitle>
-            </DialogHeader>
+      {/* Queue Modal */}
+      <Dialog open={queueModalOpen} onOpenChange={setQueueModalOpen}>
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[calc(100vh-1.5rem)] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Fila de Atendimento
+            </DialogTitle>
+          </DialogHeader>
 
-            {queueLoading ? (
-              <div className="space-y-3">
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-24 w-full" />
-              </div>
-            ) : queueData.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                <p>Nenhum dado de fila disponível</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {queueData.map((item, index) => {
-                  const isCurrentPatient = item.idCliente === idCliente;
-                  const statusDisplay = ["AC", "O", "M"].includes(item.status)
-                    ? item.statusDescricao
-                    : "Paciente ainda não chegou";
+          {queueLoading ? (
+            <div className="space-y-3">
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-24 w-full" />
+            </div>
+          ) : queueData.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
+              <p>Nenhum dado de fila disponível</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {queueData.map((item, index) => {
+                const isCurrentPatient = item.idCliente === idCliente;
+                const statusDisplay = ["AC", "O", "M"].includes(item.status)
+                  ? item.statusDescricao
+                  : "Paciente ainda não chegou";
 
-                  return (
-                    <Card
-                      key={index}
-                      className={cn("transition-all", isCurrentPatient && "ring-2 ring-primary bg-primary/5")}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-medium text-sm">Posição {index + 1}</span>
-                              {isCurrentPatient && (
-                                <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
-                                  Você
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-xs text-muted-foreground">Horário: {item.horario || "-"}</p>
-                            {item.horaChegada && (
-                              <p className="text-xs text-muted-foreground">Check-in: {item.horaChegada}</p>
+                return (
+                  <Card
+                    key={index}
+                    className={cn("transition-all", isCurrentPatient && "ring-2 ring-primary bg-primary/5")}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-medium text-sm">Posição {index + 1}</span>
+                            {isCurrentPatient && (
+                              <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
+                                Você
+                              </span>
                             )}
                           </div>
-                          <div className="text-right">
-                            <span
-                              className={cn(
-                                "text-xs px-2 py-1 rounded-full",
-                                isCurrentPatient ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground",
-                              )}
-                            >
-                              {statusDisplay}
-                            </span>
-                          </div>
+                          <p className="text-xs text-muted-foreground">Horário: {item.horario || "-"}</p>
+                          {item.horaChegada && (
+                            <p className="text-xs text-muted-foreground">Check-in: {item.horaChegada}</p>
+                          )}
                         </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
-      )}
+                        <div className="text-right">
+                          <span
+                            className={cn(
+                              "text-xs px-2 py-1 rounded-full",
+                              isCurrentPatient ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground",
+                            )}
+                          >
+                            {statusDisplay}
+                          </span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
