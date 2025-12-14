@@ -1,111 +1,82 @@
 import React, { useState } from "react";
-import { Bell, BellOff, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Bell, CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 interface NotificationTestProps {
   idCliente?: string;
-  onTestComplete?: (success: boolean) => void;
 }
 
-const NotificationTest: React.FC<NotificationTestProps> = ({ idCliente, onTestComplete }) => {
+const NotificationTest: React.FC<NotificationTestProps> = ({ idCliente }) => {
   const [isTesting, setIsTesting] = useState(false);
-  const [testResult, setTestResult] = useState<boolean | null>(null);
+  const [testSuccess, setTestSuccess] = useState(false);
   
-  const pushNotifications = usePushNotifications(idCliente);
-  const { subscribe, sendTestNotification } = pushNotifications;
-  const permission = pushNotifications.permission;
-  const isSubscribed = pushNotifications.isSubscribed;
+  const { sendTestNotification, triggerAndroidNotification } = usePushNotifications(idCliente);
 
-  const handleRequestPermission = async () => {
+  const handleTest = async () => {
     setIsTesting(true);
+    setTestSuccess(false);
+    
     try {
-      await subscribe();
-      setTestResult(true);
-      onTestComplete?.(true);
+      // Try Android bridge first
+      if (window.AndroidNotificationBridge) {
+        window.AndroidNotificationBridge.triggerTestNotification(
+          "Notificações Ativas",
+          "Você receberá alertas quando o médico entrar na consulta."
+        );
+        setTestSuccess(true);
+      } else if ("Notification" in window) {
+        // Request permission if needed
+        if (Notification.permission === "default") {
+          await Notification.requestPermission();
+        }
+        
+        if (Notification.permission === "granted") {
+          new Notification("Notificações Ativas", {
+            body: "Você receberá alertas quando o médico entrar na consulta.",
+            icon: "/favicon.png",
+            tag: "notification-test",
+          });
+          setTestSuccess(true);
+        }
+      }
     } catch (error) {
-      setTestResult(false);
-      onTestComplete?.(false);
+      console.error("Error testing notification:", error);
     } finally {
       setIsTesting(false);
     }
   };
 
-  const handleTestNotification = async () => {
-    setIsTesting(true);
-    try {
-      await sendTestNotification();
-      setTestResult(true);
-      onTestComplete?.(true);
-    } catch (error) {
-      setTestResult(false);
-      onTestComplete?.(false);
-    } finally {
-    setIsTesting(false);
-    }
-  };
-
-  const isPermissionGranted = permission === "granted" && isSubscribed;
-
   return (
     <div className="bg-muted/50 rounded-lg p-4 space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          {isPermissionGranted ? (
-            <Bell className="h-5 w-5 text-primary" />
-          ) : (
-            <BellOff className="h-5 w-5 text-muted-foreground" />
-          )}
+          <Bell className="h-5 w-5 text-primary" />
           <span className="font-medium text-sm">Notificações</span>
         </div>
-        {testResult !== null && (
-          testResult ? (
-            <CheckCircle2 className="h-5 w-5 text-green-500" />
-          ) : (
-            <XCircle className="h-5 w-5 text-destructive" />
-          )
+        {testSuccess && (
+          <CheckCircle2 className="h-5 w-5 text-green-500" />
         )}
       </div>
 
       <p className="text-xs text-muted-foreground">
-        {isPermissionGranted 
-          ? "Você será notificado quando o médico entrar na sala."
-          : "Ative as notificações para ser avisado quando o médico entrar."}
+        Teste as notificações para garantir que você será avisado quando o médico entrar.
       </p>
 
-      <div className="flex gap-2">
-        {!isPermissionGranted ? (
-          <Button 
-            size="sm" 
-            variant="outline" 
-            className="flex-1"
-            onClick={handleRequestPermission}
-            disabled={isTesting}
-          >
-            {isTesting ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : (
-              <Bell className="h-4 w-4 mr-2" />
-            )}
-            Ativar
-          </Button>
+      <Button 
+        size="sm" 
+        variant="outline" 
+        className="w-full"
+        onClick={handleTest}
+        disabled={isTesting}
+      >
+        {isTesting ? (
+          <Loader2 className="h-4 w-4 animate-spin mr-2" />
         ) : (
-          <Button 
-            size="sm" 
-            variant="outline" 
-            className="flex-1"
-            onClick={handleTestNotification}
-            disabled={isTesting}
-          >
-            {isTesting ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : (
-              <Bell className="h-4 w-4 mr-2" />
-            )}
-            Testar
-          </Button>
+          <Bell className="h-4 w-4 mr-2" />
         )}
-      </div>
+        Testar Notificação
+      </Button>
     </div>
   );
 };
