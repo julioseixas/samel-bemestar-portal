@@ -455,11 +455,28 @@ const MeetingView: React.FC<{
 
     const handleAndroidPipChange = (event: Event) => {
       const customEvent = event as CustomEvent<{ isInPipMode: boolean }>;
-      console.log("VideoRoom: Evento androidPipModeChange recebido!", JSON.stringify(customEvent.detail));
+      
+      console.log("VideoRoom: Evento androidPipModeChange recebido!");
+      console.log("VideoRoom: event.detail =", customEvent.detail);
+      console.log("VideoRoom: typeof event.detail =", typeof customEvent.detail);
+      
+      // Validação robusta do detail
+      let isInPipMode = false;
+      
+      if (customEvent.detail && typeof customEvent.detail === 'object') {
+        isInPipMode = customEvent.detail.isInPipMode === true;
+      } else if (typeof customEvent.detail === 'boolean') {
+        // Caso o detail venha como boolean direto
+        isInPipMode = customEvent.detail;
+      }
+      
+      console.log("VideoRoom: isInPipMode final =", isInPipMode);
 
-      setIsAndroidPipMode(customEvent.detail.isInPipMode);
+      setIsAndroidPipMode(isInPipMode);
+      
       // Close side panels and modal when entering PiP
-      if (customEvent.detail.isInPipMode) {
+      if (isInPipMode) {
+        console.log("VideoRoom: Fechando painéis laterais e modal");
         setChatOpen(false);
         setParticipantsOpen(false);
         setQueueModalOpen(false);
