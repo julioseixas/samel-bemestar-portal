@@ -105,6 +105,11 @@ const MeetingView: React.FC<{
   const [isPipActive, setIsPipActive] = useState(false);
   const [isAndroidPipMode, setIsAndroidPipMode] = useState(false);
   const processorRef = useRef<any>(null);
+
+  // Debug: Monitor isAndroidPipMode state changes
+  useEffect(() => {
+    console.log("VideoRoom: Estado isAndroidPipMode MUDOU para:", isAndroidPipMode);
+  }, [isAndroidPipMode]);
   const pipVideoRef = useRef<HTMLVideoElement | null>(null);
 
   // Push notifications hook
@@ -630,6 +635,9 @@ const MeetingView: React.FC<{
       </div>
     );
   }
+
+  // Debug: Log render with current state
+  console.log("VideoRoom RENDER - isAndroidPipMode:", isAndroidPipMode);
 
   return (
     <div className="fixed inset-0 bg-background flex flex-col">
