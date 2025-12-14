@@ -375,6 +375,7 @@ const MeetingView: React.FC<{
       }
 
       if (window.AndroidNotificationBridge && window.AndroidNotificationBridge.enterNativePictureInPicture) {
+        toast.error("Picture sendo ativado");
         try {
           // Chamamos a função Kotlin/Java que move a Activity para PiP
           window.AndroidNotificationBridge.enterNativePictureInPicture();
@@ -661,7 +662,7 @@ const MeetingView: React.FC<{
           className={cn(
             "flex-1 overflow-auto",
             isAndroidPipMode ? "p-0" : "p-4 pb-24",
-            (chatOpen || participantsOpen) && !isAndroidPipMode && "lg:mr-80"
+            (chatOpen || participantsOpen) && !isAndroidPipMode && "lg:mr-80",
           )}
         >
           {participantIds.length > 0 ? (
