@@ -641,52 +641,51 @@ const MeetingView: React.FC<{
 
   return (
     <div className="fixed inset-0 bg-background flex flex-col">
-      {/* Top Bar - hidden in Android PiP mode */}
-      {!isAndroidPipMode && (
-        <div className="flex flex-col border-b bg-background/95 backdrop-blur">
-          <div className="flex items-center justify-between p-4">
-            <div className="flex items-center gap-3">
-              <h1 className="text-lg font-semibold">
-                {isAndroidPipMode ? "Modo Picture-in-Picture" : "Consulta Online"}
-              </h1>
-              <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-                {participantIds.length} participante(s)
-              </span>
-            </div>
-            <div className="flex items-center gap-1">
-              {/* PiP Button - always visible */}
-              {"pictureInPictureEnabled" in document && (
-                <Button
-                  variant={isPipActive ? "default" : "ghost"}
-                  size="icon"
-                  onClick={togglePictureInPicture}
-                  title="Picture-in-Picture"
-                >
-                  <PictureInPicture2 className="h-5 w-5" />
-                </Button>
-              )}
-            </div>
+      {/* Top Bar - hidden in Android PiP mode via CSS for WebView compatibility */}
+      <div 
+        className="flex flex-col border-b bg-background/95 backdrop-blur"
+        style={{ display: isAndroidPipMode ? 'none' : 'flex' }}
+      >
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center gap-3">
+            <h1 className="text-lg font-semibold">Consulta Online</h1>
+            <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+              {participantIds.length} participante(s)
+            </span>
           </div>
+          <div className="flex items-center gap-1">
+            {/* PiP Button - always visible */}
+            {"pictureInPictureEnabled" in document && (
+              <Button
+                variant={isPipActive ? "default" : "ghost"}
+                size="icon"
+                onClick={togglePictureInPicture}
+                title="Picture-in-Picture"
+              >
+                <PictureInPicture2 className="h-5 w-5" />
+              </Button>
+            )}
+          </div>
+        </div>
 
-          {/* Waiting message when patient is alone */}
-          {isPatientAlone && (
-            <div className="px-4 pb-3">
-              <div className="flex items-center gap-3 p-3 bg-primary/10 border border-primary/20 rounded-lg">
-                <Clock className="h-5 w-5 text-primary flex-shrink-0 animate-pulse" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground">Aguarde, o profissional entrará em instantes</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Enquanto isso, você pode{" "}
-                    <button onClick={handleViewQueue} className="text-primary hover:underline font-medium">
-                      ver sua posição na fila
-                    </button>
-                  </p>
-                </div>
+        {/* Waiting message when patient is alone */}
+        {isPatientAlone && (
+          <div className="px-4 pb-3">
+            <div className="flex items-center gap-3 p-3 bg-primary/10 border border-primary/20 rounded-lg">
+              <Clock className="h-5 w-5 text-primary flex-shrink-0 animate-pulse" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground">Aguarde, o profissional entrará em instantes</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Enquanto isso, você pode{" "}
+                  <button onClick={handleViewQueue} className="text-primary hover:underline font-medium">
+                    ver sua posição na fila
+                  </button>
+                </p>
               </div>
             </div>
-          )}
-        </div>
-      )}
+          </div>
+        )}
+      </div>
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
@@ -721,9 +720,12 @@ const MeetingView: React.FC<{
           )}
         </div>
 
-        {/* Side Panel - Desktop (hidden in PiP mode) */}
-        {!isAndroidPipMode && (chatOpen || participantsOpen) && (
-          <div className="hidden lg:flex lg:flex-col w-80 border-l absolute right-0 top-[73px] bottom-[80px]">
+        {/* Side Panel - Desktop (hidden in PiP mode via CSS) */}
+        {(chatOpen || participantsOpen) && (
+          <div 
+            className="hidden lg:flex lg:flex-col w-80 border-l absolute right-0 top-[73px] bottom-[80px]"
+            style={{ display: isAndroidPipMode ? 'none' : undefined }}
+          >
             {chatOpen && (
               <ChatPanel
                 onClose={() => setChatOpen(false)}
@@ -739,9 +741,12 @@ const MeetingView: React.FC<{
         )}
       </div>
 
-      {/* Mobile Side Panel (overlay) - hidden in PiP mode */}
-      {!isAndroidPipMode && (chatOpen || participantsOpen) && (
-        <div className="lg:hidden fixed inset-0 z-50 bg-background flex flex-col">
+      {/* Mobile Side Panel (overlay) - hidden in PiP mode via CSS */}
+      {(chatOpen || participantsOpen) && (
+        <div 
+          className="lg:hidden fixed inset-0 z-50 bg-background flex flex-col"
+          style={{ display: isAndroidPipMode ? 'none' : 'flex' }}
+        >
           {chatOpen && (
             <ChatPanel
               onClose={() => setChatOpen(false)}
@@ -756,8 +761,8 @@ const MeetingView: React.FC<{
         </div>
       )}
 
-      {/* Controls - hidden in PiP mode */}
-      {!isAndroidPipMode && (
+      {/* Controls - hidden in PiP mode via CSS */}
+      <div style={{ display: isAndroidPipMode ? 'none' : 'block' }}>
         <Controls
           onToggleChat={() => {
             setChatOpen(!chatOpen);
@@ -779,10 +784,10 @@ const MeetingView: React.FC<{
           onSelectBackground={handleSelectBackground}
           isBackgroundProcessing={isBackgroundProcessing}
         />
-      )}
+      </div>
 
-      {/* Queue Modal - hidden in PiP mode */}
-      {!isAndroidPipMode && (
+      {/* Queue Modal - hidden in PiP mode via CSS */}
+      <div style={{ display: isAndroidPipMode ? 'none' : 'block' }}>
         <Dialog open={queueModalOpen} onOpenChange={setQueueModalOpen}>
           <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[calc(100vh-1.5rem)] overflow-y-auto">
             <DialogHeader>
@@ -851,7 +856,7 @@ const MeetingView: React.FC<{
             )}
           </DialogContent>
         </Dialog>
-      )}
+      </div>
     </div>
   );
 };
