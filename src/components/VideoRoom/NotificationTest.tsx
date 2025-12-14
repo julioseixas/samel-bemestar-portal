@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Bell, CheckCircle2, Loader2 } from "lucide-react";
+import { Bell, CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 
@@ -11,7 +11,7 @@ const NotificationTest: React.FC<NotificationTestProps> = ({ idCliente }) => {
   const [isTesting, setIsTesting] = useState(false);
   const [testSuccess, setTestSuccess] = useState(false);
   
-  const { sendTestNotification, triggerAndroidNotification } = usePushNotifications(idCliente);
+  const { triggerAndroidNotification } = usePushNotifications(idCliente);
 
   const handleTest = async () => {
     setIsTesting(true);
@@ -48,35 +48,49 @@ const NotificationTest: React.FC<NotificationTestProps> = ({ idCliente }) => {
   };
 
   return (
-    <div className="bg-muted/50 rounded-lg p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Bell className="h-5 w-5 text-primary" />
-          <span className="font-medium text-sm">Notificações</span>
+    <div className="bg-muted/50 rounded-lg p-4 space-y-4">
+      <h3 className="font-semibold text-sm flex items-center gap-2">
+        <Bell className="h-4 w-4" />
+        Teste de Notificação
+      </h3>
+
+      {/* Notification Test */}
+      <div className="flex items-center justify-between p-3 bg-background rounded-lg">
+        <div className="flex items-center gap-3">
+          {testSuccess ? (
+            <CheckCircle className="h-5 w-5 text-green-500" />
+          ) : (
+            <Bell className="h-5 w-5 text-muted-foreground" />
+          )}
+          <div>
+            <p className="text-sm font-medium">Notificações</p>
+            <p className="text-xs text-muted-foreground">
+              {testSuccess ? "Notificação enviada" : "Clique para testar"}
+            </p>
+          </div>
         </div>
-        {testSuccess && (
-          <CheckCircle2 className="h-5 w-5 text-green-500" />
-        )}
+        <Button 
+          size="sm" 
+          variant={testSuccess ? "outline" : "default"}
+          onClick={handleTest}
+          disabled={isTesting}
+        >
+          {isTesting ? (
+            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+          ) : null}
+          {testSuccess ? "Testar novamente" : "Testar"}
+        </Button>
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        Teste as notificações para garantir que você será avisado quando o médico entrar.
-      </p>
-
-      <Button 
-        size="sm" 
-        variant="outline" 
-        className="w-full"
-        onClick={handleTest}
-        disabled={isTesting}
-      >
-        {isTesting ? (
-          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-        ) : (
-          <Bell className="h-4 w-4 mr-2" />
-        )}
-        Testar Notificação
-      </Button>
+      {/* Status summary */}
+      {testSuccess && (
+        <div className="flex items-center gap-2 p-2 bg-green-500/10 rounded-lg border border-green-500/20">
+          <CheckCircle className="h-4 w-4 text-green-500" />
+          <p className="text-sm text-green-600 dark:text-green-400 font-medium">
+            Pronto para receber alertas!
+          </p>
+        </div>
+      )}
     </div>
   );
 };
