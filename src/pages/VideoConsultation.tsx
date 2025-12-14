@@ -7,6 +7,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import VideoRoom from "@/components/VideoRoom/VideoRoom";
 import AudioTest from "@/components/VideoRoom/AudioTest";
+import NotificationTest from "@/components/VideoRoom/NotificationTest";
 import { getOrCreateVideoRoom } from "@/lib/telemed-api";
 
 type ConnectionState = "loading" | "ready" | "connected" | "error";
@@ -145,6 +146,9 @@ const VideoConsultation = () => {
           
           {/* Audio Test Section */}
           <AudioTest />
+          
+          {/* Notification Test Section */}
+          <NotificationTest idCliente={idCliente || undefined} />
           
           <div className="bg-muted rounded-lg p-4 text-left space-y-2">
             <div className="flex justify-between text-sm">
