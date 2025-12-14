@@ -451,19 +451,26 @@ const MeetingView: React.FC<{
 
   // Listen for Android PiP mode changes
   useEffect(() => {
-    const handleAndroidPipChange = (event: CustomEvent<{ isInPipMode: boolean }>) => {
-      setIsAndroidPipMode(event.detail.isInPipMode);
+    console.log("VideoRoom: Registrando listener para androidPipModeChange");
+    
+    const handleAndroidPipChange = (event: Event) => {
+      const customEvent = event as CustomEvent<{ isInPipMode: boolean }>;
+      console.log("VideoRoom: Evento androidPipModeChange recebido!", customEvent.detail);
+      
+      setIsAndroidPipMode(customEvent.detail.isInPipMode);
       // Close side panels and modal when entering PiP
-      if (event.detail.isInPipMode) {
+      if (customEvent.detail.isInPipMode) {
         setChatOpen(false);
         setParticipantsOpen(false);
         setQueueModalOpen(false);
       }
     };
 
-    window.addEventListener("androidPipModeChange", handleAndroidPipChange as EventListener);
+    window.addEventListener("androidPipModeChange", handleAndroidPipChange);
+    
     return () => {
-      window.removeEventListener("androidPipModeChange", handleAndroidPipChange as EventListener);
+      console.log("VideoRoom: Removendo listener androidPipModeChange");
+      window.removeEventListener("androidPipModeChange", handleAndroidPipChange);
     };
   }, []);
 
