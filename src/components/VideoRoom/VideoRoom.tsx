@@ -106,10 +106,6 @@ const MeetingView: React.FC<{
   const [isAndroidPipMode, setIsAndroidPipMode] = useState(false);
   const processorRef = useRef<any>(null);
 
-  // Debug: Monitor isAndroidPipMode state changes
-  useEffect(() => {
-    console.log("VideoRoom: Estado isAndroidPipMode MUDOU para:", isAndroidPipMode);
-  }, [isAndroidPipMode]);
   const pipVideoRef = useRef<HTMLVideoElement | null>(null);
 
   // Push notifications hook
@@ -456,32 +452,20 @@ const MeetingView: React.FC<{
 
   // Listen for Android PiP mode changes
   useEffect(() => {
-    console.log("VideoRoom: Registrando listener para androidPipModeChange");
-
     const handleAndroidPipChange = (event: Event) => {
       const customEvent = event as CustomEvent<{ isInPipMode: boolean }>;
       
-      console.log("VideoRoom: Evento androidPipModeChange recebido!");
-      console.log("VideoRoom: event.detail =", customEvent.detail);
-      console.log("VideoRoom: typeof event.detail =", typeof customEvent.detail);
-      
-      // Validação robusta do detail
       let isInPipMode = false;
       
       if (customEvent.detail && typeof customEvent.detail === 'object') {
         isInPipMode = customEvent.detail.isInPipMode === true;
       } else if (typeof customEvent.detail === 'boolean') {
-        // Caso o detail venha como boolean direto
         isInPipMode = customEvent.detail;
       }
-      
-      console.log("VideoRoom: isInPipMode final =", isInPipMode);
 
       setIsAndroidPipMode(isInPipMode);
       
-      // Close side panels and modal when entering PiP
       if (isInPipMode) {
-        console.log("VideoRoom: Fechando painéis laterais e modal");
         setChatOpen(false);
         setParticipantsOpen(false);
         setQueueModalOpen(false);
@@ -491,7 +475,6 @@ const MeetingView: React.FC<{
     window.addEventListener("androidPipModeChange", handleAndroidPipChange);
 
     return () => {
-      console.log("VideoRoom: Removendo listener androidPipModeChange");
       window.removeEventListener("androidPipModeChange", handleAndroidPipChange);
     };
   }, []);
@@ -635,9 +618,6 @@ const MeetingView: React.FC<{
       </div>
     );
   }
-
-  // Debug: Log render with current state
-  console.log("VideoRoom RENDER - isAndroidPipMode:", isAndroidPipMode);
 
   return (
     <div className="fixed inset-0 bg-background flex flex-col">
