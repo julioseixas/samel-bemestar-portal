@@ -452,11 +452,11 @@ const MeetingView: React.FC<{
   // Listen for Android PiP mode changes
   useEffect(() => {
     console.log("VideoRoom: Registrando listener para androidPipModeChange");
-    
+
     const handleAndroidPipChange = (event: Event) => {
       const customEvent = event as CustomEvent<{ isInPipMode: boolean }>;
-      console.log("VideoRoom: Evento androidPipModeChange recebido!", customEvent.detail);
-      
+      console.log("VideoRoom: Evento androidPipModeChange recebido!", JSON.stringify(customEvent.detail));
+
       setIsAndroidPipMode(customEvent.detail.isInPipMode);
       // Close side panels and modal when entering PiP
       if (customEvent.detail.isInPipMode) {
@@ -467,7 +467,7 @@ const MeetingView: React.FC<{
     };
 
     window.addEventListener("androidPipModeChange", handleAndroidPipChange);
-    
+
     return () => {
       console.log("VideoRoom: Removendo listener androidPipModeChange");
       window.removeEventListener("androidPipModeChange", handleAndroidPipChange);
@@ -621,7 +621,9 @@ const MeetingView: React.FC<{
         <div className="flex flex-col border-b bg-background/95 backdrop-blur">
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
-              <h1 className="text-lg font-semibold">{isAndroidPipMode ? "Modo Picture-in-Picture" : "Consulta Online"}</h1>
+              <h1 className="text-lg font-semibold">
+                {isAndroidPipMode ? "Modo Picture-in-Picture" : "Consulta Online"}
+              </h1>
               <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
                 {participantIds.length} participante(s)
               </span>
@@ -668,7 +670,7 @@ const MeetingView: React.FC<{
           className={cn(
             "flex-1 overflow-auto",
             isAndroidPipMode ? "p-0" : "p-4 pb-24",
-            (chatOpen || participantsOpen) && !isAndroidPipMode && "lg:mr-80"
+            (chatOpen || participantsOpen) && !isAndroidPipMode && "lg:mr-80",
           )}
         >
           {participantIds.length > 0 ? (
