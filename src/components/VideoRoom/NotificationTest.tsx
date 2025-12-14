@@ -17,27 +17,31 @@ const NotificationTest: React.FC<NotificationTestProps> = ({ idCliente }) => {
     setIsTesting(true);
     setTestSuccess(false);
     
+    const title = "Notificações Ativas";
+    const message = "Você receberá alertas quando o médico entrar na consulta.";
+    
     try {
-      // Try Android bridge first
+      // Always try Android bridge first (for WebView)
       if (window.AndroidNotificationBridge) {
-        window.AndroidNotificationBridge.triggerTestNotification(
-          "Notificações Ativas",
-          "Você receberá alertas quando o médico entrar na consulta."
-        );
+        window.AndroidNotificationBridge.triggerTestNotification(title, message);
         setTestSuccess(true);
-      } else if ("Notification" in window) {
-        // Request permission if needed
-        if (Notification.permission === "default") {
-          await Notification.requestPermission();
-        }
-        
-        if (Notification.permission === "granted") {
-          new Notification("Notificações Ativas", {
-            body: "Você receberá alertas quando o médico entrar na consulta.",
-            icon: "/favicon.png",
-            tag: "notification-test",
-          });
-          setTestSuccess(true);
+      } else {
+        // Fallback to browser notification
+        if ("Notification" in window) {
+          if (Notification.permission === "default") {
+            await Notification.requestPermission();
+          }
+          
+          if (Notification.permission === "granted") {
+            new Notification(title, {
+              body: message,
+              icon: "/favicon.png",
+              tag: "notification-test",
+            });
+            setTestSuccess(true);
+          }
+        } else {
+          console.error("Interface AndroidNotificationBridge não encontrada e Notification API não suportada.");
         }
       }
     } catch (error) {
