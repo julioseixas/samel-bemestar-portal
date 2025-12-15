@@ -13,6 +13,9 @@ import {
   Shield,
   HelpCircle,
   FileText,
+  Eye,
+  EyeOff,
+  Loader2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
@@ -32,6 +35,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { TermsOfUseModal } from "@/components/TermsOfUseModal";
@@ -69,6 +74,14 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
   const [isMarkingAllAsRead, setIsMarkingAllAsRead] = useState(false);
   const [showContactDialog, setShowContactDialog] = useState(false);
   const [showTermsDialog, setShowTermsDialog] = useState(false);
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
 
   const loadNotifications = () => {
@@ -304,6 +317,68 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
     navigate("/");
   };
 
+  const handleChangePassword = async () => {
+    // Validação: campos vazios
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Preencha todos os campos.",
+      });
+      return;
+    }
+
+    // Validação: senhas não coincidem
+    if (newPassword !== confirmPassword) {
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "A nova senha e a confirmação não coincidem.",
+      });
+      return;
+    }
+
+    setIsChangingPassword(true);
+
+    try {
+      const response = await fetch("https://appv2-back.samel.com.br/api/Login/AlterarSenha", {
+        method: "POST",
+        headers: getApiHeaders(),
+        body: JSON.stringify({
+          senhaAntiga: currentPassword,
+          senhaNova: newPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.sucesso) {
+        toast({
+          title: "Sucesso",
+          description: data.mensagem,
+        });
+        setShowPasswordDialog(false);
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Erro",
+          description: data.mensagem,
+        });
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Erro ao alterar a senha. Tente novamente.",
+      });
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card shadow-sm backdrop-blur-sm bg-card/95">
       <div className="container mx-auto flex h-14 sm:h-16 md:h-20 items-center justify-between px-3 sm:px-6 md:px-8">
@@ -332,7 +407,7 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem className="cursor-pointer" onClick={() => setShowPasswordDialog(true)}>
                 <KeyRound className="mr-2 h-4 w-4" />
                 <span>Atualizar senha</span>
               </DropdownMenuItem>
@@ -726,6 +801,111 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
 
       {/* Modal de Termos de Uso */}
       <TermsOfUseModal open={showTermsDialog} onOpenChange={setShowTermsDialog} />
+
+      {/* Modal de Alteração de Senha */}
+      <Dialog open={showPasswordDialog} onOpenChange={(open) => {
+        setShowPasswordDialog(open);
+        if (!open) {
+          setCurrentPassword("");
+          setNewPassword("");
+          setConfirmPassword("");
+        }
+      }}>
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl">Alterar Senha</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="currentPassword">Senha atual</Label>
+              <div className="relative">
+                <Input
+                  id="currentPassword"
+                  type={showCurrentPassword ? "text" : "password"}
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder="Digite sua senha atual"
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="newPassword">Nova senha</Label>
+              <div className="relative">
+                <Input
+                  id="newPassword"
+                  type={showNewPassword ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Digite a nova senha"
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirmar nova senha</Label>
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirme a nova senha"
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowPasswordDialog(false)}
+              className="w-full sm:w-auto"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleChangePassword}
+              disabled={isChangingPassword}
+              className="w-full sm:w-auto"
+            >
+              {isChangingPassword ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Alterando...
+                </>
+              ) : (
+                "Alterar Senha"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </header>
   );
 };
