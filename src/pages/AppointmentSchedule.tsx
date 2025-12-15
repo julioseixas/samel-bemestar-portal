@@ -84,7 +84,7 @@ const AppointmentSchedule = () => {
             
             // Adicionar dependente
             if (patient.tipoBeneficiario === "Dependente" || patient.tipo === "Dependente") {
-              const depId = patient.cdPessoaFisica || patient.id;
+              const depId = patient.id || patient.cdPessoaFisica;
               
               allPatients.push({
                 id: depId,
@@ -121,14 +121,14 @@ const AppointmentSchedule = () => {
     const patientApiId = patient.cdPessoaFisica || patient.id;
     
     const patientData = {
-      id: patient.cdPessoaFisica || patient.id,
+      id: patient.id,
       nome: patient.nome,
       tipo: patient.tipo,
       idade: patient.idade,
       sexo: patient.sexo,
       codigoCarteirinha: patient.codigoCarteirinha,
       dataNascimento: patient.dataNascimento,
-      cdPessoaFisica: patient.cdPessoaFisica || patient.id,
+      cdPessoaFisica: patient.cdPessoaFisica,
       idEmpresa: patient.idEmpresa
     };
     

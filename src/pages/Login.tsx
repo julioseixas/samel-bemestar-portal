@@ -106,9 +106,7 @@ const Login = () => {
                 listAllPacient.push({
                   ...dependente,
                   tipo: "Dependente",
-                  cpf: dependente.cpf,
-                  id: dependente.cdPessoaFisica || dependente.cd_pessoa_fisica || dependente.id,
-                  cdPessoaFisica: dependente.cdPessoaFisica || dependente.cd_pessoa_fisica
+                  cpf: dependente.cpf
                 });
               });
             }
