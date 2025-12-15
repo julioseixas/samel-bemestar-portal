@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { jwtDecode } from "jwt-decode";
 import { Skeleton } from "@/components/ui/skeleton";
 import html2pdf from "html2pdf.js";
+import { withLightTheme } from "@/lib/pdf-utils";
 import { getApiHeaders } from "@/lib/api-headers";
 import {
   Table,
@@ -245,7 +246,7 @@ const PrescriptionsList = () => {
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
       };
 
-      await html2pdf().set(opt).from(element).save();
+      await withLightTheme(() => html2pdf().set(opt).from(element).save());
       
       toast({
         title: "Sucesso",
@@ -276,8 +277,8 @@ const PrescriptionsList = () => {
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
       };
 
-      // Gerar PDF como blob
-      const pdf = await html2pdf().set(opt).from(element).output('blob');
+      // Gerar PDF como blob com tema light
+      const pdf = await withLightTheme(() => html2pdf().set(opt).from(element).output('blob'));
       
       // Tentar usar Web Share API se disponível
       if (navigator.share && navigator.canShare) {

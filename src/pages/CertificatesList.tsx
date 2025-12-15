@@ -8,7 +8,7 @@ import { jwtDecode } from "jwt-decode";
 import { Skeleton } from "@/components/ui/skeleton";
 import html2pdf from "html2pdf.js";
 import { getApiHeaders } from "@/lib/api-headers";
-import { handlePdfDownload, handlePdfShare } from "@/lib/pdf-utils";
+import { handlePdfDownload, handlePdfShare, withLightTheme } from "@/lib/pdf-utils";
 import {
   Table,
   TableBody,
@@ -247,8 +247,8 @@ const CertificatesList = () => {
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
       };
 
-      // Generate PDF as blob
-      const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
+      // Generate PDF as blob with light theme
+      const pdfBlob = await withLightTheme(() => html2pdf().set(opt).from(element).output('blob'));
       
       // Use utility function for download (handles WebView)
       const success = await handlePdfDownload(pdfBlob, fileName);
@@ -285,8 +285,8 @@ const CertificatesList = () => {
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
       };
 
-      // Generate PDF as blob
-      const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
+      // Generate PDF as blob with light theme
+      const pdfBlob = await withLightTheme(() => html2pdf().set(opt).from(element).output('blob'));
       
       // Try to share using utility function (handles WebView)
       const shared = await handlePdfShare(

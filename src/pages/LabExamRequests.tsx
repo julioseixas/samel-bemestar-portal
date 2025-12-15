@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { getApiHeaders } from "@/lib/api-headers";
-import { handlePdfDownload, handlePdfShare } from "@/lib/pdf-utils";
+import { handlePdfDownload, handlePdfShare, withLightTheme } from "@/lib/pdf-utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -234,8 +234,8 @@ const LabExamRequests = () => {
     };
     
     try {
-      // Generate PDF as blob
-      const pdfBlob = await html2pdf().set(options).from(element).output("blob");
+      // Generate PDF as blob with light theme
+      const pdfBlob = await withLightTheme(() => html2pdf().set(options).from(element).output("blob"));
       
       // Use utility function for download (handles WebView)
       const success = await handlePdfDownload(pdfBlob, fileName);
@@ -279,8 +279,8 @@ const LabExamRequests = () => {
     };
 
     try {
-      // Generate PDF as blob
-      const pdfBlob = await html2pdf().set(options).from(element).output("blob");
+      // Generate PDF as blob with light theme
+      const pdfBlob = await withLightTheme(() => html2pdf().set(options).from(element).output("blob"));
       
       // Try to share using utility function (handles WebView)
       const shared = await handlePdfShare(

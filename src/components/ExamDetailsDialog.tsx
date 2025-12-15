@@ -39,7 +39,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { handlePdfDownload, handlePdfShare } from "@/lib/pdf-utils";
+import { handlePdfDownload, handlePdfShare, withLightTheme } from "@/lib/pdf-utils";
 
 interface ExamDetail {
   nrSequenciaLaudoPaciente: number;
@@ -184,8 +184,8 @@ export function ExamDetailsDialog({
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
       };
 
-      // Generate PDF as blob
-      const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
+      // Generate PDF as blob with light theme
+      const pdfBlob = await withLightTheme(() => html2pdf().set(opt).from(element).output('blob'));
       
       // Use the utility function for download (handles WebView)
       const success = await handlePdfDownload(pdfBlob, fileName);
@@ -224,8 +224,8 @@ export function ExamDetailsDialog({
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
       };
 
-      // Generate PDF as blob
-      const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
+      // Generate PDF as blob with light theme
+      const pdfBlob = await withLightTheme(() => html2pdf().set(opt).from(element).output('blob'));
       
       // Try to share using utility function (handles WebView)
       const shared = await handlePdfShare(
@@ -390,8 +390,8 @@ export function ExamDetailsDialog({
           jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
         };
 
-        // Generate PDF as blob and use utility function
-        const pdfBlob = await html2pdf().set(opt).from(tempDiv).output('blob');
+        // Generate PDF as blob with light theme and use utility function
+        const pdfBlob = await withLightTheme(() => html2pdf().set(opt).from(tempDiv).output('blob'));
         await handlePdfDownload(pdfBlob, fileName);
         
         // Remover o elemento temporário
