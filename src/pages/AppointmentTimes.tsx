@@ -52,21 +52,7 @@ const AppointmentTimes = () => {
   const [selectedNrSeqMedAvaliacao, setSelectedNrSeqMedAvaliacao] = useState<number | null>(null);
   const { toast } = useToast();
 
-  const locationState = location.state || {};
-  const { selectedConvenio, selectedEspecialidade, selectedProfissional } = locationState;
-
-  // Usar useState com inicialização lazy para evitar re-criação do objeto a cada render
-  const [selectedPatient] = useState(() => {
-    const storedPatient = localStorage.getItem("selectedPatient");
-    if (storedPatient) {
-      try {
-        return JSON.parse(storedPatient);
-      } catch (error) {
-        console.error("Erro ao parsear selectedPatient:", error);
-      }
-    }
-    return locationState.selectedPatient;
-  });
+  const { selectedPatient, selectedConvenio, selectedEspecialidade, selectedProfissional } = location.state || {};
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -106,7 +92,7 @@ const AppointmentTimes = () => {
     if (!selectedPatient || !selectedConvenio || !selectedEspecialidade || !selectedProfissional) {
       navigate("/appointment-professionals");
     }
-  }, [navigate, selectedConvenio, selectedEspecialidade, selectedProfissional]);
+  }, [navigate, selectedPatient, selectedConvenio, selectedEspecialidade, selectedProfissional]);
 
   useEffect(() => {
     if (selectedDate && horarios.length > 0) {
@@ -172,7 +158,7 @@ const AppointmentTimes = () => {
     };
 
     fetchHorarios();
-  }, [selectedConvenio, selectedEspecialidade, selectedProfissional]);
+  }, [selectedPatient, selectedConvenio, selectedEspecialidade, selectedProfissional]);
 
   const isDateAvailable = (date: Date) => {
     const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
