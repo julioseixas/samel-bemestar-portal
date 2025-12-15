@@ -187,6 +187,7 @@ const Index = () => {
       location: appointment.nomeUnidade || 'Telemedicina',
       appointmentId: appointment.id,
       tipoAgendamento: appointment.tipoAgendamento,
+      patientName: appointment.nomeCliente,
     }));
   };
 
