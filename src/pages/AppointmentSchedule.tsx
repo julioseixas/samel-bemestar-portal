@@ -84,7 +84,7 @@ const AppointmentSchedule = () => {
             
             // Adicionar dependente
             if (patient.tipoBeneficiario === "Dependente" || patient.tipo === "Dependente") {
-              const depId = patient.id || patient.cdPessoaFisica;
+              const depId = patient.cdPessoaFisica || patient.id;
               
               allPatients.push({
                 id: depId,
