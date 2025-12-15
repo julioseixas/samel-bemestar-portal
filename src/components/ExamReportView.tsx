@@ -20,7 +20,7 @@ interface ExamReportViewProps {
 
 export function ExamReportView({ examData, tipoLaudo }: ExamReportViewProps) {
   return (
-    <div id="printMe" className="bg-background p-3 sm:p-6 w-full max-w-[800px] mx-auto print:p-0">
+    <div id="printMe" className="bg-background p-3 sm:p-6 w-full max-w-[800px] mx-auto print:p-0 overflow-x-hidden">
       {/* CABEÇALHO */}
       <div className="flex mb-3 sm:mb-4 border border-border">
         <div className="w-[60px] sm:w-[150px] border-r border-border flex items-center justify-center p-1.5 sm:p-4 bg-card">
@@ -63,9 +63,9 @@ export function ExamReportView({ examData, tipoLaudo }: ExamReportViewProps) {
       </div>
 
       {/* CORPO DO LAUDO */}
-      <div className="border border-border bg-card p-3 sm:p-6 mb-3 sm:mb-4 min-h-[200px] sm:min-h-[300px]">
+      <div className="border border-border bg-card p-3 sm:p-6 mb-3 sm:mb-4 min-h-[200px] sm:min-h-[300px] overflow-x-hidden">
         <div
-          className="prose prose-sm sm:prose max-w-none text-xs sm:text-sm [&_*]:break-words"
+          className="prose prose-sm sm:prose max-w-none text-xs sm:text-sm [&_*]:break-words [&_*]:max-w-full [&_*]:overflow-wrap-anywhere [&_table]:w-full [&_table]:table-fixed [&_img]:max-w-full [&_img]:h-auto [&_pre]:whitespace-pre-wrap [&_pre]:overflow-x-hidden overflow-x-hidden"
           dangerouslySetInnerHTML={{
             __html: examData.dsResultado || "",
           }}
