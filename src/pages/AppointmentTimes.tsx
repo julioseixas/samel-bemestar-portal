@@ -55,8 +55,8 @@ const AppointmentTimes = () => {
   const locationState = location.state || {};
   const { selectedConvenio, selectedEspecialidade, selectedProfissional } = locationState;
 
-  // Priorizar selectedPatient do localStorage para garantir valor atualizado
-  const getSelectedPatient = () => {
+  // Usar useState com inicialização lazy para evitar re-criação do objeto a cada render
+  const [selectedPatient] = useState(() => {
     const storedPatient = localStorage.getItem("selectedPatient");
     if (storedPatient) {
       try {
@@ -66,9 +66,7 @@ const AppointmentTimes = () => {
       }
     }
     return locationState.selectedPatient;
-  };
-
-  const selectedPatient = getSelectedPatient();
+  });
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -108,7 +106,7 @@ const AppointmentTimes = () => {
     if (!selectedPatient || !selectedConvenio || !selectedEspecialidade || !selectedProfissional) {
       navigate("/appointment-professionals");
     }
-  }, [navigate, selectedPatient, selectedConvenio, selectedEspecialidade, selectedProfissional]);
+  }, [navigate, selectedConvenio, selectedEspecialidade, selectedProfissional]);
 
   useEffect(() => {
     if (selectedDate && horarios.length > 0) {
@@ -174,7 +172,7 @@ const AppointmentTimes = () => {
     };
 
     fetchHorarios();
-  }, [selectedPatient, selectedConvenio, selectedEspecialidade, selectedProfissional]);
+  }, [selectedConvenio, selectedEspecialidade, selectedProfissional]);
 
   const isDateAvailable = (date: Date) => {
     const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
