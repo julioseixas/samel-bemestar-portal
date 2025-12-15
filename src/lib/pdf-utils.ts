@@ -129,3 +129,31 @@ export const canSharePdf = (): boolean => {
   
   return false;
 };
+
+/**
+ * Handle printing - uses native Android print if in WebView, otherwise browser print
+ */
+export const handlePrint = (): void => {
+  const bridge = window.AndroidNotificationBridge as { 
+    startNativePrint?: () => void;
+  } | undefined;
+  
+  if (bridge?.startNativePrint) {
+    // WebView: Use native Android print
+    bridge.startNativePrint();
+  } else {
+    // Browser: Use standard window.print()
+    window.print();
+  }
+};
+
+/**
+ * Check if native printing is available (WebView)
+ */
+export const hasNativePrint = (): boolean => {
+  const bridge = window.AndroidNotificationBridge as { 
+    startNativePrint?: unknown;
+  } | undefined;
+  
+  return !!bridge?.startNativePrint;
+};
