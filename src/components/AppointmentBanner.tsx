@@ -183,14 +183,36 @@ export const AppointmentBanner = ({
                       <p className="text-lg sm:text-2xl md:text-3xl font-bold leading-tight">
                         {appointment.specialty}
                       </p>
-                      {appointment.patientName && (
-                        <p className="text-xs sm:text-sm opacity-80 mt-1">
-                          Paciente: <span className="font-semibold">{appointment.patientName}</span>
-                        </p>
-                      )}
                     </div>
 
                     <div className="border-t border-primary-foreground/20 pt-3 sm:pt-4 space-y-2.5 sm:space-y-3">
+                      {/* Paciente */}
+                      {appointment.patientName && (
+                        <div className="flex items-center gap-2">
+                          <div className="bg-primary-foreground/15 p-1.5 sm:p-2 rounded-lg">
+                            <svg
+                              className="h-4 w-4 sm:h-5 sm:w-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="text-[11px] sm:text-xs opacity-90 mb-0.5">Paciente</p>
+                            <p className="text-sm sm:text-base font-semibold leading-tight">
+                              {appointment.patientName}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
                       {/* Data e Horário */}
                       <div className="flex flex-wrap gap-3 sm:gap-4">
                         <div className="flex items-center gap-2">
