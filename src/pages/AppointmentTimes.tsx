@@ -538,11 +538,14 @@ const AppointmentTimes = () => {
               </div>
             )}
 
-            <div className="space-y-2">
+            <div className="space-y-3">
               <Label htmlFor="phone">Telefone (WhatsApp)</Label>
-              <Badge variant="secondary" className="text-xs font-normal">
-                Informe DDD + número. Ex: (92) 90000-0000
-              </Badge>
+              <div className="flex items-center gap-2 p-2 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-md">
+                <span className="text-blue-600 dark:text-blue-400 text-sm">💡</span>
+                <span className="text-xs text-blue-700 dark:text-blue-300">
+                  Informe DDD + número. Ex: <strong>(92) 90000-0000</strong>
+                </span>
+              </div>
               <Input
                 id="phone"
                 type="tel"
