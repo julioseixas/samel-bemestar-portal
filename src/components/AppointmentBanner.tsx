@@ -38,6 +38,7 @@ interface AppointmentBannerProps {
     location: string;
     appointmentId?: number;
     tipoAgendamento?: number;
+    patientName?: string;
   }>;
   onCancel?: () => void;
 }
@@ -182,6 +183,11 @@ export const AppointmentBanner = ({
                       <p className="text-lg sm:text-2xl md:text-3xl font-bold leading-tight">
                         {appointment.specialty}
                       </p>
+                      {appointment.patientName && (
+                        <p className="text-xs sm:text-sm opacity-80 mt-1">
+                          Paciente: <span className="font-semibold">{appointment.patientName}</span>
+                        </p>
+                      )}
                     </div>
 
                     <div className="border-t border-primary-foreground/20 pt-3 sm:pt-4 space-y-2.5 sm:space-y-3">
