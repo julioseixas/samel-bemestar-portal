@@ -39,6 +39,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { handlePdfDownload, handlePdfShare } from "@/lib/pdf-utils";
 
 interface ExamDetail {
   nrSequenciaLaudoPaciente: number;
@@ -170,20 +171,27 @@ export function ExamDetailsDialog({
       const element = document.getElementById('printMe');
       if (!element) return;
 
+      const fileName = `laudo-${selectedExam.nrAtendimento}-${selectedExam.procedimentoExame}.pdf`;
       const opt = {
         margin: 10,
-        filename: `laudo-${selectedExam.nrAtendimento}-${selectedExam.procedimentoExame}.pdf`,
+        filename: fileName,
         image: { type: 'jpeg' as const, quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
       };
 
-      await html2pdf().set(opt).from(element).save();
+      // Generate PDF as blob
+      const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
       
-      toast({
-        title: "Sucesso",
-        description: "PDF baixado com sucesso!",
-      });
+      // Use the utility function for download (handles WebView)
+      const success = await handlePdfDownload(pdfBlob, fileName);
+      
+      if (success) {
+        toast({
+          title: "Sucesso",
+          description: "PDF baixado com sucesso!",
+        });
+      }
     } catch (error) {
       console.error("Erro ao gerar PDF:", error);
       toast({
@@ -203,50 +211,43 @@ export function ExamDetailsDialog({
       if (!element) return;
 
       const tipoExame = apiEndpoint.includes("Lab") ? "Laboratorial" : "CDI";
+      const fileName = `laudo-${examToShare.nrAtendimento}-${examToShare.procedimentoExame}.pdf`;
       const opt = {
         margin: 10,
-        filename: `laudo-${examToShare.nrAtendimento}-${examToShare.procedimentoExame}.pdf`,
+        filename: fileName,
         image: { type: 'jpeg' as const, quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
       };
 
-      // Gerar PDF como blob
-      const pdf = await html2pdf().set(opt).from(element).output('blob');
+      // Generate PDF as blob
+      const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
       
-      // Tentar usar Web Share API se disponível
-      if (navigator.share && navigator.canShare) {
-        const file = new File([pdf], `laudo-${examToShare.nrAtendimento}.pdf`, { type: 'application/pdf' });
-        
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: `Laudo de Exame ${tipoExame}`,
-            text: `Laudo - ${examToShare.procedimentoExame}`,
-          });
-          
-          toast({
-            title: "Sucesso",
-            description: "PDF compartilhado com sucesso!",
-          });
-          return;
-        }
+      // Try to share using utility function (handles WebView)
+      const shared = await handlePdfShare(
+        pdfBlob, 
+        fileName, 
+        `Laudo de Exame ${tipoExame}`,
+        `Laudo - ${examToShare.procedimentoExame}`
+      );
+      
+      if (shared) {
+        toast({
+          title: "Sucesso",
+          description: "PDF compartilhado com sucesso!",
+        });
+        return;
       }
       
-      // Fallback: fazer download e abrir WhatsApp
-      const url = URL.createObjectURL(pdf);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `laudo-${examToShare.nrAtendimento}-${examToShare.procedimentoExame}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
+      // Fallback: download and open WhatsApp
+      await handlePdfDownload(pdfBlob, fileName);
       
       toast({
         title: "Download iniciado",
         description: "PDF baixado. Por favor, anexe-o manualmente no WhatsApp.",
       });
       
-      // Abrir WhatsApp com mensagem
+      // Open WhatsApp with message
       const message = `Olá! Segue o resultado do meu exame ${tipoExame} em anexo.\n\n` +
         `📋 Exame: ${examToShare.procedimentoExame}\n` +
         `📅 Data: ${examToShare.dataEntrada}`;
@@ -376,15 +377,18 @@ export function ExamDetailsDialog({
         
         tempDiv.innerHTML = examContent;
 
+        const fileName = `laudo-${exam.nrAtendimento}-${exam.procedimentoExame.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
         const opt = {
           margin: 10,
-          filename: `laudo-${exam.nrAtendimento}-${exam.procedimentoExame.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
+          filename: fileName,
           image: { type: 'jpeg' as const, quality: 0.98 },
           html2canvas: { scale: 2, useCORS: true },
           jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
         };
 
-        await html2pdf().set(opt).from(tempDiv).save();
+        // Generate PDF as blob and use utility function
+        const pdfBlob = await html2pdf().set(opt).from(tempDiv).output('blob');
+        await handlePdfDownload(pdfBlob, fileName);
         
         // Remover o elemento temporário
         document.body.removeChild(tempDiv);
