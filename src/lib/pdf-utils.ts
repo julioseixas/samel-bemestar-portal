@@ -23,9 +23,10 @@ export const blobToDataUrl = (blob: Blob): Promise<string> => {
 export const handlePdfDownload = async (pdfBlob: Blob, fileName: string): Promise<boolean> => {
   try {
     // Check if we're in Android WebView with download support
-    if (window.AndroidNotificationBridge?.saveBase64File) {
+    const bridge = window.AndroidNotificationBridge as { saveBase64File?: (dataUrl: string, fileName: string) => void } | undefined;
+    if (bridge?.saveBase64File) {
       const dataUrl = await blobToDataUrl(pdfBlob);
-      window.AndroidNotificationBridge.saveBase64File(dataUrl, fileName);
+      bridge.saveBase64File(dataUrl, fileName);
       return true;
     }
 
@@ -89,7 +90,8 @@ export const handlePdfShare = async (
  * Check if the current environment supports PDF download via bridge or browser
  */
 export const canDownloadPdf = (): boolean => {
-  return !!(window.AndroidNotificationBridge?.saveBase64File || typeof document !== 'undefined');
+  const bridge = window.AndroidNotificationBridge as { saveBase64File?: unknown } | undefined;
+  return !!(bridge?.saveBase64File || typeof document !== 'undefined');
 };
 
 /**

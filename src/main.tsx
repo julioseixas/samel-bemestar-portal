@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 
-// Extend Window interface for Android PIP support
+// Extend Window interface for Android Bridge support
 declare global {
   interface Window {
     handlePictureInPictureChange?: (isInPictureInPictureMode: boolean) => void;
@@ -12,7 +12,7 @@ declare global {
       setPipPermission: (isAllowed: boolean) => void;
       enterNativePictureInPicture: () => void;
       saveBase64File: (dataUrl: string, fileName: string) => void;
-      shareFile: (base64Data: string, fileName: string) => void;
+      shareFile: (dataUrl: string, fileName: string) => void;
     };
   }
 }
