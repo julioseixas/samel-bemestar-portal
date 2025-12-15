@@ -223,7 +223,11 @@ const CertificatesList = () => {
 
   const handlePrint = () => {
     if (selectedCertificate) {
-      window.print();
+      if (window.AndroidNotificationBridge && window.AndroidNotificationBridge.startNativePrint) {
+        window.AndroidNotificationBridge.startNativePrint();
+      } else {
+        window.print();
+      }
     }
   };
 

@@ -257,7 +257,11 @@ const LabExamRequests = () => {
   };
 
   const handlePrint = () => {
-    window.print();
+    if (window.AndroidNotificationBridge && window.AndroidNotificationBridge.startNativePrint) {
+      window.AndroidNotificationBridge.startNativePrint();
+    } else {
+      window.print();
+    }
   };
 
   const handleShare = async () => {
