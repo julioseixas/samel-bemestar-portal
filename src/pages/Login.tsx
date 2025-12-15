@@ -103,10 +103,13 @@ const Login = () => {
 
             if (decoded.dependentes && decoded.dependentes.length > 0) {
               decoded.dependentes.forEach((dependente: any) => {
+                const depId = dependente.cdPessoaFisica || dependente.cd_pessoa_fisica || dependente.id;
                 listAllPacient.push({
                   ...dependente,
                   tipo: "Dependente",
-                  cpf: dependente.cpf
+                  cpf: dependente.cpf,
+                  id: depId,
+                  cdPessoaFisica: depId
                 });
               });
             }
