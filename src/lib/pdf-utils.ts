@@ -3,6 +3,31 @@
  */
 
 /**
+ * Execute a function with light theme temporarily applied.
+ * Ensures documents are always generated in light mode regardless of current theme.
+ */
+export const withLightTheme = async <T>(fn: () => Promise<T>): Promise<T> => {
+  const html = document.documentElement;
+  const originalClasses = html.className;
+  const hadDark = html.classList.contains('dark');
+  
+  // Force light theme
+  html.classList.remove('dark');
+  html.classList.add('light');
+  
+  try {
+    return await fn();
+  } finally {
+    // Restore original theme
+    html.className = originalClasses;
+    if (hadDark) {
+      html.classList.add('dark');
+      html.classList.remove('light');
+    }
+  }
+};
+
+/**
  * Convert a Blob to Data URL (complete URL format: "data:application/pdf;base64,...")
  */
 export const blobToDataUrl = (blob: Blob): Promise<string> => {
