@@ -11,7 +11,7 @@ declare global {
       triggerTestNotification: (title: string, message: string) => void;
       setPipPermission: (isAllowed: boolean) => void;
       enterNativePictureInPicture: () => void;
-      downloadFile: (base64Data: string, fileName: string) => void;
+      saveBase64File: (dataUrl: string, fileName: string) => void;
       shareFile: (base64Data: string, fileName: string) => void;
     };
   }
