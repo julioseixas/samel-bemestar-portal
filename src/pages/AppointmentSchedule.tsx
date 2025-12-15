@@ -121,14 +121,14 @@ const AppointmentSchedule = () => {
     const patientApiId = patient.cdPessoaFisica || patient.id;
     
     const patientData = {
-      id: patient.id,
+      id: patient.cdPessoaFisica || patient.id,
       nome: patient.nome,
       tipo: patient.tipo,
       idade: patient.idade,
       sexo: patient.sexo,
       codigoCarteirinha: patient.codigoCarteirinha,
       dataNascimento: patient.dataNascimento,
-      cdPessoaFisica: patient.cdPessoaFisica,
+      cdPessoaFisica: patient.cdPessoaFisica || patient.id,
       idEmpresa: patient.idEmpresa
     };
     
