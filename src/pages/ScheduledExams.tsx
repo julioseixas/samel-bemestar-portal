@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, Clock, MapPin, User, TestTube, XCircle, Stethoscope, Building2, Loader2 } from "lucide-react";
+import { Calendar, Clock, MapPin, User, TestTube, XCircle, Stethoscope, Building2, Loader2, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { getApiHeaders } from "@/lib/api-headers";
@@ -389,6 +389,31 @@ const ScheduledExams = () => {
                       </div>
                     </div>
                   </div>
+
+                  {/* Preparo do Exame */}
+                  {exam.procedimentos && exam.procedimentos.some(proc => proc.descricaoPreparo) && (
+                    <>
+                      <Separator />
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                          Preparo do Exame
+                        </h4>
+                        <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-lg space-y-2">
+                          {exam.procedimentos
+                            .filter(proc => proc.descricaoPreparo)
+                            .map((proc, index) => (
+                              <div key={index} className="flex items-start gap-3">
+                                <FileText className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+                                <div>
+                                  <p className="text-xs font-medium text-amber-700 dark:text-amber-400">{proc.descricao}</p>
+                                  <p className="text-sm text-foreground">{proc.descricaoPreparo}</p>
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             ))}
