@@ -334,10 +334,10 @@ const AppointmentTimes = () => {
       const tipo = selectedHorario.horaEspecial === "N" ? 1 : 2;
       
       // Usar cdPessoaFisica do titular como idCliente
-      const idTitular = titular.titular?.cdPessoaFisica || selectedPatientData.cdPessoaFisica || "";
+      const idTitular = titular.cdPessoaFisica || "";
       
       // Buscar idEmpresa do selectedPatient
-      const idEmpresa = selectedPatientData.idEmpresa || titular.titular?.idEmpresa || 0;
+      const idEmpresa = selectedPatientData.idEmpresa || titular.idEmpresa || 0;
 
       const response = await fetch(
         'https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ConfirmarAgendamento2',
