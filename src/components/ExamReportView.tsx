@@ -1,6 +1,6 @@
-import { Card } from "@/components/ui/card";
+import { useMemo } from "react";
+import DOMPurify from "dompurify";
 import samelLogo from "@/assets/samel-logo.png";
-
 interface ExamReportViewProps {
   examData: {
     procedimentoExame: string;
