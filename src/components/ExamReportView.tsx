@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import DOMPurify from "dompurify";
 import samelLogo from "@/assets/samel-logo.png";
+
 interface ExamReportViewProps {
   examData: {
     procedimentoExame: string;
@@ -18,7 +19,48 @@ interface ExamReportViewProps {
   tipoLaudo: "lab" | "cdi";
 }
 
+// Função para sanitizar HTML removendo larguras fixas
+const sanitizeHtmlContent = (html: string): string => {
+  if (!html) return "";
+
+  // Hook para remover larguras fixas
+  DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+    // Remove atributo width de qualquer elemento
+    if (node.hasAttribute && node.hasAttribute('width')) {
+      node.removeAttribute('width');
+    }
+    // Remove atributo height de imagens para manter proporção
+    if (node.tagName === 'IMG' && node.hasAttribute('height')) {
+      node.removeAttribute('height');
+    }
+    // Remove larguras do style inline
+    if (node.hasAttribute && node.hasAttribute('style')) {
+      const style = node.getAttribute('style') || '';
+      const cleanStyle = style
+        .replace(/width\s*:\s*[^;]+;?/gi, '')
+        .replace(/min-width\s*:\s*[^;]+;?/gi, '')
+        .replace(/max-width\s*:\s*[^;]+;?/gi, '');
+      if (cleanStyle.trim()) {
+        node.setAttribute('style', cleanStyle);
+      } else {
+        node.removeAttribute('style');
+      }
+    }
+  });
+
+  const clean = DOMPurify.sanitize(html, {
+    FORBID_TAGS: ['style', 'meta', 'link'],
+  });
+
+  DOMPurify.removeHook('afterSanitizeAttributes');
+  return clean;
+};
+
 export function ExamReportView({ examData, tipoLaudo }: ExamReportViewProps) {
+  // Sanitiza o HTML do resultado e assinatura para remover larguras fixas
+  const sanitizedResult = useMemo(() => sanitizeHtmlContent(examData.dsResultado), [examData.dsResultado]);
+  const sanitizedSignature = useMemo(() => sanitizeHtmlContent(examData.dsAssinatura), [examData.dsAssinatura]);
+
   return (
     <div id="printMe" className="bg-background p-3 sm:p-6 w-full max-w-[800px] mx-auto print:p-0 overflow-x-hidden">
       {/* CABEÇALHO */}
@@ -65,9 +107,9 @@ export function ExamReportView({ examData, tipoLaudo }: ExamReportViewProps) {
       {/* CORPO DO LAUDO */}
       <div className="border border-border bg-card p-3 sm:p-6 mb-3 sm:mb-4 min-h-[200px] sm:min-h-[300px] overflow-x-hidden">
         <div
-          className="prose prose-sm sm:prose max-w-none text-xs sm:text-sm [&_*]:break-words [&_*]:max-w-full [&_*]:overflow-wrap-anywhere [&_table]:w-full [&_table]:table-fixed [&_img]:max-w-full [&_img]:h-auto [&_pre]:whitespace-pre-wrap [&_pre]:overflow-x-hidden overflow-x-hidden"
+          className="prose prose-sm sm:prose max-w-none text-xs sm:text-sm [&_*]:break-words [&_*]:max-w-full [&_*]:overflow-wrap-anywhere [&_table]:w-full [&_table]:table-fixed [&_td]:break-words [&_th]:break-words [&_img]:max-w-full [&_img]:h-auto [&_pre]:whitespace-pre-wrap [&_pre]:overflow-x-hidden overflow-x-hidden"
           dangerouslySetInnerHTML={{
-            __html: examData.dsResultado || "",
+            __html: sanitizedResult,
           }}
         />
       </div>
@@ -115,7 +157,7 @@ export function ExamReportView({ examData, tipoLaudo }: ExamReportViewProps) {
           <div
             className="text-center min-h-[60px] sm:min-h-[80px] flex items-center justify-center text-xs sm:text-sm [&_img]:max-w-full [&_img]:h-auto"
             dangerouslySetInnerHTML={{
-              __html: examData.dsAssinatura || "",
+              __html: sanitizedSignature,
             }}
           />
         </div>
