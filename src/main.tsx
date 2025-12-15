@@ -13,6 +13,7 @@ declare global {
       enterNativePictureInPicture: () => void;
       saveBase64File: (dataUrl: string, fileName: string) => void;
       requestShareFile: (fileName: string) => void;
+      startNativePrint: () => void;
     };
   }
 }
