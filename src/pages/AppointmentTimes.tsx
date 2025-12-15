@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
+import { Badge } from "@/components/ui/badge";
 
 interface HorarioDisponivel {
   id: number;
@@ -539,6 +540,9 @@ const AppointmentTimes = () => {
 
             <div className="space-y-2">
               <Label htmlFor="phone">Telefone (WhatsApp)</Label>
+              <Badge variant="secondary" className="text-xs font-normal">
+                Informe DDD + número. Ex: (92) 90000-0000
+              </Badge>
               <Input
                 id="phone"
                 type="tel"
