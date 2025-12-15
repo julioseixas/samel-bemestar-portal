@@ -3,16 +3,13 @@
  */
 
 /**
- * Convert a Blob to base64 string
+ * Convert a Blob to Data URL (complete URL format: "data:application/pdf;base64,...")
  */
-export const blobToBase64 = (blob: Blob): Promise<string> => {
+export const blobToDataUrl = (blob: Blob): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onloadend = () => {
-      const result = reader.result as string;
-      // Remove data URL prefix if present (e.g., "data:application/pdf;base64,")
-      const base64 = result.includes(',') ? result.split(',')[1] : result;
-      resolve(base64);
+      resolve(reader.result as string);
     };
     reader.onerror = reject;
     reader.readAsDataURL(blob);
@@ -27,8 +24,8 @@ export const handlePdfDownload = async (pdfBlob: Blob, fileName: string): Promis
   try {
     // Check if we're in Android WebView with download support
     if (window.AndroidNotificationBridge?.downloadFile) {
-      const base64 = await blobToBase64(pdfBlob);
-      window.AndroidNotificationBridge.downloadFile(base64, fileName);
+      const dataUrl = await blobToDataUrl(pdfBlob);
+      window.AndroidNotificationBridge.downloadFile(dataUrl, fileName);
       return true;
     }
 
@@ -61,8 +58,8 @@ export const handlePdfShare = async (
   try {
     // Check if we're in Android WebView with share support
     if (window.AndroidNotificationBridge?.shareFile) {
-      const base64 = await blobToBase64(pdfBlob);
-      window.AndroidNotificationBridge.shareFile(base64, fileName);
+      const dataUrl = await blobToDataUrl(pdfBlob);
+      window.AndroidNotificationBridge.shareFile(dataUrl, fileName);
       return true;
     }
 
