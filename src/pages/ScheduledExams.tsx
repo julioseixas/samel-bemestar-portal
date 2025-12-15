@@ -406,7 +406,7 @@ const ScheduledExams = () => {
                                 <FileText className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
                                 <div>
                                   <p className="text-xs font-medium text-amber-700 dark:text-amber-400">{proc.descricao}</p>
-                                  <p className="text-sm text-foreground">{proc.descricaoPreparo}</p>
+                                  <p className="text-sm text-foreground whitespace-pre-line">{proc.descricaoPreparo}</p>
                                 </div>
                               </div>
                             ))}
