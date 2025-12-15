@@ -161,7 +161,11 @@ export function ExamDetailsDialog({
   };
 
   const handlePrintReport = () => {
-    window.print();
+    if (window.AndroidNotificationBridge && window.AndroidNotificationBridge.startNativePrint) {
+      window.AndroidNotificationBridge.startNativePrint();
+    } else {
+      window.print();
+    }
   };
 
   const handleDownloadReport = async () => {
