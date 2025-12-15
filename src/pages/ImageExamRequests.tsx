@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { getApiHeaders } from "@/lib/api-headers";
+import { handlePdfDownload, handlePdfShare } from "@/lib/pdf-utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip,
@@ -221,14 +222,38 @@ const ImageExamRequests = () => {
   const handleDownloadPDF = async () => {
     if (!selectedRequest) return;
     const element = document.getElementById("printMe");
+    if (!element) return;
+    
+    const fileName = `pedido_exame_imagem_${selectedRequest.nrAtendimento}.pdf`;
     const options = {
       margin: 0.5,
-      filename: `pedido_exame_imagem_${selectedRequest.nrAtendimento}.pdf`,
+      filename: fileName,
       image: { type: "jpeg" as const, quality: 0.98 },
       html2canvas: { scale: 2 },
       jsPDF: { unit: "in", format: "a4", orientation: "portrait" as const },
     };
-    html2pdf().set(options).from(element).save();
+    
+    try {
+      // Generate PDF as blob
+      const pdfBlob = await html2pdf().set(options).from(element).output("blob");
+      
+      // Use utility function for download (handles WebView)
+      const success = await handlePdfDownload(pdfBlob, fileName);
+      
+      if (success) {
+        toast({
+          title: "Sucesso",
+          description: "PDF baixado com sucesso!",
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível gerar o PDF.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handlePrint = () => {
@@ -238,30 +263,39 @@ const ImageExamRequests = () => {
   const handleShare = async () => {
     if (!selectedRequest) return;
     const element = document.getElementById("printMe");
+    if (!element) return;
+    
+    const fileName = `pedido_exame_imagem_${selectedRequest.nrAtendimento}.pdf`;
     const options = {
       margin: 0.5,
-      filename: `pedido_exame_imagem_${selectedRequest.nrAtendimento}.pdf`,
+      filename: fileName,
       image: { type: "jpeg" as const, quality: 0.98 },
       html2canvas: { scale: 2 },
       jsPDF: { unit: "in", format: "a4", orientation: "portrait" as const },
     };
 
     try {
-      const pdfBlob = await html2pdf().set(options).from(element).outputPdf("blob");
-      const file = new File([pdfBlob], `pedido_exame_imagem_${selectedRequest.nrAtendimento}.pdf`, {
-        type: "application/pdf",
-      });
-
-      if (navigator.share && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: "Pedido de Exame de Imagem",
+      // Generate PDF as blob
+      const pdfBlob = await html2pdf().set(options).from(element).output("blob");
+      
+      // Try to share using utility function (handles WebView)
+      const shared = await handlePdfShare(
+        pdfBlob, 
+        fileName, 
+        "Pedido de Exame de Imagem"
+      );
+      
+      if (shared) {
+        toast({
+          title: "Sucesso",
+          description: "PDF compartilhado com sucesso!",
         });
       } else {
+        // Fallback: download instead
+        await handlePdfDownload(pdfBlob, fileName);
         toast({
-          title: "Compartilhamento não disponível",
-          description: "Seu dispositivo não suporta compartilhamento de arquivos.",
-          variant: "destructive",
+          title: "Download iniciado",
+          description: "PDF baixado. Por favor, compartilhe manualmente.",
         });
       }
     } catch (error) {
