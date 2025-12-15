@@ -52,7 +52,23 @@ const AppointmentTimes = () => {
   const [selectedNrSeqMedAvaliacao, setSelectedNrSeqMedAvaliacao] = useState<number | null>(null);
   const { toast } = useToast();
 
-  const { selectedPatient, selectedConvenio, selectedEspecialidade, selectedProfissional } = location.state || {};
+  const locationState = location.state || {};
+  const { selectedConvenio, selectedEspecialidade, selectedProfissional } = locationState;
+
+  // Priorizar selectedPatient do localStorage para garantir valor atualizado
+  const getSelectedPatient = () => {
+    const storedPatient = localStorage.getItem("selectedPatient");
+    if (storedPatient) {
+      try {
+        return JSON.parse(storedPatient);
+      } catch (error) {
+        console.error("Erro ao parsear selectedPatient:", error);
+      }
+    }
+    return locationState.selectedPatient;
+  };
+
+  const selectedPatient = getSelectedPatient();
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
