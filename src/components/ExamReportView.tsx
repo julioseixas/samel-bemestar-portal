@@ -107,7 +107,7 @@ export function ExamReportView({ examData, tipoLaudo }: ExamReportViewProps) {
       {/* CORPO DO LAUDO */}
       <div className="border border-border bg-card p-3 sm:p-6 mb-3 sm:mb-4 min-h-[200px] sm:min-h-[300px] overflow-x-hidden">
         <div
-          className="prose prose-sm sm:prose max-w-none text-xs sm:text-sm [&_*]:break-words [&_*]:max-w-full [&_*]:overflow-wrap-anywhere [&_table]:w-full [&_table]:table-fixed [&_td]:break-words [&_th]:break-words [&_img]:max-w-full [&_img]:h-auto [&_pre]:whitespace-pre-wrap [&_pre]:overflow-x-hidden overflow-x-hidden"
+          className="max-w-none text-[10px] sm:text-sm [&_p]:text-[10px] [&_p]:sm:text-sm [&_td]:text-[10px] [&_td]:sm:text-sm [&_th]:text-[10px] [&_th]:sm:text-sm [&_span]:text-[10px] [&_span]:sm:text-sm [&_*]:break-words [&_*]:max-w-full [&_*]:overflow-wrap-anywhere [&_table]:w-full [&_table]:table-fixed [&_td]:break-words [&_th]:break-words [&_img]:max-w-full [&_img]:h-auto [&_pre]:whitespace-pre-wrap [&_pre]:overflow-x-hidden overflow-x-hidden [&_*]:leading-tight sm:[&_*]:leading-normal"
           dangerouslySetInnerHTML={{
             __html: sanitizedResult,
           }}
