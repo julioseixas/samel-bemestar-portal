@@ -356,7 +356,7 @@ const AppointmentTimes = () => {
             idEmpresa: idEmpresa,
             procedimentos: [],
             tipo: tipo,
-            idDependente: selectedPatient.id,
+            idDependente: selectedPatient.cdPessoaFisica || selectedPatient.id,
             ie_encaminhamento: useEncaminhamento ? "S" : "N",
             nr_seq_med_avaliacao_paciente: useEncaminhamento && selectedNrSeqMedAvaliacao 
               ? selectedNrSeqMedAvaliacao 
