@@ -12,7 +12,7 @@ declare global {
       setPipPermission: (isAllowed: boolean) => void;
       enterNativePictureInPicture: () => void;
       saveBase64File: (dataUrl: string, fileName: string) => void;
-      shareFile: (dataUrl: string, fileName: string) => void;
+      requestShareFile: (fileName: string) => void;
     };
   }
 }

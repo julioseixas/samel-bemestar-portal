@@ -58,9 +58,18 @@ export const handlePdfShare = async (
 ): Promise<boolean> => {
   try {
     // Check if we're in Android WebView with share support
-    if (window.AndroidNotificationBridge?.shareFile) {
+    const bridge = window.AndroidNotificationBridge as { 
+      saveBase64File?: (dataUrl: string, fileName: string) => void;
+      requestShareFile?: (fileName: string) => void;
+    } | undefined;
+    
+    if (bridge?.saveBase64File && bridge?.requestShareFile) {
+      // Step 1: Save the file first
       const dataUrl = await blobToDataUrl(pdfBlob);
-      window.AndroidNotificationBridge.shareFile(dataUrl, fileName);
+      bridge.saveBase64File(dataUrl, fileName);
+      
+      // Step 2: Request share using the saved file name
+      bridge.requestShareFile(fileName);
       return true;
     }
 
@@ -98,10 +107,17 @@ export const canDownloadPdf = (): boolean => {
  * Check if the current environment supports PDF sharing
  */
 export const canSharePdf = (): boolean => {
-  if (window.AndroidNotificationBridge?.shareFile) {
+  const bridge = window.AndroidNotificationBridge as { 
+    saveBase64File?: unknown;
+    requestShareFile?: unknown;
+  } | undefined;
+  
+  // WebView: needs both functions
+  if (bridge?.saveBase64File && bridge?.requestShareFile) {
     return true;
   }
   
+  // Web: check Web Share API
   if (navigator.share && navigator.canShare) {
     try {
       const testFile = new File(['test'], 'test.pdf', { type: 'application/pdf' });
