@@ -717,17 +717,17 @@ export function ExamDetailsDialog({
           if (!isOpen) setSelectedExam(null);
         }}
       >
-        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-[95vw] w-full h-[75vh] sm:h-[90vh] flex flex-col p-0">
-          <DialogHeader className="px-6 py-4 border-b bg-card shrink-0">
-            <DialogTitle className="text-xl">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-[95vw] w-full h-[75vh] sm:h-[90vh] flex flex-col p-0 overflow-x-hidden">
+          <DialogHeader className="px-3 sm:px-6 py-3 sm:py-4 border-b bg-card shrink-0">
+            <DialogTitle className="text-lg sm:text-xl">
               Laudo - {selectedExam?.procedimentoExame}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs sm:text-sm">
               Laudo completo do exame com informações do paciente e resultado
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto px-6 py-4">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden px-2 sm:px-6 py-3 sm:py-4">
             {selectedExam && (
               <ExamReportView
                 examData={{
@@ -802,17 +802,17 @@ export function ExamDetailsDialog({
           }
         }}
       >
-        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-[95vw] w-full h-[75vh] sm:h-[90vh] flex flex-col p-0">
-          <DialogHeader className="px-6 py-4 border-b bg-card shrink-0">
-            <DialogTitle className="text-xl">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-[95vw] w-full h-[75vh] sm:h-[90vh] flex flex-col p-0 overflow-x-hidden">
+          <DialogHeader className="px-3 sm:px-6 py-3 sm:py-4 border-b bg-card shrink-0">
+            <DialogTitle className="text-lg sm:text-xl">
               Laudos Selecionados ({selectedExamIndexes.size} exames)
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs sm:text-sm">
               Visualização de múltiplos laudos em sequência
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto px-6 py-4">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden px-2 sm:px-6 py-3 sm:py-4">
             {getSelectedExams().map((exam, index) => (
               <div key={`report-${index}`} className="mb-8 pb-8 border-b last:border-b-0">
                 <h3 className="text-lg font-semibold mb-4 text-primary">
