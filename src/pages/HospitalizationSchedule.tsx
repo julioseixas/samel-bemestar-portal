@@ -189,7 +189,7 @@ export default function HospitalizationSchedule() {
         navigate("/hospitalization-options");
       } else {
         setIsLoading(false);
-        navigate("/hospitalization-list");
+        navigate("/hospitalization-options");
       }
     } catch (error) {
       console.error("Erro ao buscar dados de internação:", error);

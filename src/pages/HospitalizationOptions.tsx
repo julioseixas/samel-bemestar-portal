@@ -10,6 +10,7 @@ export default function HospitalizationOptions() {
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string>("");
   const [hasIdAtendimento, setHasIdAtendimento] = useState(false);
+  const [hasSurgicalSchedule, setHasSurgicalSchedule] = useState(false);
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -33,8 +34,8 @@ export default function HospitalizationOptions() {
 
     // Verifica se tem dados da agenda cirúrgica
     const surgicalSchedule = localStorage.getItem("surgicalSchedule");
-    if (!surgicalSchedule) {
-      navigate("/dashboard");
+    if (surgicalSchedule) {
+      setHasSurgicalSchedule(true);
     }
 
     // Verifica se tem idAtendimento para habilitar prescrições
@@ -49,7 +50,7 @@ export default function HospitalizationOptions() {
         console.error("Erro ao processar hospitalizationData:", error);
       }
     }
-  }, [navigate]);
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -80,18 +81,24 @@ export default function HospitalizationOptions() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {/* Acompanhamento Cirúrgico */}
             <Card 
-              className="group cursor-pointer transition-all hover:shadow-lg border-2 hover:border-primary"
-              onClick={() => navigate("/surgical-tracking")}
+              className={
+                hasSurgicalSchedule
+                  ? "group cursor-pointer transition-all hover:shadow-lg border-2 hover:border-primary"
+                  : "opacity-50 cursor-not-allowed border-2"
+              }
+              onClick={hasSurgicalSchedule ? () => navigate("/surgical-tracking") : undefined}
             >
               <CardHeader>
                 <div className="flex items-center gap-4">
-                  <div className="rounded-full bg-primary/10 p-3 group-hover:bg-primary/20 transition-colors">
-                    <Stethoscope className="h-6 w-6 text-primary" />
+                  <div className={`rounded-full p-3 ${hasSurgicalSchedule ? 'bg-primary/10 group-hover:bg-primary/20 transition-colors' : 'bg-muted'}`}>
+                    <Stethoscope className={`h-6 w-6 ${hasSurgicalSchedule ? 'text-primary' : 'text-muted-foreground'}`} />
                   </div>
                   <div className="flex-1">
-                    <CardTitle className="text-lg">Acompanhamento Cirúrgico</CardTitle>
+                    <CardTitle className={`text-lg ${hasSurgicalSchedule ? '' : 'text-muted-foreground'}`}>
+                      Acompanhamento Cirúrgico
+                    </CardTitle>
                     <CardDescription className="mt-1">
-                      Veja os detalhes da sua cirurgia agendada
+                      {hasSurgicalSchedule ? "Veja os detalhes da sua cirurgia agendada" : "Sem agenda cirúrgica"}
                     </CardDescription>
                   </div>
                 </div>
