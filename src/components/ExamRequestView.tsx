@@ -11,7 +11,7 @@ interface ExamRequestViewProps {
     nomeProfissional: string;
     dataEntrada: string;
     retornoDadosMobile: string;
-    idCliente: string;
+    nrPedido: number;
   };
 }
 
@@ -36,7 +36,7 @@ export function ExamRequestView({ examData }: ExamRequestViewProps) {
         </div>
         <div className="w-[70px] sm:w-[120px] flex items-center justify-center p-1 sm:p-2 bg-card">
           <QRCode 
-            value={examData.idCliente} 
+            value={String(examData.nrPedido)} 
             size={60}
             level="M"
             className="w-[60px] h-[60px] sm:w-[100px] sm:h-[100px]"
