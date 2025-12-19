@@ -40,6 +40,8 @@ interface AppointmentBannerProps {
     appointmentId?: number;
     tipoAgendamento?: number;
     patientName?: string;
+    idCliente?: string;
+    idAgenda?: number;
   }>;
   onCancel?: () => void;
 }
@@ -50,6 +52,7 @@ export const AppointmentBanner = ({
 }: AppointmentBannerProps) => {
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
+  const [isCheckingIn, setIsCheckingIn] = useState(false);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<number | undefined>();
   const [selectedAppointmentType, setSelectedAppointmentType] = useState<number | undefined>();
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
@@ -98,6 +101,67 @@ export const AppointmentBanner = ({
     setSelectedLocation(appointment.location);
     setSelectedUnitName(appointment.specialty); // Use specialty as unit identifier
     setShowMapDialog(true);
+  };
+
+  const handleTelemedicineCheckIn = async (appointment: any) => {
+    if (!appointment.idCliente) {
+      toast({
+        title: "Erro",
+        description: "Dados do agendamento incompletos para check-in.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsCheckingIn(true);
+
+    try {
+      const headers = getApiHeaders();
+
+      // Chamar ListarAgendamentosTele para obter dados da consulta
+      const response = await fetch(
+        "https://appv2-back.samel.com.br/api/Agenda/ListarAgendamentosTele",
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            idCliente: appointment.idCliente
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      if (!data.sucesso) {
+        throw new Error(data.mensagem || "Erro ao buscar agendamentos");
+      }
+
+      // Salvar dados do paciente selecionado no localStorage
+      localStorage.setItem(
+        "selectedPatientOnlineConsultation",
+        JSON.stringify({
+          id: appointment.idCliente,
+          nome: appointment.patientName || "Paciente"
+        })
+      );
+
+      // Navegar para a página de detalhes da consulta online
+      navigate("/online-consultation-details");
+
+      toast({
+        title: "Redirecionando",
+        description: "Complete o check-in para entrar na fila de atendimento.",
+      });
+
+    } catch (error) {
+      toast({
+        title: "Erro no check-in",
+        description: error instanceof Error ? error.message : "Tente novamente mais tarde.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCheckingIn(false);
+    }
   };
 
   const handleCancelConfirm = async () => {
@@ -297,12 +361,21 @@ export const AppointmentBanner = ({
                       <Button
                         variant="outline"
                         size="lg"
-                        className="flex-1 border-2 border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary font-semibold h-11 sm:h-12 text-sm sm:text-base shadow-sm hover:shadow-md transition-all"
-                        onClick={() => navigate("/telemedicine-queue")}
+                        className="flex-1 border-2 border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary font-semibold h-11 sm:h-12 text-sm sm:text-base shadow-sm hover:shadow-md transition-all disabled:opacity-50"
+                        onClick={() => handleTelemedicineCheckIn(appointment)}
+                        disabled={isCheckingIn}
                       >
-                        <Video className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                        <span className="hidden xs:inline">Fazer Check-in</span>
-                        <span className="xs:hidden">Check-in</span>
+                        {isCheckingIn ? (
+                          <Loader2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+                        ) : (
+                          <Video className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                        )}
+                        <span className="hidden xs:inline">
+                          {isCheckingIn ? "Carregando..." : "Fazer Check-in"}
+                        </span>
+                        <span className="xs:hidden">
+                          {isCheckingIn ? "..." : "Check-in"}
+                        </span>
                       </Button>
                     ) : (
                       <Button

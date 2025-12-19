@@ -188,6 +188,8 @@ const Index = () => {
       appointmentId: appointment.id,
       tipoAgendamento: appointment.tipoAgendamento,
       patientName: appointment.nomeCliente,
+      idCliente: String(appointment.idCliente),
+      idAgenda: appointment.idAgenda,
     }));
   };
 
