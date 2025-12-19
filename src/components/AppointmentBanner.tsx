@@ -1,6 +1,7 @@
-import { Calendar, Clock, MapPin, Loader2, X, Navigation } from "lucide-react";
+import { Calendar, Clock, MapPin, Loader2, X, Navigation, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { getApiHeaders } from "@/lib/api-headers";
 import {
@@ -57,6 +58,7 @@ export const AppointmentBanner = ({
   const [selectedLocation, setSelectedLocation] = useState("");
   const [selectedUnitName, setSelectedUnitName] = useState("");
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const isMobile = () => {
     return window.innerWidth < 768;
@@ -291,28 +293,29 @@ export const AppointmentBanner = ({
                       <span className="hidden xs:inline">Cancelar Agendamento</span>
                       <span className="xs:hidden">Cancelar</span>
                     </Button>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="lg"
-                            className="flex-1 border-2 border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary font-semibold h-11 sm:h-12 text-sm sm:text-base shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                            onClick={() => handleRouteClick(appointment)}
-                            disabled={appointment.location === "Telemedicina"}
-                          >
-                            <Navigation className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                            <span className="hidden xs:inline">Como Chegar</span>
-                            <span className="xs:hidden">Rota</span>
-                          </Button>
-                        </TooltipTrigger>
-                        {appointment.location === "Telemedicina" && (
-                          <TooltipContent>
-                            <p>Esta é uma consulta online. Não é necessário deslocamento.</p>
-                          </TooltipContent>
-                        )}
-                      </Tooltip>
-                    </TooltipProvider>
+                    {appointment.location === "Telemedicina" ? (
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        className="flex-1 border-2 border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary font-semibold h-11 sm:h-12 text-sm sm:text-base shadow-sm hover:shadow-md transition-all"
+                        onClick={() => navigate("/telemedicine-queue")}
+                      >
+                        <Video className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                        <span className="hidden xs:inline">Fazer Check-in</span>
+                        <span className="xs:hidden">Check-in</span>
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        className="flex-1 border-2 border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary font-semibold h-11 sm:h-12 text-sm sm:text-base shadow-sm hover:shadow-md transition-all"
+                        onClick={() => handleRouteClick(appointment)}
+                      >
+                        <Navigation className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                        <span className="hidden xs:inline">Como Chegar</span>
+                        <span className="xs:hidden">Rota</span>
+                      </Button>
+                    )}
                   </div>
                 </div>
               </CarouselItem>
