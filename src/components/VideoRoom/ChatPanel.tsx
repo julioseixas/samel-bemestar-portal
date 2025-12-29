@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { X, Send, ArrowLeft, KeyRound, Loader2, RefreshCw, Plus, Copy } from "lucide-react";
+import { X, Send, ArrowLeft, KeyRound, Loader2, RefreshCw, Plus, Copy, Paperclip, FileText, Image as ImageIcon, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import {
@@ -10,6 +10,25 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { handlePdfDownload } from "@/lib/pdf-utils";
+
+// File upload constants
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const ACCEPTED_TYPES: Record<string, 'pdf' | 'image'> = {
+  'application/pdf': 'pdf',
+  'image/jpeg': 'image',
+  'image/jpg': 'image',
+  'image/png': 'image',
+};
+
+export interface ChatAttachment {
+  type: 'file';
+  fileName: string;
+  fileType: 'pdf' | 'image';
+  mimeType: string;
+  fileUrl: string;
+  fileSize: number;
+}
 
 export interface ChatMessage {
   id: string;
@@ -17,6 +36,7 @@ export interface ChatMessage {
   senderName: string;
   message: string;
   timestamp: Date;
+  attachment?: ChatAttachment;
 }
 
 interface TokenData {
@@ -32,21 +52,85 @@ interface ChatPanelProps {
   onClose: () => void;
   messages: ChatMessage[];
   onSendMessage: (message: string) => void;
+  onSendFile?: (file: File) => Promise<void>;
   localParticipantId?: string;
   nrAtendimento?: string;
   cdMedico?: string;
+  isUploadingFile?: boolean;
 }
+
+// Helper to format file size
+const formatFileSize = (bytes: number): string => {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+// Attachment preview component
+const AttachmentPreview: React.FC<{ attachment: ChatAttachment; isLocal: boolean }> = ({ attachment, isLocal }) => {
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownload = async () => {
+    if (isDownloading) return;
+    
+    setIsDownloading(true);
+    try {
+      const response = await fetch(attachment.fileUrl);
+      if (!response.ok) throw new Error("Erro ao baixar arquivo");
+      
+      const blob = await response.blob();
+      await handlePdfDownload(blob, attachment.fileName);
+      toast.success("Download iniciado!");
+    } catch (error) {
+      toast.error("Erro ao baixar arquivo");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  return (
+    <div 
+      className={cn(
+        "flex items-center gap-2 p-2 mt-1 rounded cursor-pointer transition-colors",
+        isLocal ? "bg-primary-foreground/20 hover:bg-primary-foreground/30" : "bg-muted/50 hover:bg-muted"
+      )}
+      onClick={handleDownload}
+    >
+      {attachment.fileType === 'pdf' ? (
+        <FileText className={cn("h-5 w-5", isLocal ? "text-primary-foreground" : "text-red-500")} />
+      ) : (
+        <ImageIcon className={cn("h-5 w-5", isLocal ? "text-primary-foreground" : "text-blue-500")} />
+      )}
+      <div className="flex-1 min-w-0">
+        <p className={cn("text-xs font-medium truncate", isLocal && "text-primary-foreground")}>
+          {attachment.fileName}
+        </p>
+        <p className={cn("text-[10px]", isLocal ? "text-primary-foreground/70" : "text-muted-foreground")}>
+          {formatFileSize(attachment.fileSize)} - Toque para baixar
+        </p>
+      </div>
+      {isDownloading ? (
+        <Loader2 className={cn("h-4 w-4 animate-spin", isLocal ? "text-primary-foreground" : "text-muted-foreground")} />
+      ) : (
+        <Download className={cn("h-4 w-4", isLocal ? "text-primary-foreground" : "text-muted-foreground")} />
+      )}
+    </div>
+  );
+};
 
 const ChatPanel: React.FC<ChatPanelProps> = ({ 
   onClose, 
   messages, 
   onSendMessage,
+  onSendFile,
   localParticipantId,
   nrAtendimento,
   cdMedico,
+  isUploadingFile = false,
 }) => {
   const [message, setMessage] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [tokenLoading, setTokenLoading] = useState(false);
   const [tokenData, setTokenData] = useState<TokenData | null>(null);
   const [tokenPopoverOpen, setTokenPopoverOpen] = useState(false);
@@ -161,6 +245,40 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
+
+  // File selection handler
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error(`Arquivo muito grande. Tamanho máximo: 10MB`);
+      return;
+    }
+
+    // Validate file type
+    if (!Object.keys(ACCEPTED_TYPES).includes(file.type)) {
+      toast.error(`Formato não suportado. Use: PDF, JPG ou PNG`);
+      return;
+    }
+
+    // Send file
+    if (onSendFile) {
+      try {
+        await onSendFile(file);
+      } catch (error) {
+        toast.error("Erro ao enviar arquivo");
+      }
+    } else {
+      toast.error("Função de upload não disponível");
+    }
   };
 
   const isTokenValidated = tokenData?.VALIDADO === "S";
@@ -308,6 +426,9 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
                       )}
                     >
                       {msg.message}
+                      {msg.attachment && (
+                        <AttachmentPreview attachment={msg.attachment} isLocal={isLocal} />
+                      )}
                     </div>
                     <span className="text-[10px] sm:text-xs text-muted-foreground px-1">
                       {formatTime(msg.timestamp)}
@@ -322,23 +443,54 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
 
       {/* Input - responsive and always visible */}
       <div className="p-3 sm:p-4 border-t shrink-0 bg-background">
+        {/* Hidden file input */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          className="hidden"
+          accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+          onChange={handleFileSelect}
+        />
+        
         <div className="flex gap-2">
+          {/* Attachment button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 sm:h-10 sm:w-10 shrink-0"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploadingFile}
+            title="Anexar exame (PDF, JPG, PNG - máx 10MB)"
+          >
+            {isUploadingFile ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Paperclip className="h-4 w-4" />
+            )}
+          </Button>
+          
           <Input
             placeholder="Digite sua mensagem..."
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             className="flex-1 text-sm sm:text-base h-9 sm:h-10"
+            disabled={isUploadingFile}
           />
           <Button 
             onClick={handleSend} 
-            disabled={!message.trim()}
+            disabled={!message.trim() || isUploadingFile}
             size="icon"
             className="h-9 w-9 sm:h-10 sm:w-10 shrink-0"
           >
             <Send className="h-4 w-4" />
           </Button>
         </div>
+        
+        {/* File format indicator */}
+        <p className="text-[10px] text-muted-foreground mt-1.5 text-center">
+          Anexos: PDF, JPG, PNG (máx 10MB)
+        </p>
       </div>
     </div>
   );
