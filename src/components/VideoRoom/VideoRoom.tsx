@@ -182,23 +182,43 @@ const MeetingView: React.FC<{
       let timestamp = data.timestamp ? new Date(data.timestamp) : new Date();
       let attachment: ChatAttachment | undefined = undefined;
 
-      // Try to parse if it's a JSON string
+      // Try to parse if it's a JSON string (this is how we send file attachments)
       if (typeof messageContent === "string") {
         try {
           const parsed = JSON.parse(messageContent);
-          if (parsed.message) {
-            messageContent = parsed.message;
-            senderName = parsed.senderName || senderName;
-            timestamp = parsed.timestamp ? new Date(parsed.timestamp) : timestamp;
-            attachment = parsed.attachment; // Extract attachment data
+          // Check if this is our structured message format
+          if (parsed && typeof parsed === "object") {
+            // Extract message text
+            if (parsed.message) {
+              messageContent = parsed.message;
+            }
+            // Extract sender name
+            if (parsed.senderName) {
+              senderName = parsed.senderName;
+            }
+            // Extract timestamp
+            if (parsed.timestamp) {
+              timestamp = new Date(parsed.timestamp);
+            }
+            // Extract attachment data if present
+            if (parsed.attachment && typeof parsed.attachment === "object") {
+              attachment = {
+                type: parsed.attachment.type || "file",
+                fileName: parsed.attachment.fileName || "arquivo",
+                fileType: parsed.attachment.fileType || "pdf",
+                mimeType: parsed.attachment.mimeType || "application/octet-stream",
+                fileUrl: parsed.attachment.fileUrl || "",
+                fileSize: parsed.attachment.fileSize || 0,
+              };
+            }
           }
         } catch {
           // Not JSON, use as plain text - this is fine
         }
       }
 
-      // If message is still an object, stringify it for display
-      if (typeof messageContent === "object") {
+      // If message is still an object (not parsed), stringify it for display
+      if (typeof messageContent === "object" && messageContent !== null) {
         messageContent = messageContent.message || JSON.stringify(messageContent);
       }
 
@@ -211,6 +231,7 @@ const MeetingView: React.FC<{
         attachment,
       };
     } catch (error) {
+      console.error("Error parsing chat message:", error);
       return null;
     }
   }, []);
