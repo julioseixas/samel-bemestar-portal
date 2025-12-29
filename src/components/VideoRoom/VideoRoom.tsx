@@ -182,44 +182,54 @@ const MeetingView: React.FC<{
       let timestamp = data.timestamp ? new Date(data.timestamp) : new Date();
       let attachment: ChatAttachment | undefined = undefined;
 
-      // Try to parse if it's a JSON string (this is how we send file attachments)
-      if (typeof messageContent === "string") {
+      const tryParseJson = (value: string): unknown => {
         try {
-          const parsed = JSON.parse(messageContent);
-          // Check if this is our structured message format
-          if (parsed && typeof parsed === "object") {
-            // Extract message text
-            if (parsed.message) {
-              messageContent = parsed.message;
-            }
-            // Extract sender name
-            if (parsed.senderName) {
-              senderName = parsed.senderName;
-            }
-            // Extract timestamp
-            if (parsed.timestamp) {
-              timestamp = new Date(parsed.timestamp);
-            }
-            // Extract attachment data if present
-            if (parsed.attachment && typeof parsed.attachment === "object") {
-              attachment = {
-                type: parsed.attachment.type || "file",
-                fileName: parsed.attachment.fileName || "arquivo",
-                fileType: parsed.attachment.fileType || "pdf",
-                mimeType: parsed.attachment.mimeType || "application/octet-stream",
-                fileUrl: parsed.attachment.fileUrl || "",
-                fileSize: parsed.attachment.fileSize || 0,
-              };
-            }
-          }
+          return JSON.parse(value);
         } catch {
-          // Not JSON, use as plain text - this is fine
+          return null;
+        }
+      };
+
+      // Try to parse structured message payloads (attachments are sent as JSON strings)
+      if (typeof messageContent === "string") {
+        let parsed: unknown = tryParseJson(messageContent);
+
+        // Some environments may double-stringify; handle that too
+        if (typeof parsed === "string") {
+          const parsedTwice = tryParseJson(parsed);
+          if (parsedTwice !== null) {
+            parsed = parsedTwice;
+          }
+        }
+
+        if (parsed && typeof parsed === "object") {
+          const obj = parsed as any;
+
+          if (obj.message) {
+            messageContent = obj.message;
+          }
+          if (obj.senderName) {
+            senderName = obj.senderName;
+          }
+          if (obj.timestamp) {
+            timestamp = new Date(obj.timestamp);
+          }
+          if (obj.attachment && typeof obj.attachment === "object") {
+            attachment = {
+              type: obj.attachment.type || "file",
+              fileName: obj.attachment.fileName || "arquivo",
+              fileType: obj.attachment.fileType || "pdf",
+              mimeType: obj.attachment.mimeType || "application/octet-stream",
+              fileUrl: typeof obj.attachment.fileUrl === "string" ? obj.attachment.fileUrl : "",
+              fileSize: typeof obj.attachment.fileSize === "number" ? obj.attachment.fileSize : 0,
+            };
+          }
         }
       }
 
       // If message is still an object (not parsed), stringify it for display
       if (typeof messageContent === "object" && messageContent !== null) {
-        messageContent = messageContent.message || JSON.stringify(messageContent);
+        messageContent = (messageContent as any).message || JSON.stringify(messageContent);
       }
 
       return {
@@ -828,6 +838,7 @@ const MeetingView: React.FC<{
                 onSendMessage={handleSendMessage}
                 onSendFile={handleSendFile}
                 isUploadingFile={isUploadingFile}
+                videoToken={videoToken}
                 localParticipantId={localParticipant?.id}
                 nrAtendimento={nrAtendimento}
                 cdMedico={cdMedico}
@@ -851,6 +862,7 @@ const MeetingView: React.FC<{
               onSendMessage={handleSendMessage}
               onSendFile={handleSendFile}
               isUploadingFile={isUploadingFile}
+              videoToken={videoToken}
               localParticipantId={localParticipant?.id}
               nrAtendimento={nrAtendimento}
               cdMedico={cdMedico}

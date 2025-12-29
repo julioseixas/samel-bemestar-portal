@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useFile } from "@videosdk.live/react-sdk";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -13,7 +14,7 @@ import {
 import { handlePdfDownload } from "@/lib/pdf-utils";
 
 // File upload constants
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB (limite conservador para estabilidade)
 const ACCEPTED_TYPES: Record<string, 'pdf' | 'image'> = {
   'application/pdf': 'pdf',
   'image/jpeg': 'image',
@@ -52,6 +53,7 @@ interface ChatPanelProps {
   onClose: () => void;
   messages: ChatMessage[];
   onSendMessage: (message: string) => void;
+  videoToken: string;
   onSendFile?: (file: File) => Promise<void>;
   localParticipantId?: string;
   nrAtendimento?: string;
@@ -66,19 +68,45 @@ const formatFileSize = (bytes: number): string => {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
 
+// Helper: base64 -> Blob
+const base64ToBlob = (base64: string, mimeType: string): Blob => {
+  const cleaned = base64.startsWith("data:") ? base64.split(",")[1] : base64;
+  const byteString = atob(cleaned);
+  const byteArray = new Uint8Array(byteString.length);
+  for (let i = 0; i < byteString.length; i++) {
+    byteArray[i] = byteString.charCodeAt(i);
+  }
+  return new Blob([byteArray], { type: mimeType || "application/octet-stream" });
+};
+
 // Attachment preview component
-const AttachmentPreview: React.FC<{ attachment: ChatAttachment; isLocal: boolean }> = ({ attachment, isLocal }) => {
+const AttachmentPreview: React.FC<{ attachment: ChatAttachment; isLocal: boolean; videoToken: string }> = ({
+  attachment,
+  isLocal,
+  videoToken,
+}) => {
   const [isDownloading, setIsDownloading] = useState(false);
+  const { fetchBase64File } = useFile();
 
   const handleDownload = async () => {
     if (isDownloading) return;
-    
+
+    if (!attachment.fileUrl) {
+      toast.error("Arquivo indisponível para download");
+      return;
+    }
+
+    if (!videoToken) {
+      toast.error("Token da chamada não disponível");
+      return;
+    }
+
     setIsDownloading(true);
     try {
-      const response = await fetch(attachment.fileUrl);
-      if (!response.ok) throw new Error("Erro ao baixar arquivo");
-      
-      const blob = await response.blob();
+      // VideoSDK storage requires authenticated fetch
+      const base64 = await fetchBase64File({ url: attachment.fileUrl, token: videoToken });
+      const blob = base64ToBlob(base64, attachment.mimeType);
+
       await handlePdfDownload(blob, attachment.fileName);
       toast.success("Download iniciado!");
     } catch (error) {
@@ -89,14 +117,14 @@ const AttachmentPreview: React.FC<{ attachment: ChatAttachment; isLocal: boolean
   };
 
   return (
-    <div 
+    <div
       className={cn(
         "flex items-center gap-2 p-2 mt-1 rounded cursor-pointer transition-colors",
-        isLocal ? "bg-primary-foreground/20 hover:bg-primary-foreground/30" : "bg-muted/50 hover:bg-muted"
+        isLocal ? "bg-primary-foreground/20 hover:bg-primary-foreground/30" : "bg-muted/50 hover:bg-muted",
       )}
       onClick={handleDownload}
     >
-      {attachment.fileType === 'pdf' ? (
+      {attachment.fileType === "pdf" ? (
         <FileText className={cn("h-5 w-5", isLocal ? "text-primary-foreground" : "text-red-500")} />
       ) : (
         <ImageIcon className={cn("h-5 w-5", isLocal ? "text-primary-foreground" : "text-blue-500")} />
@@ -122,6 +150,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
   onClose, 
   messages, 
   onSendMessage,
+  videoToken,
   onSendFile,
   localParticipantId,
   nrAtendimento,
@@ -259,7 +288,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      toast.error(`Arquivo muito grande. Tamanho máximo: 10MB`);
+      toast.error(`Arquivo muito grande. Tamanho máximo: 5MB`);
       return;
     }
 
@@ -427,7 +456,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
                     >
                       {msg.message}
                       {msg.attachment && (
-                        <AttachmentPreview attachment={msg.attachment} isLocal={isLocal} />
+                        <AttachmentPreview attachment={msg.attachment} isLocal={isLocal} videoToken={videoToken} />
                       )}
                     </div>
                     <span className="text-[10px] sm:text-xs text-muted-foreground px-1">
@@ -458,15 +487,15 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
             variant="ghost"
             size="icon"
             className="h-9 w-9 sm:h-10 sm:w-10 shrink-0"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isUploadingFile}
-            title="Anexar exame (PDF, JPG, PNG - máx 10MB)"
-          >
-            {isUploadingFile ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Paperclip className="h-4 w-4" />
-            )}
+             onClick={() => fileInputRef.current?.click()}
+             disabled={isUploadingFile}
+             title="Anexar exame (PDF, JPG, PNG - máx 5MB)"
+           >
+             {isUploadingFile ? (
+               <Loader2 className="h-4 w-4 animate-spin" />
+             ) : (
+               <Paperclip className="h-4 w-4" />
+             )}
           </Button>
           
           <Input
@@ -489,7 +518,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
         
         {/* File format indicator */}
         <p className="text-[10px] text-muted-foreground mt-1.5 text-center">
-          Anexos: PDF, JPG, PNG (máx 10MB)
+          Anexos: PDF, JPG, PNG (máx 5MB)
         </p>
       </div>
     </div>
