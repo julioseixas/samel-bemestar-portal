@@ -370,11 +370,25 @@ const MeetingView: React.FC<{
         const base64Data = await fileToBase64(file);
 
         // Upload to VideoSDK temporary storage
-        const fileUrl = await uploadBase64File({
-          base64Data,
-          token: videoToken,
-          fileName: file.name,
-        });
+        let fileUrl: string;
+        try {
+          fileUrl = await uploadBase64File({
+            base64Data,
+            token: videoToken,
+            fileName: file.name,
+          });
+        } catch (uploadError) {
+          console.error("VideoSDK upload failed:", uploadError);
+          toast.error("Falha no upload. Verifique sua conexão ou reduza o tamanho do arquivo.");
+          return;
+        }
+
+        // Validate that we got a usable URL
+        if (!fileUrl || typeof fileUrl !== "string" || fileUrl.trim() === "") {
+          console.error("Upload returned invalid fileUrl:", fileUrl);
+          toast.error("Erro: servidor não retornou link do arquivo.");
+          return;
+        }
 
         // Determine file type
         const fileType: 'pdf' | 'image' = file.type.includes('pdf') ? 'pdf' : 'image';
@@ -385,7 +399,7 @@ const MeetingView: React.FC<{
           fileName: file.name,
           fileType,
           mimeType: file.type,
-          fileUrl: fileUrl,
+          fileUrl,
           fileSize: file.size,
         };
 
@@ -421,6 +435,7 @@ const MeetingView: React.FC<{
 
         toast.success(`${file.name} enviado com sucesso!`);
       } catch (error) {
+        console.error("handleSendFile error:", error);
         toast.error("Erro ao enviar arquivo. Tente novamente.");
       } finally {
         setIsUploadingFile(false);
