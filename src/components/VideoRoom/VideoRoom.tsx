@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { MeetingProvider, useMeeting, usePubSub, createCameraVideoTrack } from "@videosdk.live/react-sdk";
+import { MeetingProvider, useMeeting, usePubSub, useFile, createCameraVideoTrack } from "@videosdk.live/react-sdk";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ParticipantView from "./ParticipantView";
 import Controls from "./Controls";
-import ChatPanel, { ChatMessage } from "./ChatPanel";
+import ChatPanel, { ChatMessage, ChatAttachment } from "./ChatPanel";
 import ParticipantsList from "./ParticipantsList";
 import { BackgroundOption, BACKGROUND_OPTIONS } from "./BackgroundSelector";
 import { Maximize2, Minimize2, Loader2, Clock, Users, PictureInPicture2 } from "lucide-react";
@@ -85,7 +85,8 @@ const MeetingView: React.FC<{
   idCliente?: string;
   nrAtendimento?: string;
   cdMedico?: string;
-}> = ({ onLeave, roomName, idAgenda, idCliente, nrAtendimento, cdMedico }) => {
+  videoToken: string;
+}> = ({ onLeave, roomName, idAgenda, idCliente, nrAtendimento, cdMedico, videoToken }) => {
   const navigate = useNavigate();
 
   // State declarations first
@@ -104,9 +105,13 @@ const MeetingView: React.FC<{
   const [isBackgroundProcessing, setIsBackgroundProcessing] = useState(false);
   const [isPipActive, setIsPipActive] = useState(false);
   const [isAndroidPipMode, setIsAndroidPipMode] = useState(false);
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
   const processorRef = useRef<any>(null);
 
   const pipVideoRef = useRef<HTMLVideoElement | null>(null);
+
+  // File upload hook from VideoSDK
+  const { uploadBase64File } = useFile();
 
   // Push notifications hook
   const { sendNotification, triggerAndroidNotification } = usePushNotifications(idCliente);
@@ -175,6 +180,7 @@ const MeetingView: React.FC<{
       let messageContent = data.message;
       let senderName = data.senderName || "Participante";
       let timestamp = data.timestamp ? new Date(data.timestamp) : new Date();
+      let attachment: ChatAttachment | undefined = undefined;
 
       // Try to parse if it's a JSON string
       if (typeof messageContent === "string") {
@@ -184,6 +190,7 @@ const MeetingView: React.FC<{
             messageContent = parsed.message;
             senderName = parsed.senderName || senderName;
             timestamp = parsed.timestamp ? new Date(parsed.timestamp) : timestamp;
+            attachment = parsed.attachment; // Extract attachment data
           }
         } catch {
           // Not JSON, use as plain text - this is fine
@@ -201,6 +208,7 @@ const MeetingView: React.FC<{
         senderName,
         message: String(messageContent),
         timestamp,
+        attachment,
       };
     } catch (error) {
       return null;
@@ -302,6 +310,92 @@ const MeetingView: React.FC<{
       publish(messageText, { persist: true });
     },
     [publish, localParticipant, meetingId],
+  );
+
+  // Convert file to Base64
+  const fileToBase64 = useCallback((file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        // Remove data:xxx;base64, prefix
+        const base64 = result.split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }, []);
+
+  // Handle sending file
+  const handleSendFile = useCallback(
+    async (file: File) => {
+      if (!localParticipant) return;
+
+      setIsUploadingFile(true);
+
+      try {
+        // Convert to Base64
+        const base64Data = await fileToBase64(file);
+
+        // Upload to VideoSDK temporary storage
+        const fileUrl = await uploadBase64File({
+          base64Data,
+          token: videoToken,
+          fileName: file.name,
+        });
+
+        // Determine file type
+        const fileType: 'pdf' | 'image' = file.type.includes('pdf') ? 'pdf' : 'image';
+
+        // Create attachment data
+        const attachment: ChatAttachment = {
+          type: 'file',
+          fileName: file.name,
+          fileType,
+          mimeType: file.type,
+          fileUrl: fileUrl,
+          fileSize: file.size,
+        };
+
+        // Create message with attachment
+        const newMessage: ChatMessage = {
+          id: `${Date.now()}-${localParticipant.id}-file`,
+          senderId: localParticipant.id,
+          senderName: localParticipant.displayName || "Você",
+          message: `📎 ${file.name}`,
+          timestamp: new Date(),
+          attachment,
+        };
+
+        // Add to local state immediately
+        setMessages((prev) => {
+          const updated = [...prev, newMessage];
+          if (meetingId) {
+            sessionMessages.set(meetingId, updated);
+          }
+          return updated;
+        });
+
+        // Publish to other participants with attachment data
+        publish(
+          JSON.stringify({
+            message: `📎 ${file.name}`,
+            senderName: localParticipant.displayName || "Você",
+            timestamp: new Date().toISOString(),
+            attachment,
+          }),
+          { persist: true }
+        );
+
+        toast.success(`${file.name} enviado com sucesso!`);
+      } catch (error) {
+        toast.error("Erro ao enviar arquivo. Tente novamente.");
+      } finally {
+        setIsUploadingFile(false);
+      }
+    },
+    [localParticipant, meetingId, publish, uploadBase64File, fileToBase64, videoToken],
   );
 
   // Reset unread count when chat is opened
@@ -711,6 +805,8 @@ const MeetingView: React.FC<{
                 onClose={() => setChatOpen(false)}
                 messages={messages}
                 onSendMessage={handleSendMessage}
+                onSendFile={handleSendFile}
+                isUploadingFile={isUploadingFile}
                 localParticipantId={localParticipant?.id}
                 nrAtendimento={nrAtendimento}
                 cdMedico={cdMedico}
@@ -732,6 +828,8 @@ const MeetingView: React.FC<{
               onClose={() => setChatOpen(false)}
               messages={messages}
               onSendMessage={handleSendMessage}
+              onSendFile={handleSendFile}
+              isUploadingFile={isUploadingFile}
               localParticipantId={localParticipant?.id}
               nrAtendimento={nrAtendimento}
               cdMedico={cdMedico}
@@ -886,6 +984,7 @@ const VideoRoom: React.FC<VideoRoomProps> = ({
         idCliente={idCliente}
         nrAtendimento={nrAtendimento}
         cdMedico={cdMedico}
+        videoToken={token}
       />
     </MeetingProvider>
   );
