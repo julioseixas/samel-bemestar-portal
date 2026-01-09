@@ -191,8 +191,8 @@ const AppointmentDetails = () => {
         setEspecialidades([]);
         setSelectedEspecialidade("");
 
-      // IMPORTANTE: cdPessoaFisica deve SEMPRE ser o do titular
-      const cdPessoaFisica = titular?.cdPessoaFisica?.toString() || "";
+      // cdPessoaFisica deve ser do paciente selecionado (titular ou dependente)
+      const cdPessoaFisica = selectedPatient.cdPessoaFisica?.toString() || "";
       
       // cdDependente deve SEMPRE ser o ID do paciente selecionado
       const cdDependente = selectedPatient.id?.toString() || "";
@@ -252,8 +252,8 @@ const AppointmentDetails = () => {
     }
 
     try {
-      // IMPORTANTE: idCliente deve SEMPRE ser o cdPessoaFisica do titular
-      const idCliente = titular?.cdPessoaFisica?.toString() || "";
+      // idCliente deve ser o cdPessoaFisica do paciente selecionado (titular ou dependente)
+      const idCliente = selectedPatient.cdPessoaFisica?.toString() || "";
       const idadeCliente = selectedPatient.idade?.toString() || "0";
       const sexo = selectedPatient.sexo || "";
       
