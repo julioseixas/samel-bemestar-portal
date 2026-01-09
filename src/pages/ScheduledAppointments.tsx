@@ -91,8 +91,9 @@ const ScheduledAppointments = () => {
 
       const decoded: any = jwtDecode(userToken);
       
-      // Monta array com ID do titular e dependentes
-      const pacientesIds = [parseInt(decoded.id)];
+      // Monta array com ID do titular (cdPessoaFisica) e dependentes
+      const titularId = decoded.cdPessoaFisica || decoded.cd_pessoa_fisica || decoded.id;
+      const pacientesIds = [parseInt(titularId)];
       
       if (decoded.dependentes && Array.isArray(decoded.dependentes)) {
         decoded.dependentes.forEach((dep: any) => {
