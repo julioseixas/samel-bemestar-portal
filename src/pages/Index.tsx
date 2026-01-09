@@ -120,9 +120,7 @@ const Index = () => {
       }
 
       const decoded: any = jwtDecode(userToken);
-      // Usa cdPessoaFisica do titular (pode estar em diferentes campos do token)
-      const titularId = decoded.cdPessoaFisica || decoded.cd_pessoa_fisica || decoded.id;
-      const pacientesIds = [parseInt(titularId)];
+      const pacientesIds = [parseInt(decoded.id)];
       
       if (decoded.dependentes && Array.isArray(decoded.dependentes)) {
         decoded.dependentes.forEach((dep: any) => {
