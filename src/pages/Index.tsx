@@ -119,16 +119,39 @@ const Index = () => {
         return;
       }
 
-      const decoded: any = jwtDecode(userToken);
-      // Usa cdPessoaFisica do titular (pode estar em diferentes campos do token)
-      const titularId = decoded.cdPessoaFisica || decoded.cd_pessoa_fisica || decoded.id;
-      const pacientesIds = [parseInt(titularId)];
-      
-      if (decoded.dependentes && Array.isArray(decoded.dependentes)) {
-        decoded.dependentes.forEach((dep: any) => {
-          if (dep.id) pacientesIds.push(parseInt(dep.id));
-        });
+      // Prioriza os IDs normalizados salvos no login (listToSchedule), pois lá o cdPessoaFisica é montado com mais fallbacks
+      const listToScheduleRaw = localStorage.getItem("listToSchedule");
+      let pacientesIds: number[] = [];
+
+      if (listToScheduleRaw) {
+        try {
+          const list = JSON.parse(listToScheduleRaw);
+          if (Array.isArray(list)) {
+            pacientesIds = list
+              .map((p: any) => Number.parseInt(p?.cdPessoaFisica || p?.cd_pessoa_fisica || p?.id))
+              .filter((n: number) => Number.isFinite(n));
+          }
+        } catch {
+          // ignore
+        }
       }
+
+      // Fallback: token
+      if (pacientesIds.length === 0) {
+        const decoded: any = jwtDecode(userToken);
+        const titularId = decoded.cdPessoaFisica || decoded.cd_pessoa_fisica || decoded.clienteContratos?.[0]?.cdPessoaFisica || decoded.clienteContratos?.[0]?.cd_pessoa_fisica || decoded.id;
+        if (titularId) pacientesIds.push(parseInt(titularId));
+
+        if (decoded.dependentes && Array.isArray(decoded.dependentes)) {
+          decoded.dependentes.forEach((dep: any) => {
+            const depId = dep?.cdPessoaFisica || dep?.cd_pessoa_fisica || dep?.id;
+            if (depId) pacientesIds.push(parseInt(depId));
+          });
+        }
+      }
+
+      pacientesIds = Array.from(new Set(pacientesIds));
+      if (pacientesIds.length === 0) return;
 
       // Busca consultas (tipo 0)
       const consultasResponse = await fetch(
