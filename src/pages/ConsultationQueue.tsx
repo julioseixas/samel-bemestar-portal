@@ -67,12 +67,10 @@ const ConsultationQueue = () => {
 
       const decoded: any = jwtDecode(userToken);
       
-      // Usa cdPessoaFisica do titular (pode estar em diferentes campos do token)
-      const titularId = decoded.cdPessoaFisica || decoded.cd_pessoa_fisica || decoded.id;
       const pacientesIds: number[] = [];
       
-      if (titularId) {
-        pacientesIds.push(parseInt(titularId));
+      if (decoded.id) {
+        pacientesIds.push(parseInt(decoded.id));
       }
       
       if (decoded.dependentes && Array.isArray(decoded.dependentes)) {
