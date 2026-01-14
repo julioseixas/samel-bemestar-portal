@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { ChevronRight, Sparkles } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
@@ -249,18 +249,6 @@ const AppointmentSchedule = () => {
                     </CardHeader>
                   </Card>
                 ))}
-              </div>
-              
-              {/* Smart Scheduling Button */}
-              <div className="mt-6 flex justify-center">
-                <Button
-                  variant="outline"
-                  className="border-primary text-primary hover:bg-primary hover:text-primary-foreground gap-2"
-                  onClick={() => navigate("/smart-scheduling")}
-                >
-                  <Sparkles className="h-4 w-4" />
-                  Agendamento Inteligente
-                </Button>
               </div>
             </>
           )}
