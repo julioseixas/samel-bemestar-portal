@@ -527,8 +527,157 @@ const AppointmentTimes = () => {
 
   const handleCancelConventionalFlow = () => {
     localStorage.removeItem("conventionalFlow");
+    localStorage.removeItem("appointmentTestMode");
     setConventionalFlowData(null);
     navigate("/appointment-details");
+  };
+
+  // Função para gerar profissionais mockados
+  const generateMockProfessionals = (especialidade: { id: number; descricao: string }) => {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const formatDate = (date: Date) => {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    };
+
+    const mockProfessionals = [
+      {
+        idAgenda: 90001 + especialidade.id,
+        dataAgenda: today.toISOString(),
+        dataAgenda2: `${formatDate(today)} 08:00`,
+        id: `MOCK${especialidade.id}01`,
+        nome: `DR. ${especialidade.descricao} 1`,
+        dsEspecialidade: especialidade.descricao,
+        dsComplemento: null,
+        ieSexo: "M",
+        ie_sigla_conselho: "CRM",
+        nr_conselho: "12345",
+        idsProcedimentos: [],
+        unidade: {
+          id: "1",
+          descricao: "HOSPITAL SAMEL - ADRIANÓPOLIS",
+          logradouro: "Av. Mário Ypiranga",
+          numeroLogradouro: "1400",
+          bairro: "Adrianópolis"
+        }
+      },
+      {
+        idAgenda: 90002 + especialidade.id,
+        dataAgenda: tomorrow.toISOString(),
+        dataAgenda2: `${formatDate(tomorrow)} 09:00`,
+        id: `MOCK${especialidade.id}02`,
+        nome: `DRA. ${especialidade.descricao} 2`,
+        dsEspecialidade: especialidade.descricao,
+        dsComplemento: null,
+        ieSexo: "F",
+        ie_sigla_conselho: "CRM",
+        nr_conselho: "67890",
+        idsProcedimentos: [],
+        unidade: {
+          id: "1",
+          descricao: "HOSPITAL SAMEL - ADRIANÓPOLIS",
+          logradouro: "Av. Mário Ypiranga",
+          numeroLogradouro: "1400",
+          bairro: "Adrianópolis"
+        }
+      }
+    ];
+
+    return [{
+      combinacao: "",
+      dados: mockProfessionals
+    }];
+  };
+
+  // Função para buscar profissionais da próxima especialidade
+  const fetchProfessionalsForNextSpecialty = async (especialidade: { id: number; descricao: string }) => {
+    try {
+      const selectedPatientData = JSON.parse(localStorage.getItem("selectedPatient") || "{}");
+      const storedConvenio = localStorage.getItem("selectedAppointmentConvenio") || "";
+      const headers = getApiHeaders();
+      
+      const idCliente = selectedPatientData.cdPessoaFisica?.toString() || "";
+      const idadeCliente = selectedPatientData.idade?.toString() || "0";
+      const sexo = selectedPatientData.sexo || "";
+      const cdDependente = selectedPatientData.id?.toString() || "";
+      const nrCarteirinha = selectedPatientData.codigoCarteirinha?.toString() || "";
+
+      const params = new URLSearchParams({
+        idConvenio: storedConvenio,
+        idadeCliente,
+        idEspecialidade: especialidade.id.toString(),
+        nomeProfissional: "",
+        idCliente,
+        sexo,
+        cdDependente,
+        nrCarteirinha
+      });
+
+      const response = await fetch(
+        `https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ListarProfissionaisComAgendaDisponivel3?${params}`,
+        {
+          method: "GET",
+          headers
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.sucesso && data.dados && data.dados.length > 0) {
+        // Filtrar agendas mais antigas (mesma lógica de AppointmentDetails)
+        const filtrarAgendasMaisAntigas = (arr: any[]) => {
+          const finalList: any[] = [];
+          for (let i = 0; i < arr.length; i++) {
+            const atual = arr[i];
+            let existe = false;
+            for (let j = 0; j < finalList.length; j++) {
+              if (finalList[j].idAgenda === atual.idAgenda) {
+                if (new Date(atual.dataAgenda2) < new Date(finalList[j].dataAgenda2)) {
+                  finalList[j] = atual;
+                }
+                existe = true;
+                break;
+              }
+            }
+            if (!existe) {
+              finalList.push(atual);
+            }
+          }
+          return finalList;
+        };
+
+        const filteredData = data.dados.map((group: any) => ({
+          ...group,
+          dados: filtrarAgendasMaisAntigas(group.dados).map((profissional: any) => ({
+            ...profissional,
+            dsEspecialidade: especialidade.descricao
+          }))
+        }));
+
+        localStorage.setItem("appointmentProfessionals", JSON.stringify(filteredData));
+        localStorage.setItem("selectedAppointmentEspecialidade", especialidade.id.toString());
+        
+        navigate("/appointment-professionals");
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Nenhum profissional disponível",
+          description: `Não há profissionais disponíveis para ${especialidade.descricao} no momento.`
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao buscar profissionais:", error);
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Erro ao buscar profissionais. Tente novamente."
+      });
+    }
   };
 
   return (
@@ -822,18 +971,41 @@ const AppointmentTimes = () => {
             {conventionalFlowData && conventionalFlowData.currentIndex < conventionalFlowData.especialidades.length - 1 ? (
               <>
                 <Button
-                  onClick={() => {
+                  onClick={async () => {
                     setIsSuccessModalOpen(false);
-                    // Continuar fluxo convencional
-                    navigate("/appointment-details", { 
-                      state: { 
-                        continueFlow: true,
-                        lastAppointment: {
+                    
+                    // Avançar para próxima especialidade
+                    const nextIndex = conventionalFlowData.currentIndex + 1;
+                    const nextEspecialidade = conventionalFlowData.especialidades[nextIndex];
+                    
+                    // Atualizar fluxo convencional com novo índice
+                    const updatedFlowData = {
+                      ...conventionalFlowData,
+                      currentIndex: nextIndex,
+                      completedAppointments: [
+                        ...conventionalFlowData.completedAppointments,
+                        {
                           especialidade: conventionalFlowData.especialidades[conventionalFlowData.currentIndex].descricao,
                           horario: selectedHorario
                         }
-                      } 
-                    });
+                      ]
+                    };
+                    localStorage.setItem("conventionalFlow", JSON.stringify(updatedFlowData));
+                    
+                    // Verificar se é modo de teste
+                    const isTestMode = localStorage.getItem("appointmentTestMode") === "true";
+                    
+                    if (isTestMode) {
+                      // Gerar profissionais mockados para próxima especialidade
+                      const mockProfessionals = generateMockProfessionals(nextEspecialidade);
+                      localStorage.setItem("appointmentProfessionals", JSON.stringify(mockProfessionals));
+                      localStorage.setItem("selectedAppointmentEspecialidade", nextEspecialidade.id.toString());
+                      
+                      navigate("/appointment-professionals");
+                    } else {
+                      // Buscar profissionais via API
+                      await fetchProfessionalsForNextSpecialty(nextEspecialidade);
+                    }
                   }}
                   className="w-full"
                 >
@@ -844,6 +1016,7 @@ const AppointmentTimes = () => {
                   onClick={() => {
                     setIsSuccessModalOpen(false);
                     localStorage.removeItem("conventionalFlow");
+                    localStorage.removeItem("appointmentTestMode");
                     navigate("/dashboard");
                   }}
                   className="w-full"
@@ -857,6 +1030,7 @@ const AppointmentTimes = () => {
                   onClick={() => {
                     setIsSuccessModalOpen(false);
                     localStorage.removeItem("conventionalFlow");
+                    localStorage.removeItem("appointmentTestMode");
                     navigate("/dashboard");
                   }}
                   className="w-full"
@@ -868,6 +1042,7 @@ const AppointmentTimes = () => {
                   onClick={() => {
                     setIsSuccessModalOpen(false);
                     localStorage.removeItem("conventionalFlow");
+                    localStorage.removeItem("appointmentTestMode");
                     navigate("/scheduled-appointments-choice");
                   }}
                   className="w-full"
