@@ -1342,33 +1342,67 @@ const SmartScheduling = () => {
                               Unidades diferentes
                             </div>
                           </CardHeader>
-                          <CardContent className="space-y-3">
+                          <CardContent className="space-y-4">
                             {result.slots.map((slot, slotIdx) => (
-                              <div key={slotIdx} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                                <div className="flex-shrink-0 w-16 text-center">
-                                  <span className="text-xl font-bold text-primary">
-                                    {slot.horario.data2.split(' ')[1]}
-                                  </span>
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="font-medium text-sm">{slot.specialty.descricao}</p>
-                                  <p className="text-xs text-muted-foreground truncate">
-                                    Dr(a). {slot.horario.nmMedico}
-                                  </p>
-                                  <div className="flex items-center gap-1 mt-1 text-xs text-amber-600 font-medium">
-                                    <MapPin className="h-3 w-3" />
-                                    {slot.horario.unidade.nome}
+                              <div key={slotIdx} className="relative">
+                                {/* Linha de conexão entre slots */}
+                                {slotIdx > 0 && (
+                                  <div className="absolute -top-4 left-8 flex flex-col items-center">
+                                    <div className="h-4 w-0.5 bg-amber-300 dark:bg-amber-700"></div>
+                                    <div className="text-[10px] text-amber-600 font-medium bg-amber-100 dark:bg-amber-900/50 px-1.5 py-0.5 rounded">
+                                      Deslocamento
+                                    </div>
+                                  </div>
+                                )}
+                                
+                                <div className={`p-4 rounded-xl border-2 ${slotIdx === 0 ? 'border-primary bg-primary/5' : 'border-amber-500 bg-amber-50 dark:bg-amber-900/20'}`}>
+                                  {/* Header com horário destacado */}
+                                  <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-3">
+                                      <div className={`px-3 py-2 rounded-lg ${slotIdx === 0 ? 'bg-primary text-primary-foreground' : 'bg-amber-500 text-white'}`}>
+                                        <span className="text-xl font-bold">
+                                          {slot.horario.data2.split(' ')[1]}
+                                        </span>
+                                      </div>
+                                      <div>
+                                        <p className="font-semibold text-base">{slot.specialty.descricao}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                          Dr(a). {slot.horario.nmMedico}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <Badge variant={slotIdx === 0 ? "default" : "outline"} className={slotIdx === 0 ? "" : "border-amber-500 text-amber-600"}>
+                                      {slotIdx + 1}ª consulta
+                                    </Badge>
+                                  </div>
+                                  
+                                  {/* Unidade destacada */}
+                                  <div className={`flex items-center gap-2 p-2 rounded-lg ${slotIdx === 0 ? 'bg-primary/10' : 'bg-amber-100 dark:bg-amber-900/30'}`}>
+                                    <MapPin className={`h-4 w-4 ${slotIdx === 0 ? 'text-primary' : 'text-amber-600'}`} />
+                                    <span className={`text-sm font-medium ${slotIdx === 0 ? 'text-primary' : 'text-amber-700 dark:text-amber-400'}`}>
+                                      {slot.horario.unidade.nome}
+                                    </span>
                                   </div>
                                 </div>
                               </div>
                             ))}
                             
+                            {/* Alerta de deslocamento */}
+                            <Alert className="border-amber-300 bg-amber-50 dark:bg-amber-900/20">
+                              <AlertTriangle className="h-4 w-4 text-amber-600" />
+                              <AlertDescription className="text-amber-700 dark:text-amber-300 text-sm">
+                                <strong>Atenção:</strong> As consultas são em unidades diferentes. Você terá {result.slots.length > 1 ? 
+                                  `${Math.round((parseTimeToMinutes(result.slots[1].horario.data2.split(' ')[1]) - parseTimeToMinutes(result.slots[0].horario.data2.split(' ')[1])) / 60)}h` 
+                                  : '3h'} para se deslocar entre elas.
+                              </AlertDescription>
+                            </Alert>
+                            
                             <Button 
-                              className="w-full mt-4"
+                              className="w-full"
                               onClick={() => handleSelectResult(result)}
                             >
                               <Check className="mr-2 h-4 w-4" />
-                              Agendar Todas
+                              Confirmar Agendamento
                             </Button>
                           </CardContent>
                         </Card>
@@ -1444,13 +1478,35 @@ const SmartScheduling = () => {
           
           <div className="space-y-3 my-4">
             {selectedResult?.slots.map((slot, idx) => (
-              <div key={idx} className="flex items-center gap-3 text-sm">
-                <Clock className="h-4 w-4 text-primary" />
-                <span className="font-medium">{slot.horario.data2.split(' ')[1]}</span>
-                <span className="text-muted-foreground">-</span>
-                <span>{slot.specialty.descricao}</span>
+              <div key={idx} className={`p-3 rounded-lg border ${selectedResult?.isDifferentUnits ? 'border-amber-200 bg-amber-50/50 dark:bg-amber-900/10' : 'bg-muted/50'}`}>
+                <div className="flex items-center gap-3">
+                  <div className={`px-2 py-1 rounded ${idx === 0 ? 'bg-primary text-primary-foreground' : selectedResult?.isDifferentUnits ? 'bg-amber-500 text-white' : 'bg-primary text-primary-foreground'}`}>
+                    <span className="text-sm font-bold">{slot.horario.data2.split(' ')[1]}</span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-sm">{slot.specialty.descricao}</p>
+                    <p className="text-xs text-muted-foreground">Dr(a). {slot.horario.nmMedico}</p>
+                  </div>
+                </div>
+                {selectedResult?.isDifferentUnits && (
+                  <div className="flex items-center gap-2 mt-2 text-xs">
+                    <MapPin className={`h-3 w-3 ${idx === 0 ? 'text-primary' : 'text-amber-600'}`} />
+                    <span className={`font-medium ${idx === 0 ? 'text-primary' : 'text-amber-600'}`}>
+                      {slot.horario.unidade.nome}
+                    </span>
+                  </div>
+                )}
               </div>
             ))}
+            
+            {selectedResult?.isDifferentUnits && (
+              <Alert className="border-amber-300 bg-amber-50 dark:bg-amber-900/20">
+                <AlertTriangle className="h-4 w-4 text-amber-600" />
+                <AlertDescription className="text-amber-700 dark:text-amber-300 text-xs">
+                  Lembre-se: você precisará se deslocar entre as unidades.
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
 
           <div className="space-y-2">
