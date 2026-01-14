@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getApiHeaders } from "@/lib/api-headers";
 import { useToast } from "@/hooks/use-toast";
+import { Sparkles } from "lucide-react";
 
 interface Patient {
   id: string | number;
@@ -565,13 +566,24 @@ const AppointmentDetails = () => {
                   )}
                 </div>
 
-                <Button 
-                  onClick={handleContinue} 
-                  className="mt-4 w-full"
-                  disabled={!selectedConvenio || !selectedEspecialidade}
-                >
-                  Continuar
-                </Button>
+                <div className="mt-4 flex flex-col gap-3">
+                  <Button 
+                    onClick={handleContinue} 
+                    className="w-full"
+                    disabled={!selectedConvenio || !selectedEspecialidade}
+                  >
+                    Continuar
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground gap-2"
+                    onClick={() => navigate("/smart-scheduling")}
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    Agendamento Inteligente
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>
