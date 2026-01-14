@@ -147,23 +147,31 @@ const AppointmentTimes = () => {
       return `${day}/${month}/${year}`;
     };
 
+    // Usar a especialidade do fluxo convencional atual se disponível
+    const currentEspecialidade = conventionalFlowData?.especialidades[conventionalFlowData.currentIndex];
+    const especialidadeId = currentEspecialidade?.id || parseInt(selectedEspecialidade || "1");
+    const especialidadeDescricao = currentEspecialidade?.descricao || selectedProfissional?.dsEspecialidade || "ESPECIALIDADE";
+    
+    // Gerar IDs únicos baseados na especialidade para evitar mistura
+    const baseId = especialidadeId * 10000;
+
     const times = ["08:00", "09:00", "10:00", "14:00", "15:00"];
     const mockHorarios: HorarioDisponivel[] = [];
     
     // Horários para hoje
     times.forEach((time, index) => {
       mockHorarios.push({
-        id: 80001 + index,
-        idAgenda: selectedProfissional?.idAgenda || 90001,
+        id: baseId + 1 + index,
+        idAgenda: selectedProfissional?.idAgenda || (especialidadeId * 1000 + 1),
         horaEspecial: "N",
         data: today.toISOString(),
         data2: `${formatDate(today)} ${time}`,
         especialidadeAgenda: {
-          id: parseInt(selectedEspecialidade || "1"),
-          descricao: selectedProfissional?.dsEspecialidade || "TESTE INTELIGENTE"
+          id: especialidadeId,
+          descricao: especialidadeDescricao
         },
-        idMedico: selectedProfissional?.id || "MOCK001",
-        nmMedico: selectedProfissional?.nome || "DR. TESTE INTELIGENTE 1",
+        idMedico: selectedProfissional?.id || `MOCK_ESP${especialidadeId}_01`,
+        nmMedico: selectedProfissional?.nome || `DR. ESPECIALISTA ${especialidadeDescricao}`,
         unidade: {
           id: 1,
           nome: "HOSPITAL SAMEL - ADRIANÓPOLIS"
@@ -174,17 +182,17 @@ const AppointmentTimes = () => {
     // Horários para amanhã
     times.forEach((time, index) => {
       mockHorarios.push({
-        id: 80010 + index,
-        idAgenda: selectedProfissional?.idAgenda || 90001,
+        id: baseId + 10 + index,
+        idAgenda: selectedProfissional?.idAgenda || (especialidadeId * 1000 + 1),
         horaEspecial: "N",
         data: tomorrow.toISOString(),
         data2: `${formatDate(tomorrow)} ${time}`,
         especialidadeAgenda: {
-          id: parseInt(selectedEspecialidade || "1"),
-          descricao: selectedProfissional?.dsEspecialidade || "TESTE INTELIGENTE"
+          id: especialidadeId,
+          descricao: especialidadeDescricao
         },
-        idMedico: selectedProfissional?.id || "MOCK001",
-        nmMedico: selectedProfissional?.nome || "DR. TESTE INTELIGENTE 1",
+        idMedico: selectedProfissional?.id || `MOCK_ESP${especialidadeId}_01`,
+        nmMedico: selectedProfissional?.nome || `DR. ESPECIALISTA ${especialidadeDescricao}`,
         unidade: {
           id: 1,
           nome: "HOSPITAL SAMEL - ADRIANÓPOLIS"
@@ -532,7 +540,7 @@ const AppointmentTimes = () => {
     navigate("/appointment-details");
   };
 
-  // Função para gerar profissionais mockados
+  // Função para gerar profissionais mockados - cada especialidade tem profissionais únicos
   const generateMockProfessionals = (especialidade: { id: number; descricao: string }) => {
     const today = new Date();
     const tomorrow = new Date(today);
@@ -545,18 +553,22 @@ const AppointmentTimes = () => {
       return `${day}/${month}/${year}`;
     };
 
+    // Gerar IDs únicos baseados no ID da especialidade para evitar mistura
+    const baseId = especialidade.id * 1000;
+    const especialidadeName = especialidade.descricao.replace("TESTE INTELIGENTE", "").trim() || "1";
+
     const mockProfessionals = [
       {
-        idAgenda: 90001 + especialidade.id,
+        idAgenda: baseId + 1,
         dataAgenda: today.toISOString(),
         dataAgenda2: `${formatDate(today)} 08:00`,
-        id: `MOCK${especialidade.id}01`,
-        nome: `DR. ${especialidade.descricao} 1`,
+        id: `MOCK_ESP${especialidade.id}_01`,
+        nome: `DR. ESPECIALISTA ${especialidadeName} - A`,
         dsEspecialidade: especialidade.descricao,
         dsComplemento: null,
         ieSexo: "M",
         ie_sigla_conselho: "CRM",
-        nr_conselho: "12345",
+        nr_conselho: `${12345 + especialidade.id}`,
         idsProcedimentos: [],
         unidade: {
           id: "1",
@@ -567,16 +579,16 @@ const AppointmentTimes = () => {
         }
       },
       {
-        idAgenda: 90002 + especialidade.id,
+        idAgenda: baseId + 2,
         dataAgenda: tomorrow.toISOString(),
         dataAgenda2: `${formatDate(tomorrow)} 09:00`,
-        id: `MOCK${especialidade.id}02`,
-        nome: `DRA. ${especialidade.descricao} 2`,
+        id: `MOCK_ESP${especialidade.id}_02`,
+        nome: `DRA. ESPECIALISTA ${especialidadeName} - B`,
         dsEspecialidade: especialidade.descricao,
         dsComplemento: null,
         ieSexo: "F",
         ie_sigla_conselho: "CRM",
-        nr_conselho: "67890",
+        nr_conselho: `${67890 + especialidade.id}`,
         idsProcedimentos: [],
         unidade: {
           id: "1",

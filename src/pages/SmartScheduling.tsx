@@ -79,16 +79,25 @@ interface SmartScheduleResult {
 }
 
 // Mock data for testing
-const generateMockData = (): { especialidades: Especialidade[]; results: SmartScheduleResult[] } => {
+const generateMockData = (): { especialidades: Especialidade[]; results: SmartScheduleResult[]; differentUnitsResults: SmartScheduleResult[] } => {
   const mockEspecialidades: Especialidade[] = [
-    { id: 99901, descricao: "TESTE INTELIGENTE 1" },
-    { id: 99902, descricao: "TESTE INTELIGENTE 2" }
+    { id: 99901, descricao: "CARDIOLOGIA (MOCK)" },
+    { id: 99902, descricao: "OFTALMOLOGIA (MOCK)" }
+  ];
+
+  // Unidades disponíveis para teste
+  const unidades = [
+    { id: 1, nome: "HOSPITAL SAMEL - ADRIANÓPOLIS" },
+    { id: 2, nome: "HOSPITAL SAMEL - ALEIXO" },
+    { id: 3, nome: "UBS SAMEL - CIDADE NOVA" }
   ];
 
   // Generate dates for next 5 days
   const today = new Date();
   const mockResults: SmartScheduleResult[] = [];
+  const differentUnitsResults: SmartScheduleResult[] = [];
 
+  // Resultados na MESMA unidade (Adrianópolis)
   for (let dayOffset = 1; dayOffset <= 2; dayOffset++) {
     const date = new Date(today);
     date.setDate(date.getDate() + dayOffset);
@@ -98,14 +107,13 @@ const generateMockData = (): { especialidades: Especialidade[]; results: SmartSc
     const year = date.getFullYear();
     const dateStr = `${day}/${month}/${year}`;
 
-    // 5 time slots per day, with 30-45 min intervals
-    const baseHours = [8, 9, 10, 14, 15];
+    // 3 time slots per day na mesma unidade
+    const baseHours = [8, 10, 14];
     
-    for (let slotIdx = 0; slotIdx < 5; slotIdx++) {
+    for (let slotIdx = 0; slotIdx < 3; slotIdx++) {
       const hour1 = baseHours[slotIdx];
-      const hour2 = hour1 + (slotIdx % 2 === 0 ? 0 : 1); // vary the second appointment
       const minute1 = 0;
-      const minute2 = 30; // 30 min apart
+      const minute2 = 30;
 
       const time1 = `${String(hour1).padStart(2, '0')}:${String(minute1).padStart(2, '0')}`;
       const time2 = `${String(hour1).padStart(2, '0')}:${String(minute2).padStart(2, '0')}`;
@@ -114,17 +122,18 @@ const generateMockData = (): { especialidades: Especialidade[]; results: SmartSc
         date: `${year}-${month}-${day}`,
         dateFormatted: date.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' }),
         unitId: 1,
-        unitName: "HOSPITAL SAMEL - ADRIANÓPOLIS",
+        unitName: unidades[0].nome,
+        isDifferentUnits: false,
         slots: [
           {
             specialty: mockEspecialidades[0],
             professional: {
-              id: "MOCK001",
-              nome: "Dr. Teste Mock 1",
+              id: "MOCK_CARDIO_01",
+              nome: "Dr. Carlos Cardiologista",
               idAgenda: 99901 + slotIdx,
               dataAgenda: dateStr,
               dataAgenda2: `${dateStr} ${time1}`,
-              unidade: { id: "1", descricao: "HOSPITAL SAMEL - ADRIANÓPOLIS" }
+              unidade: { id: "1", descricao: unidades[0].nome }
             },
             horario: {
               id: 99901 + (dayOffset * 10) + slotIdx,
@@ -132,21 +141,21 @@ const generateMockData = (): { especialidades: Especialidade[]; results: SmartSc
               horaEspecial: "N",
               data: dateStr,
               data2: `${dateStr} ${time1}`,
-              especialidadeAgenda: { id: 99901, descricao: "TESTE INTELIGENTE 1" },
-              idMedico: "MOCK001",
-              nmMedico: "Dr. Teste Mock 1",
-              unidade: { id: 1, nome: "HOSPITAL SAMEL - ADRIANÓPOLIS" }
+              especialidadeAgenda: { id: 99901, descricao: "CARDIOLOGIA (MOCK)" },
+              idMedico: "MOCK_CARDIO_01",
+              nmMedico: "Dr. Carlos Cardiologista",
+              unidade: { id: 1, nome: unidades[0].nome }
             }
           },
           {
             specialty: mockEspecialidades[1],
             professional: {
-              id: "MOCK002",
-              nome: "Dra. Teste Mock 2",
+              id: "MOCK_OFTALMO_01",
+              nome: "Dra. Olívia Oftalmologista",
               idAgenda: 99902 + slotIdx,
               dataAgenda: dateStr,
               dataAgenda2: `${dateStr} ${time2}`,
-              unidade: { id: "1", descricao: "HOSPITAL SAMEL - ADRIANÓPOLIS" }
+              unidade: { id: "1", descricao: unidades[0].nome }
             },
             horario: {
               id: 99902 + (dayOffset * 10) + slotIdx,
@@ -154,10 +163,10 @@ const generateMockData = (): { especialidades: Especialidade[]; results: SmartSc
               horaEspecial: "N",
               data: dateStr,
               data2: `${dateStr} ${time2}`,
-              especialidadeAgenda: { id: 99902, descricao: "TESTE INTELIGENTE 2" },
-              idMedico: "MOCK002",
-              nmMedico: "Dra. Teste Mock 2",
-              unidade: { id: 1, nome: "HOSPITAL SAMEL - ADRIANÓPOLIS" }
+              especialidadeAgenda: { id: 99902, descricao: "OFTALMOLOGIA (MOCK)" },
+              idMedico: "MOCK_OFTALMO_01",
+              nmMedico: "Dra. Olívia Oftalmologista",
+              unidade: { id: 1, nome: unidades[0].nome }
             }
           }
         ]
@@ -165,7 +174,84 @@ const generateMockData = (): { especialidades: Especialidade[]; results: SmartSc
     }
   }
 
-  return { especialidades: mockEspecialidades, results: mockResults };
+  // Resultados em UNIDADES DIFERENTES (mais horários disponíveis)
+  for (let dayOffset = 1; dayOffset <= 3; dayOffset++) {
+    const date = new Date(today);
+    date.setDate(date.getDate() + dayOffset);
+    
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const dateStr = `${day}/${month}/${year}`;
+
+    // Mais opções de horários quando aceita unidades diferentes
+    const baseHours = [7, 8, 9, 10, 11, 14, 15, 16];
+    
+    for (let slotIdx = 0; slotIdx < baseHours.length; slotIdx++) {
+      const hour1 = baseHours[slotIdx];
+      const unidade1 = unidades[slotIdx % 3]; // Alterna entre unidades
+      const unidade2 = unidades[(slotIdx + 1) % 3]; // Segunda especialidade em unidade diferente
+      
+      const time1 = `${String(hour1).padStart(2, '0')}:00`;
+      const time2 = `${String(hour1).padStart(2, '0')}:30`;
+
+      differentUnitsResults.push({
+        date: `${year}-${month}-${day}`,
+        dateFormatted: date.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' }),
+        unitId: unidade1.id,
+        unitName: unidade1.nome,
+        isDifferentUnits: true,
+        slots: [
+          {
+            specialty: mockEspecialidades[0],
+            professional: {
+              id: `MOCK_CARDIO_U${unidade1.id}`,
+              nome: `Dr. Cardiologista - ${unidade1.nome.split(' - ')[1] || unidade1.nome}`,
+              idAgenda: 88001 + slotIdx + (dayOffset * 100),
+              dataAgenda: dateStr,
+              dataAgenda2: `${dateStr} ${time1}`,
+              unidade: { id: unidade1.id.toString(), descricao: unidade1.nome }
+            },
+            horario: {
+              id: 88001 + (dayOffset * 100) + slotIdx,
+              idAgenda: 88001 + slotIdx + (dayOffset * 100),
+              horaEspecial: "N",
+              data: dateStr,
+              data2: `${dateStr} ${time1}`,
+              especialidadeAgenda: { id: 99901, descricao: "CARDIOLOGIA (MOCK)" },
+              idMedico: `MOCK_CARDIO_U${unidade1.id}`,
+              nmMedico: `Dr. Cardiologista - ${unidade1.nome.split(' - ')[1] || unidade1.nome}`,
+              unidade: { id: unidade1.id, nome: unidade1.nome }
+            }
+          },
+          {
+            specialty: mockEspecialidades[1],
+            professional: {
+              id: `MOCK_OFTALMO_U${unidade2.id}`,
+              nome: `Dra. Oftalmologista - ${unidade2.nome.split(' - ')[1] || unidade2.nome}`,
+              idAgenda: 88002 + slotIdx + (dayOffset * 100),
+              dataAgenda: dateStr,
+              dataAgenda2: `${dateStr} ${time2}`,
+              unidade: { id: unidade2.id.toString(), descricao: unidade2.nome }
+            },
+            horario: {
+              id: 88002 + (dayOffset * 100) + slotIdx,
+              idAgenda: 88002 + slotIdx + (dayOffset * 100),
+              horaEspecial: "N",
+              data: dateStr,
+              data2: `${dateStr} ${time2}`,
+              especialidadeAgenda: { id: 99902, descricao: "OFTALMOLOGIA (MOCK)" },
+              idMedico: `MOCK_OFTALMO_U${unidade2.id}`,
+              nmMedico: `Dra. Oftalmologista - ${unidade2.nome.split(' - ')[1] || unidade2.nome}`,
+              unidade: { id: unidade2.id, nome: unidade2.nome }
+            }
+          }
+        ]
+      });
+    }
+  }
+
+  return { especialidades: mockEspecialidades, results: mockResults, differentUnitsResults };
 };
 
 const SmartScheduling = () => {
@@ -211,11 +297,13 @@ const SmartScheduling = () => {
     setIsTestMode(true);
     setSelectedEspecialidades(mockData.especialidades);
     setResults(mockData.results);
+    setDifferentUnitsResults(mockData.differentUnitsResults);
+    setShowDifferentUnitsOption(true); // Mostrar opção de unidades diferentes
     setHasSearched(true);
     setIsSearching(false);
     toast({
       title: "Modo de Teste Ativado",
-      description: `Carregados ${mockData.results.length} horários simulados para 2 especialidades de teste.`
+      description: `${mockData.results.length} horários na mesma unidade + ${mockData.differentUnitsResults.length} em unidades diferentes.`
     });
   };
 
