@@ -2,7 +2,7 @@ import { Header } from "@/components/Header";
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { getApiHeaders } from "@/lib/api-headers";
@@ -80,6 +80,7 @@ interface SmartScheduleResult {
 
 const SmartScheduling = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   
   const [patientName, setPatientName] = useState("Paciente");
@@ -111,6 +112,7 @@ const SmartScheduling = () => {
   const [token, setToken] = useState("");
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [bookingProgress, setBookingProgress] = useState<{ current: number; total: number; completed: string[] }>({ current: 0, total: 0, completed: [] });
+  const [autoSearchTriggered, setAutoSearchTriggered] = useState(false);
 
   // Load patient data
   useEffect(() => {
@@ -186,6 +188,23 @@ const SmartScheduling = () => {
 
     fetchEspecialidades();
   }, [selectedPatient]);
+
+  // Receber especialidades do AppointmentDetails e iniciar busca automaticamente
+  useEffect(() => {
+    const state = location.state as { fromAppointmentDetails?: boolean; especialidades?: Especialidade[]; convenio?: string } | null;
+    
+    if (state?.fromAppointmentDetails && state?.especialidades && state.especialidades.length >= 2) {
+      setSelectedEspecialidades(state.especialidades);
+      setAutoSearchTriggered(true);
+    }
+  }, [location.state]);
+
+  // Iniciar busca automaticamente quando especialidades são recebidas do AppointmentDetails
+  useEffect(() => {
+    if (autoSearchTriggered && selectedPatient && selectedEspecialidades.length >= 2 && !hasSearched) {
+      handleSearchSchedules();
+    }
+  }, [autoSearchTriggered, selectedPatient, selectedEspecialidades, hasSearched]);
 
   const handleSelectEspecialidade = (especialidade: Especialidade) => {
     if (!selectedEspecialidades.find(e => e.id === especialidade.id)) {

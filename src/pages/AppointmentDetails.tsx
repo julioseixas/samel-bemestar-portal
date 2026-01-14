@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getApiHeaders } from "@/lib/api-headers";
 import { useToast } from "@/hooks/use-toast";
-import { Sparkles, Check, ChevronsUpDown } from "lucide-react";
+import { Plus, Check, ChevronsUpDown, X } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
@@ -70,7 +70,7 @@ const AppointmentDetails = () => {
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [titular, setTitular] = useState<Patient | null>(null);
   const [selectedConvenio, setSelectedConvenio] = useState("");
-  const [selectedEspecialidade, setSelectedEspecialidade] = useState("");
+  const [selectedEspecialidades, setSelectedEspecialidades] = useState<Especialidade[]>([]);
   const [especialidadeSearchOpen, setEspecialidadeSearchOpen] = useState(false);
   const [especialidadeSearchQuery, setEspecialidadeSearchQuery] = useState("");
   const [convenios, setConvenios] = useState<Convenio[]>([]);
@@ -195,7 +195,7 @@ const AppointmentDetails = () => {
       try {
         setLoadingEspecialidades(true);
         setEspecialidades([]);
-        setSelectedEspecialidade("");
+        setSelectedEspecialidades([]);
 
       // cdPessoaFisica deve ser do paciente selecionado (titular ou dependente)
       const cdPessoaFisica = selectedPatient.cdPessoaFisica?.toString() || "";
@@ -243,12 +243,12 @@ const AppointmentDetails = () => {
 
   // Reset especialidade quando trocar o modo de encaminhamento
   useEffect(() => {
-    setSelectedEspecialidade("");
+    setSelectedEspecialidades([]);
   }, [useEncaminhamento]);
 
   const handleContinue = async () => {
-    if (!selectedConvenio || !selectedEspecialidade) {
-      alert("Por favor, selecione o convênio e a especialidade");
+    if (!selectedConvenio || selectedEspecialidades.length === 0) {
+      alert("Por favor, selecione o convênio e pelo menos uma especialidade");
       return;
     }
 
@@ -256,6 +256,24 @@ const AppointmentDetails = () => {
       alert("Dados do paciente não encontrados");
       return;
     }
+
+    // Se tiver 2 ou mais especialidades, vai para agendamento inteligente
+    if (selectedEspecialidades.length >= 2) {
+      // Salvar dados no localStorage para o SmartScheduling
+      localStorage.setItem("smartSchedulingEspecialidades", JSON.stringify(selectedEspecialidades));
+      localStorage.setItem("smartSchedulingConvenio", selectedConvenio);
+      navigate("/smart-scheduling", { 
+        state: { 
+          fromAppointmentDetails: true,
+          especialidades: selectedEspecialidades,
+          convenio: selectedConvenio
+        } 
+      });
+      return;
+    }
+
+    // Fluxo normal para 1 especialidade
+    const selectedEspecialidade = selectedEspecialidades[0].id.toString();
 
     try {
       // idCliente deve ser o cdPessoaFisica do paciente selecionado (titular ou dependente)
@@ -513,7 +531,7 @@ const AppointmentDetails = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="especialidade">
-                    {useEncaminhamento ? "Encaminhamento" : "Especialidade"}
+                    {useEncaminhamento ? "Encaminhamento" : "Especialidade(s)"}
                   </Label>
                   {useEncaminhamento ? (
                     <Select 
@@ -527,7 +545,10 @@ const AppointmentDetails = () => {
                           enc => enc.NR_SEQ_MED_AVALIACAO_PACIENTE === nrSeqMedAvaliacao
                         );
                         if (encaminhamento) {
-                          setSelectedEspecialidade(encaminhamento.CD_ESPECIALIDADE.toString());
+                          const esp = especialidades.find(e => e.id === encaminhamento.CD_ESPECIALIDADE);
+                          if (esp) {
+                            setSelectedEspecialidades([esp]);
+                          }
                         }
                       }}
                     >
@@ -546,80 +567,111 @@ const AppointmentDetails = () => {
                       </SelectContent>
                     </Select>
                   ) : (
-                    <Popover open={especialidadeSearchOpen} onOpenChange={setEspecialidadeSearchOpen}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          aria-expanded={especialidadeSearchOpen}
-                          className="w-full justify-between"
-                          disabled={!selectedConvenio || loadingEspecialidades}
-                        >
-                          {loadingEspecialidades 
-                            ? "Carregando..." 
-                            : !selectedConvenio 
-                              ? "Selecione um convênio primeiro"
-                              : selectedEspecialidade 
-                                ? especialidades.find(e => e.id.toString() === selectedEspecialidade)?.descricao 
-                                : "Selecione a especialidade"}
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-full min-w-[300px] p-0" align="start">
-                        <Command>
-                          <CommandInput 
-                            placeholder="Buscar especialidade..." 
-                            value={especialidadeSearchQuery}
-                            onValueChange={setEspecialidadeSearchQuery}
-                          />
-                          <CommandList>
-                            <CommandEmpty>Nenhuma especialidade encontrada.</CommandEmpty>
-                            <CommandGroup>
-                              {especialidades
-                                .filter(e => e.descricao.toLowerCase().includes(especialidadeSearchQuery.toLowerCase()))
-                                .map((especialidade) => (
-                                  <CommandItem
-                                    key={especialidade.id}
-                                    value={especialidade.descricao}
-                                    onSelect={() => {
-                                      setSelectedEspecialidade(especialidade.id.toString());
-                                      setEspecialidadeSearchOpen(false);
-                                      setEspecialidadeSearchQuery("");
-                                    }}
-                                  >
-                                    <Check
-                                      className={cn(
-                                        "mr-2 h-4 w-4",
-                                        selectedEspecialidade === especialidade.id.toString() ? "opacity-100" : "opacity-0"
-                                      )}
-                                    />
-                                    {especialidade.descricao}
-                                  </CommandItem>
-                                ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
+                    <div className="space-y-3">
+                      {/* Especialidades selecionadas */}
+                      {selectedEspecialidades.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {selectedEspecialidades.map((esp) => (
+                            <Badge 
+                              key={esp.id} 
+                              variant="secondary"
+                              className="flex items-center gap-1 px-3 py-1"
+                            >
+                              {esp.descricao}
+                              <button
+                                type="button"
+                                onClick={() => setSelectedEspecialidades(
+                                  selectedEspecialidades.filter(e => e.id !== esp.id)
+                                )}
+                                className="ml-1 hover:text-destructive"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Botão para adicionar especialidade */}
+                      <Popover open={especialidadeSearchOpen} onOpenChange={setEspecialidadeSearchOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={especialidadeSearchOpen}
+                            className="w-full justify-between"
+                            disabled={!selectedConvenio || loadingEspecialidades}
+                          >
+                            {loadingEspecialidades 
+                              ? "Carregando..." 
+                              : !selectedConvenio 
+                                ? "Selecione um convênio primeiro"
+                                : selectedEspecialidades.length === 0
+                                  ? "Selecione a especialidade"
+                                  : "Adicionar outra especialidade"}
+                            {selectedEspecialidades.length === 0 ? (
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            ) : (
+                              <Plus className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full min-w-[300px] p-0" align="start">
+                          <Command>
+                            <CommandInput 
+                              placeholder="Buscar especialidade..." 
+                              value={especialidadeSearchQuery}
+                              onValueChange={setEspecialidadeSearchQuery}
+                            />
+                            <CommandList>
+                              <CommandEmpty>Nenhuma especialidade encontrada.</CommandEmpty>
+                              <CommandGroup>
+                                {especialidades
+                                  .filter(e => 
+                                    !selectedEspecialidades.find(s => s.id === e.id) &&
+                                    e.descricao.toLowerCase().includes(especialidadeSearchQuery.toLowerCase())
+                                  )
+                                  .map((especialidade) => (
+                                    <CommandItem
+                                      key={especialidade.id}
+                                      value={especialidade.descricao}
+                                      onSelect={() => {
+                                        setSelectedEspecialidades([...selectedEspecialidades, especialidade]);
+                                        setEspecialidadeSearchOpen(false);
+                                        setEspecialidadeSearchQuery("");
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          "mr-2 h-4 w-4",
+                                          selectedEspecialidades.find(s => s.id === especialidade.id) ? "opacity-100" : "opacity-0"
+                                        )}
+                                      />
+                                      {especialidade.descricao}
+                                    </CommandItem>
+                                  ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+
+                      {selectedEspecialidades.length >= 2 && (
+                        <p className="text-xs text-muted-foreground">
+                          Com {selectedEspecialidades.length} especialidades, será usado o agendamento inteligente para encontrar horários compatíveis.
+                        </p>
+                      )}
+                    </div>
                   )}
                 </div>
 
-                <div className="mt-4 flex flex-col gap-3">
+                <div className="mt-4">
                   <Button 
                     onClick={handleContinue} 
                     className="w-full"
-                    disabled={!selectedConvenio || !selectedEspecialidade}
+                    disabled={!selectedConvenio || selectedEspecialidades.length === 0}
                   >
                     Continuar
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground gap-2"
-                    onClick={() => navigate("/smart-scheduling")}
-                  >
-                    <Sparkles className="h-4 w-4" />
-                    Agendamento Inteligente
                   </Button>
                 </div>
               </CardContent>
