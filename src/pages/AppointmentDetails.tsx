@@ -2,17 +2,19 @@ import { Header } from "@/components/Header";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getApiHeaders } from "@/lib/api-headers";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Check, ChevronsUpDown, X } from "lucide-react";
+import { Plus, Check, ChevronsUpDown, X, Sparkles, CalendarDays, ArrowRight } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
 
 interface Patient {
   id: string | number;
@@ -62,8 +64,17 @@ interface Encaminhamento {
   id: number;
 }
 
+interface ConventionalFlowData {
+  active: boolean;
+  especialidades: Especialidade[];
+  currentIndex: number;
+  completedAppointments: any[];
+  convenio: string;
+}
+
 const AppointmentDetails = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
@@ -80,6 +91,13 @@ const AppointmentDetails = () => {
   const [encaminhamentos, setEncaminhamentos] = useState<Encaminhamento[]>([]);
   const [useEncaminhamento, setUseEncaminhamento] = useState(false);
   const [selectedNrSeqMedAvaliacao, setSelectedNrSeqMedAvaliacao] = useState<number | null>(null);
+  
+  // Modal de escolha de fluxo
+  const [showFlowChoiceModal, setShowFlowChoiceModal] = useState(false);
+  
+  // Fluxo convencional com múltiplas especialidades
+  const [conventionalFlowActive, setConventionalFlowActive] = useState(false);
+  const [conventionalFlowData, setConventionalFlowData] = useState<ConventionalFlowData | null>(null);
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -133,7 +151,53 @@ const AppointmentDetails = () => {
         console.error("Erro ao processar encaminhamentos:", error);
       }
     }
-  }, [navigate]);
+    
+    // Verificar se há fluxo convencional ativo
+    const storedConventionalFlow = localStorage.getItem("conventionalFlow");
+    if (storedConventionalFlow) {
+      try {
+        const flowData: ConventionalFlowData = JSON.parse(storedConventionalFlow);
+        if (flowData.active) {
+          setConventionalFlowActive(true);
+          setConventionalFlowData(flowData);
+          setSelectedConvenio(flowData.convenio);
+          
+          // Se veio da tela de sucesso (continuar agendamento), avançar para próxima especialidade
+          if (location.state?.continueFlow) {
+            const nextIndex = flowData.currentIndex + 1;
+            if (nextIndex < flowData.especialidades.length) {
+              // Atualizar índice e continuar
+              const updatedFlowData = { 
+                ...flowData, 
+                currentIndex: nextIndex,
+                completedAppointments: [...flowData.completedAppointments, location.state?.lastAppointment]
+              };
+              localStorage.setItem("conventionalFlow", JSON.stringify(updatedFlowData));
+              setConventionalFlowData(updatedFlowData);
+              
+              // Agendar próxima especialidade automaticamente
+              setTimeout(() => {
+                proceedWithSingleSpecialty(flowData.especialidades[nextIndex]);
+              }, 500);
+            } else {
+              // Fluxo completo - mostrar resumo
+              localStorage.removeItem("conventionalFlow");
+              setConventionalFlowActive(false);
+              setConventionalFlowData(null);
+              toast({
+                title: "Agendamentos concluídos!",
+                description: `Todas as ${flowData.especialidades.length} consultas foram agendadas com sucesso.`
+              });
+              navigate("/scheduled-appointments-choice");
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao processar fluxo convencional:", error);
+        localStorage.removeItem("conventionalFlow");
+      }
+    }
+  }, [navigate, location.state]);
 
   useEffect(() => {
     const fetchConvenios = async () => {
@@ -246,42 +310,15 @@ const AppointmentDetails = () => {
     setSelectedEspecialidades([]);
   }, [useEncaminhamento]);
 
-  const handleContinue = async () => {
-    if (!selectedConvenio || selectedEspecialidades.length === 0) {
-      alert("Por favor, selecione o convênio e pelo menos uma especialidade");
-      return;
-    }
-
-    if (!selectedPatient) {
-      alert("Dados do paciente não encontrados");
-      return;
-    }
-
-    // Se tiver 2 ou mais especialidades, vai para agendamento inteligente
-    if (selectedEspecialidades.length >= 2) {
-      // Salvar dados no localStorage para o SmartScheduling
-      localStorage.setItem("smartSchedulingEspecialidades", JSON.stringify(selectedEspecialidades));
-      localStorage.setItem("smartSchedulingConvenio", selectedConvenio);
-      navigate("/smart-scheduling", { 
-        state: { 
-          fromAppointmentDetails: true,
-          especialidades: selectedEspecialidades,
-          convenio: selectedConvenio
-        } 
-      });
-      return;
-    }
-
-    // Fluxo normal para 1 especialidade
-    const selectedEspecialidade = selectedEspecialidades[0].id.toString();
+  const proceedWithSingleSpecialty = async (especialidade: Especialidade) => {
+    if (!selectedPatient) return;
+    
+    const selectedEspecialidade = especialidade.id.toString();
 
     try {
-      // idCliente deve ser o cdPessoaFisica do paciente selecionado (titular ou dependente)
       const idCliente = selectedPatient.cdPessoaFisica?.toString() || "";
       const idadeCliente = selectedPatient.idade?.toString() || "0";
       const sexo = selectedPatient.sexo || "";
-      
-      // cdDependente deve SEMPRE ser o ID do paciente selecionado
       const cdDependente = selectedPatient.id?.toString() || "";
       const nrCarteirinha = selectedPatient.codigoCarteirinha?.toString() || "";
       
@@ -309,50 +346,39 @@ const AppointmentDetails = () => {
       const data = await response.json();
 
       if (data.sucesso && data.dados) {
-        // Verificar se o array de profissionais está vazio
         if (data.dados.length === 0) {
           toast({
             variant: "destructive",
             title: "Nenhum profissional disponível",
-            description: "Não há profissionais disponíveis para a especialidade selecionada no momento."
+            description: `Não há profissionais disponíveis para ${especialidade.descricao} no momento.`
           });
           return;
         }
 
-        // Buscar descrição da especialidade
-        const especialidadeSelecionada = especialidades.find(e => e.id.toString() === selectedEspecialidade);
-        const dsEspecialidade = especialidadeSelecionada?.descricao || "Especialidade";
+        const dsEspecialidade = especialidade.descricao;
         
-        // Função para filtrar agendas duplicadas, mantendo apenas a mais antiga (primeira disponível)
         const filtrarAgendasMaisAntigas = (arr: any[]) => {
           const finalList: any[] = [];
-
           for (let i = 0; i < arr.length; i++) {
             const atual = arr[i];
             let existe = false;
-
             for (let j = 0; j < finalList.length; j++) {
               if (finalList[j].idAgenda === atual.idAgenda) {
-                // Se já existe, mantém o mais antigo (primeira data disponível)
                 if (new Date(atual.dataAgenda2) < new Date(finalList[j].dataAgenda2)) {
                   finalList[j] = atual;
                 }
                 existe = true;
               }
             }
-
             if (!existe) {
               finalList.push(atual);
             }
           }
-
           return finalList;
         };
 
-        // Filtrar profissionais duplicados antes de transformar os dados
         const profissionaisFiltrados = filtrarAgendasMaisAntigas(data.dados);
         
-        // Transformar dados da API para o formato esperado pelo componente
         const profissionaisGroups = [{
           combinacao: "",
           dados: profissionaisFiltrados.map((prof: any) => ({
@@ -377,7 +403,6 @@ const AppointmentDetails = () => {
           }))
         }];
         
-        // Salvar os dados transformados no localStorage
         localStorage.setItem("appointmentProfessionals", JSON.stringify(profissionaisGroups));
         localStorage.setItem("selectedAppointmentConvenio", selectedConvenio);
         localStorage.setItem("selectedAppointmentEspecialidade", selectedEspecialidade);
@@ -386,7 +411,6 @@ const AppointmentDetails = () => {
         
         navigate("/appointment-professionals");
       } else {
-        console.error("Erro na resposta da API:", data);
         toast({
           variant: "destructive",
           title: "Erro",
@@ -403,6 +427,68 @@ const AppointmentDetails = () => {
     }
   };
 
+  const handleConventionalFlow = () => {
+    setShowFlowChoiceModal(false);
+    
+    // Salvar estado do fluxo convencional
+    const flowData: ConventionalFlowData = {
+      active: true,
+      especialidades: selectedEspecialidades,
+      currentIndex: 0,
+      completedAppointments: [],
+      convenio: selectedConvenio
+    };
+    localStorage.setItem("conventionalFlow", JSON.stringify(flowData));
+    setConventionalFlowActive(true);
+    setConventionalFlowData(flowData);
+    
+    // Iniciar com primeira especialidade
+    proceedWithSingleSpecialty(selectedEspecialidades[0]);
+  };
+
+  const handleSmartFlow = () => {
+    setShowFlowChoiceModal(false);
+    localStorage.removeItem("conventionalFlow");
+    
+    localStorage.setItem("smartSchedulingEspecialidades", JSON.stringify(selectedEspecialidades));
+    localStorage.setItem("smartSchedulingConvenio", selectedConvenio);
+    navigate("/smart-scheduling", { 
+      state: { 
+        fromAppointmentDetails: true,
+        especialidades: selectedEspecialidades,
+        convenio: selectedConvenio
+      } 
+    });
+  };
+
+  const handleCancelConventionalFlow = () => {
+    localStorage.removeItem("conventionalFlow");
+    setConventionalFlowActive(false);
+    setConventionalFlowData(null);
+    setSelectedEspecialidades([]);
+  };
+
+  const handleContinue = async () => {
+    if (!selectedConvenio || selectedEspecialidades.length === 0) {
+      alert("Por favor, selecione o convênio e pelo menos uma especialidade");
+      return;
+    }
+
+    if (!selectedPatient) {
+      alert("Dados do paciente não encontrados");
+      return;
+    }
+
+    // Se tiver 2 ou mais especialidades, mostrar modal de escolha
+    if (selectedEspecialidades.length >= 2) {
+      setShowFlowChoiceModal(true);
+      return;
+    }
+
+    // Fluxo normal para 1 especialidade
+    await proceedWithSingleSpecialty(selectedEspecialidades[0]);
+  };
+
   if (!selectedPatient) {
     return null;
   }
@@ -410,6 +496,50 @@ const AppointmentDetails = () => {
   return (
     <div className="flex min-h-screen flex-col">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
+      
+      {/* Barra de progresso do fluxo convencional */}
+      {conventionalFlowActive && conventionalFlowData && (
+        <div className="sticky top-0 bg-background border-b p-4 z-40 shadow-sm">
+          <div className="container mx-auto">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium">
+                Agendando: {conventionalFlowData.especialidades[conventionalFlowData.currentIndex]?.descricao}
+              </span>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-muted-foreground">
+                  {conventionalFlowData.currentIndex + 1} de {conventionalFlowData.especialidades.length}
+                </span>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleCancelConventionalFlow}
+                  className="text-xs text-muted-foreground hover:text-destructive"
+                >
+                  Cancelar fluxo
+                </Button>
+              </div>
+            </div>
+            <Progress 
+              value={((conventionalFlowData.currentIndex) / conventionalFlowData.especialidades.length) * 100} 
+              className="h-2"
+            />
+            
+            {/* Lista de especialidades com status */}
+            <div className="flex gap-2 mt-3 flex-wrap">
+              {conventionalFlowData.especialidades.map((esp, idx) => (
+                <Badge 
+                  key={esp.id}
+                  variant={idx < conventionalFlowData.currentIndex ? "default" : idx === conventionalFlowData.currentIndex ? "secondary" : "outline"}
+                  className="text-xs"
+                >
+                  {idx < conventionalFlowData.currentIndex && <Check className="h-3 w-3 mr-1" />}
+                  {esp.descricao}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       
       <main className="flex-1">
         <div className="container mx-auto px-4 py-4 sm:py-6 md:px-6 md:py-10">
@@ -422,10 +552,12 @@ const AppointmentDetails = () => {
               <Button
                 variant="outline"
                 onClick={() => {
+                  if (conventionalFlowActive) {
+                    handleCancelConventionalFlow();
+                  }
                   const listToSchedule = localStorage.getItem("listToSchedule");
                   if (listToSchedule) {
                     try {
-                      // listToSchedule JÁ É o array listAllPacient
                       const listAllPacient = JSON.parse(listToSchedule);
                       const hasDependents = listAllPacient.length > 1;
                       navigate(hasDependents ? "/appointment-schedule" : "/dashboard");
@@ -669,7 +801,7 @@ const AppointmentDetails = () => {
                   <Button 
                     onClick={handleContinue} 
                     className="w-full"
-                    disabled={!selectedConvenio || selectedEspecialidades.length === 0}
+                    disabled={!selectedConvenio || selectedEspecialidades.length === 0 || conventionalFlowActive}
                   >
                     Continuar
                   </Button>
@@ -679,6 +811,68 @@ const AppointmentDetails = () => {
           </div>
         </div>
       </main>
+
+      {/* Modal de escolha de fluxo */}
+      <Dialog open={showFlowChoiceModal} onOpenChange={setShowFlowChoiceModal}>
+        <DialogContent className="max-w-[95vw] sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-xl">Como deseja agendar suas consultas?</DialogTitle>
+            <DialogDescription>
+              Você selecionou {selectedEspecialidades.length} especialidades. 
+              Escolha como deseja prosseguir com o agendamento.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            {/* Opção 1: Agendamento Convencional */}
+            <Card 
+              className="cursor-pointer hover:border-primary hover:shadow-md transition-all"
+              onClick={handleConventionalFlow}
+            >
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <CalendarDays className="h-5 w-5 text-primary" />
+                  Agendar uma por vez
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <p className="text-sm text-muted-foreground">
+                  Escolha profissional, unidade e horário para cada especialidade 
+                  separadamente. Você terá mais controle sobre cada agendamento.
+                </p>
+                <div className="flex items-center gap-1 mt-3 text-xs text-muted-foreground">
+                  <ArrowRight className="h-3 w-3" />
+                  <span>Uma barra de progresso irá guiá-lo pelo processo</span>
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Opção 2: Agendamento Inteligente */}
+            <Card 
+              className="cursor-pointer hover:border-primary hover:shadow-md transition-all"
+              onClick={handleSmartFlow}
+            >
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  Agendamento Inteligente
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <p className="text-sm text-muted-foreground">
+                  Encontramos automaticamente horários compatíveis para todas as 
+                  especialidades no mesmo dia e unidade, com intervalos adequados 
+                  entre consultas.
+                </p>
+                <div className="flex items-center gap-1 mt-3 text-xs text-muted-foreground">
+                  <ArrowRight className="h-3 w-3" />
+                  <span>Ideal para quem quer otimizar tempo</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
