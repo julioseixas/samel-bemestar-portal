@@ -78,6 +78,96 @@ interface SmartScheduleResult {
   isDifferentUnits?: boolean;
 }
 
+// Mock data for testing
+const generateMockData = (): { especialidades: Especialidade[]; results: SmartScheduleResult[] } => {
+  const mockEspecialidades: Especialidade[] = [
+    { id: 99901, descricao: "TESTE INTELIGENTE 1" },
+    { id: 99902, descricao: "TESTE INTELIGENTE 2" }
+  ];
+
+  // Generate dates for next 5 days
+  const today = new Date();
+  const mockResults: SmartScheduleResult[] = [];
+
+  for (let dayOffset = 1; dayOffset <= 2; dayOffset++) {
+    const date = new Date(today);
+    date.setDate(date.getDate() + dayOffset);
+    
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const dateStr = `${day}/${month}/${year}`;
+
+    // 5 time slots per day, with 30-45 min intervals
+    const baseHours = [8, 9, 10, 14, 15];
+    
+    for (let slotIdx = 0; slotIdx < 5; slotIdx++) {
+      const hour1 = baseHours[slotIdx];
+      const hour2 = hour1 + (slotIdx % 2 === 0 ? 0 : 1); // vary the second appointment
+      const minute1 = 0;
+      const minute2 = 30; // 30 min apart
+
+      const time1 = `${String(hour1).padStart(2, '0')}:${String(minute1).padStart(2, '0')}`;
+      const time2 = `${String(hour1).padStart(2, '0')}:${String(minute2).padStart(2, '0')}`;
+
+      mockResults.push({
+        date: `${year}-${month}-${day}`,
+        dateFormatted: date.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' }),
+        unitId: 1,
+        unitName: "HOSPITAL SAMEL - ADRIANÓPOLIS",
+        slots: [
+          {
+            specialty: mockEspecialidades[0],
+            professional: {
+              id: "MOCK001",
+              nome: "Dr. Teste Mock 1",
+              idAgenda: 99901 + slotIdx,
+              dataAgenda: dateStr,
+              dataAgenda2: `${dateStr} ${time1}`,
+              unidade: { id: "1", descricao: "HOSPITAL SAMEL - ADRIANÓPOLIS" }
+            },
+            horario: {
+              id: 99901 + (dayOffset * 10) + slotIdx,
+              idAgenda: 99901 + slotIdx,
+              horaEspecial: "N",
+              data: dateStr,
+              data2: `${dateStr} ${time1}`,
+              especialidadeAgenda: { id: 99901, descricao: "TESTE INTELIGENTE 1" },
+              idMedico: "MOCK001",
+              nmMedico: "Dr. Teste Mock 1",
+              unidade: { id: 1, nome: "HOSPITAL SAMEL - ADRIANÓPOLIS" }
+            }
+          },
+          {
+            specialty: mockEspecialidades[1],
+            professional: {
+              id: "MOCK002",
+              nome: "Dra. Teste Mock 2",
+              idAgenda: 99902 + slotIdx,
+              dataAgenda: dateStr,
+              dataAgenda2: `${dateStr} ${time2}`,
+              unidade: { id: "1", descricao: "HOSPITAL SAMEL - ADRIANÓPOLIS" }
+            },
+            horario: {
+              id: 99902 + (dayOffset * 10) + slotIdx,
+              idAgenda: 99902 + slotIdx,
+              horaEspecial: "N",
+              data: dateStr,
+              data2: `${dateStr} ${time2}`,
+              especialidadeAgenda: { id: 99902, descricao: "TESTE INTELIGENTE 2" },
+              idMedico: "MOCK002",
+              nmMedico: "Dra. Teste Mock 2",
+              unidade: { id: 1, nome: "HOSPITAL SAMEL - ADRIANÓPOLIS" }
+            }
+          }
+        ]
+      });
+    }
+  }
+
+  return { especialidades: mockEspecialidades, results: mockResults };
+};
+
 const SmartScheduling = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -113,6 +203,21 @@ const SmartScheduling = () => {
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [bookingProgress, setBookingProgress] = useState<{ current: number; total: number; completed: string[] }>({ current: 0, total: 0, completed: [] });
   const [autoSearchTriggered, setAutoSearchTriggered] = useState(false);
+  const [isTestMode, setIsTestMode] = useState(false);
+  
+  // Função para ativar modo de teste com dados mock
+  const handleTestMode = () => {
+    const mockData = generateMockData();
+    setIsTestMode(true);
+    setSelectedEspecialidades(mockData.especialidades);
+    setResults(mockData.results);
+    setHasSearched(true);
+    setIsSearching(false);
+    toast({
+      title: "Modo de Teste Ativado",
+      description: `Carregados ${mockData.results.length} horários simulados para 2 especialidades de teste.`
+    });
+  };
 
   // Load patient data
   useEffect(() => {
@@ -1006,6 +1111,24 @@ const SmartScheduling = () => {
                   </>
                 )}
               </Button>
+              
+              {/* Botão de Teste - apenas para desenvolvimento */}
+              <Button
+                onClick={handleTestMode}
+                variant="outline"
+                className="w-full border-dashed border-amber-500 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950"
+              >
+                🧪 Testar com Dados Mock (TESTE INTELIGENTE 1 e 2)
+              </Button>
+              
+              {isTestMode && (
+                <Alert className="border-amber-500 bg-amber-50 dark:bg-amber-950">
+                  <AlertTriangle className="h-4 w-4 text-amber-600" />
+                  <AlertDescription className="text-amber-700 dark:text-amber-300">
+                    Modo de teste ativo. Os dados exibidos são simulados e não representam agendas reais.
+                  </AlertDescription>
+                </Alert>
+              )}
             </CardContent>
           </Card>
 
