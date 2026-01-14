@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { getApiHeaders } from "@/lib/api-headers";
 import { useToast } from "@/hooks/use-toast";
-import { Sparkles, X, Search, Clock, MapPin, User, Calendar, Loader2, Check } from "lucide-react";
+import { Sparkles, X, Search, Clock, MapPin, User, Calendar, Loader2, Check, Building2, AlertTriangle } from "lucide-react";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -74,6 +75,7 @@ interface SmartScheduleResult {
   unitId: number;
   unitName: string;
   slots: ScheduleSlot[];
+  isDifferentUnits?: boolean;
 }
 
 const SmartScheduling = () => {
@@ -95,6 +97,10 @@ const SmartScheduling = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [results, setResults] = useState<SmartScheduleResult[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
+  const [showDifferentUnitsOption, setShowDifferentUnitsOption] = useState(false);
+  const [differentUnitsResults, setDifferentUnitsResults] = useState<SmartScheduleResult[]>([]);
+  const [isSearchingDifferentUnits, setIsSearchingDifferentUnits] = useState(false);
+  const [showingDifferentUnits, setShowingDifferentUnits] = useState(false);
   
   // Confirmation modal
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -214,6 +220,9 @@ const SmartScheduling = () => {
     setIsSearching(true);
     setHasSearched(true);
     setResults([]);
+    setShowDifferentUnitsOption(false);
+    setDifferentUnitsResults([]);
+    setShowingDifferentUnits(false);
 
     try {
       const headers = getApiHeaders();
@@ -432,6 +441,12 @@ const SmartScheduling = () => {
       
       validResults.sort((a, b) => a.date.localeCompare(b.date));
       setResults(validResults.slice(0, 10)); // Limit to 10 results
+      
+      // Se não encontrou resultados na mesma unidade, habilitar opção de buscar em unidades diferentes
+      if (validResults.length === 0) {
+        console.log("Nenhum resultado na mesma unidade - habilitando busca em unidades diferentes");
+        setShowDifferentUnitsOption(true);
+      }
 
     } catch (error) {
       console.error("Erro ao buscar agendas:", error);
@@ -448,6 +463,212 @@ const SmartScheduling = () => {
   const parseTimeToMinutes = (time: string): number => {
     const [hours, minutes] = time.split(':').map(Number);
     return hours * 60 + minutes;
+  };
+
+  // Busca em unidades diferentes (intervalo de até 3 horas)
+  const handleSearchDifferentUnits = async () => {
+    if (selectedEspecialidades.length < 2 || !selectedPatient) return;
+
+    setIsSearchingDifferentUnits(true);
+    setDifferentUnitsResults([]);
+
+    try {
+      const headers = getApiHeaders();
+      // Map com chave baseada apenas na data (sem unidade)
+      const allSchedulesByDate: Map<number, { 
+        specialty: Especialidade; 
+        horarios: HorarioDisponivel[]; 
+        professional: Profissional;
+        unitId: number;
+        unitName: string;
+      }[]> = new Map();
+
+      // Fetch schedules for each specialty
+      for (const especialidade of selectedEspecialidades) {
+        const profParams = new URLSearchParams({
+          idConvenio: "19",
+          idadeCliente: selectedPatient.idade?.toString() || "0",
+          idEspecialidade: especialidade.id.toString(),
+          nomeProfissional: "",
+          idCliente: selectedPatient.cdPessoaFisica?.toString() || "",
+          sexo: selectedPatient.sexo || "",
+          cdDependente: selectedPatient.id?.toString() || "",
+          nrCarteirinha: selectedPatient.codigoCarteirinha?.toString() || ""
+        });
+
+        const profResponse = await fetch(
+          `https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ListarProfissionaisComAgendaDisponivel3?${profParams}`,
+          { method: "GET", headers }
+        );
+        const profData = await profResponse.json();
+
+        if (!profData.sucesso || !profData.dados || profData.dados.length === 0) continue;
+
+        for (const prof of profData.dados.slice(0, 5)) {
+          const horariosParams = new URLSearchParams({
+            idConvenio: "19",
+            idEspecialidade: especialidade.id.toString(),
+            idProfissional: prof.id.toString(),
+            idadeCliente: selectedPatient.idade?.toString() || "0",
+            idCliente: selectedPatient.id?.toString() || ""
+          });
+
+          const horariosResponse = await fetch(
+            `https://api-portalpaciente-web.samel.com.br/api/Agenda/Consulta/ListarHorariosDisponiveis2?${horariosParams}`,
+            { method: "GET", headers }
+          );
+          const horariosData = await horariosResponse.json();
+
+          if (horariosData.sucesso && horariosData.dados) {
+            for (const horario of horariosData.dados) {
+              const dateStr = horario.data2.split(' ')[0];
+              const [day, month, year] = dateStr.split('/');
+              const dateKeyNum = parseInt(`${year}${month}${day}`);
+
+              if (!allSchedulesByDate.has(dateKeyNum)) {
+                allSchedulesByDate.set(dateKeyNum, []);
+              }
+
+              allSchedulesByDate.get(dateKeyNum)!.push({
+                specialty: especialidade,
+                horarios: [horario],
+                professional: prof,
+                unitId: horario.unidade.id,
+                unitName: horario.unidade.nome
+              });
+            }
+          }
+        }
+      }
+
+      console.log("=== DEBUG: BUSCA EM UNIDADES DIFERENTES ===");
+      console.log("Total de datas:", allSchedulesByDate.size);
+
+      const validResults: SmartScheduleResult[] = [];
+
+      allSchedulesByDate.forEach((schedules, dateKey) => {
+        const specialtiesInDate = new Set(schedules.map(s => s.specialty.id));
+        const allSpecialtiesPresent = selectedEspecialidades.every(e => specialtiesInDate.has(e.id));
+
+        console.log(`\n=== Data: ${dateKey} ===`);
+        console.log("Especialidades presentes:", [...specialtiesInDate]);
+        console.log("Todas presentes?", allSpecialtiesPresent);
+
+        if (!allSpecialtiesPresent) {
+          console.log("❌ REJEITADO: Faltam especialidades");
+          return;
+        }
+
+        // Group by specialty
+        const bySpecialty = new Map<number, typeof schedules>();
+        schedules.forEach(s => {
+          if (!bySpecialty.has(s.specialty.id)) {
+            bySpecialty.set(s.specialty.id, []);
+          }
+          bySpecialty.get(s.specialty.id)!.push(s);
+        });
+
+        // Buscar combinação com intervalo de até 3 horas (180 minutos)
+        const findValidCombination = (): ScheduleSlot[] | null => {
+          const specialtyArrays = Array.from(bySpecialty.values());
+
+          for (const first of specialtyArrays[0]) {
+            const firstHorario = first.horarios[0];
+            const firstTime = parseTimeToMinutes(firstHorario.data2.split(' ')[1]);
+
+            const combination: ScheduleSlot[] = [{
+              specialty: first.specialty,
+              professional: first.professional,
+              horario: firstHorario
+            }];
+
+            let isValid = true;
+            const usedTimes = [firstTime];
+
+            for (let i = 1; i < specialtyArrays.length; i++) {
+              let foundMatch = false;
+
+              for (const other of specialtyArrays[i]) {
+                const otherHorario = other.horarios[0];
+                const otherTime = parseTimeToMinutes(otherHorario.data2.split(' ')[1]);
+
+                // Verificar se está entre 30 min e 3 horas (180 min) de todos os outros horários
+                const isValidTime = usedTimes.every(usedTime => {
+                  const diff = Math.abs(otherTime - usedTime);
+                  return diff >= 30 && diff <= 180; // 30 min a 3 horas
+                });
+
+                console.log(`  Comparando ${otherHorario.data2.split(' ')[1]} com tempos usados - Válido: ${isValidTime}`);
+
+                if (isValidTime) {
+                  combination.push({
+                    specialty: other.specialty,
+                    professional: other.professional,
+                    horario: otherHorario
+                  });
+                  usedTimes.push(otherTime);
+                  foundMatch = true;
+                  break;
+                }
+              }
+
+              if (!foundMatch) {
+                isValid = false;
+                break;
+              }
+            }
+
+            if (isValid && combination.length === selectedEspecialidades.length) {
+              return combination.sort((a, b) =>
+                parseTimeToMinutes(a.horario.data2.split(' ')[1]) -
+                parseTimeToMinutes(b.horario.data2.split(' ')[1])
+              );
+            }
+          }
+
+          return null;
+        };
+
+        const validCombination = findValidCombination();
+        if (validCombination) {
+          const dateStr = validCombination[0].horario.data2.split(' ')[0];
+          const [day, month, year] = dateStr.split('/');
+          const parsedDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+
+          // Verificar se são unidades diferentes
+          const unitIds = new Set(validCombination.map(s => s.horario.unidade.id));
+          const isDifferentUnits = unitIds.size > 1;
+
+          if (isDifferentUnits) {
+            validResults.push({
+              date: `${year}-${month}-${day}`,
+              dateFormatted: format(parsedDate, "EEEE, dd 'de' MMMM", { locale: ptBR }),
+              unitId: validCombination[0].horario.unidade.id,
+              unitName: "Unidades diferentes",
+              slots: validCombination,
+              isDifferentUnits: true
+            });
+            console.log("✅ Combinação em unidades diferentes encontrada!");
+          }
+        }
+      });
+
+      console.log("\n=== RESULTADOS UNIDADES DIFERENTES ===");
+      console.log("Total:", validResults.length);
+
+      validResults.sort((a, b) => a.date.localeCompare(b.date));
+      setDifferentUnitsResults(validResults.slice(0, 10));
+      setShowingDifferentUnits(true);
+    } catch (error) {
+      console.error("Erro ao buscar em unidades diferentes:", error);
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Erro ao buscar agendas em unidades diferentes"
+      });
+    } finally {
+      setIsSearchingDifferentUnits(false);
+    }
   };
 
   // Confirmation flow
@@ -772,21 +993,123 @@ const SmartScheduling = () => {
           {/* Results */}
           {hasSearched && !isSearching && (
             <div className="space-y-4">
-              {results.length === 0 ? (
+              {results.length === 0 && !showingDifferentUnits ? (
                 <Card>
                   <CardContent className="py-8 text-center">
                     <div className="text-muted-foreground">
                       <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p className="font-medium mb-2">Nenhuma combinação encontrada</p>
+                      <p className="font-medium mb-2">Nenhuma combinação encontrada na mesma unidade</p>
                       <p className="text-sm">
-                        Não encontramos dias com todas as especialidades disponíveis no intervalo de 30-60 minutos.
+                        Não encontramos dias com todas as especialidades disponíveis no intervalo de 30-60 minutos na mesma unidade.
                       </p>
-                      <p className="text-sm mt-2">
-                        Tente remover uma especialidade ou agendar separadamente.
-                      </p>
+                      
+                      {showDifferentUnitsOption && (
+                        <div className="mt-6">
+                          <Alert className="text-left mb-4">
+                            <Building2 className="h-4 w-4" />
+                            <AlertDescription>
+                              Podemos buscar combinações em <strong>unidades diferentes</strong> com intervalo de até 3 horas entre consultas. Você precisará se deslocar entre unidades.
+                            </AlertDescription>
+                          </Alert>
+                          <Button
+                            onClick={handleSearchDifferentUnits}
+                            disabled={isSearchingDifferentUnits}
+                            variant="outline"
+                            className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                          >
+                            {isSearchingDifferentUnits ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Buscando em unidades diferentes...
+                              </>
+                            ) : (
+                              <>
+                                <Building2 className="mr-2 h-4 w-4" />
+                                Buscar em Unidades Diferentes
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
+              ) : results.length === 0 && showingDifferentUnits ? (
+                <>
+                  {differentUnitsResults.length === 0 ? (
+                    <Card>
+                      <CardContent className="py-8 text-center">
+                        <div className="text-muted-foreground">
+                          <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                          <p className="font-medium mb-2">Nenhuma combinação encontrada</p>
+                          <p className="text-sm">
+                            Não encontramos combinações nem mesmo em unidades diferentes.
+                          </p>
+                          <p className="text-sm mt-2">
+                            Tente remover uma especialidade ou agendar separadamente.
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <>
+                      <Alert className="border-amber-500 bg-amber-50 dark:bg-amber-950/20">
+                        <AlertTriangle className="h-4 w-4 text-amber-600" />
+                        <AlertDescription className="text-amber-700 dark:text-amber-400">
+                          <strong>Atenção:</strong> As combinações abaixo são em unidades diferentes. Você precisará se deslocar entre as unidades. O intervalo entre consultas é de até 3 horas.
+                        </AlertDescription>
+                      </Alert>
+                      
+                      <h3 className="font-semibold text-lg">
+                        {differentUnitsResults.length} {differentUnitsResults.length === 1 ? 'combinação encontrada' : 'combinações encontradas'} em unidades diferentes
+                      </h3>
+                      
+                      {differentUnitsResults.map((result, idx) => (
+                        <Card key={`${result.date}-diff-${idx}`} className="border-2 border-amber-300 hover:border-amber-500 transition-colors">
+                          <CardHeader className="pb-2">
+                            <CardTitle className="text-base flex items-center gap-2">
+                              <Calendar className="h-4 w-4 text-primary" />
+                              <span className="capitalize">{result.dateFormatted}</span>
+                            </CardTitle>
+                            <div className="flex items-center gap-2 text-sm text-amber-600">
+                              <Building2 className="h-4 w-4" />
+                              Unidades diferentes
+                            </div>
+                          </CardHeader>
+                          <CardContent className="space-y-3">
+                            {result.slots.map((slot, slotIdx) => (
+                              <div key={slotIdx} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                                <div className="flex-shrink-0 w-16 text-center">
+                                  <span className="text-xl font-bold text-primary">
+                                    {slot.horario.data2.split(' ')[1]}
+                                  </span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium text-sm">{slot.specialty.descricao}</p>
+                                  <p className="text-xs text-muted-foreground truncate">
+                                    Dr(a). {slot.horario.nmMedico}
+                                  </p>
+                                  <div className="flex items-center gap-1 mt-1 text-xs text-amber-600 font-medium">
+                                    <MapPin className="h-3 w-3" />
+                                    {slot.horario.unidade.nome}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                            
+                            <Button 
+                              className="w-full mt-4"
+                              onClick={() => handleSelectResult(result)}
+                            >
+                              <Check className="mr-2 h-4 w-4" />
+                              Agendar Todas
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </>
+                  )}
+                </>
               ) : (
                 <>
                   <h3 className="font-semibold text-lg">
