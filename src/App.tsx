@@ -59,6 +59,7 @@ import ConsultationQueue from "./pages/ConsultationQueue";
 import ConsultationQueueDetails from "./pages/ConsultationQueueDetails";
 import Units from "./pages/Units";
 import VideoConsultation from "./pages/VideoConsultation";
+import SmartScheduling from "./pages/SmartScheduling";
 
 const queryClient = new QueryClient();
 
@@ -99,6 +100,7 @@ const App = () => (
             <Route path="/appointment-details" element={<Protected><AppointmentDetails /></Protected>} />
             <Route path="/appointment-professionals" element={<Protected><AppointmentProfessionals /></Protected>} />
             <Route path="/appointment-times" element={<Protected><AppointmentTimes /></Protected>} />
+            <Route path="/smart-scheduling" element={<Protected><SmartScheduling /></Protected>} />
             <Route path="/exam-schedule" element={<Protected><ExamSchedule /></Protected>} />
             <Route path="/exam-details" element={<Protected><ExamDetails /></Protected>} />
             <Route path="/exam-professionals" element={<Protected><ExamProfessionals /></Protected>} />
