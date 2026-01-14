@@ -289,6 +289,21 @@ const SmartScheduling = () => {
         }
       }
 
+      // DEBUG: Log all schedules grouped by composite key
+      console.log("=== DEBUG: AGENDAMENTO INTELIGENTE ===");
+      console.log("Especialidades selecionadas:", selectedEspecialidades.map(e => ({ id: e.id, descricao: e.descricao })));
+      console.log("Total de chaves compostas (data+unidade):", allSchedules.size);
+      
+      allSchedules.forEach((schedules, compositeKey) => {
+        console.log(`\n--- Chave: ${compositeKey} ---`);
+        console.log("Unidade:", schedules[0]?.unitName, "(ID:", schedules[0]?.unitId, ")");
+        console.log("Total de horários nesta chave:", schedules.length);
+        console.log("Especialidades presentes:", [...new Set(schedules.map(s => s.specialty.descricao))]);
+        schedules.forEach(s => {
+          console.log(`  - ${s.specialty.descricao} | ${s.horarios[0].data2} | Dr(a). ${s.horarios[0].nmMedico} | Unidade: ${s.horarios[0].unidade.nome} (${s.horarios[0].unidade.id})`);
+        });
+      });
+
       // Find date+unit combinations that have all selected specialties
       const validResults: SmartScheduleResult[] = [];
       
@@ -301,7 +316,14 @@ const SmartScheduling = () => {
         const specialtiesInDate = new Set(schedules.map(s => s.specialty.id));
         const allSpecialtiesPresent = selectedEspecialidades.every(e => specialtiesInDate.has(e.id));
 
-        if (!allSpecialtiesPresent) return;
+        console.log(`\n=== Validando chave: ${compositeKey} ===`);
+        console.log("Especialidades na chave:", [...specialtiesInDate]);
+        console.log("Todas especialidades presentes?", allSpecialtiesPresent);
+
+        if (!allSpecialtiesPresent) {
+          console.log("❌ REJEITADO: Faltam especialidades");
+          return;
+        }
 
         // Group by specialty
         const bySpecialty = new Map<number, { specialty: Especialidade; horarios: HorarioDisponivel[]; professional: Profissional; unitId: number; unitName: string }[]>();
@@ -316,10 +338,14 @@ const SmartScheduling = () => {
         const findValidCombination = (): ScheduleSlot[] | null => {
           const specialtyArrays = Array.from(bySpecialty.values());
           
+          console.log("Buscando combinação válida...");
+          
           // Get all time slots for first specialty
           for (const first of specialtyArrays[0]) {
             const firstHorario = first.horarios[0];
             const firstTime = parseTimeToMinutes(firstHorario.data2.split(' ')[1]);
+            
+            console.log(`  Tentando com primeiro horário: ${firstHorario.data2.split(' ')[1]} (${firstTime} min)`);
             
             // Try to find matching slots for remaining specialties
             const combination: ScheduleSlot[] = [{
@@ -337,12 +363,15 @@ const SmartScheduling = () => {
               for (const other of specialtyArrays[i]) {
                 const otherHorario = other.horarios[0];
                 const otherTime = parseTimeToMinutes(otherHorario.data2.split(' ')[1]);
+                const diffs = usedTimes.map(usedTime => Math.abs(otherTime - usedTime));
                 
                 // Check if time is valid (30-60 min apart from all other times)
                 const isValidTime = usedTimes.every(usedTime => {
                   const diff = Math.abs(otherTime - usedTime);
                   return diff >= 30 && diff <= 60;
                 });
+
+                console.log(`    Comparando ${otherHorario.data2.split(' ')[1]} (${otherTime} min) - Diffs: ${diffs.join(', ')} - Válido: ${isValidTime}`);
 
                 if (isValidTime) {
                   combination.push({
@@ -363,6 +392,7 @@ const SmartScheduling = () => {
             }
 
             if (isValid && combination.length === selectedEspecialidades.length) {
+              console.log("  ✅ Combinação válida encontrada!");
               return combination.sort((a, b) => 
                 parseTimeToMinutes(a.horario.data2.split(' ')[1]) - 
                 parseTimeToMinutes(b.horario.data2.split(' ')[1])
@@ -370,6 +400,7 @@ const SmartScheduling = () => {
             }
           }
           
+          console.log("  ❌ Nenhuma combinação válida");
           return null;
         };
 
@@ -379,17 +410,26 @@ const SmartScheduling = () => {
           const [day, month, year] = dateStr.split('/');
           const parsedDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
           
-          validResults.push({
+          const result = {
             date: `${year}-${month}-${day}`,
             dateFormatted: format(parsedDate, "EEEE, dd 'de' MMMM", { locale: ptBR }),
             unitId: unitId,
             unitName: unitName,
             slots: validCombination
-          });
+          };
+          
+          console.log("✅ RESULTADO ADICIONADO:", result);
+          validResults.push(result);
         }
       });
 
       // Sort by date
+      console.log("\n=== RESULTADOS FINAIS ===");
+      console.log("Total de combinações válidas:", validResults.length);
+      validResults.forEach((r, i) => {
+        console.log(`${i + 1}. ${r.dateFormatted} | ${r.unitName} | Slots:`, r.slots.map(s => `${s.horario.data2.split(' ')[1]} - ${s.specialty.descricao}`));
+      });
+      
       validResults.sort((a, b) => a.date.localeCompare(b.date));
       setResults(validResults.slice(0, 10)); // Limit to 10 results
 
