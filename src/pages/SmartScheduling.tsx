@@ -71,6 +71,8 @@ interface ScheduleSlot {
 interface SmartScheduleResult {
   date: string;
   dateFormatted: string;
+  unitId: number;
+  unitName: string;
   slots: ScheduleSlot[];
 }
 
@@ -215,7 +217,14 @@ const SmartScheduling = () => {
 
     try {
       const headers = getApiHeaders();
-      const allSchedules: Map<number, { specialty: Especialidade; horarios: HorarioDisponivel[]; professional: Profissional }[]> = new Map();
+      // Map com chave composta: "dateKeyNum-unitId" para agrupar por data E unidade
+      const allSchedules: Map<string, { 
+        specialty: Especialidade; 
+        horarios: HorarioDisponivel[]; 
+        professional: Profissional;
+        unitId: number;
+        unitName: string;
+      }[]> = new Map();
 
       // Fetch schedules for each specialty
       for (const especialidade of selectedEspecialidades) {
@@ -259,27 +268,35 @@ const SmartScheduling = () => {
             for (const horario of horariosData.dados) {
               const dateStr = horario.data2.split(' ')[0];
               const [day, month, year] = dateStr.split('/');
-              const dateKey = `${year}-${month}-${day}`;
               const dateKeyNum = parseInt(`${year}${month}${day}`);
+              
+              // Chave composta: data + unidade
+              const compositeKey = `${dateKeyNum}-${horario.unidade.id}`;
 
-              if (!allSchedules.has(dateKeyNum)) {
-                allSchedules.set(dateKeyNum, []);
+              if (!allSchedules.has(compositeKey)) {
+                allSchedules.set(compositeKey, []);
               }
 
-              allSchedules.get(dateKeyNum)!.push({
+              allSchedules.get(compositeKey)!.push({
                 specialty: especialidade,
                 horarios: [horario],
-                professional: prof
+                professional: prof,
+                unitId: horario.unidade.id,
+                unitName: horario.unidade.nome
               });
             }
           }
         }
       }
 
-      // Find dates that have all selected specialties
+      // Find date+unit combinations that have all selected specialties
       const validResults: SmartScheduleResult[] = [];
       
-      allSchedules.forEach((schedules, dateKeyNum) => {
+      allSchedules.forEach((schedules, compositeKey) => {
+        // Extrair unitId e unitName do primeiro schedule (todos são da mesma unidade nesta chave)
+        const unitId = schedules[0].unitId;
+        const unitName = schedules[0].unitName;
+        
         // Check if all specialties are present
         const specialtiesInDate = new Set(schedules.map(s => s.specialty.id));
         const allSpecialtiesPresent = selectedEspecialidades.every(e => specialtiesInDate.has(e.id));
@@ -287,7 +304,7 @@ const SmartScheduling = () => {
         if (!allSpecialtiesPresent) return;
 
         // Group by specialty
-        const bySpecialty = new Map<number, { specialty: Especialidade; horarios: HorarioDisponivel[]; professional: Profissional }[]>();
+        const bySpecialty = new Map<number, { specialty: Especialidade; horarios: HorarioDisponivel[]; professional: Profissional; unitId: number; unitName: string }[]>();
         schedules.forEach(s => {
           if (!bySpecialty.has(s.specialty.id)) {
             bySpecialty.set(s.specialty.id, []);
@@ -365,6 +382,8 @@ const SmartScheduling = () => {
           validResults.push({
             date: `${year}-${month}-${day}`,
             dateFormatted: format(parsedDate, "EEEE, dd 'de' MMMM", { locale: ptBR }),
+            unitId: unitId,
+            unitName: unitName,
             slots: validCombination
           });
         }
@@ -735,12 +754,16 @@ const SmartScheduling = () => {
                   </h3>
                   
                   {results.map((result, idx) => (
-                    <Card key={idx} className="border-2 hover:border-primary/50 transition-colors">
+                    <Card key={`${result.date}-${result.unitId}`} className="border-2 hover:border-primary/50 transition-colors">
                       <CardHeader className="pb-2">
                         <CardTitle className="text-base flex items-center gap-2">
                           <Calendar className="h-4 w-4 text-primary" />
                           <span className="capitalize">{result.dateFormatted}</span>
                         </CardTitle>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <MapPin className="h-4 w-4" />
+                          {result.unitName}
+                        </div>
                       </CardHeader>
                       <CardContent className="space-y-3">
                         {result.slots.map((slot, slotIdx) => (
