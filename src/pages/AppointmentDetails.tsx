@@ -9,7 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getApiHeaders } from "@/lib/api-headers";
 import { useToast } from "@/hooks/use-toast";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Check, ChevronsUpDown } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 
 interface Patient {
   id: string | number;
@@ -68,6 +71,8 @@ const AppointmentDetails = () => {
   const [titular, setTitular] = useState<Patient | null>(null);
   const [selectedConvenio, setSelectedConvenio] = useState("");
   const [selectedEspecialidade, setSelectedEspecialidade] = useState("");
+  const [especialidadeSearchOpen, setEspecialidadeSearchOpen] = useState(false);
+  const [especialidadeSearchQuery, setEspecialidadeSearchQuery] = useState("");
   const [convenios, setConvenios] = useState<Convenio[]>([]);
   const [loadingConvenios, setLoadingConvenios] = useState(true);
   const [especialidades, setEspecialidades] = useState<Especialidade[]>([]);
@@ -541,28 +546,61 @@ const AppointmentDetails = () => {
                       </SelectContent>
                     </Select>
                   ) : (
-                    <Select 
-                      value={selectedEspecialidade} 
-                      onValueChange={setSelectedEspecialidade}
-                      disabled={!selectedConvenio || loadingEspecialidades}
-                    >
-                      <SelectTrigger id="especialidade">
-                        <SelectValue placeholder={
-                          loadingEspecialidades 
+                    <Popover open={especialidadeSearchOpen} onOpenChange={setEspecialidadeSearchOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={especialidadeSearchOpen}
+                          className="w-full justify-between"
+                          disabled={!selectedConvenio || loadingEspecialidades}
+                        >
+                          {loadingEspecialidades 
                             ? "Carregando..." 
                             : !selectedConvenio 
                               ? "Selecione um convênio primeiro"
-                              : "Selecione a especialidade"
-                        } />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {especialidades.map((especialidade) => (
-                          <SelectItem key={especialidade.id} value={especialidade.id.toString()}>
-                            {especialidade.descricao}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                              : selectedEspecialidade 
+                                ? especialidades.find(e => e.id.toString() === selectedEspecialidade)?.descricao 
+                                : "Selecione a especialidade"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full min-w-[300px] p-0" align="start">
+                        <Command>
+                          <CommandInput 
+                            placeholder="Buscar especialidade..." 
+                            value={especialidadeSearchQuery}
+                            onValueChange={setEspecialidadeSearchQuery}
+                          />
+                          <CommandList>
+                            <CommandEmpty>Nenhuma especialidade encontrada.</CommandEmpty>
+                            <CommandGroup>
+                              {especialidades
+                                .filter(e => e.descricao.toLowerCase().includes(especialidadeSearchQuery.toLowerCase()))
+                                .map((especialidade) => (
+                                  <CommandItem
+                                    key={especialidade.id}
+                                    value={especialidade.descricao}
+                                    onSelect={() => {
+                                      setSelectedEspecialidade(especialidade.id.toString());
+                                      setEspecialidadeSearchOpen(false);
+                                      setEspecialidadeSearchQuery("");
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        selectedEspecialidade === especialidade.id.toString() ? "opacity-100" : "opacity-0"
+                                      )}
+                                    />
+                                    {especialidade.descricao}
+                                  </CommandItem>
+                                ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   )}
                 </div>
 
