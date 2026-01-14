@@ -40,6 +40,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { handlePdfDownload, handlePdfShare, withLightTheme } from "@/lib/pdf-utils";
+import { sanitizeHtmlForPdf, pdfTableStyles } from "@/lib/pdf-sanitize";
 
 interface ExamDetail {
   nrSequenciaLaudoPaciente: number;
@@ -290,91 +291,98 @@ export function ExamDetailsDialog({
         tempDiv.style.left = '-9999px';
         document.body.appendChild(tempDiv);
 
-        // Renderizar o conteúdo do exame no elemento temporário
+        // Sanitizar o conteúdo HTML do resultado e assinatura
+        const sanitizedResult = sanitizeHtmlForPdf(exam.dsResultado || exam.dsCabecalho || "");
+        const sanitizedSignature = sanitizeHtmlForPdf(exam.dsAssinatura || "");
+
+        // Renderizar o conteúdo do exame no elemento temporário com estilos de impressão
         const examContent = `
-          <div style="background: white; padding: 24px; max-width: 800px; margin: 0 auto;">
-            <div style="display: flex; margin-bottom: 16px; border: 1px solid #e5e7eb;">
-              <div style="width: 150px; border-right: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: center; padding: 16px;">
+          ${pdfTableStyles}
+          <div style="background: white; padding: 10mm; max-width: 100%; margin: 0 auto; font-family: Arial, sans-serif; color: #000;">
+            <div style="display: flex; margin-bottom: 16px; border: 1px solid #000;">
+              <div style="width: 150px; border-right: 1px solid #000; display: flex; align-items: center; justify-content: center; padding: 16px; background: white;">
                 <img src="${samelLogo}" alt="Samel Logo" style="width: 100%; height: auto; max-height: 100px; object-fit: contain;" />
               </div>
-              <div style="flex: 1; padding: 16px;">
-                <h5 style="text-align: center; font-weight: bold; font-size: 14px; margin-bottom: 8px;">
+              <div style="flex: 1; padding: 16px; background: white;">
+                <h5 style="text-align: center; font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #000;">
                   SAMEL SERVIÇOS DE ASSISTÊNCIA MÉDICO HOSPITALAR LTDA
                 </h5>
-                <p style="text-align: center; font-size: 12px; color: #6b7280; margin-bottom: 4px;">
+                <p style="text-align: center; font-size: 12px; color: #666; margin-bottom: 4px;">
                   Rua Joaquim Nabuco, 1755 - Manaus - AM - CEP 69020030 - Fone: 21292200
                 </p>
-                <p style="text-align: center; font-size: 12px; color: #6b7280;">
+                <p style="text-align: center; font-size: 12px; color: #666;">
                   CRF-RS 5-11649 CNPJ: 04159778000107
                 </p>
               </div>
             </div>
             <div style="display: flex; margin-bottom: 16px;">
-              <div style="flex: 1; border: 1px solid #e5e7eb; padding: 12px;">
-                <p style="text-align: center; font-weight: bold;">EXAMES</p>
+              <div style="flex: 1; border: 1px solid #000; padding: 12px; background: white;">
+                <p style="text-align: center; font-weight: bold; color: #000; margin: 0;">EXAMES</p>
               </div>
-              <div style="flex: 1; border: 1px solid #e5e7eb; border-left: 0; padding: 12px;">
-                <p style="text-align: center;">
-                  <span style="font-weight: bold;">ATENDIMENTO: </span>
+              <div style="flex: 1; border: 1px solid #000; border-left: 0; padding: 12px; background: white;">
+                <p style="text-align: center; color: #000; margin: 0;">
+                  <span style="font-weight: bold;">ATEND: </span>
                   <span style="font-weight: bold;">${exam.nrAtendimento}</span>
                 </p>
               </div>
             </div>
             <div style="margin-bottom: 16px;">
-              <div style="border: 1px solid #e5e7eb; padding: 8px 16px;">
-                <p style="text-align: center;">
+              <div style="border: 1px solid #000; padding: 8px 16px; background: white;">
+                <p style="text-align: center; color: #000; margin: 0;">
                   <span style="font-weight: bold;">Médico(a) Solicitante: </span>
-                  ${exam.medicoSolicitante}
+                  ${exam.medicoSolicitante || "Não informado"}
                 </p>
               </div>
             </div>
-            <div style="border: 1px solid #e5e7eb; padding: 24px; margin-bottom: 16px; min-height: 200px;">
-              ${exam.dsResultado || exam.dsCabecalho}
+            <div style="border: 1px solid #000; padding: 24px; margin-bottom: 16px; min-height: 200px; background: white; overflow: hidden;">
+              <div style="font-size: 12px; line-height: 1.4; color: #000; word-wrap: break-word; overflow-wrap: anywhere;">
+                ${sanitizedResult}
+              </div>
             </div>
             <div style="display: flex; margin-bottom: 16px;">
-              <div style="flex: 1; border: 1px solid #e5e7eb; padding: 8px 16px;">
-                <p style="margin-bottom: 4px;">
+              <div style="flex: 1; border: 1px solid #000; padding: 8px 16px; background: white;">
+                <p style="margin-bottom: 4px; color: #000; font-size: 12px;">
                   <span style="font-weight: bold;">Paciente: </span>
                   ${exam.nomeCliente}
                 </p>
-                <p>
+                <p style="margin: 0; color: #000; font-size: 12px;">
                   <span style="font-weight: bold;">Data Nasc: </span>
                   ${exam.dataNascimento}
                 </p>
               </div>
-              <div style="flex: 1; border: 1px solid #e5e7eb; border-left: 0; padding: 8px 16px;">
-                <p style="margin-bottom: 4px;">
+              <div style="flex: 1; border: 1px solid #000; border-left: 0; padding: 8px 16px; background: white;">
+                <p style="margin-bottom: 4px; color: #000; font-size: 12px;">
                   <span style="font-weight: bold;">Convênio: </span>
                   ${exam.dsConvenio}
                 </p>
-                <p>
+                <p style="margin: 0; color: #000; font-size: 12px;">
                   <span style="font-weight: bold;">Setor: </span>
                   ${exam.dsSetor}
                 </p>
               </div>
             </div>
             <div style="display: flex; margin-bottom: 16px;">
-              <div style="flex: 2; border: 1px solid #e5e7eb; padding: 8px 16px;">
-                <p style="text-align: center; margin-bottom: 4px;">
+              <div style="flex: 2; border: 1px solid #000; padding: 8px 16px; background: white;">
+                <p style="text-align: center; margin-bottom: 4px; color: #000; font-size: 12px;">
                   <span style="font-weight: bold;">
                     ${apiEndpoint.includes("Lab") ? "Analista Clínico: " : "Médico(a): "}
                   </span>
-                  ${exam.medicoLaudo}
+                  ${exam.medicoLaudo || "Não informado"}
                 </p>
-                <p style="text-align: center;">
+                <p style="text-align: center; margin: 0; color: #000; font-size: 12px;">
                   <span style="font-weight: bold;">Data de Entrada: </span>
                   ${exam.dataEntrada}
                 </p>
               </div>
-              <div style="flex: 1; border: 1px solid #e5e7eb; border-left: 0; padding: 8px 16px;">
-                <p style="font-weight: bold; margin-bottom: 4px;">Assinatura:</p>
-                <div style="text-align: center;">
-                  ${exam.dsAssinatura || ""}
+              <div style="flex: 1; border: 1px solid #000; border-left: 0; padding: 8px 16px; background: white;">
+                <p style="font-weight: bold; margin-bottom: 4px; color: #000; font-size: 12px;">Assinatura:</p>
+                <div style="text-align: center; min-height: 60px; display: flex; align-items: center; justify-content: center;">
+                  ${sanitizedSignature}
                 </div>
               </div>
             </div>
-            <div style="text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #e5e7eb; padding-top: 8px;">
-              <p>Este documento é válido somente com assinatura digital ou física do profissional responsável</p>
+            <div style="text-align: center; font-size: 11px; color: #666; border-top: 1px solid #000; padding-top: 8px;">
+              <p style="margin: 0;">Este documento é válido somente com assinatura digital ou física do profissional responsável</p>
             </div>
           </div>
         `;
