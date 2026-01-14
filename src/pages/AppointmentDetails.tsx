@@ -579,46 +579,27 @@ const AppointmentDetails = () => {
     <div className="flex min-h-screen flex-col">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
       
-      {/* Barra de progresso do fluxo convencional */}
+      {/* Indicador de fluxo convencional ativo (simplificado) */}
       {conventionalFlowActive && conventionalFlowData && (
-        <div className="sticky top-0 bg-background border-b p-4 z-40 shadow-sm">
-          <div className="container mx-auto">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">
-                Agendando: {conventionalFlowData.especialidades[conventionalFlowData.currentIndex]?.descricao}
+        <div className="bg-primary/10 border-b border-primary/20 p-3">
+          <div className="container mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="bg-primary/20 text-primary">
+                Fluxo em andamento
+              </Badge>
+              <span className="text-sm text-muted-foreground">
+                {conventionalFlowData.especialidades.length} especialidades
               </span>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-muted-foreground">
-                  {conventionalFlowData.currentIndex + 1} de {conventionalFlowData.especialidades.length}
-                </span>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={handleCancelConventionalFlow}
-                  className="text-xs text-muted-foreground hover:text-destructive"
-                >
-                  Cancelar fluxo
-                </Button>
-              </div>
             </div>
-            <Progress 
-              value={((conventionalFlowData.currentIndex) / conventionalFlowData.especialidades.length) * 100} 
-              className="h-2"
-            />
-            
-            {/* Lista de especialidades com status */}
-            <div className="flex gap-2 mt-3 flex-wrap">
-              {conventionalFlowData.especialidades.map((esp, idx) => (
-                <Badge 
-                  key={esp.id}
-                  variant={idx < conventionalFlowData.currentIndex ? "default" : idx === conventionalFlowData.currentIndex ? "secondary" : "outline"}
-                  className="text-xs"
-                >
-                  {idx < conventionalFlowData.currentIndex && <Check className="h-3 w-3 mr-1" />}
-                  {esp.descricao}
-                </Badge>
-              ))}
-            </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleCancelConventionalFlow}
+              className="text-xs text-muted-foreground hover:text-destructive"
+            >
+              <X className="h-4 w-4 mr-1" />
+              Cancelar
+            </Button>
           </div>
         </div>
       )}

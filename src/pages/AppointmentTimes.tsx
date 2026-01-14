@@ -13,6 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Check, X } from "lucide-react";
 
 interface HorarioDisponivel {
   id: number;
@@ -341,6 +343,20 @@ const AppointmentTimes = () => {
   const handleConfirmAppointment = async () => {
     if (!phoneNumber || !selectedHorario) return;
 
+    // Verificar se é modo de teste
+    const isTestMode = localStorage.getItem("appointmentTestMode") === "true";
+    
+    if (isTestMode) {
+      setIsSubmitting(true);
+      // Simular delay de rede
+      await new Promise(resolve => setTimeout(resolve, 800));
+      setIsSubmitting(false);
+      setIsConfirmModalOpen(false);
+      // Pular direto para sucesso no modo teste
+      setIsSuccessModalOpen(true);
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       
@@ -503,9 +519,70 @@ const AppointmentTimes = () => {
     return null;
   }
 
+  // Calcular porcentagem de progresso
+  const getProgressPercentage = () => {
+    if (!conventionalFlowData) return 0;
+    return Math.round((conventionalFlowData.currentIndex / conventionalFlowData.especialidades.length) * 100);
+  };
+
+  const handleCancelConventionalFlow = () => {
+    localStorage.removeItem("conventionalFlow");
+    setConventionalFlowData(null);
+    navigate("/appointment-details");
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
+      
+      {/* Barra de progresso do fluxo convencional */}
+      {conventionalFlowData && (
+        <div className="sticky top-0 bg-background border-b p-4 z-40 shadow-sm">
+          <div className="container mx-auto">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">
+                  Agendando: <span className="text-primary font-semibold">{conventionalFlowData.especialidades[conventionalFlowData.currentIndex]?.descricao}</span>
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Badge variant="secondary" className="text-xs">
+                  {getProgressPercentage()}% concluído
+                </Badge>
+                <span className="text-sm text-muted-foreground">
+                  {conventionalFlowData.currentIndex + 1} de {conventionalFlowData.especialidades.length}
+                </span>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleCancelConventionalFlow}
+                  className="text-xs text-muted-foreground hover:text-destructive"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <Progress 
+              value={getProgressPercentage()} 
+              className="h-2"
+            />
+            
+            {/* Lista de especialidades com status */}
+            <div className="flex gap-2 mt-3 flex-wrap">
+              {conventionalFlowData.especialidades.map((esp, idx) => (
+                <Badge 
+                  key={esp.id}
+                  variant={idx < conventionalFlowData.currentIndex ? "default" : idx === conventionalFlowData.currentIndex ? "secondary" : "outline"}
+                  className="text-xs"
+                >
+                  {idx < conventionalFlowData.currentIndex && <Check className="h-3 w-3 mr-1" />}
+                  {esp.descricao}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       
       <main className="flex-1">
         <div className="container mx-auto px-4 py-4 sm:py-6 md:px-6 md:py-10">
