@@ -3,10 +3,9 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-
 import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Stethoscope } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Stethoscope, Check, X } from "lucide-react";
 
 interface Unidade {
   id: string;
@@ -36,11 +35,25 @@ interface ProfissionalGroup {
   dados: Profissional[];
 }
 
+interface Especialidade {
+  id: number;
+  descricao: string;
+}
+
+interface ConventionalFlowData {
+  active: boolean;
+  especialidades: Especialidade[];
+  currentIndex: number;
+  completedAppointments: any[];
+  convenio: string;
+}
+
 const AppointmentProfessionals = () => {
   const navigate = useNavigate();
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [profissionaisGroups, setProfissionaisGroups] = useState<ProfissionalGroup[]>([]);
+  const [conventionalFlowData, setConventionalFlowData] = useState<ConventionalFlowData | null>(null);
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -58,6 +71,19 @@ const AppointmentProfessionals = () => {
 
     if (storedProfilePhoto) {
       setProfilePhoto(storedProfilePhoto);
+    }
+
+    // Verificar fluxo convencional
+    const storedConventionalFlow = localStorage.getItem("conventionalFlow");
+    if (storedConventionalFlow) {
+      try {
+        const flowData: ConventionalFlowData = JSON.parse(storedConventionalFlow);
+        if (flowData.active) {
+          setConventionalFlowData(flowData);
+        }
+      } catch (error) {
+        console.error("Erro ao processar fluxo convencional:", error);
+      }
     }
 
     // Carregar apenas dados de consulta
@@ -86,6 +112,12 @@ const AppointmentProfessionals = () => {
     }
   }, [navigate]);
 
+  const handleCancelConventionalFlow = () => {
+    localStorage.removeItem("conventionalFlow");
+    setConventionalFlowData(null);
+    navigate("/appointment-details");
+  };
+
   const getAvatarColor = (sexo: string) => {
     const sexoNormalizado = sexo?.trim().toUpperCase();
     return sexoNormalizado === 'F' 
@@ -100,9 +132,64 @@ const AppointmentProfessionals = () => {
     return parts.join(", ");
   };
 
+  // Calcular porcentagem de progresso
+  const getProgressPercentage = () => {
+    if (!conventionalFlowData) return 0;
+    return Math.round((conventionalFlowData.currentIndex / conventionalFlowData.especialidades.length) * 100);
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header patientName={patientName} profilePhoto={profilePhoto || undefined} />
+      
+      {/* Barra de progresso do fluxo convencional */}
+      {conventionalFlowData && (
+        <div className="sticky top-0 bg-background border-b p-4 z-40 shadow-sm">
+          <div className="container mx-auto">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">
+                  Agendando: <span className="text-primary font-semibold">{conventionalFlowData.especialidades[conventionalFlowData.currentIndex]?.descricao}</span>
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Badge variant="secondary" className="text-xs">
+                  {getProgressPercentage()}% concluído
+                </Badge>
+                <span className="text-sm text-muted-foreground">
+                  {conventionalFlowData.currentIndex + 1} de {conventionalFlowData.especialidades.length}
+                </span>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleCancelConventionalFlow}
+                  className="text-xs text-muted-foreground hover:text-destructive"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <Progress 
+              value={getProgressPercentage()} 
+              className="h-2"
+            />
+            
+            {/* Lista de especialidades com status */}
+            <div className="flex gap-2 mt-3 flex-wrap">
+              {conventionalFlowData.especialidades.map((esp, idx) => (
+                <Badge 
+                  key={esp.id}
+                  variant={idx < conventionalFlowData.currentIndex ? "default" : idx === conventionalFlowData.currentIndex ? "secondary" : "outline"}
+                  className="text-xs"
+                >
+                  {idx < conventionalFlowData.currentIndex && <Check className="h-3 w-3 mr-1" />}
+                  {esp.descricao}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       
       <main className="flex-1">
         <div className="container mx-auto px-4 py-4 sm:py-6 md:px-6 md:py-10">
@@ -114,7 +201,13 @@ const AppointmentProfessionals = () => {
               
               <Button
                 variant="outline"
-                onClick={() => navigate("/appointment-details")}
+                onClick={() => {
+                  if (conventionalFlowData) {
+                    handleCancelConventionalFlow();
+                  } else {
+                    navigate("/appointment-details");
+                  }
+                }}
                 className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm"
                 size="sm"
               >
