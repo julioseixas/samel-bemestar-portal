@@ -1241,24 +1241,45 @@ const SmartScheduling = () => {
                               Podemos buscar combinações em <strong>unidades diferentes</strong> com intervalo de até 3 horas entre consultas. Você precisará se deslocar entre unidades.
                             </AlertDescription>
                           </Alert>
-                          <Button
-                            onClick={handleSearchDifferentUnits}
-                            disabled={isSearchingDifferentUnits}
-                            variant="outline"
-                            className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                          >
-                            {isSearchingDifferentUnits ? (
-                              <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Buscando em unidades diferentes...
-                              </>
-                            ) : (
-                              <>
-                                <Building2 className="mr-2 h-4 w-4" />
-                                Buscar em Unidades Diferentes
-                              </>
-                            )}
-                          </Button>
+                          <div className="flex flex-col gap-2">
+                            <Button
+                              onClick={handleSearchDifferentUnits}
+                              disabled={isSearchingDifferentUnits}
+                              variant="outline"
+                              className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                            >
+                              {isSearchingDifferentUnits ? (
+                                <>
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  Buscando em unidades diferentes...
+                                </>
+                              ) : (
+                                <>
+                                  <Building2 className="mr-2 h-4 w-4" />
+                                  Buscar em Unidades Diferentes
+                                </>
+                              )}
+                            </Button>
+                            
+                            {/* Botão de teste para múltiplas unidades */}
+                            <Button
+                              onClick={() => {
+                                const mockData = generateMockData();
+                                setDifferentUnitsResults(mockData.differentUnitsResults);
+                                setShowingDifferentUnits(true);
+                                setResults([]); // Limpar resultados da mesma unidade para mostrar os de unidades diferentes
+                                toast({
+                                  title: "🧪 Mock de Unidades Diferentes",
+                                  description: `Carregados ${mockData.differentUnitsResults.length} horários em 3 unidades diferentes.`
+                                });
+                              }}
+                              variant="outline"
+                              size="sm"
+                              className="border-dashed border-yellow-500 text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/20"
+                            >
+                              🧪 Testar com Múltiplas Unidades (Mock)
+                            </Button>
+                          </div>
                         </div>
                       )}
                     </div>
