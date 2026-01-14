@@ -174,7 +174,7 @@ const generateMockData = (): { especialidades: Especialidade[]; results: SmartSc
     }
   }
 
-  // Resultados em UNIDADES DIFERENTES (mais horários disponíveis)
+  // Resultados em UNIDADES DIFERENTES (intervalo mínimo de 3 horas entre consultas)
   for (let dayOffset = 1; dayOffset <= 3; dayOffset++) {
     const date = new Date(today);
     date.setDate(date.getDate() + dayOffset);
@@ -184,16 +184,21 @@ const generateMockData = (): { especialidades: Especialidade[]; results: SmartSc
     const year = date.getFullYear();
     const dateStr = `${day}/${month}/${year}`;
 
-    // Mais opções de horários quando aceita unidades diferentes
-    const baseHours = [7, 8, 9, 10, 11, 14, 15, 16];
+    // Combinações com intervalo de 3 horas entre unidades diferentes
+    // Primeira consulta -> 3 horas depois -> Segunda consulta
+    const timeSlots = [
+      { time1: "07:00", time2: "10:00" }, // 3h de intervalo
+      { time1: "08:00", time2: "11:00" }, // 3h de intervalo
+      { time1: "09:00", time2: "14:00" }, // 5h de intervalo (inclui almoço)
+      { time1: "10:00", time2: "14:00" }, // 4h de intervalo
+      { time1: "11:00", time2: "15:00" }, // 4h de intervalo
+      { time1: "14:00", time2: "17:00" }, // 3h de intervalo
+    ];
     
-    for (let slotIdx = 0; slotIdx < baseHours.length; slotIdx++) {
-      const hour1 = baseHours[slotIdx];
+    for (let slotIdx = 0; slotIdx < timeSlots.length; slotIdx++) {
+      const { time1, time2 } = timeSlots[slotIdx];
       const unidade1 = unidades[slotIdx % 3]; // Alterna entre unidades
       const unidade2 = unidades[(slotIdx + 1) % 3]; // Segunda especialidade em unidade diferente
-      
-      const time1 = `${String(hour1).padStart(2, '0')}:00`;
-      const time2 = `${String(hour1).padStart(2, '0')}:30`;
 
       differentUnitsResults.push({
         date: `${year}-${month}-${day}`,
@@ -780,13 +785,14 @@ const SmartScheduling = () => {
           bySpecialty.get(s.specialty.id)!.push(s);
         });
 
-        // Buscar combinação com intervalo de até 3 horas (180 minutos)
+        // Buscar combinação com intervalo MÍNIMO de 3 horas (180 minutos) para unidades diferentes
         const findValidCombination = (): ScheduleSlot[] | null => {
           const specialtyArrays = Array.from(bySpecialty.values());
 
           for (const first of specialtyArrays[0]) {
             const firstHorario = first.horarios[0];
             const firstTime = parseTimeToMinutes(firstHorario.data2.split(' ')[1]);
+            const firstUnitId = first.unitId;
 
             const combination: ScheduleSlot[] = [{
               specialty: first.specialty,
@@ -795,7 +801,7 @@ const SmartScheduling = () => {
             }];
 
             let isValid = true;
-            const usedTimes = [firstTime];
+            const usedTimes = [{ time: firstTime, unitId: firstUnitId }];
 
             for (let i = 1; i < specialtyArrays.length; i++) {
               let foundMatch = false;
@@ -803,11 +809,20 @@ const SmartScheduling = () => {
               for (const other of specialtyArrays[i]) {
                 const otherHorario = other.horarios[0];
                 const otherTime = parseTimeToMinutes(otherHorario.data2.split(' ')[1]);
+                const otherUnitId = other.unitId;
 
-                // Verificar se está entre 30 min e 3 horas (180 min) de todos os outros horários
-                const isValidTime = usedTimes.every(usedTime => {
-                  const diff = Math.abs(otherTime - usedTime);
-                  return diff >= 30 && diff <= 180; // 30 min a 3 horas
+                // Verificar intervalo com base nas unidades
+                const isValidTime = usedTimes.every(used => {
+                  const diff = Math.abs(otherTime - used.time);
+                  const isSameUnit = used.unitId === otherUnitId;
+                  
+                  if (isSameUnit) {
+                    // Mesma unidade: intervalo de 30 min a 3 horas
+                    return diff >= 30 && diff <= 180;
+                  } else {
+                    // Unidades DIFERENTES: intervalo MÍNIMO de 3 horas (180 min)
+                    return diff >= 180;
+                  }
                 });
 
                 console.log(`  Comparando ${otherHorario.data2.split(' ')[1]} com tempos usados - Válido: ${isValidTime}`);
@@ -818,7 +833,7 @@ const SmartScheduling = () => {
                     professional: other.professional,
                     horario: otherHorario
                   });
-                  usedTimes.push(otherTime);
+                  usedTimes.push({ time: otherTime, unitId: otherUnitId });
                   foundMatch = true;
                   break;
                 }
