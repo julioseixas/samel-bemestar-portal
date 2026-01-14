@@ -32,6 +32,14 @@ interface HorarioDisponivel {
   };
 }
 
+interface ConventionalFlowData {
+  active: boolean;
+  especialidades: { id: number; descricao: string }[];
+  currentIndex: number;
+  completedAppointments: any[];
+  convenio: string;
+}
+
 const AppointmentTimes = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -50,6 +58,7 @@ const AppointmentTimes = () => {
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [useEncaminhamento, setUseEncaminhamento] = useState<boolean>(false);
   const [selectedNrSeqMedAvaliacao, setSelectedNrSeqMedAvaliacao] = useState<number | null>(null);
+  const [conventionalFlowData, setConventionalFlowData] = useState<ConventionalFlowData | null>(null);
   const { toast } = useToast();
 
   const { selectedPatient, selectedConvenio, selectedEspecialidade, selectedProfissional } = location.state || {};
@@ -86,6 +95,19 @@ const AppointmentTimes = () => {
         setSelectedNrSeqMedAvaliacao(JSON.parse(storedNrSeqMedAvaliacao));
       } catch (error) {
         console.error("Erro ao processar selectedNrSeqMedAvaliacao:", error);
+      }
+    }
+
+    // Verificar fluxo convencional
+    const storedConventionalFlow = localStorage.getItem("conventionalFlow");
+    if (storedConventionalFlow) {
+      try {
+        const flowData: ConventionalFlowData = JSON.parse(storedConventionalFlow);
+        if (flowData.active) {
+          setConventionalFlowData(flowData);
+        }
+      } catch (error) {
+        console.error("Erro ao processar fluxo convencional:", error);
       }
     }
 
@@ -624,30 +646,71 @@ const AppointmentTimes = () => {
           <DialogHeader>
             <DialogTitle className="text-center text-2xl">✅ Consulta Marcada com Sucesso!</DialogTitle>
             <DialogDescription className="text-center pt-2">
-              Sua consulta foi agendada com sucesso. O que você deseja fazer agora?
+              {conventionalFlowData && conventionalFlowData.currentIndex < conventionalFlowData.especialidades.length - 1 
+                ? `Agora vamos agendar a próxima especialidade: ${conventionalFlowData.especialidades[conventionalFlowData.currentIndex + 1]?.descricao}`
+                : "Sua consulta foi agendada com sucesso. O que você deseja fazer agora?"
+              }
             </DialogDescription>
           </DialogHeader>
 
           <div className="flex flex-col gap-3 py-4">
-            <Button
-              onClick={() => {
-                setIsSuccessModalOpen(false);
-                navigate("/dashboard");
-              }}
-              className="w-full"
-            >
-              Voltar ao Menu Principal
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsSuccessModalOpen(false);
-                navigate("/scheduled-appointments-choice");
-              }}
-              className="w-full"
-            >
-              Ver Meus Agendamentos
-            </Button>
+            {conventionalFlowData && conventionalFlowData.currentIndex < conventionalFlowData.especialidades.length - 1 ? (
+              <>
+                <Button
+                  onClick={() => {
+                    setIsSuccessModalOpen(false);
+                    // Continuar fluxo convencional
+                    navigate("/appointment-details", { 
+                      state: { 
+                        continueFlow: true,
+                        lastAppointment: {
+                          especialidade: conventionalFlowData.especialidades[conventionalFlowData.currentIndex].descricao,
+                          horario: selectedHorario
+                        }
+                      } 
+                    });
+                  }}
+                  className="w-full"
+                >
+                  Continuar para próxima especialidade ({conventionalFlowData.currentIndex + 2} de {conventionalFlowData.especialidades.length})
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsSuccessModalOpen(false);
+                    localStorage.removeItem("conventionalFlow");
+                    navigate("/dashboard");
+                  }}
+                  className="w-full"
+                >
+                  Cancelar e voltar ao menu
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  onClick={() => {
+                    setIsSuccessModalOpen(false);
+                    localStorage.removeItem("conventionalFlow");
+                    navigate("/dashboard");
+                  }}
+                  className="w-full"
+                >
+                  Voltar ao Menu Principal
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsSuccessModalOpen(false);
+                    localStorage.removeItem("conventionalFlow");
+                    navigate("/scheduled-appointments-choice");
+                  }}
+                  className="w-full"
+                >
+                  Ver Meus Agendamentos
+                </Button>
+              </>
+            )}
           </div>
         </DialogContent>
       </Dialog>
