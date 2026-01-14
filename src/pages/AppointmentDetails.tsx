@@ -161,43 +161,13 @@ const AppointmentDetails = () => {
           setConventionalFlowActive(true);
           setConventionalFlowData(flowData);
           setSelectedConvenio(flowData.convenio);
-          
-          // Se veio da tela de sucesso (continuar agendamento), avançar para próxima especialidade
-          if (location.state?.continueFlow) {
-            const nextIndex = flowData.currentIndex + 1;
-            if (nextIndex < flowData.especialidades.length) {
-              // Atualizar índice e continuar
-              const updatedFlowData = { 
-                ...flowData, 
-                currentIndex: nextIndex,
-                completedAppointments: [...flowData.completedAppointments, location.state?.lastAppointment]
-              };
-              localStorage.setItem("conventionalFlow", JSON.stringify(updatedFlowData));
-              setConventionalFlowData(updatedFlowData);
-              
-              // Agendar próxima especialidade automaticamente
-              setTimeout(() => {
-                proceedWithSingleSpecialty(flowData.especialidades[nextIndex]);
-              }, 500);
-            } else {
-              // Fluxo completo - mostrar resumo
-              localStorage.removeItem("conventionalFlow");
-              setConventionalFlowActive(false);
-              setConventionalFlowData(null);
-              toast({
-                title: "Agendamentos concluídos!",
-                description: `Todas as ${flowData.especialidades.length} consultas foram agendadas com sucesso.`
-              });
-              navigate("/scheduled-appointments-choice");
-            }
-          }
         }
       } catch (error) {
         console.error("Erro ao processar fluxo convencional:", error);
         localStorage.removeItem("conventionalFlow");
       }
     }
-  }, [navigate, location.state]);
+  }, [navigate]);
 
   useEffect(() => {
     const fetchConvenios = async () => {
