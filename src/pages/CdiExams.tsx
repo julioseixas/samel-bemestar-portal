@@ -47,7 +47,7 @@ const CdiExams = () => {
   const [exams, setExams] = useState<CdiExam[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 6;
   const [selectedExam, setSelectedExam] = useState<CdiExam | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -167,7 +167,7 @@ const CdiExams = () => {
               {/* Desktop skeleton */}
               <div className="hidden md:block overflow-x-auto max-h-[60vh] overflow-y-auto">
                 <div className="p-6 space-y-4">
-                  {[...Array(10)].map((_, i) => (
+                  {[...Array(6)].map((_, i) => (
                     <div key={i} className="flex items-center space-x-4">
                       <Skeleton className="h-12 w-[180px]" />
                       <Skeleton className="h-12 flex-1" />
