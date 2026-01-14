@@ -280,8 +280,8 @@ const AppointmentDetails = () => {
     setSelectedEspecialidades([]);
   }, [useEncaminhamento]);
 
-  // Função para gerar profissionais mockados
-  const generateMockProfessionals = (especialidade: Especialidade) => {
+  // Função para gerar profissionais mockados - cada especialidade tem profissionais únicos
+  const generateMockProfessionals = (especialidade: Especialidade, especialidadeIndex: number = 0) => {
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -293,18 +293,22 @@ const AppointmentDetails = () => {
       return `${day}/${month}/${year}`;
     };
 
+    // Gerar IDs únicos baseados no ID da especialidade para evitar mistura
+    const baseId = especialidade.id * 1000;
+    const especialidadeName = especialidade.descricao.replace("TESTE INTELIGENTE", "").trim() || `${especialidadeIndex + 1}`;
+
     const mockProfessionals = [
       {
-        idAgenda: 90001,
+        idAgenda: baseId + 1,
         dataAgenda: today.toISOString(),
         dataAgenda2: `${formatDate(today)} 08:00`,
-        id: "MOCK001",
-        nome: "DR. TESTE INTELIGENTE 1",
+        id: `MOCK_ESP${especialidade.id}_01`,
+        nome: `DR. ESPECIALISTA ${especialidadeName} - A`,
         dsEspecialidade: especialidade.descricao,
         dsComplemento: null,
         ieSexo: "M",
         ie_sigla_conselho: "CRM",
-        nr_conselho: "12345",
+        nr_conselho: `${12345 + especialidade.id}`,
         idsProcedimentos: [],
         unidade: {
           id: "1",
@@ -315,16 +319,16 @@ const AppointmentDetails = () => {
         }
       },
       {
-        idAgenda: 90002,
+        idAgenda: baseId + 2,
         dataAgenda: tomorrow.toISOString(),
         dataAgenda2: `${formatDate(tomorrow)} 09:00`,
-        id: "MOCK002",
-        nome: "DRA. TESTE INTELIGENTE 2",
+        id: `MOCK_ESP${especialidade.id}_02`,
+        nome: `DRA. ESPECIALISTA ${especialidadeName} - B`,
         dsEspecialidade: especialidade.descricao,
         dsComplemento: null,
         ieSexo: "F",
         ie_sigla_conselho: "CRM",
-        nr_conselho: "67890",
+        nr_conselho: `${67890 + especialidade.id}`,
         idsProcedimentos: [],
         unidade: {
           id: "1",
