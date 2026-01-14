@@ -310,10 +310,92 @@ const AppointmentDetails = () => {
     setSelectedEspecialidades([]);
   }, [useEncaminhamento]);
 
+  // Função para gerar profissionais mockados
+  const generateMockProfessionals = (especialidade: Especialidade) => {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const formatDate = (date: Date) => {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    };
+
+    const mockProfessionals = [
+      {
+        idAgenda: 90001,
+        dataAgenda: today.toISOString(),
+        dataAgenda2: `${formatDate(today)} 08:00`,
+        id: "MOCK001",
+        nome: "DR. TESTE INTELIGENTE 1",
+        dsEspecialidade: especialidade.descricao,
+        dsComplemento: null,
+        ieSexo: "M",
+        ie_sigla_conselho: "CRM",
+        nr_conselho: "12345",
+        idsProcedimentos: [],
+        unidade: {
+          id: "1",
+          descricao: "HOSPITAL SAMEL - ADRIANÓPOLIS",
+          logradouro: "Av. Mário Ypiranga",
+          numeroLogradouro: "1400",
+          bairro: "Adrianópolis"
+        }
+      },
+      {
+        idAgenda: 90002,
+        dataAgenda: tomorrow.toISOString(),
+        dataAgenda2: `${formatDate(tomorrow)} 09:00`,
+        id: "MOCK002",
+        nome: "DRA. TESTE INTELIGENTE 2",
+        dsEspecialidade: especialidade.descricao,
+        dsComplemento: null,
+        ieSexo: "F",
+        ie_sigla_conselho: "CRM",
+        nr_conselho: "67890",
+        idsProcedimentos: [],
+        unidade: {
+          id: "1",
+          descricao: "HOSPITAL SAMEL - ADRIANÓPOLIS",
+          logradouro: "Av. Mário Ypiranga",
+          numeroLogradouro: "1400",
+          bairro: "Adrianópolis"
+        }
+      }
+    ];
+
+    return [{
+      combinacao: "",
+      dados: mockProfessionals
+    }];
+  };
+
   const proceedWithSingleSpecialty = async (especialidade: Especialidade) => {
     if (!selectedPatient) return;
     
     const selectedEspecialidade = especialidade.id.toString();
+
+    // Verificar se é modo de teste (especialidade mockada)
+    const isTestMode = especialidade.descricao.includes("TESTE INTELIGENTE");
+    
+    if (isTestMode) {
+      const mockProfessionalsGroups = generateMockProfessionals(especialidade);
+      
+      localStorage.setItem("appointmentProfessionals", JSON.stringify(mockProfessionalsGroups));
+      localStorage.setItem("selectedAppointmentConvenio", selectedConvenio);
+      localStorage.setItem("selectedAppointmentEspecialidade", selectedEspecialidade);
+      localStorage.setItem("appointmentUseEncaminhamento", JSON.stringify(useEncaminhamento));
+      localStorage.setItem("selectedNrSeqMedAvaliacao", JSON.stringify(selectedNrSeqMedAvaliacao));
+      localStorage.setItem("appointmentTestMode", "true");
+      
+      navigate("/appointment-professionals");
+      return;
+    }
+
+    // Limpar modo de teste
+    localStorage.removeItem("appointmentTestMode");
 
     try {
       const idCliente = selectedPatient.cdPessoaFisica?.toString() || "";
@@ -790,9 +872,26 @@ const AppointmentDetails = () => {
 
                       {selectedEspecialidades.length >= 2 && (
                         <p className="text-xs text-muted-foreground">
-                          Com {selectedEspecialidades.length} especialidades, será usado o agendamento inteligente para encontrar horários compatíveis.
+                          Com {selectedEspecialidades.length} especialidades, você poderá escolher o fluxo de agendamento.
                         </p>
                       )}
+
+                      {/* Botão de teste */}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="w-full mt-2 border-dashed border-yellow-500 text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/20"
+                        onClick={() => {
+                          const mockEspecialidades: Especialidade[] = [
+                            { id: 99901, descricao: "TESTE INTELIGENTE 1" },
+                            { id: 99902, descricao: "TESTE INTELIGENTE 2" }
+                          ];
+                          setSelectedEspecialidades(mockEspecialidades);
+                        }}
+                      >
+                        🧪 Testar com Dados Mock
+                      </Button>
                     </div>
                   )}
                 </div>

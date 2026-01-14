@@ -132,9 +132,97 @@ const AppointmentTimes = () => {
     }
   }, [selectedDate, horarios]);
 
+  // Função para gerar horários mockados
+  const generateMockHorarios = (): HorarioDisponivel[] => {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const formatDate = (date: Date) => {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    };
+
+    const times = ["08:00", "09:00", "10:00", "14:00", "15:00"];
+    const mockHorarios: HorarioDisponivel[] = [];
+    
+    // Horários para hoje
+    times.forEach((time, index) => {
+      mockHorarios.push({
+        id: 80001 + index,
+        idAgenda: selectedProfissional?.idAgenda || 90001,
+        horaEspecial: "N",
+        data: today.toISOString(),
+        data2: `${formatDate(today)} ${time}`,
+        especialidadeAgenda: {
+          id: parseInt(selectedEspecialidade || "1"),
+          descricao: selectedProfissional?.dsEspecialidade || "TESTE INTELIGENTE"
+        },
+        idMedico: selectedProfissional?.id || "MOCK001",
+        nmMedico: selectedProfissional?.nome || "DR. TESTE INTELIGENTE 1",
+        unidade: {
+          id: 1,
+          nome: "HOSPITAL SAMEL - ADRIANÓPOLIS"
+        }
+      });
+    });
+
+    // Horários para amanhã
+    times.forEach((time, index) => {
+      mockHorarios.push({
+        id: 80010 + index,
+        idAgenda: selectedProfissional?.idAgenda || 90001,
+        horaEspecial: "N",
+        data: tomorrow.toISOString(),
+        data2: `${formatDate(tomorrow)} ${time}`,
+        especialidadeAgenda: {
+          id: parseInt(selectedEspecialidade || "1"),
+          descricao: selectedProfissional?.dsEspecialidade || "TESTE INTELIGENTE"
+        },
+        idMedico: selectedProfissional?.id || "MOCK001",
+        nmMedico: selectedProfissional?.nome || "DR. TESTE INTELIGENTE 1",
+        unidade: {
+          id: 1,
+          nome: "HOSPITAL SAMEL - ADRIANÓPOLIS"
+        }
+      });
+    });
+
+    return mockHorarios;
+  };
+
   useEffect(() => {
     const fetchHorarios = async () => {
       if (!selectedPatient || !selectedConvenio || !selectedEspecialidade || !selectedProfissional) {
+        return;
+      }
+
+      // Verificar se é modo de teste
+      const isTestMode = localStorage.getItem("appointmentTestMode") === "true";
+      
+      if (isTestMode) {
+        setLoading(true);
+        // Simular delay de rede
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        const mockData = generateMockHorarios();
+        setHorarios(mockData);
+        
+        const dates = mockData.map((horario: HorarioDisponivel) => {
+          const dateStr = horario.data2.split(' ')[0];
+          const [day, month, year] = dateStr.split('/');
+          return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        });
+        
+        // Remover duplicatas de datas
+        const uniqueDates = dates.filter((date, index, self) =>
+          index === self.findIndex(d => d.getTime() === date.getTime())
+        );
+        
+        setAvailableDates(uniqueDates);
+        setLoading(false);
         return;
       }
 
