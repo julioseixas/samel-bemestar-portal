@@ -93,7 +93,7 @@ export function UserInfoCard() {
           <AccordionTrigger className="px-4 py-4 hover:no-underline hover:bg-primary/5 transition-all duration-200 [&[data-state=open]>svg]:rotate-180 group">
             <div className="flex items-center gap-4 flex-1">
               <Avatar className="h-12 w-12 ring-2 ring-primary/20 ring-offset-2 ring-offset-background shadow-md">
-                <AvatarImage src={profilePhoto || undefined} alt={titular.nome} className="object-cover" />
+                <AvatarImage src={profilePhoto ? `data:image/jpeg;base64,${profilePhoto}` : undefined} alt={titular.nome} className="object-cover" />
                 <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold text-base">
                   {getInitials(titular.nome)}
                 </AvatarFallback>
