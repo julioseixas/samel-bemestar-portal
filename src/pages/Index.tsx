@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Header } from "@/components/Header";
 import { AppointmentBanner } from "@/components/AppointmentBanner";
 import { DashboardCard } from "@/components/DashboardCard";
+import { UserInfoCard } from "@/components/UserInfoCard";
 import { Calendar, FileText, Video, CalendarCheck, Pill, TestTube, Bed, RefreshCw, MessageCircle, ClipboardPlus, ClipboardList, FolderOpen, FileSignature, CalendarX, Receipt, Star, History, Users, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -408,6 +409,9 @@ const Index = () => {
               Aqui você pode acessar todas as suas informações de saúde de forma simples e rápida.
             </p>
           </div>
+
+          {/* User Info Card */}
+          <UserInfoCard />
 
           {/* Next Appointment Banner */}
           {appointments.length > 0 && (
