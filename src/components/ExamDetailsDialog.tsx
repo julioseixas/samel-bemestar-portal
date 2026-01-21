@@ -178,11 +178,12 @@ export function ExamDetailsDialog({
 
       const fileName = `laudo-${selectedExam.nrAtendimento}-${selectedExam.procedimentoExame}.pdf`;
       const opt = {
-        margin: 10,
+        margin: [10, 10, 15, 10] as [number, number, number, number],
         filename: fileName,
         image: { type: 'jpeg' as const, quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
+        html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
+        pagebreak: { mode: 'avoid-all' }
       };
 
       // Generate PDF as blob with light theme
@@ -218,11 +219,12 @@ export function ExamDetailsDialog({
       const tipoExame = apiEndpoint.includes("Lab") ? "Laboratorial" : "CDI";
       const fileName = `laudo-${examToShare.nrAtendimento}-${examToShare.procedimentoExame}.pdf`;
       const opt = {
-        margin: 10,
+        margin: [10, 10, 15, 10] as [number, number, number, number],
         filename: fileName,
         image: { type: 'jpeg' as const, quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
+        html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
+        pagebreak: { mode: 'avoid-all' }
       };
 
       // Generate PDF as blob with light theme
@@ -391,11 +393,12 @@ export function ExamDetailsDialog({
 
         const fileName = `laudo-${exam.nrAtendimento}-${exam.procedimentoExame.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
         const opt = {
-          margin: 10,
+          margin: [10, 10, 15, 10] as [number, number, number, number],
           filename: fileName,
           image: { type: 'jpeg' as const, quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
+          html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
+          pagebreak: { mode: 'avoid-all' }
         };
 
         // Generate PDF as blob with light theme and use utility function

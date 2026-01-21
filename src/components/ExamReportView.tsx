@@ -62,7 +62,7 @@ export function ExamReportView({ examData, tipoLaudo }: ExamReportViewProps) {
   const sanitizedSignature = useMemo(() => sanitizeHtmlContent(examData.dsAssinatura), [examData.dsAssinatura]);
 
   return (
-    <div id="printMe" className="bg-background p-3 sm:p-6 w-full max-w-[800px] mx-auto print:p-0 overflow-x-hidden">
+    <div id="printMe" className="bg-background p-3 sm:p-6 pb-8 sm:pb-12 w-full max-w-[800px] mx-auto print:p-0 overflow-x-hidden">
       {/* CABEÇALHO */}
       <div className="flex mb-3 sm:mb-4 border border-border">
         <div className="w-[60px] sm:w-[150px] border-r border-border flex items-center justify-center p-1.5 sm:p-4 bg-card">
