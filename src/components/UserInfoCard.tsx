@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { ChevronDown, Copy, Check, User } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Copy, Check, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -9,6 +9,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { toast } from "sonner";
+import gsap from "gsap";
 
 interface Patient {
   id: string;
@@ -22,6 +23,7 @@ export function UserInfoCard() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const storedList = localStorage.getItem("listToSchedule");
@@ -39,6 +41,24 @@ export function UserInfoCard() {
       setProfilePhoto(photo);
     }
   }, []);
+
+  // Animação GSAP ao montar o componente
+  useEffect(() => {
+    if (!cardRef.current) return;
+    
+    const ctx = gsap.context(() => {
+      gsap.from(cardRef.current, {
+        opacity: 0,
+        y: 10,
+        scale: 0.98,
+        duration: 0.5,
+        delay: 0.15,
+        ease: "power2.out"
+      });
+    });
+
+    return () => ctx.revert();
+  }, [patients]);
 
   const titular = patients.find((p) => p.tipo === "Titular");
   const dependentes = patients.filter((p) => p.tipo === "Dependente");
@@ -64,7 +84,7 @@ export function UserInfoCard() {
   if (!titular) return null;
 
   return (
-    <div className="w-full mb-4">
+    <div ref={cardRef} className="w-full mb-4">
       <Accordion type="single" collapsible className="w-full">
         <AccordionItem
           value="user-info"
