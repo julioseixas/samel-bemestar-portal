@@ -672,21 +672,24 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
               </div>
             </div>
 
-            {/* Suporte ao Aplicativo */}
+            {/* Suporte ao Aplicativo (WhatsApp) */}
             <div>
               <h4 className="text-sm font-semibold text-muted-foreground mb-2">Suporte ao Aplicativo</h4>
               <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-muted/50">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                    <Phone className="h-5 w-5 text-primary" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500/10">
+                    <Phone className="h-5 w-5 text-green-600" />
                   </div>
                   <div>
                     <a
-                      href="tel:+559295040866"
-                      className="font-medium text-foreground hover:text-primary transition-colors"
+                      href="https://wa.me/559292844515?text=Oi%20tudo%20bem%3F%20Preciso%20de%20suporte"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium text-foreground hover:text-green-600 transition-colors"
                     >
-                      (92) 9504-0866
+                      (92) 9284-4515
                     </a>
+                    <p className="text-xs text-muted-foreground">WhatsApp</p>
                   </div>
                 </div>
                 <TooltipProvider>
@@ -696,7 +699,7 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
                         variant="ghost"
                         size="icon"
                         onClick={() => {
-                          navigator.clipboard.writeText("(92) 9504-0866");
+                          navigator.clipboard.writeText("(92) 9284-4515");
                           toast({ title: "Copiado!", description: "Telefone copiado para a área de transferência." });
                         }}
                         className="h-9 w-9"
@@ -709,84 +712,6 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
-              </div>
-            </div>
-
-            {/* Ouvidoria */}
-            <div>
-              <h4 className="text-sm font-semibold text-muted-foreground mb-2">Ouvidoria</h4>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-muted/50">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                      <Phone className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <a
-                        href="tel:+5592994168385"
-                        className="font-medium text-foreground hover:text-primary transition-colors"
-                      >
-                        (92) 99416-8385
-                      </a>
-                    </div>
-                  </div>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => {
-                            navigator.clipboard.writeText("(92) 99416-8385");
-                            toast({ title: "Copiado!", description: "Telefone copiado para a área de transferência." });
-                          }}
-                          className="h-9 w-9"
-                        >
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Copiar telefone</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-
-                <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-muted/50">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                      <Mail className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <a
-                        href="mailto:ouvidoria@samel.com.br"
-                        className="font-medium text-foreground hover:text-primary transition-colors text-sm sm:text-base break-all"
-                      >
-                        ouvidoria@samel.com.br
-                      </a>
-                    </div>
-                  </div>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => {
-                            navigator.clipboard.writeText("ouvidoria@samel.com.br");
-                            toast({ title: "Copiado!", description: "E-mail copiado para a área de transferência." });
-                          }}
-                          className="h-9 w-9"
-                        >
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Copiar e-mail</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
               </div>
             </div>
           </div>
