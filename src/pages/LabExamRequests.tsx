@@ -288,8 +288,15 @@ const LabExamRequests = () => {
 
   const handleDownloadPDF = async () => {
     if (!selectedRequest) return;
+    
+    // Pequeno delay para garantir renderização completa do modal
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
     const element = document.getElementById("printMe");
-    if (!element) return;
+    if (!element) {
+      console.error("Elemento printMe não encontrado");
+      return;
+    }
     
     const fileName = `pedido_exame_lab_${selectedRequest.nrAtendimento}.pdf`;
     const options = {
@@ -370,8 +377,15 @@ const LabExamRequests = () => {
 
   const handleShare = async () => {
     if (!selectedRequest) return;
+    
+    // Pequeno delay para garantir renderização completa do modal
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
     const element = document.getElementById("printMe");
-    if (!element) return;
+    if (!element) {
+      console.error("Elemento printMe não encontrado");
+      return;
+    }
     
     const fileName = `pedido_exame_lab_${selectedRequest.nrAtendimento}.pdf`;
     const options = {
@@ -795,7 +809,9 @@ const LabExamRequests = () => {
           </DialogHeader>
           <div className="flex-1 overflow-y-auto">
             {selectedRequest && (
-              <ExamRequestView examData={selectedRequest} />
+              <div id="printMe">
+                <ExamRequestView examData={selectedRequest} />
+              </div>
             )}
           </div>
           <DialogFooter className="border-t pt-3 flex flex-row justify-between gap-2 sm:gap-3 mx-0">

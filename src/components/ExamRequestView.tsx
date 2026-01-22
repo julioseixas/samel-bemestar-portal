@@ -17,7 +17,7 @@ interface ExamRequestViewProps {
 
 export function ExamRequestView({ examData }: ExamRequestViewProps) {
   return (
-    <div id="printMe" className="bg-background p-6 max-w-[800px] mx-auto print:p-0">
+    <div className="bg-background p-6 pb-8 max-w-[800px] mx-auto print:p-0">
       {/* CABEÇALHO */}
       <div className="flex mb-4 border border-border">
         <div className="w-[80px] sm:w-[150px] border-r border-border flex items-center justify-center p-2 sm:p-4 bg-card">
