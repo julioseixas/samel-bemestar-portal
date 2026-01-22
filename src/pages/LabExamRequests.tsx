@@ -33,6 +33,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { ExamRequestView } from "@/components/ExamRequestView";
+import { GroupedExamRequestView } from "@/components/GroupedExamRequestView";
 import { Download, Share2, Printer, X } from "lucide-react";
 import html2pdf from "html2pdf.js";
 import {
@@ -269,9 +270,11 @@ const LabExamRequests = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // Ao clicar no grupo, abre direto o documento combinado
   const handleViewGroup = (group: GroupedExamRequest) => {
     setSelectedGroup(group);
-    setIsGroupDialogOpen(true);
+    setSelectedRequests(group.exams);
+    setIsMultipleDialogOpen(true);
   };
 
   const handleViewExamDetail = (request: ExamRequest) => {
@@ -1013,15 +1016,7 @@ const LabExamRequests = () => {
             </DialogTitle>
           </DialogHeader>
           <div id="printMultiple" className="flex-1 overflow-y-auto">
-            {selectedRequests.map((request, idx) => (
-              <div key={`${request.nrAtendimento}-${idx}`}>
-                {idx > 0 && <div className="page-break" />}
-                <ExamRequestView examData={request} />
-                {idx < selectedRequests.length - 1 && (
-                  <Separator className="my-6 print:hidden" />
-                )}
-              </div>
-            ))}
+            <GroupedExamRequestView exams={selectedRequests} />
           </div>
           <DialogFooter className="border-t pt-3 flex flex-row justify-between gap-2 sm:gap-3 mx-0">
             <TooltipProvider>
