@@ -24,6 +24,7 @@ import CertificatesList from "./pages/CertificatesList";
 import PrescriptionsList from "./pages/PrescriptionsList";
 import AppointmentSchedule from "./pages/AppointmentSchedule";
 import AppointmentDetails from "./pages/AppointmentDetails";
+import AppointmentDetailsV2 from "./pages/AppointmentDetailsV2";
 import AppointmentProfessionals from "./pages/AppointmentProfessionals";
 import AppointmentTimes from "./pages/AppointmentTimes";
 import ExamSchedule from "./pages/ExamSchedule";
@@ -98,6 +99,7 @@ const App = () => (
             <Route path="/prescriptions" element={<Protected><PrescriptionsList /></Protected>} />
             <Route path="/appointment-schedule" element={<Protected><AppointmentSchedule /></Protected>} />
             <Route path="/appointment-details" element={<Protected><AppointmentDetails /></Protected>} />
+            <Route path="/appointment-details-v2" element={<Protected><AppointmentDetailsV2 /></Protected>} />
             <Route path="/appointment-professionals" element={<Protected><AppointmentProfessionals /></Protected>} />
             <Route path="/appointment-times" element={<Protected><AppointmentTimes /></Protected>} />
             <Route path="/smart-scheduling" element={<Protected><SmartScheduling /></Protected>} />
