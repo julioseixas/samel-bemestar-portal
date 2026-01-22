@@ -129,9 +129,6 @@ function WalletCard({ patient, profilePhoto, isMain = false, index = 0, copiedId
           )}
         </div>
       </div>
-
-      {/* Decorative chip */}
-      <div className="absolute top-5 right-5 w-10 h-7 rounded bg-gradient-to-br from-amber-300 via-amber-400 to-amber-500 shadow-inner opacity-90" />
     </div>
   );
 }
