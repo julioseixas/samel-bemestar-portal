@@ -609,51 +609,61 @@ const LabExamRequests = () => {
                       return (
                         <Card 
                           key={`${request.nrAtendimento}-${index}`}
-                          className={`hover:shadow-lg transition-shadow ${isSelected ? 'ring-2 ring-primary' : ''}`}
+                          className={`hover:shadow-lg transition-shadow ${isSelected ? 'ring-2 ring-primary bg-primary/5' : ''}`}
                         >
-                          <CardContent className="p-4 space-y-3">
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="flex-1 space-y-2">
-                                <div>
-                                  <p className="text-xs text-muted-foreground mb-1">Especialidade</p>
-                                  <p className="font-semibold text-sm break-words">{request.dsEspecialidade}</p>
-                                </div>
-                                
-                                <div>
-                                  <p className="text-xs text-muted-foreground mb-1">Paciente</p>
-                                  <p className="font-medium text-sm break-words">{request.nomeCliente}</p>
-                                </div>
-                                
-                                <div>
-                                  <p className="text-xs text-muted-foreground mb-1">Data</p>
-                                  <p className="text-sm">{formatDate(request.dataEntrada)}</p>
-                                </div>
-                                
-                                <div>
-                                  <p className="text-xs text-muted-foreground mb-1">Profissional</p>
-                                  <p className="text-sm break-words">{request.nomeProfissional}</p>
-                                </div>
-                                
-                                <div className="flex items-center gap-2 pt-1">
-                                  <p className="text-xs text-muted-foreground">Status:</p>
-                                  {getStatusIcon(request.dsStatus)}
-                                </div>
-                              </div>
-                              
-                              <div className="flex flex-col items-center gap-3">
+                          <CardContent className="p-4">
+                            {/* Header with checkbox and status */}
+                            <div className="flex items-center justify-between mb-3 pb-2 border-b">
+                              <div className="flex items-center gap-3">
                                 <Checkbox
                                   checked={isSelected}
                                   onCheckedChange={() => handleToggleRequest(globalIndex)}
                                   className="h-5 w-5"
                                 />
-                                <Button
-                                  size="icon"
-                                  className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-8 w-8"
-                                  onClick={() => handleViewDetails(request)}
-                                >
-                                  <Eye className="h-4 w-4" />
-                                </Button>
+                                <span className="text-xs font-medium text-muted-foreground">
+                                  Selecionar
+                                </span>
                               </div>
+                              <div className="flex items-center gap-2">
+                                {getStatusIcon(request.dsStatus)}
+                                <span className="text-xs text-muted-foreground">{request.dsStatus}</span>
+                              </div>
+                            </div>
+                            
+                            {/* Content */}
+                            <div className="space-y-2">
+                              <div>
+                                <p className="text-xs text-muted-foreground mb-0.5">Especialidade</p>
+                                <p className="font-semibold text-sm break-words">{request.dsEspecialidade}</p>
+                              </div>
+                              
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <p className="text-xs text-muted-foreground mb-0.5">Paciente</p>
+                                  <p className="font-medium text-sm break-words">{request.nomeCliente}</p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-muted-foreground mb-0.5">Data</p>
+                                  <p className="text-sm">{formatDate(request.dataEntrada)}</p>
+                                </div>
+                              </div>
+                              
+                              <div>
+                                <p className="text-xs text-muted-foreground mb-0.5">Profissional</p>
+                                <p className="text-sm break-words">{request.nomeProfissional}</p>
+                              </div>
+                            </div>
+                            
+                            {/* Footer with action button */}
+                            <div className="mt-3 pt-2 border-t flex justify-end">
+                              <Button
+                                size="sm"
+                                className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                                onClick={() => handleViewDetails(request)}
+                              >
+                                <Eye className="h-4 w-4 mr-1.5" />
+                                Ver Detalhes
+                              </Button>
                             </div>
                           </CardContent>
                         </Card>
