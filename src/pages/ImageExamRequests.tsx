@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getApiHeaders } from "@/lib/api-headers";
 import { handlePdfDownload, handlePdfShare, withLightTheme } from "@/lib/pdf-utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Tooltip,
   TooltipContent,
@@ -74,6 +75,9 @@ const ImageExamRequests = () => {
   const [selectedRequest, setSelectedRequest] = useState<ExamRequest | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [canShare, setCanShare] = useState(false);
+  const [selectedIndexes, setSelectedIndexes] = useState<Set<number>>(new Set());
+  const [selectedRequests, setSelectedRequests] = useState<ExamRequest[]>([]);
+  const [isMultiViewDialogOpen, setIsMultiViewDialogOpen] = useState(false);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -341,6 +345,121 @@ const ImageExamRequests = () => {
     return pages;
   };
 
+  // Multi-selection handlers
+  const handleToggleRequest = (globalIndex: number) => {
+    setSelectedIndexes(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(globalIndex)) {
+        newSet.delete(globalIndex);
+      } else {
+        newSet.add(globalIndex);
+      }
+      return newSet;
+    });
+  };
+
+  const handleToggleAllPage = (checked: boolean) => {
+    setSelectedIndexes(prev => {
+      const newSet = new Set(prev);
+      currentRequests.forEach((_, idx) => {
+        const globalIdx = startIndex + idx;
+        if (checked) {
+          newSet.add(globalIdx);
+        } else {
+          newSet.delete(globalIdx);
+        }
+      });
+      return newSet;
+    });
+  };
+
+  const isAllPageSelected = currentRequests.length > 0 && 
+    currentRequests.every((_, idx) => selectedIndexes.has(startIndex + idx));
+
+  const handleViewSelected = () => {
+    const selected = Array.from(selectedIndexes).map(idx => requests[idx]).filter(Boolean);
+    setSelectedRequests(selected);
+    setIsMultiViewDialogOpen(true);
+  };
+
+  const handleDownloadMultiplePDF = async () => {
+    const element = document.getElementById("multiPrintMe");
+    if (!element) return;
+    
+    const fileName = `pedidos_exames_imagem_${selectedRequests.length}_itens.pdf`;
+    const options = {
+      margin: 0.5,
+      filename: fileName,
+      image: { type: "jpeg" as const, quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "in", format: "a4", orientation: "portrait" as const },
+      pagebreak: { mode: 'avoid-all', before: '.page-break' },
+    };
+    
+    try {
+      const pdfBlob = await withLightTheme(() => html2pdf().set(options).from(element).output("blob"));
+      const success = await handlePdfDownload(pdfBlob, fileName);
+      
+      if (success) {
+        toast({
+          title: "Sucesso",
+          description: "PDF baixado com sucesso!",
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível gerar o PDF.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleShareMultiple = async () => {
+    const element = document.getElementById("multiPrintMe");
+    if (!element) return;
+    
+    const fileName = `pedidos_exames_imagem_${selectedRequests.length}_itens.pdf`;
+    const options = {
+      margin: 0.5,
+      filename: fileName,
+      image: { type: "jpeg" as const, quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "in", format: "a4", orientation: "portrait" as const },
+      pagebreak: { mode: 'avoid-all', before: '.page-break' },
+    };
+
+    try {
+      const pdfBlob = await withLightTheme(() => html2pdf().set(options).from(element).output("blob"));
+      
+      const shared = await handlePdfShare(
+        pdfBlob, 
+        fileName, 
+        `${selectedRequests.length} Pedidos de Exames de Imagem`
+      );
+      
+      if (shared) {
+        toast({
+          title: "Sucesso",
+          description: "PDF compartilhado com sucesso!",
+        });
+      } else {
+        await handlePdfDownload(pdfBlob, fileName);
+        toast({
+          title: "Download iniciado",
+          description: "PDF baixado. Por favor, compartilhe manualmente.",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Erro ao compartilhar",
+        description: "Não foi possível compartilhar o documento.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getStatusIcon = (status: string) => {
     if (status === "Pendente") {
       return (
@@ -425,27 +544,47 @@ const ImageExamRequests = () => {
                   
                   {/* Cards para Mobile */}
                   <div className="md:hidden space-y-3 max-h-[calc(100vh-280px)] overflow-y-auto">
-                    {currentRequests.map((request, index) => (
-                      <Card 
-                        key={`${request.nrAtendimento}-${index}`}
-                        className="hover:shadow-lg transition-shadow cursor-pointer"
-                        onClick={() => handleViewDetails(request)}
-                      >
-                        <CardContent className="p-4 space-y-3">
-                          <div className="space-y-2">
+                    {currentRequests.map((request, index) => {
+                      const globalIndex = startIndex + index;
+                      const isSelected = selectedIndexes.has(globalIndex);
+                      return (
+                        <Card 
+                          key={`${request.nrAtendimento}-${index}`}
+                          className={`transition-all ${isSelected ? 'ring-2 ring-primary bg-primary/5' : ''}`}
+                        >
+                          <CardContent className="p-4 space-y-3">
+                            {/* Header com checkbox e status */}
+                            <div className="flex items-center justify-between">
+                              <label 
+                                className="flex items-center gap-2 cursor-pointer"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <Checkbox
+                                  checked={isSelected}
+                                  onCheckedChange={() => handleToggleRequest(globalIndex)}
+                                />
+                                <span className="text-xs text-muted-foreground">Selecionar</span>
+                              </label>
+                              <div className="flex items-center gap-2">
+                                {getStatusIcon(request.dsStatus)}
+                              </div>
+                            </div>
+                            
+                            {/* Informações em grid */}
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <p className="text-xs text-muted-foreground mb-1">Paciente</p>
+                                <p className="font-medium text-sm break-words">{request.nomeCliente}</p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-muted-foreground mb-1">Data</p>
+                                <p className="text-sm">{formatDate(request.dataEntrada)}</p>
+                              </div>
+                            </div>
+                            
                             <div>
                               <p className="text-xs text-muted-foreground mb-1">Especialidade</p>
                               <p className="font-semibold text-sm break-words">{request.dsEspecialidade}</p>
-                            </div>
-                            
-                            <div>
-                              <p className="text-xs text-muted-foreground mb-1">Paciente</p>
-                              <p className="font-medium text-sm break-words">{request.nomeCliente}</p>
-                            </div>
-                            
-                            <div>
-                              <p className="text-xs text-muted-foreground mb-1">Data</p>
-                              <p className="text-sm">{formatDate(request.dataEntrada)}</p>
                             </div>
                             
                             <div>
@@ -453,14 +592,22 @@ const ImageExamRequests = () => {
                               <p className="text-sm break-words">{request.nomeProfissional}</p>
                             </div>
                             
-                            <div className="flex items-center gap-2 pt-1">
-                              <p className="text-xs text-muted-foreground">Status:</p>
-                              {getStatusIcon(request.dsStatus)}
+                            {/* Botão de ver detalhes */}
+                            <div className="pt-2 border-t">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-full min-h-[44px]"
+                                onClick={() => handleViewDetails(request)}
+                              >
+                                <Eye className="h-4 w-4 mr-2" />
+                                Ver Detalhes
+                              </Button>
                             </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
                   </div>
 
                   {/* Tabela para Desktop */}
@@ -468,6 +615,12 @@ const ImageExamRequests = () => {
                     <Table>
                       <TableHeader className="sticky top-0 bg-card z-10">
                         <TableRow>
+                          <TableHead className="w-[50px]">
+                            <Checkbox
+                              checked={isAllPageSelected}
+                              onCheckedChange={(checked) => handleToggleAllPage(checked as boolean)}
+                            />
+                          </TableHead>
                           <TableHead>Data</TableHead>
                           <TableHead>Paciente</TableHead>
                           <TableHead>Profissional</TableHead>
@@ -477,32 +630,55 @@ const ImageExamRequests = () => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {currentRequests.map((request, index) => (
-                          <TableRow 
-                            key={`${request.nrAtendimento}-${index}`}
-                            className="hover:bg-muted/50"
-                          >
-                            <TableCell className="font-medium">{formatDate(request.dataEntrada)}</TableCell>
-                            <TableCell>{request.nomeCliente}</TableCell>
-                            <TableCell>{request.nomeProfissional}</TableCell>
-                            <TableCell>{request.dsEspecialidade}</TableCell>
-                            <TableCell className="text-center">
-                              {getStatusIcon(request.dsStatus)}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <Button
-                                size="icon"
-                                className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-9 w-9"
-                                onClick={() => handleViewDetails(request)}
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                        {currentRequests.map((request, index) => {
+                          const globalIndex = startIndex + index;
+                          const isSelected = selectedIndexes.has(globalIndex);
+                          return (
+                            <TableRow 
+                              key={`${request.nrAtendimento}-${index}`}
+                              className={`hover:bg-muted/50 ${isSelected ? 'bg-primary/5' : ''}`}
+                            >
+                              <TableCell>
+                                <Checkbox
+                                  checked={isSelected}
+                                  onCheckedChange={() => handleToggleRequest(globalIndex)}
+                                />
+                              </TableCell>
+                              <TableCell className="font-medium">{formatDate(request.dataEntrada)}</TableCell>
+                              <TableCell>{request.nomeCliente}</TableCell>
+                              <TableCell>{request.nomeProfissional}</TableCell>
+                              <TableCell>{request.dsEspecialidade}</TableCell>
+                              <TableCell className="text-center">
+                                {getStatusIcon(request.dsStatus)}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <Button
+                                  size="icon"
+                                  className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-9 w-9"
+                                  onClick={() => handleViewDetails(request)}
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
                       </TableBody>
                     </Table>
                   </div>
+
+                  {/* Botão flutuante para ver selecionados */}
+                  {selectedIndexes.size > 0 && (
+                    <div className="fixed bottom-6 right-6 z-50">
+                      <Button 
+                        onClick={handleViewSelected}
+                        className="shadow-lg min-h-[48px] px-6"
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        Ver {selectedIndexes.size} Selecionado{selectedIndexes.size > 1 ? 's' : ''}
+                      </Button>
+                    </div>
+                  )}
 
               {totalPages > 1 && (
                 <>
@@ -615,6 +791,104 @@ const ImageExamRequests = () => {
                         variant="outline"
                         size="icon"
                         onClick={handleShare}
+                        className="h-9 w-9"
+                      >
+                        <Share2 className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Compartilhar</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={handlePrint}
+                      className="h-9 w-9"
+                    >
+                      <Printer className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Imprimir</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog para visualização múltipla */}
+      <Dialog open={isMultiViewDialogOpen} onOpenChange={setIsMultiViewDialogOpen}>
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-[95vw] max-h-[75vh] sm:max-h-[95vh] overflow-hidden flex flex-col p-4">
+          <DialogHeader className="border-b pb-3 mx-0">
+            <DialogTitle className="text-xl">
+              {selectedRequests.length === 1 
+                ? "Pedido de Exame de Imagem" 
+                : `${selectedRequests.length} Pedidos de Exames de Imagem`
+              }
+            </DialogTitle>
+          </DialogHeader>
+          <div id="multiPrintMe" className="flex-1 overflow-y-auto">
+            {selectedRequests.map((request, idx) => (
+              <div key={`${request.nrAtendimento}-${idx}`} className={idx > 0 ? 'page-break' : ''}>
+                <ExamRequestView examData={request} />
+                {idx < selectedRequests.length - 1 && (
+                  <Separator className="my-6" />
+                )}
+              </div>
+            ))}
+          </div>
+          <DialogFooter className="border-t pt-3 flex flex-row justify-between gap-2 sm:gap-3 mx-0">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setIsMultiViewDialogOpen(false)}
+                    className="h-9 w-9"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Fechar</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <div className="flex gap-2 sm:gap-3">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={handleDownloadMultiplePDF}
+                      className="h-9 w-9"
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Baixar PDF</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              {canShare && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleShareMultiple}
                         className="h-9 w-9"
                       >
                         <Share2 className="h-4 w-4" />
