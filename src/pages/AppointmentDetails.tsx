@@ -831,8 +831,8 @@ const AppointmentDetails = () => {
                         </p>
                       )}
 
-                      {/* Botão de teste */}
-                      <Button
+                      {/* Botão de teste - comentado para produção */}
+                      {/* <Button
                         type="button"
                         variant="outline"
                         size="sm"
@@ -846,7 +846,7 @@ const AppointmentDetails = () => {
                         }}
                       >
                         🧪 Testar com Dados Mock
-                      </Button>
+                      </Button> */}
                     </div>
                   )}
                 </div>
