@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Copy, Check, CreditCard, ChevronDown, ChevronUp } from "lucide-react";
+import { Copy, Check, CreditCard, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import gsap from "gsap";
 import { cn } from "@/lib/utils";
@@ -17,12 +17,20 @@ interface WalletCardProps {
   profilePhoto?: string | null;
   isMain?: boolean;
   index?: number;
-  isExpanded?: boolean;
   copiedId: string | null;
   onCopy: (carteirinha: string, id: string) => void;
 }
 
-function WalletCard({ patient, profilePhoto, isMain = false, index = 0, isExpanded = true, copiedId, onCopy }: WalletCardProps) {
+// Cores dos dependentes com bom contraste para texto branco
+const DEPENDENTE_COLORS = [
+  "bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800",
+  "bg-gradient-to-br from-violet-600 via-violet-700 to-violet-800",
+  "bg-gradient-to-br from-cyan-600 via-cyan-700 to-cyan-800",
+  "bg-gradient-to-br from-fuchsia-600 via-fuchsia-700 to-fuchsia-800",
+  "bg-gradient-to-br from-teal-600 via-teal-700 to-teal-800",
+];
+
+function WalletCard({ patient, profilePhoto, isMain = false, index = 0, copiedId, onCopy }: WalletCardProps) {
   const getInitials = (name: string) => {
     if (!name) return "?";
     const parts = name.split(" ");
@@ -32,26 +40,17 @@ function WalletCard({ patient, profilePhoto, isMain = false, index = 0, isExpand
 
   const cardColors = isMain 
     ? "bg-gradient-to-br from-primary via-primary to-primary/80" 
-    : [
-        "bg-gradient-to-br from-[hsl(var(--chart-1))] via-[hsl(var(--chart-1))] to-[hsl(var(--chart-1)/0.8)]",
-        "bg-gradient-to-br from-[hsl(var(--chart-2))] via-[hsl(var(--chart-2))] to-[hsl(var(--chart-2)/0.8)]",
-        "bg-gradient-to-br from-[hsl(var(--chart-3))] via-[hsl(var(--chart-3))] to-[hsl(var(--chart-3)/0.8)]",
-        "bg-gradient-to-br from-[hsl(var(--chart-4))] via-[hsl(var(--chart-4))] to-[hsl(var(--chart-4)/0.8)]",
-        "bg-gradient-to-br from-[hsl(var(--chart-5))] via-[hsl(var(--chart-5))] to-[hsl(var(--chart-5)/0.8)]",
-      ][index % 5];
+    : DEPENDENTE_COLORS[index % DEPENDENTE_COLORS.length];
 
   return (
     <div
       className={cn(
-        "relative w-full rounded-2xl p-5 text-white shadow-xl transition-all duration-500",
+        "relative w-full rounded-2xl p-5 text-white shadow-xl transition-all duration-300",
         cardColors,
-        isExpanded ? "opacity-100" : "opacity-95",
         "before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-t before:from-black/10 before:to-transparent before:pointer-events-none"
       )}
       style={{
-        aspectRatio: isMain ? "1.7/1" : "1.8/1",
-        transform: !isExpanded && !isMain ? `translateY(-${(index + 1) * 75}%)` : "translateY(0)",
-        zIndex: isMain ? 10 : 10 - index,
+        aspectRatio: "1.7/1",
       }}
     >
       {/* Card shine effect */}
@@ -69,17 +68,14 @@ function WalletCard({ patient, profilePhoto, isMain = false, index = 0, isExpand
             Samel Saúde
           </span>
         </div>
-        <span className={cn(
-          "text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded-full",
-          isMain ? "bg-white/25 text-white" : "bg-black/20 text-white/90"
-        )}>
+        <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-white/25 text-white">
           {patient.tipo}
         </span>
       </div>
 
       {/* Card Number / Carteirinha */}
       <div className="relative mt-auto">
-        <p className="text-[10px] uppercase tracking-widest text-white/60 mb-1">
+        <p className="text-[10px] uppercase tracking-widest text-white/70 mb-1">
           Nº Carteirinha
         </p>
         <div className="flex items-center gap-3">
@@ -100,7 +96,7 @@ function WalletCard({ patient, profilePhoto, isMain = false, index = 0, isExpand
               {copiedId === patient.id ? (
                 <Check className="h-3.5 w-3.5 text-white" />
               ) : (
-                <Copy className="h-3.5 w-3.5 text-white/80" />
+                <Copy className="h-3.5 w-3.5 text-white" />
               )}
             </button>
           )}
@@ -110,7 +106,7 @@ function WalletCard({ patient, profilePhoto, isMain = false, index = 0, isExpand
       {/* Holder Name & Avatar */}
       <div className="relative flex items-end justify-between mt-4">
         <div className="flex-1 min-w-0">
-          <p className="text-[10px] uppercase tracking-widest text-white/60 mb-0.5">
+          <p className="text-[10px] uppercase tracking-widest text-white/70 mb-0.5">
             {isMain ? "Titular" : "Dependente"}
           </p>
           <p className="font-semibold text-sm sm:text-base text-white truncate pr-2">
@@ -135,7 +131,7 @@ function WalletCard({ patient, profilePhoto, isMain = false, index = 0, isExpand
       </div>
 
       {/* Decorative chip */}
-      <div className="absolute top-5 right-5 w-10 h-7 rounded bg-gradient-to-br from-accent via-accent/80 to-accent/60 shadow-inner opacity-80" />
+      <div className="absolute top-5 right-5 w-10 h-7 rounded bg-gradient-to-br from-amber-300 via-amber-400 to-amber-500 shadow-inner opacity-90" />
     </div>
   );
 }
@@ -145,6 +141,7 @@ export function UserInfoCard() {
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [currentDependenteIndex, setCurrentDependenteIndex] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -196,9 +193,24 @@ export function UserInfoCard() {
     }
   };
 
+  const handlePrevDependente = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentDependenteIndex((prev) => 
+      prev === 0 ? dependentes.length - 1 : prev - 1
+    );
+  };
+
+  const handleNextDependente = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentDependenteIndex((prev) => 
+      prev === dependentes.length - 1 ? 0 : prev + 1
+    );
+  };
+
   if (!titular) return null;
 
   const hasDependentes = dependentes.length > 0;
+  const hasMultipleDependentes = dependentes.length > 1;
 
   return (
     <div ref={cardRef} className="w-full mb-5">
@@ -232,7 +244,6 @@ export function UserInfoCard() {
           patient={titular}
           profilePhoto={profilePhoto}
           isMain
-          isExpanded={isExpanded}
           copiedId={copiedId}
           onCopy={handleCopyCarteirinha}
         />
@@ -257,34 +268,77 @@ export function UserInfoCard() {
         )}
       </div>
 
-      {/* Dependentes Cards - Expanded View */}
+      {/* Dependentes Cards - Expanded View with Carousel for multiple */}
       <div 
         className={cn(
           "overflow-hidden transition-all duration-500 ease-out",
-          isExpanded ? "max-h-[1000px] opacity-100 mt-6" : "max-h-0 opacity-0 mt-0"
+          isExpanded ? "max-h-[500px] opacity-100 mt-6" : "max-h-0 opacity-0 mt-0"
         )}
       >
-        <div className="space-y-4">
-          {dependentes.map((dep, index) => (
-            <div 
-              key={dep.id}
-              className="transform transition-all duration-300"
-              style={{ 
-                transitionDelay: `${index * 75}ms`,
-                opacity: isExpanded ? 1 : 0,
-                transform: isExpanded ? 'translateY(0)' : 'translateY(-20px)'
-              }}
+        {hasMultipleDependentes ? (
+          // Carrossel para múltiplos dependentes
+          <div className="relative">
+            {/* Navigation buttons */}
+            <button
+              onClick={handlePrevDependente}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-10 w-9 h-9 rounded-full bg-background border border-border shadow-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+              aria-label="Dependente anterior"
             >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            
+            <button
+              onClick={handleNextDependente}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-10 w-9 h-9 rounded-full bg-background border border-border shadow-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+              aria-label="Próximo dependente"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+
+            {/* Card container */}
+            <div className="px-4">
               <WalletCard
-                patient={dep}
-                index={index}
-                isExpanded={isExpanded}
+                patient={dependentes[currentDependenteIndex]}
+                index={currentDependenteIndex}
                 copiedId={copiedId}
                 onCopy={handleCopyCarteirinha}
               />
             </div>
-          ))}
-        </div>
+
+            {/* Pagination dots */}
+            <div className="flex justify-center gap-2 mt-4">
+              {dependentes.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentDependenteIndex(index);
+                  }}
+                  className={cn(
+                    "w-2 h-2 rounded-full transition-all duration-300",
+                    index === currentDependenteIndex 
+                      ? "bg-primary w-6" 
+                      : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                  )}
+                  aria-label={`Ver dependente ${index + 1}`}
+                />
+              ))}
+            </div>
+
+            {/* Counter */}
+            <p className="text-center text-xs text-muted-foreground mt-2">
+              {currentDependenteIndex + 1} de {dependentes.length} dependentes
+            </p>
+          </div>
+        ) : hasDependentes ? (
+          // Single dependente - show directly
+          <WalletCard
+            patient={dependentes[0]}
+            index={0}
+            copiedId={copiedId}
+            onCopy={handleCopyCarteirinha}
+          />
+        ) : null}
       </div>
     </div>
   );
