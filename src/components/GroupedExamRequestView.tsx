@@ -24,11 +24,11 @@ export function GroupedExamRequestView({ exams }: GroupedExamRequestViewProps) {
   // Use the first exam for header data
   const firstExam = exams[0];
   
-  // Combine all retornoDadosMobile content with line breaks between each
+  // Combine all retornoDadosMobile content with double line breaks for better readability
   const combinedContent = exams
     .map(exam => exam.retornoDadosMobile || "")
     .filter(content => content.trim() !== "")
-    .join("<br/>");
+    .join("<br/><br/>");
 
   return (
     <div className="bg-background p-6 pb-8 max-w-[800px] mx-auto print:p-0">
