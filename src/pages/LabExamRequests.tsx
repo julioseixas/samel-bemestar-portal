@@ -1,9 +1,9 @@
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { Eye, CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { Eye, CheckCircle, ChevronLeft, ChevronRight, FileText } from "lucide-react";
 import { AnimatedHourglass } from "@/components/AnimatedHourglass";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { getApiHeaders } from "@/lib/api-headers";
 import { handlePdfDownload, handlePdfShare, withLightTheme } from "@/lib/pdf-utils";
@@ -42,6 +42,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 
 interface ExamRequest {
   nrAtendimento: number;
@@ -62,6 +63,14 @@ interface ExamRequest {
   retornoDadosMobile: string;
 }
 
+interface GroupedExamRequest {
+  dataEntrada: string;
+  nomeCliente: string;
+  exams: ExamRequest[];
+  totalExams: number;
+  aggregatedStatus: "pendente" | "concluído";
+}
+
 const LabExamRequests = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -70,13 +79,21 @@ const LabExamRequests = () => {
   const [requests, setRequests] = useState<ExamRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedRequest, setSelectedRequest] = useState<ExamRequest | null>(null);
-  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [canShare, setCanShare] = useState(false);
   const itemsPerPage = 10;
 
-  // Multiple selection state
-  const [selectedIndexes, setSelectedIndexes] = useState<Set<number>>(new Set());
+  // Group selection state
+  const [selectedGroupKeys, setSelectedGroupKeys] = useState<Set<string>>(new Set());
+  
+  // Group dialog state
+  const [selectedGroup, setSelectedGroup] = useState<GroupedExamRequest | null>(null);
+  const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
+  
+  // Single exam detail dialog
+  const [selectedRequest, setSelectedRequest] = useState<ExamRequest | null>(null);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  
+  // Multiple exams dialog
   const [selectedRequests, setSelectedRequests] = useState<ExamRequest[]>([]);
   const [isMultipleDialogOpen, setIsMultipleDialogOpen] = useState(false);
 
@@ -203,76 +220,118 @@ const LabExamRequests = () => {
     fetchExamRequests();
   }, [toast]);
 
+  // Group exams by dataEntrada
+  const groupedRequests = useMemo((): GroupedExamRequest[] => {
+    const groups = requests.reduce((acc, request) => {
+      const key = request.dataEntrada;
+      if (!acc[key]) {
+        acc[key] = {
+          dataEntrada: request.dataEntrada,
+          nomeCliente: request.nomeCliente,
+          exams: [],
+          totalExams: 0,
+          aggregatedStatus: "concluído" as const
+        };
+      }
+      acc[key].exams.push(request);
+      acc[key].totalExams++;
+      // Se qualquer exame estiver pendente, o grupo fica pendente
+      if (request.dsStatus === "Pendente") {
+        acc[key].aggregatedStatus = "pendente";
+      }
+      return acc;
+    }, {} as Record<string, GroupedExamRequest>);
+    
+    return Object.values(groups).sort((a, b) => {
+      // Parse dates in DD/MM/YYYY HH:mm format
+      const parseDate = (dateStr: string) => {
+        const [datePart, timePart] = dateStr.split(' ');
+        const [day, month, year] = datePart.split('/').map(Number);
+        const [hours, minutes] = (timePart || '00:00').split(':').map(Number);
+        return new Date(year, month - 1, day, hours, minutes).getTime();
+      };
+      return parseDate(b.dataEntrada) - parseDate(a.dataEntrada);
+    });
+  }, [requests]);
+
   const formatDate = (dateString: string) => {
     if (!dateString) return "-";
     return dateString;
   };
 
-  const totalPages = Math.ceil(requests.length / itemsPerPage);
+  const totalPages = Math.ceil(groupedRequests.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentRequests = requests.slice(startIndex, endIndex);
+  const currentGroups = groupedRequests.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleViewDetails = (request: ExamRequest) => {
+  const handleViewGroup = (group: GroupedExamRequest) => {
+    setSelectedGroup(group);
+    setIsGroupDialogOpen(true);
+  };
+
+  const handleViewExamDetail = (request: ExamRequest) => {
     setSelectedRequest(request);
     setIsDetailDialogOpen(true);
   };
 
-  // Toggle individual request selection
-  const handleToggleRequest = (globalIndex: number, e?: React.MouseEvent) => {
+  // Toggle group selection
+  const handleToggleGroup = (groupKey: string, e?: React.MouseEvent) => {
     if (e) {
       e.stopPropagation();
     }
-    setSelectedIndexes(prev => {
+    setSelectedGroupKeys(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(globalIndex)) {
-        newSet.delete(globalIndex);
+      if (newSet.has(groupKey)) {
+        newSet.delete(groupKey);
       } else {
-        newSet.add(globalIndex);
+        newSet.add(groupKey);
       }
       return newSet;
     });
   };
 
-  // Toggle all requests on current page
+  // Toggle all groups on current page
   const handleToggleAllPage = (checked: boolean) => {
-    setSelectedIndexes(prev => {
+    setSelectedGroupKeys(prev => {
       const newSet = new Set(prev);
-      currentRequests.forEach((_, idx) => {
-        const globalIdx = startIndex + idx;
+      currentGroups.forEach(group => {
         if (checked) {
-          newSet.add(globalIdx);
+          newSet.add(group.dataEntrada);
         } else {
-          newSet.delete(globalIdx);
+          newSet.delete(group.dataEntrada);
         }
       });
       return newSet;
     });
   };
 
-  // Check if all items on current page are selected
-  const isAllPageSelected = currentRequests.length > 0 && 
-    currentRequests.every((_, idx) => selectedIndexes.has(startIndex + idx));
+  // Check if all groups on current page are selected
+  const isAllPageSelected = currentGroups.length > 0 && 
+    currentGroups.every(group => selectedGroupKeys.has(group.dataEntrada));
 
-  // Check if some items on current page are selected
-  const isSomePageSelected = currentRequests.some((_, idx) => selectedIndexes.has(startIndex + idx));
+  // Check if some groups on current page are selected
+  const isSomePageSelected = currentGroups.some(group => selectedGroupKeys.has(group.dataEntrada));
 
-  // View selected requests
+  // Get all selected exams from selected groups
+  const getSelectedExams = (): ExamRequest[] => {
+    return groupedRequests
+      .filter(group => selectedGroupKeys.has(group.dataEntrada))
+      .flatMap(group => group.exams);
+  };
+
+  // View selected groups
   const handleViewSelected = () => {
-    const selected = Array.from(selectedIndexes)
-      .sort((a, b) => a - b)
-      .map(idx => requests[idx])
-      .filter(Boolean);
+    const selected = getSelectedExams();
     
     if (selected.length === 0) {
       toast({
         title: "Aviso",
-        description: "Selecione ao menos um pedido para visualizar.",
+        description: "Selecione ao menos um grupo para visualizar.",
       });
       return;
     }
@@ -281,9 +340,17 @@ const LabExamRequests = () => {
     setIsMultipleDialogOpen(true);
   };
 
+  // View all exams from a group
+  const handleViewGroupExams = () => {
+    if (!selectedGroup) return;
+    setSelectedRequests(selectedGroup.exams);
+    setIsGroupDialogOpen(false);
+    setIsMultipleDialogOpen(true);
+  };
+
   // Clear selection
   const handleClearSelection = () => {
-    setSelectedIndexes(new Set());
+    setSelectedGroupKeys(new Set());
   };
 
   const handleDownloadPDF = async () => {
@@ -506,20 +573,20 @@ const LabExamRequests = () => {
     return pages;
   };
 
-  const getStatusIcon = (status: string) => {
-    if (status === "Pendente") {
+  const getStatusIcon = (status: "pendente" | "concluído" | string) => {
+    if (status === "pendente" || status === "Pendente") {
       return (
         <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="flex items-center justify-center">
-            <AnimatedHourglass className="h-5 w-5 text-warning" />
-          </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{status}</p>
-        </TooltipContent>
-      </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center justify-center">
+                <AnimatedHourglass className="h-5 w-5 text-warning" />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Pendente</p>
+            </TooltipContent>
+          </Tooltip>
         </TooltipProvider>
       );
     }
@@ -532,7 +599,7 @@ const LabExamRequests = () => {
             </div>
           </TooltipTrigger>
           <TooltipContent>
-            <p>{status}</p>
+            <p>Coletado</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -565,13 +632,13 @@ const LabExamRequests = () => {
                       <div key={i} className="flex items-center space-x-4">
                         <Skeleton className="h-12 w-[180px]" />
                         <Skeleton className="h-12 flex-1" />
-                        <Skeleton className="h-12 w-[200px]" />
+                        <Skeleton className="h-12 w-[100px]" />
                         <Skeleton className="h-10 w-10 rounded-full" />
                       </div>
                     ))}
                   </div>
                 </div>
-              ) : requests.length === 0 ? (
+              ) : groupedRequests.length === 0 ? (
                 <div className="flex items-center justify-center py-8">
                   <p className="text-muted-foreground">Nenhum pedido de exame laboratorial encontrado.</p>
                 </div>
@@ -589,10 +656,10 @@ const LabExamRequests = () => {
                       </div>
                     </div>
                     
-                    {selectedIndexes.size > 0 && (
+                    {selectedGroupKeys.size > 0 && (
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-muted-foreground">
-                          {selectedIndexes.size} selecionado(s)
+                          {selectedGroupKeys.size} grupo(s) selecionado(s)
                         </span>
                         <Button
                           variant="outline"
@@ -616,13 +683,12 @@ const LabExamRequests = () => {
                   
                   {/* Cards para Mobile */}
                   <div className="md:hidden space-y-3 max-h-[calc(100vh-280px)] overflow-y-auto">
-                    {currentRequests.map((request, index) => {
-                      const globalIndex = startIndex + index;
-                      const isSelected = selectedIndexes.has(globalIndex);
+                    {currentGroups.map((group, index) => {
+                      const isSelected = selectedGroupKeys.has(group.dataEntrada);
                       
                       return (
                         <Card 
-                          key={`${request.nrAtendimento}-${index}`}
+                          key={`${group.dataEntrada}-${index}`}
                           className={`hover:shadow-lg transition-shadow ${isSelected ? 'ring-2 ring-primary bg-primary/5' : ''}`}
                         >
                           <CardContent className="p-4">
@@ -631,7 +697,7 @@ const LabExamRequests = () => {
                               <div className="flex items-center gap-3">
                                 <Checkbox
                                   checked={isSelected}
-                                  onCheckedChange={() => handleToggleRequest(globalIndex)}
+                                  onCheckedChange={() => handleToggleGroup(group.dataEntrada)}
                                   className="h-5 w-5"
                                 />
                                 <span className="text-xs font-medium text-muted-foreground">
@@ -639,32 +705,27 @@ const LabExamRequests = () => {
                                 </span>
                               </div>
                               <div className="flex items-center gap-2">
-                                {getStatusIcon(request.dsStatus)}
-                                <span className="text-xs text-muted-foreground">{request.dsStatus}</span>
+                                {getStatusIcon(group.aggregatedStatus)}
+                                <span className="text-xs text-muted-foreground capitalize">{group.aggregatedStatus}</span>
                               </div>
                             </div>
                             
                             {/* Content */}
                             <div className="space-y-2">
-                              <div>
-                                <p className="text-xs text-muted-foreground mb-0.5">Especialidade</p>
-                                <p className="font-semibold text-sm break-words">{request.dsEspecialidade}</p>
-                              </div>
-                              
-                              <div className="grid grid-cols-2 gap-2">
-                                <div>
-                                  <p className="text-xs text-muted-foreground mb-0.5">Paciente</p>
-                                  <p className="font-medium text-sm break-words">{request.nomeCliente}</p>
-                                </div>
+                              <div className="flex items-center justify-between">
                                 <div>
                                   <p className="text-xs text-muted-foreground mb-0.5">Data</p>
-                                  <p className="text-sm">{formatDate(request.dataEntrada)}</p>
+                                  <p className="font-semibold text-sm">{formatDate(group.dataEntrada)}</p>
                                 </div>
+                                <Badge variant="secondary" className="flex items-center gap-1">
+                                  <FileText className="h-3 w-3" />
+                                  {group.totalExams} {group.totalExams === 1 ? 'exame' : 'exames'}
+                                </Badge>
                               </div>
                               
                               <div>
-                                <p className="text-xs text-muted-foreground mb-0.5">Profissional</p>
-                                <p className="text-sm break-words">{request.nomeProfissional}</p>
+                                <p className="text-xs text-muted-foreground mb-0.5">Paciente</p>
+                                <p className="font-medium text-sm break-words">{group.nomeCliente}</p>
                               </div>
                             </div>
                             
@@ -673,10 +734,10 @@ const LabExamRequests = () => {
                               <Button
                                 size="sm"
                                 className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                                onClick={() => handleViewDetails(request)}
+                                onClick={() => handleViewGroup(group)}
                               >
                                 <Eye className="h-4 w-4 mr-1.5" />
-                                Ver Detalhes
+                                Ver Exames
                               </Button>
                             </div>
                           </CardContent>
@@ -699,40 +760,41 @@ const LabExamRequests = () => {
                           </TableHead>
                           <TableHead>Data</TableHead>
                           <TableHead>Paciente</TableHead>
-                          <TableHead>Profissional</TableHead>
-                          <TableHead>Especialidade</TableHead>
+                          <TableHead className="text-center">Qtd. Exames</TableHead>
                           <TableHead className="text-center">Status</TableHead>
                           <TableHead className="text-right">Ver</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {currentRequests.map((request, index) => {
-                          const globalIndex = startIndex + index;
-                          const isSelected = selectedIndexes.has(globalIndex);
+                        {currentGroups.map((group, index) => {
+                          const isSelected = selectedGroupKeys.has(group.dataEntrada);
                           
                           return (
                             <TableRow 
-                              key={`${request.nrAtendimento}-${index}`}
+                              key={`${group.dataEntrada}-${index}`}
                               className={`hover:bg-muted/50 ${isSelected ? 'bg-primary/10' : ''}`}
                             >
                               <TableCell>
                                 <Checkbox
                                   checked={isSelected}
-                                  onCheckedChange={() => handleToggleRequest(globalIndex)}
+                                  onCheckedChange={() => handleToggleGroup(group.dataEntrada)}
                                 />
                               </TableCell>
-                              <TableCell className="font-medium">{formatDate(request.dataEntrada)}</TableCell>
-                              <TableCell>{request.nomeCliente}</TableCell>
-                              <TableCell>{request.nomeProfissional}</TableCell>
-                              <TableCell>{request.dsEspecialidade}</TableCell>
+                              <TableCell className="font-medium">{formatDate(group.dataEntrada)}</TableCell>
+                              <TableCell>{group.nomeCliente}</TableCell>
                               <TableCell className="text-center">
-                                {getStatusIcon(request.dsStatus)}
+                                <Badge variant="secondary" className="font-medium">
+                                  {group.totalExams} {group.totalExams === 1 ? 'exame' : 'exames'}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-center">
+                                {getStatusIcon(group.aggregatedStatus)}
                               </TableCell>
                               <TableCell className="text-right">
                                 <Button
                                   size="icon"
                                   className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-9 w-9"
-                                  onClick={() => handleViewDetails(request)}
+                                  onClick={() => handleViewGroup(group)}
                                 >
                                   <Eye className="h-4 w-4" />
                                 </Button>
@@ -800,6 +862,54 @@ const LabExamRequests = () => {
           </Card>
         </div>
       </main>
+
+      {/* Dialog for group - shows list of exams */}
+      <Dialog open={isGroupDialogOpen} onOpenChange={setIsGroupDialogOpen}>
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[75vh] sm:max-h-[80vh] overflow-hidden flex flex-col p-4">
+          <DialogHeader className="border-b pb-3 mx-0">
+            <DialogTitle className="text-xl">
+              Exames de {selectedGroup?.dataEntrada}
+            </DialogTitle>
+            <p className="text-sm text-muted-foreground mt-1">
+              {selectedGroup?.totalExams} {selectedGroup?.totalExams === 1 ? 'exame' : 'exames'} nesta data
+            </p>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto py-4">
+            {selectedGroup?.exams.map((exam, idx) => (
+              <Card 
+                key={`${exam.nrAtendimento}-${idx}`}
+                className="mb-3 last:mb-0 hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => handleViewExamDetail(exam)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm truncate">{exam.dsEspecialidade}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{exam.nomeProfissional}</p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {getStatusIcon(exam.dsStatus)}
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <DialogFooter className="border-t pt-3 flex flex-row justify-between gap-2 sm:gap-3 mx-0">
+            <Button
+              variant="outline"
+              onClick={() => setIsGroupDialogOpen(false)}
+            >
+              Fechar
+            </Button>
+            <Button onClick={handleViewGroupExams}>
+              <Eye className="h-4 w-4 mr-2" />
+              Ver Todos em PDF
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Dialog for single request */}
       <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
