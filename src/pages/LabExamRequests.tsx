@@ -24,8 +24,6 @@ import {
   PaginationEllipsis,
   PaginationItem,
   PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
 } from "@/components/ui/pagination";
 import {
   Dialog,
@@ -43,6 +41,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface ExamRequest {
   nrAtendimento: number;
@@ -75,6 +74,11 @@ const LabExamRequests = () => {
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [canShare, setCanShare] = useState(false);
   const itemsPerPage = 10;
+
+  // Multiple selection state
+  const [selectedIndexes, setSelectedIndexes] = useState<Set<number>>(new Set());
+  const [selectedRequests, setSelectedRequests] = useState<ExamRequest[]>([]);
+  const [isMultipleDialogOpen, setIsMultipleDialogOpen] = useState(false);
 
   useEffect(() => {
     const patientData = localStorage.getItem("patientData");
@@ -219,6 +223,69 @@ const LabExamRequests = () => {
     setIsDetailDialogOpen(true);
   };
 
+  // Toggle individual request selection
+  const handleToggleRequest = (globalIndex: number, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    setSelectedIndexes(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(globalIndex)) {
+        newSet.delete(globalIndex);
+      } else {
+        newSet.add(globalIndex);
+      }
+      return newSet;
+    });
+  };
+
+  // Toggle all requests on current page
+  const handleToggleAllPage = (checked: boolean) => {
+    setSelectedIndexes(prev => {
+      const newSet = new Set(prev);
+      currentRequests.forEach((_, idx) => {
+        const globalIdx = startIndex + idx;
+        if (checked) {
+          newSet.add(globalIdx);
+        } else {
+          newSet.delete(globalIdx);
+        }
+      });
+      return newSet;
+    });
+  };
+
+  // Check if all items on current page are selected
+  const isAllPageSelected = currentRequests.length > 0 && 
+    currentRequests.every((_, idx) => selectedIndexes.has(startIndex + idx));
+
+  // Check if some items on current page are selected
+  const isSomePageSelected = currentRequests.some((_, idx) => selectedIndexes.has(startIndex + idx));
+
+  // View selected requests
+  const handleViewSelected = () => {
+    const selected = Array.from(selectedIndexes)
+      .sort((a, b) => a - b)
+      .map(idx => requests[idx])
+      .filter(Boolean);
+    
+    if (selected.length === 0) {
+      toast({
+        title: "Aviso",
+        description: "Selecione ao menos um pedido para visualizar.",
+      });
+      return;
+    }
+    
+    setSelectedRequests(selected);
+    setIsMultipleDialogOpen(true);
+  };
+
+  // Clear selection
+  const handleClearSelection = () => {
+    setSelectedIndexes(new Set());
+  };
+
   const handleDownloadPDF = async () => {
     if (!selectedRequest) return;
     const element = document.getElementById("printMe");
@@ -226,11 +293,12 @@ const LabExamRequests = () => {
     
     const fileName = `pedido_exame_lab_${selectedRequest.nrAtendimento}.pdf`;
     const options = {
-      margin: 0.5,
+      margin: [10, 10, 15, 10] as [number, number, number, number],
       filename: fileName,
       image: { type: "jpeg" as const, quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: "in", format: "a4", orientation: "portrait" as const },
+      html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" as const },
+      pagebreak: { mode: 'avoid-all' }
     };
     
     try {
@@ -238,6 +306,42 @@ const LabExamRequests = () => {
       const pdfBlob = await withLightTheme(() => html2pdf().set(options).from(element).output("blob"));
       
       // Use utility function for download (handles WebView)
+      const success = await handlePdfDownload(pdfBlob, fileName);
+      
+      if (success) {
+        toast({
+          title: "Sucesso",
+          description: "PDF baixado com sucesso!",
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível gerar o PDF.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDownloadMultiplePDF = async () => {
+    if (selectedRequests.length === 0) return;
+    
+    const container = document.getElementById("printMultiple");
+    if (!container) return;
+    
+    const fileName = `pedidos_exames_lab_${Date.now()}.pdf`;
+    const options = {
+      margin: [10, 10, 15, 10] as [number, number, number, number],
+      filename: fileName,
+      image: { type: "jpeg" as const, quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" as const },
+      pagebreak: { mode: 'avoid-all', before: '.page-break' }
+    };
+    
+    try {
+      const pdfBlob = await withLightTheme(() => html2pdf().set(options).from(container).output("blob"));
       const success = await handlePdfDownload(pdfBlob, fileName);
       
       if (success) {
@@ -271,11 +375,12 @@ const LabExamRequests = () => {
     
     const fileName = `pedido_exame_lab_${selectedRequest.nrAtendimento}.pdf`;
     const options = {
-      margin: 0.5,
+      margin: [10, 10, 15, 10] as [number, number, number, number],
       filename: fileName,
       image: { type: "jpeg" as const, quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: "in", format: "a4", orientation: "portrait" as const },
+      html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" as const },
+      pagebreak: { mode: 'avoid-all' }
     };
 
     try {
@@ -296,6 +401,52 @@ const LabExamRequests = () => {
         });
       } else {
         // Fallback: download instead
+        await handlePdfDownload(pdfBlob, fileName);
+        toast({
+          title: "Download iniciado",
+          description: "PDF baixado. Por favor, compartilhe manualmente.",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Erro ao compartilhar",
+        description: "Não foi possível compartilhar o documento.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleShareMultiple = async () => {
+    if (selectedRequests.length === 0) return;
+    
+    const container = document.getElementById("printMultiple");
+    if (!container) return;
+    
+    const fileName = `pedidos_exames_lab_${Date.now()}.pdf`;
+    const options = {
+      margin: [10, 10, 15, 10] as [number, number, number, number],
+      filename: fileName,
+      image: { type: "jpeg" as const, quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" as const },
+      pagebreak: { mode: 'avoid-all', before: '.page-break' }
+    };
+
+    try {
+      const pdfBlob = await withLightTheme(() => html2pdf().set(options).from(container).output("blob"));
+      
+      const shared = await handlePdfShare(
+        pdfBlob, 
+        fileName, 
+        "Pedidos de Exames Laboratoriais"
+      );
+      
+      if (shared) {
+        toast({
+          title: "Sucesso",
+          description: "PDF compartilhado com sucesso!",
+        });
+      } else {
         await handlePdfDownload(pdfBlob, fileName);
         toast({
           title: "Download iniciado",
@@ -412,55 +563,102 @@ const LabExamRequests = () => {
                 </div>
               ) : (
                 <>
-                  <div className="mb-4 flex items-center gap-6 text-sm text-muted-foreground border-b pb-3">
-                    <div className="flex items-center gap-2">
-                      <AnimatedHourglass className="h-4 w-4 text-warning" />
-                      <span>Pendente</span>
+                  <div className="mb-4 flex items-center justify-between flex-wrap gap-3 border-b pb-3">
+                    <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2">
+                        <AnimatedHourglass className="h-4 w-4 text-warning" />
+                        <span>Pendente</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-success" />
+                        <span>Coletado</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-success" />
-                      <span>Coletado</span>
-                    </div>
+                    
+                    {selectedIndexes.size > 0 && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">
+                          {selectedIndexes.size} selecionado(s)
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleClearSelection}
+                          className="text-xs"
+                        >
+                          Limpar
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={handleViewSelected}
+                          className="text-xs"
+                        >
+                          <Eye className="h-3.5 w-3.5 mr-1" />
+                          Ver Selecionados
+                        </Button>
+                      </div>
+                    )}
                   </div>
                   
                   {/* Cards para Mobile */}
                   <div className="md:hidden space-y-3 max-h-[calc(100vh-280px)] overflow-y-auto">
-                    {currentRequests.map((request, index) => (
-                      <Card 
-                        key={`${request.nrAtendimento}-${index}`}
-                        className="hover:shadow-lg transition-shadow cursor-pointer"
-                        onClick={() => handleViewDetails(request)}
-                      >
-                        <CardContent className="p-4 space-y-3">
-                          <div className="space-y-2">
-                            <div>
-                              <p className="text-xs text-muted-foreground mb-1">Especialidade</p>
-                              <p className="font-semibold text-sm break-words">{request.dsEspecialidade}</p>
+                    {currentRequests.map((request, index) => {
+                      const globalIndex = startIndex + index;
+                      const isSelected = selectedIndexes.has(globalIndex);
+                      
+                      return (
+                        <Card 
+                          key={`${request.nrAtendimento}-${index}`}
+                          className={`hover:shadow-lg transition-shadow ${isSelected ? 'ring-2 ring-primary' : ''}`}
+                        >
+                          <CardContent className="p-4 space-y-3">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1 space-y-2">
+                                <div>
+                                  <p className="text-xs text-muted-foreground mb-1">Especialidade</p>
+                                  <p className="font-semibold text-sm break-words">{request.dsEspecialidade}</p>
+                                </div>
+                                
+                                <div>
+                                  <p className="text-xs text-muted-foreground mb-1">Paciente</p>
+                                  <p className="font-medium text-sm break-words">{request.nomeCliente}</p>
+                                </div>
+                                
+                                <div>
+                                  <p className="text-xs text-muted-foreground mb-1">Data</p>
+                                  <p className="text-sm">{formatDate(request.dataEntrada)}</p>
+                                </div>
+                                
+                                <div>
+                                  <p className="text-xs text-muted-foreground mb-1">Profissional</p>
+                                  <p className="text-sm break-words">{request.nomeProfissional}</p>
+                                </div>
+                                
+                                <div className="flex items-center gap-2 pt-1">
+                                  <p className="text-xs text-muted-foreground">Status:</p>
+                                  {getStatusIcon(request.dsStatus)}
+                                </div>
+                              </div>
+                              
+                              <div className="flex flex-col items-center gap-3">
+                                <Checkbox
+                                  checked={isSelected}
+                                  onCheckedChange={() => handleToggleRequest(globalIndex)}
+                                  className="h-5 w-5"
+                                />
+                                <Button
+                                  size="icon"
+                                  className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-8 w-8"
+                                  onClick={() => handleViewDetails(request)}
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </div>
                             </div>
-                            
-                            <div>
-                              <p className="text-xs text-muted-foreground mb-1">Paciente</p>
-                              <p className="font-medium text-sm break-words">{request.nomeCliente}</p>
-                            </div>
-                            
-                            <div>
-                              <p className="text-xs text-muted-foreground mb-1">Data</p>
-                              <p className="text-sm">{formatDate(request.dataEntrada)}</p>
-                            </div>
-                            
-                            <div>
-                              <p className="text-xs text-muted-foreground mb-1">Profissional</p>
-                              <p className="text-sm break-words">{request.nomeProfissional}</p>
-                            </div>
-                            
-                            <div className="flex items-center gap-2 pt-1">
-                              <p className="text-xs text-muted-foreground">Status:</p>
-                              {getStatusIcon(request.dsStatus)}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
                   </div>
 
                   {/* Tabela para Desktop */}
@@ -468,6 +666,13 @@ const LabExamRequests = () => {
                     <Table>
                       <TableHeader className="sticky top-0 bg-card z-10">
                         <TableRow>
+                          <TableHead className="w-[50px]">
+                            <Checkbox
+                              checked={isAllPageSelected}
+                              onCheckedChange={(checked) => handleToggleAllPage(checked as boolean)}
+                              className={isSomePageSelected && !isAllPageSelected ? "opacity-50" : ""}
+                            />
+                          </TableHead>
                           <TableHead>Data</TableHead>
                           <TableHead>Paciente</TableHead>
                           <TableHead>Profissional</TableHead>
@@ -477,29 +682,40 @@ const LabExamRequests = () => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {currentRequests.map((request, index) => (
-                          <TableRow 
-                            key={`${request.nrAtendimento}-${index}`}
-                            className="hover:bg-muted/50"
-                          >
-                            <TableCell className="font-medium">{formatDate(request.dataEntrada)}</TableCell>
-                            <TableCell>{request.nomeCliente}</TableCell>
-                            <TableCell>{request.nomeProfissional}</TableCell>
-                            <TableCell>{request.dsEspecialidade}</TableCell>
-                            <TableCell className="text-center">
-                              {getStatusIcon(request.dsStatus)}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <Button
-                                size="icon"
-                                className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-9 w-9"
-                                onClick={() => handleViewDetails(request)}
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                        {currentRequests.map((request, index) => {
+                          const globalIndex = startIndex + index;
+                          const isSelected = selectedIndexes.has(globalIndex);
+                          
+                          return (
+                            <TableRow 
+                              key={`${request.nrAtendimento}-${index}`}
+                              className={`hover:bg-muted/50 ${isSelected ? 'bg-primary/10' : ''}`}
+                            >
+                              <TableCell>
+                                <Checkbox
+                                  checked={isSelected}
+                                  onCheckedChange={() => handleToggleRequest(globalIndex)}
+                                />
+                              </TableCell>
+                              <TableCell className="font-medium">{formatDate(request.dataEntrada)}</TableCell>
+                              <TableCell>{request.nomeCliente}</TableCell>
+                              <TableCell>{request.nomeProfissional}</TableCell>
+                              <TableCell>{request.dsEspecialidade}</TableCell>
+                              <TableCell className="text-center">
+                                {getStatusIcon(request.dsStatus)}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <Button
+                                  size="icon"
+                                  className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-9 w-9"
+                                  onClick={() => handleViewDetails(request)}
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
                       </TableBody>
                     </Table>
                   </div>
@@ -561,6 +777,7 @@ const LabExamRequests = () => {
         </div>
       </main>
 
+      {/* Dialog for single request */}
       <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
         <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-[95vw] max-h-[75vh] sm:max-h-[95vh] overflow-hidden flex flex-col p-4">
           <DialogHeader className="border-b pb-3 mx-0">
@@ -615,6 +832,105 @@ const LabExamRequests = () => {
                         variant="outline"
                         size="icon"
                         onClick={handleShare}
+                        className="h-9 w-9"
+                      >
+                        <Share2 className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Compartilhar</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={handlePrint}
+                      className="h-9 w-9"
+                    >
+                      <Printer className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Imprimir</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog for multiple requests */}
+      <Dialog open={isMultipleDialogOpen} onOpenChange={setIsMultipleDialogOpen}>
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-[95vw] max-h-[75vh] sm:max-h-[95vh] overflow-hidden flex flex-col p-4">
+          <DialogHeader className="border-b pb-3 mx-0">
+            <DialogTitle className="text-xl">
+              {selectedRequests.length === 1 
+                ? "Pedido de Exame Laboratorial" 
+                : `${selectedRequests.length} Pedidos de Exames Laboratoriais`
+              }
+            </DialogTitle>
+          </DialogHeader>
+          <div id="printMultiple" className="flex-1 overflow-y-auto">
+            {selectedRequests.map((request, idx) => (
+              <div key={`${request.nrAtendimento}-${idx}`}>
+                {idx > 0 && <div className="page-break" />}
+                <ExamRequestView examData={request} />
+                {idx < selectedRequests.length - 1 && (
+                  <Separator className="my-6 print:hidden" />
+                )}
+              </div>
+            ))}
+          </div>
+          <DialogFooter className="border-t pt-3 flex flex-row justify-between gap-2 sm:gap-3 mx-0">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setIsMultipleDialogOpen(false)}
+                    className="h-9 w-9"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Fechar</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <div className="flex gap-2 sm:gap-3">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={handleDownloadMultiplePDF}
+                      className="h-9 w-9"
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Baixar PDF</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              {canShare && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleShareMultiple}
                         className="h-9 w-9"
                       >
                         <Share2 className="h-4 w-4" />
