@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { Copy, Check, CreditCard, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from "lucide-react";
+import { Copy, Check, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Heart, Shield } from "lucide-react";
 import { toast } from "sonner";
 import gsap from "gsap";
 import { cn } from "@/lib/utils";
+import samelLogo from "@/assets/samel-logo.png";
 
 interface Patient {
   id: string;
@@ -12,7 +13,7 @@ interface Patient {
   sexo?: string;
 }
 
-interface WalletCardProps {
+interface HealthCardProps {
   patient: Patient;
   profilePhoto?: string | null;
   isMain?: boolean;
@@ -30,7 +31,7 @@ const DEPENDENTE_COLORS = [
   "bg-gradient-to-br from-teal-600 via-teal-700 to-teal-800",
 ];
 
-function WalletCard({ patient, profilePhoto, isMain = false, index = 0, copiedId, onCopy }: WalletCardProps) {
+function HealthCard({ patient, profilePhoto, isMain = false, index = 0, copiedId, onCopy }: HealthCardProps) {
   const getInitials = (name: string) => {
     if (!name) return "?";
     const parts = name.split(" ");
@@ -39,94 +40,109 @@ function WalletCard({ patient, profilePhoto, isMain = false, index = 0, copiedId
   };
 
   const cardColors = isMain 
-    ? "bg-gradient-to-br from-primary via-primary to-primary/80" 
+    ? "bg-gradient-to-br from-primary via-primary to-primary/90" 
     : DEPENDENTE_COLORS[index % DEPENDENTE_COLORS.length];
 
   return (
     <div
       className={cn(
-        "relative w-full rounded-2xl p-5 text-white shadow-xl transition-all duration-300",
-        cardColors,
-        "before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-t before:from-black/10 before:to-transparent before:pointer-events-none"
+        "relative w-full rounded-2xl overflow-hidden shadow-xl transition-all duration-300",
+        cardColors
       )}
-      style={{
-        aspectRatio: "1.7/1",
-      }}
     >
-      {/* Card shine effect */}
-      <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
-        <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-white/20 via-transparent to-transparent rotate-12" />
+      {/* Background pattern - medical cross pattern */}
+      <div className="absolute inset-0 opacity-[0.04] pointer-events-none">
+        <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="health-pattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M17 10h6v7h7v6h-7v7h-6v-7h-7v-6h7v-7z" fill="white"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#health-pattern)" />
+        </svg>
       </div>
 
-      {/* Header */}
-      <div className="relative flex items-start justify-between mb-3">
+      {/* Top header band */}
+      <div className="relative bg-white/10 backdrop-blur-sm px-5 py-3 flex items-center justify-between border-b border-white/10">
+        <div className="flex items-center gap-3">
+          <img 
+            src={samelLogo} 
+            alt="Samel Saúde" 
+            className="h-8 w-auto brightness-0 invert opacity-95"
+          />
+        </div>
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-inner">
-            <CreditCard className="w-4 h-4 text-white" />
-          </div>
-          <span className="text-[10px] font-semibold uppercase tracking-widest text-white/80">
-            Samel Saúde
+          <Shield className="w-4 h-4 text-white/70" />
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-white/80 bg-white/15 px-2 py-1 rounded">
+            {patient.tipo}
           </span>
         </div>
-        <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-white/25 text-white">
-          {patient.tipo}
-        </span>
       </div>
 
-      {/* Card Number / Carteirinha */}
-      <div className="relative mt-auto">
-        <p className="text-[10px] uppercase tracking-widest text-white/70 mb-1">
-          Nº Carteirinha
-        </p>
-        <div className="flex items-center gap-3">
-          <p className="font-mono text-lg sm:text-xl font-bold tracking-[0.15em] text-white">
-            {patient.codigoCarteirinha 
-              ? patient.codigoCarteirinha.replace(/(\d{4})(?=\d)/g, '$1 ')
-              : "— — — —"}
-          </p>
-          {patient.codigoCarteirinha && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onCopy(patient.codigoCarteirinha!, patient.id);
-              }}
-              className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 transition-colors backdrop-blur-sm"
-              aria-label="Copiar carteirinha"
-            >
-              {copiedId === patient.id ? (
-                <Check className="h-3.5 w-3.5 text-white" />
-              ) : (
-                <Copy className="h-3.5 w-3.5 text-white" />
-              )}
-            </button>
-          )}
+      {/* Main content */}
+      <div className="relative p-5">
+        {/* Avatar and name row */}
+        <div className="flex items-center gap-4 mb-5">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg ring-2 ring-white/30 flex-shrink-0 overflow-hidden">
+            {isMain && profilePhoto ? (
+              <img 
+                src={`data:image/jpeg;base64,${profilePhoto}`} 
+                alt={patient.nome}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="font-bold text-lg sm:text-xl text-white">
+                {getInitials(patient.nome)}
+              </span>
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] uppercase tracking-widest text-white/60 mb-0.5">
+              Beneficiário
+            </p>
+            <p className="font-semibold text-base sm:text-lg text-white truncate">
+              {patient.nome}
+            </p>
+          </div>
         </div>
-      </div>
 
-      {/* Holder Name & Avatar */}
-      <div className="relative flex items-end justify-between mt-4">
-        <div className="flex-1 min-w-0">
-          <p className="text-[10px] uppercase tracking-widest text-white/70 mb-0.5">
-            {isMain ? "Titular" : "Dependente"}
-          </p>
-          <p className="font-semibold text-sm sm:text-base text-white truncate pr-2">
-            {patient.nome}
-          </p>
+        {/* Card number section */}
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[10px] uppercase tracking-widest text-white/60 mb-1.5 flex items-center gap-1.5">
+                <Heart className="w-3 h-3" />
+                Número da Carteirinha
+              </p>
+              <p className="font-mono text-xl sm:text-2xl font-bold tracking-wider text-white">
+                {patient.codigoCarteirinha 
+                  ? patient.codigoCarteirinha
+                  : "— — — —"}
+              </p>
+            </div>
+            {patient.codigoCarteirinha && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCopy(patient.codigoCarteirinha!, patient.id);
+                }}
+                className="p-2.5 rounded-xl bg-white/20 hover:bg-white/30 transition-colors backdrop-blur-sm border border-white/10"
+                aria-label="Copiar carteirinha"
+              >
+                {copiedId === patient.id ? (
+                  <Check className="h-5 w-5 text-white" />
+                ) : (
+                  <Copy className="h-5 w-5 text-white/80" />
+                )}
+              </button>
+            )}
+          </div>
         </div>
-        
-        {/* Avatar */}
-        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg ring-2 ring-white/30 flex-shrink-0 overflow-hidden">
-          {isMain && profilePhoto ? (
-            <img 
-              src={`data:image/jpeg;base64,${profilePhoto}`} 
-              alt={patient.nome}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <span className="font-bold text-sm sm:text-base text-white">
-              {getInitials(patient.nome)}
-            </span>
-          )}
+
+        {/* Footer info */}
+        <div className="mt-4 flex items-center justify-between text-[10px] text-white/50 uppercase tracking-wider">
+          <span>Plano de Saúde</span>
+          <span>Cartão Digital</span>
         </div>
       </div>
     </div>
@@ -237,7 +253,7 @@ export function UserInfoCard() {
         )}
 
         {/* Main Titular Card */}
-        <WalletCard
+        <HealthCard
           patient={titular}
           profilePhoto={profilePhoto}
           isMain
@@ -269,7 +285,7 @@ export function UserInfoCard() {
       <div 
         className={cn(
           "overflow-hidden transition-all duration-500 ease-out",
-          isExpanded ? "max-h-[500px] opacity-100 mt-6" : "max-h-0 opacity-0 mt-0"
+          isExpanded ? "max-h-[600px] opacity-100 mt-6" : "max-h-0 opacity-0 mt-0"
         )}
       >
         {hasMultipleDependentes ? (
@@ -294,7 +310,7 @@ export function UserInfoCard() {
 
             {/* Card container */}
             <div className="px-4">
-              <WalletCard
+              <HealthCard
                 patient={dependentes[currentDependenteIndex]}
                 index={currentDependenteIndex}
                 copiedId={copiedId}
@@ -329,7 +345,7 @@ export function UserInfoCard() {
           </div>
         ) : hasDependentes ? (
           // Single dependente - show directly
-          <WalletCard
+          <HealthCard
             patient={dependentes[0]}
             index={0}
             copiedId={copiedId}
