@@ -348,6 +348,62 @@ const AppointmentTimes = () => {
     return `55${withoutZero}`;
   };
 
+  const checkExistingToken = async (formattedPhone: string): Promise<string | null> => {
+    try {
+      const headers = getApiHeaders();
+      
+      // Buscar token existente
+      const response = await fetch(
+        `https://api-portalpaciente-web.samel.com.br/api/token/getToken/${formattedPhone}`,
+        {
+          method: 'GET',
+          headers
+        }
+      );
+
+      const data = await response.json();
+      
+      if (data.status && data.token) {
+        return data.token;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Erro ao buscar token existente:', error);
+      return null;
+    }
+  };
+
+  const validateExistingToken = async (formattedPhone: string, existingToken: string): Promise<boolean> => {
+    if (!selectedPatient) return false;
+    
+    try {
+      const headers = getApiHeaders();
+      
+      const response = await fetch(
+        'https://api-portalpaciente-web.samel.com.br/api/token/validarToken',
+        {
+          method: 'POST',
+          headers: {
+            ...headers,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            telefone: formattedPhone,
+            token: existingToken,
+            cdPessoaFisica: selectedPatient.id
+          })
+        }
+      );
+
+      const data = await response.json();
+      return data.status === true;
+    } catch (error) {
+      console.error('Erro ao validar token existente:', error);
+      return false;
+    }
+  };
+
   const handleConfirmAppointment = async () => {
     if (!phoneNumber || !selectedHorario) return;
 
@@ -370,6 +426,26 @@ const AppointmentTimes = () => {
       
       const formattedPhone = formatPhoneNumber(phoneNumber);
       
+      // Primeiro, verificar se já existe um token válido
+      const existingToken = await checkExistingToken(formattedPhone);
+      
+      if (existingToken) {
+        // Validar o token existente
+        const isValid = await validateExistingToken(formattedPhone, existingToken);
+        
+        if (isValid) {
+          // Token válido! Pode confirmar agendamento diretamente
+          toast({
+            title: "Token válido",
+            description: "Token já validado anteriormente. Confirmando agendamento..."
+          });
+          setIsConfirmModalOpen(false);
+          await handleConfirmAgendamento();
+          return;
+        }
+      }
+      
+      // Se não tem token válido, enviar novo token via WhatsApp
       const headers = getApiHeaders();
       
       const response = await fetch(
