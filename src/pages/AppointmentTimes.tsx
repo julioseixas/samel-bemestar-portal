@@ -362,8 +362,15 @@ const AppointmentTimes = () => {
       );
 
       const data = await response.json();
+      console.log('Resposta getToken:', data);
       
-      if (data.status && data.token) {
+      // O token vem como array: {"token":["649443"]}
+      if (data.token && Array.isArray(data.token) && data.token.length > 0) {
+        return data.token[0];
+      }
+      
+      // Caso venha como string direta
+      if (data.token && typeof data.token === 'string') {
         return data.token;
       }
       
@@ -379,6 +386,8 @@ const AppointmentTimes = () => {
     
     try {
       const headers = getApiHeaders();
+      
+      console.log('Validando token:', { telefone: formattedPhone, token: existingToken, cdPessoaFisica: selectedPatient.id });
       
       const response = await fetch(
         'https://api-portalpaciente-web.samel.com.br/api/token/validarToken',
@@ -397,7 +406,10 @@ const AppointmentTimes = () => {
       );
 
       const data = await response.json();
-      return data.status === true;
+      console.log('Resposta validarToken:', data);
+      
+      // Verificar se a validação foi bem-sucedida
+      return data.status === true || data.sucesso === true;
     } catch (error) {
       console.error('Erro ao validar token existente:', error);
       return false;
