@@ -682,12 +682,12 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
                   </div>
                   <div>
                     <a
-                      href="https://wa.me/559292844515?text=Oi%20tudo%20bem%3F%20Preciso%20de%20suporte"
+                      href="https://wa.me/5592995040866?text=Oi%20tudo%20bem%3F%20Preciso%20de%20suporte"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="font-medium text-foreground hover:text-green-600 transition-colors"
                     >
-                      (92) 9284-4515
+                      (92) 99504-0866
                     </a>
                     <p className="text-xs text-muted-foreground">WhatsApp</p>
                   </div>
@@ -699,7 +699,7 @@ export const Header = ({ patientName = "Maria Silva", profilePhoto }: HeaderProp
                         variant="ghost"
                         size="icon"
                         onClick={() => {
-                          navigator.clipboard.writeText("(92) 9284-4515");
+                          navigator.clipboard.writeText("(92) 99504-0866");
                           toast({ title: "Copiado!", description: "Telefone copiado para a área de transferência." });
                         }}
                         className="h-9 w-9"
