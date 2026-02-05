@@ -623,12 +623,12 @@ const LabExams = () => {
 
       {/* Dialog de Progressão Laboratorial */}
       <Dialog open={progressDialogOpen} onOpenChange={setProgressDialogOpen}>
-        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-4xl max-h-[75vh] sm:max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-4xl max-h-[75vh] sm:max-h-[90vh] overflow-y-auto overflow-x-hidden">
           <DialogHeader>
-            <DialogTitle>Progressão Laboratorial - {selectedPatient?.nome}</DialogTitle>
+            <DialogTitle className="text-base sm:text-lg pr-6">Progressão Laboratorial - {selectedPatient?.nome}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
+          <div className="space-y-4 overflow-x-hidden">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               Selecione um exame para visualizar sua progressão ao longo do tempo.
             </p>
 
@@ -669,36 +669,36 @@ const LabExams = () => {
             )}
 
             {!loadingProgression && examProgressionData.length > 0 && (
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {/* Informações do último resultado */}
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Último Resultado</CardTitle>
+                  <CardHeader className="p-3 sm:p-6">
+                    <CardTitle className="text-base sm:text-lg">Último Resultado</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
                       <div className="space-y-1">
-                        <p className="text-xs text-muted-foreground">Data</p>
-                        <p className="text-sm font-semibold">
+                        <p className="text-[10px] sm:text-xs text-muted-foreground">Data</p>
+                        <p className="text-xs sm:text-sm font-semibold">
                           {examProgressionData[0]?.DT_RESULTADO}
                         </p>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-xs text-muted-foreground">Resultado</p>
-                        <p className="text-sm font-semibold">
+                        <p className="text-[10px] sm:text-xs text-muted-foreground">Resultado</p>
+                        <p className="text-xs sm:text-sm font-semibold break-words">
                           {examProgressionData[0]?.DS_RESULTADO} {examProgressionData[0]?.DS_UNIDADE_MEDIDA}
                         </p>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-xs text-muted-foreground">Mínimo</p>
-                        <p className="text-sm font-semibold text-blue-600">
-                          {examProgressionData[0]?.QT_MINIMA}
+                        <p className="text-[10px] sm:text-xs text-muted-foreground">Mínimo</p>
+                        <p className="text-xs sm:text-sm font-semibold text-blue-600">
+                          {examProgressionData[0]?.QT_MINIMA || "-"}
                         </p>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-xs text-muted-foreground">Máximo</p>
-                        <p className="text-sm font-semibold text-red-600">
-                          {examProgressionData[0]?.QT_MAXIMA}
+                        <p className="text-[10px] sm:text-xs text-muted-foreground">Máximo</p>
+                        <p className="text-xs sm:text-sm font-semibold text-red-600">
+                          {examProgressionData[0]?.QT_MAXIMA || "-"}
                         </p>
                       </div>
                     </div>
@@ -707,40 +707,75 @@ const LabExams = () => {
 
                 {/* Gráfico de progressão */}
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Progressão ao Longo do Tempo</CardTitle>
+                  <CardHeader className="p-3 sm:p-6">
+                    <CardTitle className="text-base sm:text-lg">Progressão ao Longo do Tempo</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <LineChart
-                        data={[...examProgressionData].reverse().map(item => ({
-                          data: item.DT_RESULTADO,
-                          resultado: item.DS_RESULTADO,
-                          minimo: item.QT_MINIMA,
-                          maximo: item.QT_MAXIMA,
-                        }))}
-                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="data" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <ReferenceLine y={examProgressionData[0]?.QT_MINIMA} stroke="blue" strokeDasharray="3 3" label="Mínimo" />
-                        <ReferenceLine y={examProgressionData[0]?.QT_MAXIMA} stroke="red" strokeDasharray="3 3" label="Máximo" />
-                        <Line type="monotone" dataKey="resultado" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 4 }} />
-                      </LineChart>
-                    </ResponsiveContainer>
+                  <CardContent className="p-2 sm:p-6 pt-0 sm:pt-0">
+                    <div className="-mx-2 sm:mx-0">
+                      <ResponsiveContainer width="100%" height={250}>
+                        <LineChart
+                          data={[...examProgressionData].reverse().map(item => ({
+                            data: item.DT_RESULTADO,
+                            resultado: item.DS_RESULTADO,
+                            minimo: item.QT_MINIMA,
+                            maximo: item.QT_MAXIMA,
+                          }))}
+                          margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis 
+                            dataKey="data" 
+                            tick={{ fontSize: 10 }} 
+                            interval="preserveStartEnd"
+                            angle={-45}
+                            textAnchor="end"
+                            height={60}
+                          />
+                          <YAxis tick={{ fontSize: 10 }} width={40} />
+                          <Tooltip />
+                          <Legend wrapperStyle={{ fontSize: '12px' }} />
+                          <ReferenceLine y={examProgressionData[0]?.QT_MINIMA} stroke="blue" strokeDasharray="3 3" />
+                          <ReferenceLine y={examProgressionData[0]?.QT_MAXIMA} stroke="red" strokeDasharray="3 3" />
+                          <Line type="monotone" dataKey="resultado" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 3 }} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
                   </CardContent>
                 </Card>
 
                 {/* Tabela com histórico completo */}
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Histórico Completo</CardTitle>
+                  <CardHeader className="p-3 sm:p-6">
+                    <CardTitle className="text-base sm:text-lg">Histórico Completo</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="overflow-x-auto">
+                  <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
+                    {/* Mobile: cards view */}
+                    <div className="sm:hidden space-y-3 max-h-[200px] overflow-y-auto">
+                      {examProgressionData.map((item, index) => (
+                        <div key={`${item.NR_ATENDIMENTO}-${index}`} className="border rounded-lg p-3 space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs text-muted-foreground">Data</span>
+                            <span className="text-xs font-semibold">{item.DT_RESULTADO}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs text-muted-foreground">Resultado</span>
+                            <span className="text-xs font-bold">{item.DS_RESULTADO} {item.DS_UNIDADE_MEDIDA}</span>
+                          </div>
+                          <div className="flex justify-between items-center gap-4">
+                            <div className="flex items-center gap-1">
+                              <span className="text-[10px] text-muted-foreground">Min:</span>
+                              <span className="text-xs text-blue-600">{item.QT_MINIMA || "-"}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="text-[10px] text-muted-foreground">Max:</span>
+                              <span className="text-xs text-red-600">{item.QT_MAXIMA || "-"}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Desktop: table view */}
+                    <div className="hidden sm:block overflow-x-auto max-h-[300px]">
                       <Table>
                         <TableHeader className="sticky top-0 bg-card z-10">
                           <TableRow>
