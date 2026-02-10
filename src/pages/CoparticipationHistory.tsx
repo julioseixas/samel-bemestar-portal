@@ -99,7 +99,7 @@ const CoparticipationHistory = () => {
   };
 
   const filteredData = contratos.filter((item) =>
-    item.DS_PROCEDIMENTO.toLowerCase().includes(searchTerm.toLowerCase())
+    (item.DS_PROCEDIMENTO ?? "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
