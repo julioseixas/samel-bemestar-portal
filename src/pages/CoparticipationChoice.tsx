@@ -34,11 +34,8 @@ const CoparticipationChoice = () => {
     navigate("/coparticipation-price-table");
   };
 
-  const handleStatement = () => {
-    toast({
-      title: "Extrato",
-      description: "Esta funcionalidade está em desenvolvimento.",
-    });
+  const handleHistory = () => {
+    navigate("/coparticipation-history");
   };
 
   return (
@@ -79,16 +76,16 @@ const CoparticipationChoice = () => {
               onClick={handlePriceTable}
             />
             
-            {/* <DashboardCard
-              title="EXTRATO DE COPARTICIPAÇÃO"
-              description="Acompanhe o histórico dos seus valores pagos"
+            <DashboardCard
+              title="HISTÓRICO DE COPARTICIPAÇÃO"
+              description="Acompanhe o histórico dos seus procedimentos"
               icon={FileText}
               iconColor="text-primary"
-              buttonText="Ver Extrato"
+              buttonText="Ver Histórico"
               variant="default"
               useDashboardColor={true}
-              onClick={handleStatement}
-            /> */}
+              onClick={handleHistory}
+            />
           </div>
         </div>
       </main>

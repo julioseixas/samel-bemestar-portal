@@ -61,6 +61,7 @@ import ConsultationQueueDetails from "./pages/ConsultationQueueDetails";
 import Units from "./pages/Units";
 import VideoConsultation from "./pages/VideoConsultation";
 import SmartScheduling from "./pages/SmartScheduling";
+import CoparticipationHistory from "./pages/CoparticipationHistory";
 
 const queryClient = new QueryClient();
 
@@ -125,6 +126,7 @@ const App = () => (
             <Route path="/evaluate-professional" element={<Protected><EvaluateProfessional /></Protected>} />
             <Route path="/coparticipation-choice" element={<Protected><CoparticipationChoice /></Protected>} />
             <Route path="/coparticipation-price-table" element={<Protected><CoparticipationPriceTable /></Protected>} />
+            <Route path="/coparticipation-history" element={<Protected><CoparticipationHistory /></Protected>} />
             <Route path="/online-consultation-schedule" element={<Protected><OnlineConsultationSchedule /></Protected>} />
             <Route path="/online-consultation-details" element={<Protected><OnlineConsultationDetails /></Protected>} />
             <Route path="/telemedicine-queue" element={<Protected><TelemedicineQueue /></Protected>} />
