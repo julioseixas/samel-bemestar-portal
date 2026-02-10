@@ -16,7 +16,7 @@ import {
   PaginationLink, PaginationNext, PaginationPrevious,
 } from "@/components/ui/pagination";
 
-interface ContratoItem {
+interface ProcedimentoItem {
   NR_ATENDIMENTO: string;
   NR_AUTORIZACAO: number | null;
   DT_ENTRADA_EXECUCAO: string;
@@ -29,13 +29,19 @@ interface ContratoItem {
   DS_PROF_CONSULTA: string | null;
 }
 
+interface ContratoGroup {
+  NR_CARTEIRINHA: string;
+  NM_EMPRESA: string;
+  PROCEDIMENTOS: ProcedimentoItem[];
+}
+
 interface HistoricoResponse {
   codigo: number;
   sucesso: boolean;
   menssagem: string;
   dados: {
     NM_PACIENTE: string;
-    CONTRATOS: ContratoItem[];
+    CONTRATOS: ContratoGroup[];
   }[];
 }
 
@@ -44,7 +50,7 @@ const CoparticipationHistory = () => {
   const { toast } = useToast();
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
-  const [contratos, setContratos] = useState<ContratoItem[]>([]);
+  const [contratos, setContratos] = useState<ProcedimentoItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -76,8 +82,10 @@ const CoparticipationHistory = () => {
       const result: HistoricoResponse = await response.json();
 
       if (result.codigo === 1 && result.dados?.length > 0) {
-        const allContratos = result.dados.flatMap((d) => d.CONTRATOS || []);
-        setContratos(allContratos);
+        const allProcedimentos = result.dados.flatMap((d) =>
+          (d.CONTRATOS || []).flatMap((c) => c.PROCEDIMENTOS || [])
+        );
+        setContratos(allProcedimentos);
       } else {
         if (!result.sucesso) {
           toast({
