@@ -207,6 +207,7 @@ const CoparticipationHistory = () => {
                               <TableHead>Valor</TableHead>
                               <TableHead>Mês Cobrança</TableHead>
                               <TableHead>Data da Entrada</TableHead>
+                              <TableHead>Profissional</TableHead>
                               <TableHead>Nº Autorização</TableHead>
                               <TableHead>Atendimento</TableHead>
                             </TableRow>
@@ -218,6 +219,7 @@ const CoparticipationHistory = () => {
                                 <TableCell>{item.VL_LANC_MONEY_FORMAT}</TableCell>
                                 <TableCell>{item.MES_COBRANCA_BR_STRING}</TableCell>
                                 <TableCell>{item.DT_ENTRADA_EXECUCAO_BR_STRING}</TableCell>
+                                <TableCell>{item.DS_PROF_CONSULTA ?? "—"}</TableCell>
                                 <TableCell>{item.NR_AUTORIZACAO ?? "—"}</TableCell>
                                 <TableCell>{item.NR_ATENDIMENTO}</TableCell>
                               </TableRow>
@@ -244,6 +246,8 @@ const CoparticipationHistory = () => {
                               <span className="text-foreground">{item.MES_COBRANCA_BR_STRING}</span>
                               <span>Data entrada:</span>
                               <span className="text-foreground">{item.DT_ENTRADA_EXECUCAO_BR_STRING}</span>
+                              <span>Profissional:</span>
+                              <span className="text-foreground">{item.DS_PROF_CONSULTA ?? "—"}</span>
                               <span>Autorização:</span>
                               <span className="text-foreground">{item.NR_AUTORIZACAO ?? "—"}</span>
                               <span>Atendimento:</span>
