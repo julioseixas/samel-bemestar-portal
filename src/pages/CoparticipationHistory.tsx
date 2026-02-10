@@ -35,6 +35,10 @@ interface ContratoGroup {
   PROCEDIMENTOS: ProcedimentoItem[];
 }
 
+interface ProcedimentoComPaciente extends ProcedimentoItem {
+  NM_PACIENTE: string;
+}
+
 interface HistoricoResponse {
   codigo: number;
   sucesso: boolean;
@@ -50,7 +54,7 @@ const CoparticipationHistory = () => {
   const { toast } = useToast();
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
-  const [contratos, setContratos] = useState<ProcedimentoItem[]>([]);
+  const [contratos, setContratos] = useState<ProcedimentoComPaciente[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -83,7 +87,12 @@ const CoparticipationHistory = () => {
 
       if (result.codigo === 1 && result.dados?.length > 0) {
         const allProcedimentos = result.dados.flatMap((d) =>
-          (d.CONTRATOS || []).flatMap((c) => c.PROCEDIMENTOS || [])
+          (d.CONTRATOS || []).flatMap((c) =>
+            (c.PROCEDIMENTOS || []).map((p) => ({
+              ...p,
+              NM_PACIENTE: d.NM_PACIENTE,
+            }))
+          )
         );
         setContratos(allProcedimentos);
       } else {
@@ -106,9 +115,13 @@ const CoparticipationHistory = () => {
     }
   };
 
-  const filteredData = contratos.filter((item) =>
-    (item.DS_PROCEDIMENTO ?? "").toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredData = contratos.filter((item) => {
+    const term = searchTerm.toLowerCase();
+    return (
+      (item.DS_PROCEDIMENTO ?? "").toLowerCase().includes(term) ||
+      (item.NM_PACIENTE ?? "").toLowerCase().includes(term)
+    );
+  });
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -203,6 +216,7 @@ const CoparticipationHistory = () => {
                         <Table>
                           <TableHeader className="sticky top-0 bg-card z-10">
                             <TableRow>
+                              <TableHead>Paciente</TableHead>
                               <TableHead>Procedimento</TableHead>
                               <TableHead>Valor</TableHead>
                               <TableHead>Mês Cobrança</TableHead>
@@ -215,6 +229,7 @@ const CoparticipationHistory = () => {
                           <TableBody>
                             {currentItems.map((item, index) => (
                               <TableRow key={`${item.NR_ATENDIMENTO}-${index}`} className="hover:bg-muted/50">
+                                <TableCell>{item.NM_PACIENTE}</TableCell>
                                 <TableCell className="font-medium">{item.DS_PROCEDIMENTO}</TableCell>
                                 <TableCell>{item.VL_LANC_MONEY_FORMAT}</TableCell>
                                 <TableCell>{item.MES_COBRANCA_BR_STRING}</TableCell>
@@ -235,6 +250,7 @@ const CoparticipationHistory = () => {
                             key={`mobile-${item.NR_ATENDIMENTO}-${index}`}
                             className="p-3 border rounded-lg bg-card space-y-1.5"
                           >
+                            <p className="text-xs text-muted-foreground">{item.NM_PACIENTE}</p>
                             <p className="text-sm font-medium text-foreground break-words">
                               {item.DS_PROCEDIMENTO}
                             </p>
