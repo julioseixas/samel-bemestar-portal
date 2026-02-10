@@ -98,11 +98,11 @@ const App = () => (
             <Route path="/certificates" element={<Protected><CertificatesList /></Protected>} />
             <Route path="/prescriptions" element={<Protected><PrescriptionsList /></Protected>} />
             <Route path="/appointment-schedule" element={<Protected><AppointmentSchedule /></Protected>} />
+            {/* V1 - desativada temporariamente
             <Route path="/appointment-details" element={<Protected><AppointmentDetails /></Protected>} />
             <Route path="/smart-scheduling" element={<Protected><SmartScheduling /></Protected>} />
-            {/* V2 simplificada - desativada temporariamente
-            <Route path="/appointment-details-v2" element={<Protected><AppointmentDetailsV2 /></Protected>} />
             */}
+            <Route path="/appointment-details" element={<Protected><AppointmentDetailsV2 /></Protected>} />
             <Route path="/appointment-professionals" element={<Protected><AppointmentProfessionals /></Protected>} />
             <Route path="/appointment-times" element={<Protected><AppointmentTimes /></Protected>} />
             <Route path="/exam-schedule" element={<Protected><ExamSchedule /></Protected>} />
