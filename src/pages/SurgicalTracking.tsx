@@ -197,7 +197,7 @@ export default function SurgicalTracking() {
                             </p>
                           </div>
 
-                          <div className="group">
+                          {/* <div className="group">
                             <div className="flex items-center gap-2 mb-3">
                               <div className="rounded-lg bg-primary/10 p-2 group-hover:bg-primary/20 transition-colors">
                                 <MapPin className="h-5 w-5 text-primary" />
@@ -207,7 +207,7 @@ export default function SurgicalTracking() {
                             <p className="text-base sm:text-lg font-semibold text-foreground pl-11">
                               {surgicalData.unidade || "Não informado"}
                             </p>
-                          </div>
+                          </div> */}
 
                           <div className="group">
                             <div className="flex items-center gap-2 mb-3">
