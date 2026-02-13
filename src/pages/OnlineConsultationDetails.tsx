@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getApiHeaders } from "@/lib/api-headers";
 import { toast } from "sonner";
-import { Calendar, User, Stethoscope, Clock, AlertCircle, Camera, Mail, Video, Bell, CheckCircle, XCircle } from "lucide-react";
+import { Calendar, User, Stethoscope, Clock, AlertCircle, Camera, Mail, Video, Bell, CheckCircle, XCircle, ListOrdered, RefreshCw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { TelemedicineHelpSection } from "@/components/TelemedicineHelpSection";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
@@ -30,6 +30,8 @@ const OnlineConsultationDetails = () => {
   const [queueData, setQueueData] = useState<any>(null);
   const [loadingQueue, setLoadingQueue] = useState(false);
   const [patientId, setPatientId] = useState<string>("");
+  const [inlineQueueData, setInlineQueueData] = useState<Record<string, any[]>>({});
+  const [inlineQueueLoading, setInlineQueueLoading] = useState<Record<string, boolean>>({});
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
@@ -248,15 +250,15 @@ const OnlineConsultationDetails = () => {
           const queueResponseData = await queueResponse.json();
 
           if (queueResponseData.sucesso && queueResponseData.dados) {
-            // Salvar dados da fila no localStorage
+            // Salvar dados da fila inline
+            const key = String(selectedAppointment.idAgenda);
+            setInlineQueueData(prev => ({ ...prev, [key]: queueResponseData.dados }));
             localStorage.setItem("telemedicineQueueData", JSON.stringify(queueResponseData.dados));
             
             // Recarregar agendamentos
             await fetchAppointments(storedPatient);
             
-            // Navegar para página de fila
             toast.success("Check-in realizado com sucesso!");
-            navigate("/telemedicine-queue");
           } else {
             toast.error(queueResponseData.mensagem || "Erro ao obter informações da fila");
           }
@@ -467,16 +469,17 @@ const OnlineConsultationDetails = () => {
       const queueResponseData = await queueResponse.json();
 
       if (queueResponseData.sucesso && queueResponseData.dados) {
-        // Salvar dados da fila no localStorage
+        // Salvar dados da fila inline
+        const key = String(selectedAppointment.idAgenda);
+        setInlineQueueData(prev => ({ ...prev, [key]: queueResponseData.dados }));
         localStorage.setItem("telemedicineQueueData", JSON.stringify(queueResponseData.dados));
         
         // Recarregar agendamentos
         await fetchAppointments(storedPatient);
         
-        // Fechar modal e navegar para página de fila
+        // Fechar modal e permanecer na tela
         handleCloseTokenModal();
         toast.success("Check-in realizado com sucesso!");
-        navigate("/telemedicine-queue");
       } else {
         toast.error(queueResponseData.mensagem || "Erro ao obter informações da fila");
       }
@@ -499,6 +502,59 @@ const OnlineConsultationDetails = () => {
       stopCamera();
     };
   }, []);
+
+  // Fetch queue data for a specific checked-in appointment
+  const fetchInlineQueue = async (appointment: any) => {
+    const key = String(appointment.idAgenda);
+    setInlineQueueLoading(prev => ({ ...prev, [key]: true }));
+    try {
+      const storedPatient = localStorage.getItem("selectedPatientOnlineConsultation");
+      if (!storedPatient) return;
+      const patientData = JSON.parse(storedPatient);
+      const headers = getApiHeaders();
+
+      const response = await fetch(
+        "https://api-portalpaciente-web.samel.com.br/api/Agenda/ListarFilaTele",
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ idAgenda: appointment.idAgenda, idCliente: String(patientData.id) })
+        }
+      );
+      const data = await response.json();
+      if (data.sucesso && data.dados) {
+        setInlineQueueData(prev => ({ ...prev, [key]: data.dados }));
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setInlineQueueLoading(prev => ({ ...prev, [key]: false }));
+    }
+  };
+
+  // Auto-fetch queue for checked-in appointments
+  useEffect(() => {
+    appointments
+      .filter(a => a.possuiAtendimento === "S")
+      .forEach(appointment => {
+        const key = String(appointment.idAgenda);
+        if (!inlineQueueData[key] && !inlineQueueLoading[key]) {
+          fetchInlineQueue(appointment);
+        }
+      });
+  }, [appointments]);
+
+  // Auto-refresh queue data every 10 seconds
+  useEffect(() => {
+    const checkedIn = appointments.filter(a => a.possuiAtendimento === "S");
+    if (checkedIn.length === 0) return;
+
+    const interval = setInterval(() => {
+      checkedIn.forEach(appointment => fetchInlineQueue(appointment));
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [appointments]);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -632,6 +688,73 @@ const OnlineConsultationDetails = () => {
                                 Ver Fila de Atendimento
                               </Button>
                             </div>
+
+                            {/* Inline queue position */}
+                            {(() => {
+                              const key = String(appointment.idAgenda);
+                              const queueItems = inlineQueueData[key];
+                              const isLoadingQueue = inlineQueueLoading[key];
+
+                              if (isLoadingQueue && !queueItems) {
+                                return (
+                                  <div className="mt-3 p-3 rounded-lg border border-muted bg-muted/30 space-y-2">
+                                    <Skeleton className="h-4 w-3/4" />
+                                    <Skeleton className="h-4 w-1/2" />
+                                  </div>
+                                );
+                              }
+
+                              if (queueItems && queueItems.length > 0) {
+                                // Find patient's own entry
+                                const patientEntry = queueItems.find(
+                                  (item: any) => String(item.idCliente) === String(appointment.idCliente)
+                                ) || queueItems[0];
+
+                                const position = queueItems.indexOf(patientEntry) + 1;
+                                const statusDisplay = ["AC", "O", "M"].includes(patientEntry.status)
+                                  ? patientEntry.statusDescricao
+                                  : "Paciente ainda não chegou";
+
+                                return (
+                                  <div className="mt-3 p-3 rounded-lg border border-primary/20 bg-primary/5 space-y-2">
+                                    <div className="flex items-center justify-between">
+                                      <p className="text-sm font-semibold flex items-center gap-1.5">
+                                        <ListOrdered className="h-4 w-4 text-primary" />
+                                        Sua posição na fila
+                                      </p>
+                                      <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                        <RefreshCw className="h-3 w-3 animate-spin" />
+                                        Atualizando
+                                      </span>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2 text-sm">
+                                      <div>
+                                        <p className="text-xs text-muted-foreground">Posição</p>
+                                        <p className="font-bold text-primary text-lg">#{position}</p>
+                                      </div>
+                                      <div>
+                                        <p className="text-xs text-muted-foreground">Status</p>
+                                        <p className="font-medium">{statusDisplay}</p>
+                                      </div>
+                                      {patientEntry.horario && (
+                                        <div>
+                                          <p className="text-xs text-muted-foreground">Horário consulta</p>
+                                          <p className="font-medium">{patientEntry.horario}</p>
+                                        </div>
+                                      )}
+                                      {patientEntry.horaChegada && (
+                                        <div>
+                                          <p className="text-xs text-muted-foreground">Check-in</p>
+                                          <p className="font-medium">{patientEntry.horaChegada}</p>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              }
+
+                              return null;
+                            })()}
                           </>
                         ) : (
                           <>
