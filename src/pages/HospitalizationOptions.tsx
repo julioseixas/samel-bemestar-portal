@@ -124,7 +124,7 @@ export default function HospitalizationOptions() {
                       Verificar Prescrição
                     </CardTitle>
                     <CardDescription className="mt-1">
-                      {hasIdAtendimento ? "Veja as prescrições da sua internação" : "Em breve disponível"}
+                      {hasIdAtendimento ? "Veja as prescrições da sua internação" : "Sem internação ativa"}
                     </CardDescription>
                   </div>
                 </div>
@@ -150,7 +150,7 @@ export default function HospitalizationOptions() {
                       Fale Conosco
                     </CardTitle>
                     <CardDescription className="mt-1">
-                      {hasIdAtendimento ? "Entre em contato sobre sua internação" : "Em breve disponível"}
+                      {hasIdAtendimento ? "Entre em contato sobre sua internação" : "Sem internação ativa"}
                     </CardDescription>
                   </div>
                 </div>
@@ -176,7 +176,7 @@ export default function HospitalizationOptions() {
                       Avaliar Profissional
                     </CardTitle>
                     <CardDescription className="mt-1">
-                      {hasIdAtendimento ? "Avalie o atendimento recebido" : "Em breve disponível"}
+                      {hasIdAtendimento ? "Avalie o atendimento recebido" : "Sem internação ativa"}
                     </CardDescription>
                   </div>
                 </div>
