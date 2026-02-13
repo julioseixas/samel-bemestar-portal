@@ -157,15 +157,6 @@ export default function HospitalizationSchedule() {
       const loginData = await loginResponse.json();
       const agendaData = await agendaResponse.json();
 
-      // Verifica se o login foi bem-sucedido
-      if (!loginData.sucesso) {
-        setWarningMessage(loginData.mensagem || "Não foi possível acessar as informações de internação.");
-        setShowWarningDialog(true);
-        setIsLoading(false);
-        return;
-      }
-
-      // Se sucesso, salva os dados e navega
       const patientData = {
         id: patient.id,
         nome: patient.nome,
@@ -176,20 +167,30 @@ export default function HospitalizationSchedule() {
         cdPessoaFisica: patient.cdPessoaFisica,
         idEmpresa: patient.idEmpresa,
         cpf: patient.cpf,
-        internacaoData: loginData.dados
       };
 
-      localStorage.setItem("selectedPatient", JSON.stringify(patientData));
-      localStorage.setItem("hospitalizationData", JSON.stringify(loginData.dados));
-      
-      // Verifica se tem agenda cirúrgica com sucesso
+      // Salva agenda cirúrgica independente do login
       if (agendaData.sucesso && agendaData.dados) {
         localStorage.setItem("surgicalSchedule", JSON.stringify(agendaData.dados));
+      }
+
+      // Verifica login
+      if (loginData.sucesso) {
+        // Salva dados normalmente
+        localStorage.setItem("selectedPatient", JSON.stringify({ ...patientData, internacaoData: loginData.dados }));
+        localStorage.setItem("hospitalizationData", JSON.stringify(loginData.dados));
+        setIsLoading(false);
+        navigate("/hospitalization-options");
+      } else if (agendaData.sucesso && agendaData.dados) {
+        // Login falhou mas tem agenda cirúrgica - permite acessar
+        localStorage.setItem("selectedPatient", JSON.stringify(patientData));
         setIsLoading(false);
         navigate("/hospitalization-options");
       } else {
+        // Nenhum dado disponível - mostra aviso
+        setWarningMessage(loginData.mensagem || "Não foi possível acessar as informações de internação.");
+        setShowWarningDialog(true);
         setIsLoading(false);
-        navigate("/hospitalization-options");
       }
     } catch (error) {
       console.error("Erro ao buscar dados de internação:", error);
