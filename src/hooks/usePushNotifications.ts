@@ -140,7 +140,7 @@ export const usePushNotifications = (idCliente?: string) => {
 
       // 4. Subscribe to push
       const applicationServerKey = urlBase64ToUint8Array(vapidPublicKey);
-      const subscription = await registration.pushManager.subscribe({
+      const subscription = await (registration as any).pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: applicationServerKey.buffer as ArrayBuffer
       });
@@ -173,7 +173,7 @@ export const usePushNotifications = (idCliente?: string) => {
   const unsubscribe = useCallback(async (): Promise<boolean> => {
     try {
       const registration = await navigator.serviceWorker.ready;
-      const subscription = await registration.pushManager.getSubscription();
+      const subscription = await (registration as any).pushManager.getSubscription();
       
       if (subscription) {
         await subscription.unsubscribe();
@@ -227,7 +227,7 @@ export const usePushNotifications = (idCliente?: string) => {
 
       try {
         const registration = await navigator.serviceWorker.ready;
-        const subscription = await registration.pushManager.getSubscription();
+        const subscription = await (registration as any).pushManager.getSubscription();
         setState(prev => ({ ...prev, isSubscribed: !!subscription }));
       } catch (error) {
         // Error checking subscription
