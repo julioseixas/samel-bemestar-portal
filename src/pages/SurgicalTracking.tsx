@@ -27,7 +27,7 @@ export default function SurgicalTracking() {
   const navigate = useNavigate();
   const [patientName, setPatientName] = useState("Paciente");
   const [profilePhoto, setProfilePhoto] = useState<string>("");
-  const [surgicalData, setSurgicalData] = useState<SurgicalData | null>(null);
+  const [surgicalDataList, setSurgicalDataList] = useState<SurgicalData[]>([]);
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -53,9 +53,8 @@ export default function SurgicalTracking() {
     if (storedSurgicalSchedule) {
       try {
         const parsed = JSON.parse(storedSurgicalSchedule);
-        // Se for um array, pega o primeiro item
-        const data = Array.isArray(parsed) ? parsed[0] : parsed;
-        setSurgicalData(data);
+        const dataArray = Array.isArray(parsed) ? parsed : [parsed];
+        setSurgicalDataList(dataArray);
       } catch (error) {
         console.error("Erro ao processar dados cirúrgicos:", error);
         navigate("/dashboard");
@@ -75,12 +74,10 @@ export default function SurgicalTracking() {
     }
   };
 
-  const getProgressStep = () => {
-    if (surgicalData?.status === "Autorizado") return 2;
-    return 1; // "Pré-Agenda" ou qualquer outro status
+  const getProgressStep = (status: string) => {
+    if (status === "Autorizado") return 2;
+    return 1;
   };
-
-  const currentStep = getProgressStep();
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -104,151 +101,144 @@ export default function SurgicalTracking() {
               </Button>
             </div>
             <p className="text-sm sm:text-base text-muted-foreground">
-              Detalhes da sua cirurgia agendada
+              {surgicalDataList.length > 1 
+                ? `${surgicalDataList.length} cirurgias agendadas`
+                : "Detalhes da sua cirurgia agendada"}
             </p>
           </div>
 
-          {surgicalData ? (
-            <div className="space-y-6">
-              {/* Card Principal com Progress Bar Integrado */}
-              <Card className="border-2 shadow-lg">
-                {/* Header com Status */}
-                <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent pb-8">
-                  <div className="flex items-center justify-between flex-wrap gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="rounded-full bg-primary/20 p-3">
-                        <Stethoscope className="h-6 w-6 text-primary" />
-                      </div>
-                      <CardTitle className="text-xl sm:text-2xl">Acompanhamento Cirúrgico</CardTitle>
-                    </div>
-                    {surgicalData.status && (
-                      <Badge variant="default" className="text-sm sm:text-base px-3 sm:px-4 py-1.5 sm:py-2">
-                        {surgicalData.status}
-                      </Badge>
-                    )}
-                  </div>
-                  
-                  {/* Progress Bar */}
-                  <div className="mt-10 px-4 sm:px-8">
-                    <div className="flex items-center justify-between max-w-md mx-auto">
-                      {/* Passo 1 - Aguardando Agendamento */}
-                      <div className="flex flex-col items-center flex-1">
-                        <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all duration-300 shadow-md ${
-                          currentStep >= 1 ? 'bg-primary text-primary-foreground scale-105' : 'bg-muted text-muted-foreground'
-                        }`}>
-                          {currentStep >= 1 ? <Check className="w-5 h-5 sm:w-6 sm:h-6" /> : <span className="text-sm sm:text-base font-semibold">1</span>}
+          {surgicalDataList.length > 0 ? (
+            <div className="space-y-8">
+              {surgicalDataList.map((surgicalData, index) => {
+                const currentStep = getProgressStep(surgicalData.status);
+                return (
+                  <div key={index} className="space-y-6">
+                    {/* Card Principal com Progress Bar Integrado */}
+                    <Card className="border-2 shadow-lg">
+                      <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent pb-8">
+                        <div className="flex items-center justify-between flex-wrap gap-3">
+                          <div className="flex items-center gap-3">
+                            <div className="rounded-full bg-primary/20 p-3">
+                              <Stethoscope className="h-6 w-6 text-primary" />
+                            </div>
+                            <CardTitle className="text-xl sm:text-2xl">
+                              {surgicalDataList.length > 1 ? `Cirurgia ${index + 1}` : "Acompanhamento Cirúrgico"}
+                            </CardTitle>
+                          </div>
+                          {surgicalData.status && (
+                            <Badge variant="default" className="text-sm sm:text-base px-3 sm:px-4 py-1.5 sm:py-2">
+                              {surgicalData.status}
+                            </Badge>
+                          )}
                         </div>
-                        <span className={`text-xs sm:text-sm mt-2 text-center font-medium transition-colors ${
-                          currentStep >= 1 ? 'text-foreground' : 'text-muted-foreground'
-                        }`}>
-                          Aguardando<br />Agendamento
-                        </span>
-                      </div>
+                        
+                        {/* Progress Bar */}
+                        <div className="mt-10 px-4 sm:px-8">
+                          <div className="flex items-center justify-between max-w-md mx-auto">
+                            <div className="flex flex-col items-center flex-1">
+                              <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all duration-300 shadow-md ${
+                                currentStep >= 1 ? 'bg-primary text-primary-foreground scale-105' : 'bg-muted text-muted-foreground'
+                              }`}>
+                                {currentStep >= 1 ? <Check className="w-5 h-5 sm:w-6 sm:h-6" /> : <span className="text-sm sm:text-base font-semibold">1</span>}
+                              </div>
+                              <span className={`text-xs sm:text-sm mt-2 text-center font-medium transition-colors ${
+                                currentStep >= 1 ? 'text-foreground' : 'text-muted-foreground'
+                              }`}>
+                                Aguardando<br />Agendamento
+                              </span>
+                            </div>
+                            
+                            <div className={`h-1 flex-1 mx-2 sm:mx-4 rounded-full transition-all duration-500 ${
+                              currentStep >= 2 ? 'bg-primary' : 'bg-muted'
+                            }`} />
+                            
+                            <div className="flex flex-col items-center flex-1">
+                              <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all duration-300 shadow-md ${
+                                currentStep >= 2 ? 'bg-primary text-primary-foreground scale-105' : 'bg-muted text-muted-foreground'
+                              }`}>
+                                {currentStep >= 2 ? <Check className="w-5 h-5 sm:w-6 sm:h-6" /> : <span className="text-sm sm:text-base font-semibold">2</span>}
+                              </div>
+                              <span className={`text-xs sm:text-sm mt-2 text-center font-medium transition-colors ${
+                                currentStep >= 2 ? 'text-foreground' : 'text-muted-foreground'
+                              }`}>
+                                Agendado
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </CardHeader>
                       
-                      {/* Linha conectora */}
-                      <div className={`h-1 flex-1 mx-2 sm:mx-4 rounded-full transition-all duration-500 ${
-                        currentStep >= 2 ? 'bg-primary' : 'bg-muted'
-                      }`} />
-                      
-                      {/* Passo 2 - Agendado */}
-                      <div className="flex flex-col items-center flex-1">
-                        <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all duration-300 shadow-md ${
-                          currentStep >= 2 ? 'bg-primary text-primary-foreground scale-105' : 'bg-muted text-muted-foreground'
-                        }`}>
-                          {currentStep >= 2 ? <Check className="w-5 h-5 sm:w-6 sm:h-6" /> : <span className="text-sm sm:text-base font-semibold">2</span>}
-                        </div>
-                        <span className={`text-xs sm:text-sm mt-2 text-center font-medium transition-colors ${
-                          currentStep >= 2 ? 'text-foreground' : 'text-muted-foreground'
-                        }`}>
-                          Agendado
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </CardHeader>
-                
-                {/* Informações da Cirurgia */}
-                <CardContent className="pt-8 pb-6">
-                  <div className="grid gap-6 sm:gap-8">
-                    {/* Procedimento */}
-                    <div className="group">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="rounded-lg bg-primary/10 p-2 group-hover:bg-primary/20 transition-colors">
-                          <Stethoscope className="h-5 w-5 text-primary" />
-                        </div>
-                        <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                          Procedimento
-                        </span>
-                      </div>
-                      <p className="text-base sm:text-lg font-semibold text-foreground pl-11">
-                        {surgicalData.procedimento?.nome || "Não informado"}
-                      </p>
-                    </div>
+                      <CardContent className="pt-8 pb-6">
+                        <div className="grid gap-6 sm:gap-8">
+                          <div className="group">
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="rounded-lg bg-primary/10 p-2 group-hover:bg-primary/20 transition-colors">
+                                <Stethoscope className="h-5 w-5 text-primary" />
+                              </div>
+                              <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Procedimento</span>
+                            </div>
+                            <p className="text-base sm:text-lg font-semibold text-foreground pl-11">
+                              {surgicalData.procedimento?.nome || "Não informado"}
+                            </p>
+                          </div>
 
-                    {/* Data da Cirurgia */}
-                    <div className="group">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="rounded-lg bg-primary/10 p-2 group-hover:bg-primary/20 transition-colors">
-                          <Calendar className="h-5 w-5 text-primary" />
+                          <div className="group">
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="rounded-lg bg-primary/10 p-2 group-hover:bg-primary/20 transition-colors">
+                                <Calendar className="h-5 w-5 text-primary" />
+                              </div>
+                              <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Data da Cirurgia</span>
+                            </div>
+                            <p className="text-base sm:text-lg font-semibold text-foreground pl-11">
+                              {formatDate(surgicalData.data)}
+                              {surgicalData.hora && (
+                                <span className="text-muted-foreground ml-2">às {surgicalData.hora}</span>
+                              )}
+                            </p>
+                          </div>
+
+                          <div className="group">
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="rounded-lg bg-primary/10 p-2 group-hover:bg-primary/20 transition-colors">
+                                <MapPin className="h-5 w-5 text-primary" />
+                              </div>
+                              <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Local</span>
+                            </div>
+                            <p className="text-base sm:text-lg font-semibold text-foreground pl-11">
+                              {surgicalData.unidade || "Não informado"}
+                            </p>
+                          </div>
+
+                          <div className="group">
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="rounded-lg bg-primary/10 p-2 group-hover:bg-primary/20 transition-colors">
+                                <User className="h-5 w-5 text-primary" />
+                              </div>
+                              <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Profissional</span>
+                            </div>
+                            <p className="text-base sm:text-lg font-semibold text-foreground pl-11">
+                              {surgicalData.profissional?.nome || "Não informado"}
+                              {surgicalData.profissional?.crm && (
+                                <span className="text-muted-foreground text-sm sm:text-base ml-2">
+                                  - CRM: {surgicalData.profissional.crm}
+                                </span>
+                              )}
+                            </p>
+                          </div>
                         </div>
-                        <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                          Data da Cirurgia
-                        </span>
-                      </div>
-                      <p className="text-base sm:text-lg font-semibold text-foreground pl-11">
-                        {formatDate(surgicalData.data)}
-                        {surgicalData.hora && (
-                          <span className="text-muted-foreground ml-2">às {surgicalData.hora}</span>
+
+                        {surgicalData.dataAtualizacao && (
+                          <div className="mt-6 pt-4 border-t border-border">
+                            <p className="text-xs sm:text-sm text-muted-foreground text-center">
+                              Última atualização: <span className="font-medium">{surgicalData.dataAtualizacao}</span>
+                            </p>
+                          </div>
                         )}
-                      </p>
-                    </div>
-
-                    {/* Local */}
-                    <div className="group">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="rounded-lg bg-primary/10 p-2 group-hover:bg-primary/20 transition-colors">
-                          <MapPin className="h-5 w-5 text-primary" />
-                        </div>
-                        <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                          Local
-                        </span>
-                      </div>
-                      <p className="text-base sm:text-lg font-semibold text-foreground pl-11">
-                        {surgicalData.unidade || "Não informado"}
-                      </p>
-                    </div>
-
-                    {/* Profissional */}
-                    <div className="group">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="rounded-lg bg-primary/10 p-2 group-hover:bg-primary/20 transition-colors">
-                          <User className="h-5 w-5 text-primary" />
-                        </div>
-                        <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                          Profissional
-                        </span>
-                      </div>
-                      <p className="text-base sm:text-lg font-semibold text-foreground pl-11">
-                        {surgicalData.profissional?.nome || "Não informado"}
-                        {surgicalData.profissional?.crm && (
-                          <span className="text-muted-foreground text-sm sm:text-base ml-2">
-                            - CRM: {surgicalData.profissional.crm}
-                          </span>
-                        )}
-                      </p>
-                    </div>
+                      </CardContent>
+                    </Card>
                   </div>
-
-                  {/* Data de Atualização */}
-                  {surgicalData.dataAtualizacao && (
-                    <div className="mt-6 pt-4 border-t border-border">
-                      <p className="text-xs sm:text-sm text-muted-foreground text-center">
-                        Última atualização: <span className="font-medium">{surgicalData.dataAtualizacao}</span>
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                );
+              })}
 
               {/* Guia de Internação */}
               <Card className="border-2 border-primary/20 shadow-md bg-gradient-to-br from-primary/5 to-transparent">
