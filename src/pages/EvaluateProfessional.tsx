@@ -239,8 +239,12 @@ const EvaluateProfessional = () => {
                     {Array.from({ length: avaliacao.idPergunta === "Q1" ? 10 : 5 }, (_, i) => i + 1).map((star) => (
                       <button
                         key={star}
-                        onClick={() => handleRatingChange(index, star)}
-                        className="transition-colors"
+                        type="button"
+                        onPointerDown={(e) => {
+                          e.preventDefault();
+                          handleRatingChange(index, star);
+                        }}
+                        className="transition-colors touch-manipulation select-none"
                       >
                         <Star
                           className={`${avaliacao.idPergunta === "Q1" ? "w-6 h-6" : "w-8 h-8"} ${
