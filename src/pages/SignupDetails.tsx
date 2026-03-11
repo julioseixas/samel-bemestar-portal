@@ -89,7 +89,7 @@ const SignupDetails = () => {
   });
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: ReturnType<typeof setTimeout>;
     if (showSmsTokenModal && countdown > 0) {
       timer = setTimeout(() => {
         setCountdown(countdown - 1);
