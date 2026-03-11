@@ -235,15 +235,15 @@ const EvaluateProfessional = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex gap-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
+                  <div className="flex gap-2 flex-wrap">
+                    {Array.from({ length: avaliacao.idPergunta === "Q1" ? 10 : 5 }, (_, i) => i + 1).map((star) => (
                       <button
                         key={star}
                         onClick={() => handleRatingChange(index, star)}
                         className="transition-colors"
                       >
                         <Star
-                          className={`w-8 h-8 ${
+                          className={`${avaliacao.idPergunta === "Q1" ? "w-6 h-6" : "w-8 h-8"} ${
                             star <= avaliacao.rating
                               ? "fill-yellow-400 text-yellow-400"
                               : "text-muted-foreground"
