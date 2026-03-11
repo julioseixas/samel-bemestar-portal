@@ -124,7 +124,8 @@ const EvaluateProfessional = () => {
 
   const handleSubmitAvaliacao = async (avaliacao: AvaliacaoComResposta) => {
     if (avaliacao.rating === 0) {
-      toast.error("Por favor, selecione uma nota de 1 a 5 estrelas");
+      const maxRating = avaliacao.idPergunta === "Q1" ? 10 : 5;
+      toast.error(`Por favor, selecione uma nota de 1 a ${maxRating} estrelas`);
       return;
     }
 
