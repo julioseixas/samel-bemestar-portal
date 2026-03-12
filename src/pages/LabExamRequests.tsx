@@ -375,7 +375,7 @@ const LabExamRequests = () => {
       image: { type: "jpeg" as const, quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" as const },
-      pagebreak: { mode: ['css', 'legacy'] }
+      pagebreak: { mode: [] as string[] }
     };
     
     try {
@@ -414,11 +414,18 @@ const LabExamRequests = () => {
       image: { type: "jpeg" as const, quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" as const },
-      pagebreak: { mode: ['css', 'legacy'] }
+      pagebreak: { mode: [] as string[] }
     };
     
     try {
+      // Hide visual separators before PDF capture
+      const pdfHideElements = container.querySelectorAll('.pdf-hide');
+      pdfHideElements.forEach(el => (el as HTMLElement).style.display = 'none');
+      
       const pdfBlob = await withLightTheme(() => html2pdf().set(options).from(container).output("blob"));
+      
+      // Restore separators
+      pdfHideElements.forEach(el => (el as HTMLElement).style.display = '');
       const success = await handlePdfDownload(pdfBlob, fileName);
       
       if (success) {
@@ -464,7 +471,7 @@ const LabExamRequests = () => {
       image: { type: "jpeg" as const, quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" as const },
-      pagebreak: { mode: ['css', 'legacy'] }
+      pagebreak: { mode: [] as string[] }
     };
 
     try {
@@ -513,11 +520,18 @@ const LabExamRequests = () => {
       image: { type: "jpeg" as const, quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" as const },
-      pagebreak: { mode: ['css', 'legacy'] }
+      pagebreak: { mode: [] as string[] }
     };
 
     try {
+      // Hide visual separators before PDF capture
+      const pdfHideElements = container.querySelectorAll('.pdf-hide');
+      pdfHideElements.forEach(el => (el as HTMLElement).style.display = 'none');
+      
       const pdfBlob = await withLightTheme(() => html2pdf().set(options).from(container).output("blob"));
+      
+      // Restore separators
+      pdfHideElements.forEach(el => (el as HTMLElement).style.display = '');
       
       const shared = await handlePdfShare(
         pdfBlob, 

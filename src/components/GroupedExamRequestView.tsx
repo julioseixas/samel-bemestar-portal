@@ -28,7 +28,7 @@ function SingleRequestTemplate({ exams }: { exams: ExamData[] }) {
     .join("<br/><br/>");
 
   return (
-    <div className="bg-background p-6 pb-8 max-w-[800px] mx-auto print:p-0" style={{ pageBreakInside: 'avoid' }}>
+    <div className="bg-background p-6 pb-8 max-w-[800px] mx-auto print:p-0">
       {/* CABEÇALHO */}
       <div className="flex mb-4 border border-border">
         <div className="w-[80px] sm:w-[150px] border-r border-border flex items-center justify-center p-2 sm:p-4 bg-card">
@@ -137,9 +137,9 @@ export function GroupedExamRequestView({ exams }: GroupedExamRequestViewProps) {
   return (
     <div>
       {groups.map((group, index) => (
-        <div key={`group-${index}`} className="mb-6" style={index > 0 ? { pageBreakBefore: 'always' } : undefined}>
+        <div key={`group-${index}`} className="mb-6" data-pdf-section>
           {index > 0 && (
-            <div className="flex items-center gap-3 my-6 max-w-[800px] mx-auto print:hidden">
+            <div className="flex items-center gap-3 my-6 max-w-[800px] mx-auto pdf-hide">
               <div className="flex-1 h-px bg-border" />
               <span className="text-xs font-medium text-muted-foreground">
                 Pedido {index + 1} de {groups.length}
