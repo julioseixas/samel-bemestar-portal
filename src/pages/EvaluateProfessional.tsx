@@ -86,7 +86,27 @@ const EvaluateProfessional = () => {
             comentario: "",
           })
         );
-        setAvaliacoes(avaliacoesComResposta);
+
+        const debugQ1: AvaliacaoComResposta = {
+          idCliente: "DEBUG",
+          idAtendimento: idAtendimento,
+          idTipoEvolucao: "DEBUG",
+          idEvolucao: 0,
+          dataEntrada: new Date().toISOString(),
+          dsEspecialidade: "DEBUG - Frontend",
+          dsEvolucao: "DEBUG",
+          dsPergunta: "[DEBUG FRONTEND] Avaliação Q1 - Gerada localmente para teste",
+          dsSetor: "Debug",
+          idPergunta: "Q1",
+          idUnidade: "0",
+          medico: "Debug",
+          nome: "Debug",
+          nomeUsuarioAtendimento: "Debug",
+          rating: 0,
+          comentario: "",
+        };
+
+        setAvaliacoes([debugQ1, ...avaliacoesComResposta]);
       } else {
         toast.error(data.mensagem || "Erro ao buscar avaliações");
       }
