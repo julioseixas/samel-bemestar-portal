@@ -278,29 +278,38 @@ export function ExamDetailsDialog({
       const selectedExams = getSelectedExams();
       
       toast({
-        title: "Iniciando downloads",
-        description: `Baixando ${selectedExams.length} laudo(s)...`,
+        title: "Gerando PDF",
+        description: `Preparando ${selectedExams.length} laudo(s)...`,
       });
 
-      // Baixar cada exame individualmente
-      for (let i = 0; i < selectedExams.length; i++) {
-        const exam = selectedExams[i];
-        
-        // Criar um elemento temporário com o conteúdo do exame
-        const tempDiv = document.createElement('div');
-        tempDiv.id = 'temp-print-element';
-        tempDiv.style.position = 'absolute';
-        tempDiv.style.left = '-9999px';
-        document.body.appendChild(tempDiv);
+      // Preload logo image to ensure it's cached before rendering
+      await new Promise<void>((resolve) => {
+        const img = new window.Image();
+        img.onload = () => resolve();
+        img.onerror = () => resolve(); // Continue even if logo fails
+        img.src = samelLogo;
+      });
 
-        // Sanitizar o conteúdo HTML do resultado e assinatura
+      // Create a single temp container with ALL reports, separated by page breaks
+      const tempDiv = document.createElement('div');
+      tempDiv.style.position = 'fixed';
+      tempDiv.style.top = '0';
+      tempDiv.style.left = '0';
+      tempDiv.style.width = '210mm'; // A4 width
+      tempDiv.style.opacity = '0';
+      tempDiv.style.zIndex = '-1';
+      tempDiv.style.pointerEvents = 'none';
+      document.body.appendChild(tempDiv);
+
+      let allContent = pdfTableStyles;
+
+      selectedExams.forEach((exam, i) => {
         const sanitizedResult = sanitizeHtmlForPdf(exam.dsResultado || exam.dsCabecalho || "");
         const sanitizedSignature = sanitizeHtmlForPdf(exam.dsAssinatura || "");
+        const pageBreak = i > 0 ? 'page-break-before: always;' : '';
 
-        // Renderizar o conteúdo do exame no elemento temporário com estilos de impressão
-        const examContent = `
-          ${pdfTableStyles}
-          <div style="background: white; padding: 10mm; max-width: 100%; margin: 0 auto; font-family: Arial, sans-serif; color: #000;">
+        allContent += `
+          <div style="${pageBreak} background: white; padding: 10mm; max-width: 100%; margin: 0 auto; font-family: Arial, sans-serif; color: #000;">
             <div style="display: flex; margin-bottom: 16px; border: 1px solid #000;">
               <div style="width: 150px; border-right: 1px solid #000; display: flex; align-items: center; justify-content: center; padding: 16px; background: white;">
                 <img src="${samelLogo}" alt="Samel Logo" style="width: 100%; height: auto; max-height: 100px; object-fit: contain;" />
@@ -388,41 +397,43 @@ export function ExamDetailsDialog({
             </div>
           </div>
         `;
-        
-        tempDiv.innerHTML = examContent;
-
-        const fileName = `laudo-${exam.nrAtendimento}-${exam.procedimentoExame.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
-        const opt = {
-          margin: [10, 10, 15, 10] as [number, number, number, number],
-          filename: fileName,
-          image: { type: 'jpeg' as const, quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
-          pagebreak: { mode: 'avoid-all' }
-        };
-
-        // Generate PDF as blob with light theme and use utility function
-        const pdfBlob = await withLightTheme(() => html2pdf().set(opt).from(tempDiv).output('blob'));
-        await handlePdfDownload(pdfBlob, fileName);
-        
-        // Remover o elemento temporário
-        document.body.removeChild(tempDiv);
-        
-        // Pequeno delay entre downloads para não sobrecarregar o navegador
-        if (i < selectedExams.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 500));
-        }
-      }
-      
-      toast({
-        title: "Sucesso",
-        description: `${selectedExams.length} laudo(s) baixado(s) com sucesso!`,
       });
+
+      tempDiv.innerHTML = allContent;
+
+      // Wait a tick for images to render in the DOM
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      const fileName = `laudos-selecionados.pdf`;
+      const opt = {
+        margin: [10, 10, 15, 10] as [number, number, number, number],
+        filename: fileName,
+        image: { type: 'jpeg' as const, quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
+        pagebreak: { mode: ['css'] as string[] }
+      };
+
+      // Generate single consolidated PDF
+      const pdfBlob = await withLightTheme(() => html2pdf().set(opt).from(tempDiv).output('blob'));
+      
+      // Remove temp element
+      document.body.removeChild(tempDiv);
+
+      // Single download call — works on both web and WebView
+      const success = await handlePdfDownload(pdfBlob, fileName);
+      
+      if (success) {
+        toast({
+          title: "Sucesso",
+          description: `${selectedExams.length} laudo(s) baixado(s) em um único PDF!`,
+        });
+      }
     } catch (error) {
-      console.error("Erro ao gerar PDFs:", error);
+      console.error("Erro ao gerar PDF:", error);
       toast({
         title: "Erro",
-        description: "Não foi possível gerar os PDFs.",
+        description: "Não foi possível gerar o PDF.",
         variant: "destructive",
       });
     }
