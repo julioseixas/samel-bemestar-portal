@@ -18,13 +18,10 @@ interface GroupedExamRequestViewProps {
   exams: ExamData[];
 }
 
-export function GroupedExamRequestView({ exams }: GroupedExamRequestViewProps) {
+function SingleRequestTemplate({ exams }: { exams: ExamData[] }) {
   if (exams.length === 0) return null;
-
-  // Use the first exam for header data
   const firstExam = exams[0];
-  
-  // Combine all retornoDadosMobile content with double line breaks for better readability
+
   const combinedContent = exams
     .map(exam => exam.retornoDadosMobile || "")
     .filter(content => content.trim() !== "")
@@ -103,7 +100,7 @@ export function GroupedExamRequestView({ exams }: GroupedExamRequestViewProps) {
         </div>
       </div>
 
-      {/* CORPO DO PEDIDO - HTML CONCATENADO */}
+      {/* CORPO DO PEDIDO */}
       <div className="border border-border bg-card p-6 mb-4 min-h-[300px]">
         <div
           className="prose max-w-none text-sm [&_table]:table-fixed [&_table]:w-full [&_img]:max-w-full overflow-x-hidden"
@@ -112,6 +109,49 @@ export function GroupedExamRequestView({ exams }: GroupedExamRequestViewProps) {
           }}
         />
       </div>
+    </div>
+  );
+}
+
+export function GroupedExamRequestView({ exams }: GroupedExamRequestViewProps) {
+  if (exams.length === 0) return null;
+
+  // Group exams by dataEntrada
+  const groupedByDate = new Map<string, ExamData[]>();
+  exams.forEach(exam => {
+    const key = exam.dataEntrada || "sem-data";
+    if (!groupedByDate.has(key)) {
+      groupedByDate.set(key, []);
+    }
+    groupedByDate.get(key)!.push(exam);
+  });
+
+  const groups = Array.from(groupedByDate.values());
+
+  // Single group — render without extra wrapper
+  if (groups.length === 1) {
+    return <SingleRequestTemplate exams={groups[0]} />;
+  }
+
+  // Multiple groups — render each as a separate document
+  return (
+    <div>
+      {groups.map((group, index) => (
+        <div key={`group-${index}`} className="mb-6">
+          {index > 0 && (
+            <div className="flex items-center gap-3 my-6 max-w-[800px] mx-auto">
+              <div className="flex-1 h-px bg-border" />
+              <span className="text-xs font-medium text-muted-foreground">
+                Pedido {index + 1} de {groups.length}
+              </span>
+              <div className="flex-1 h-px bg-border" />
+            </div>
+          )}
+          <div className="rounded-lg border-2 border-border shadow-md overflow-hidden">
+            <SingleRequestTemplate exams={group} />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
