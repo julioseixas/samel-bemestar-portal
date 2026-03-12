@@ -37,7 +37,7 @@ const EvaluateProfessional = () => {
   const [patientName, setPatientName] = useState("");
   const [profilePhoto, setProfilePhoto] = useState("");
   const ratingLockUntil = useRef<Record<number, number>>({});
-  const touchHandled = useRef(false);
+  const ignoreMouseUntilRef = useRef<Record<number, number>>({});
 
   const getMaxRating = (idPergunta: string) => idPergunta === "Q1" ? 10 : 5;
 
@@ -257,16 +257,21 @@ const EvaluateProfessional = () => {
                         type="button"
                         onTouchStart={(e) => {
                           e.preventDefault();
-                          touchHandled.current = true;
+                          ignoreMouseUntilRef.current[index] = Date.now() + 1200;
                           handleRatingChange(index, star, avaliacao.idPergunta);
-                          setTimeout(() => { touchHandled.current = false; }, 400);
                         }}
                         onMouseDown={(e) => {
                           e.preventDefault();
-                          if (touchHandled.current) return;
+                          if (Date.now() < (ignoreMouseUntilRef.current[index] || 0)) return;
                           handleRatingChange(index, star, avaliacao.idPergunta);
                         }}
-                        className="transition-colors touch-manipulation select-none flex-shrink-0"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (Date.now() < (ignoreMouseUntilRef.current[index] || 0)) return;
+                        }}
+                        className={`transition-colors touch-manipulation select-none flex-shrink-0 ${
+                          avaliacao.idPergunta === "Q1" ? "min-w-[28px] min-h-[28px] flex items-center justify-center" : ""
+                        }`}
                         style={{ WebkitTapHighlightColor: 'transparent' }}
                       >
                         <Star
