@@ -96,11 +96,24 @@ const EvaluateProfessional = () => {
     }
   };
 
-  const handleRatingChange = (index: number, rating: number) => {
+  const handleRatingChange = useCallback((index: number, rating: number) => {
+    const now = Date.now();
+    const last = lastRatingUpdate.current[index];
+    
+    // Ghost-click guard for Q1: ignore rapid downward jumps (e.g. 10→5 in <500ms)
+    if (last) {
+      const timeDiff = now - last.time;
+      const drop = last.value - rating;
+      if (timeDiff < 500 && drop >= 3) {
+        return; // block ghost event
+      }
+    }
+    
+    lastRatingUpdate.current[index] = { time: now, value: rating };
     setAvaliacoes((prev) =>
       prev.map((av, i) => (i === index ? { ...av, rating } : av))
     );
-  };
+  }, []);
 
   const handleComentarioChange = (index: number, comentario: string) => {
     setAvaliacoes((prev) =>
