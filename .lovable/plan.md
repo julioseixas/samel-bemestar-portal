@@ -1,83 +1,26 @@
 
 
-## Diminuir card de ajuda e exibir fila inline na tela de check-in
+## Problema
 
-### Mudanca 1: Compactar o card de ajuda
+A abordagem atual com `generateSectionBasedPdf` (usando `html2canvas` + `jsPDF` manual com slicing de canvas) está gerando PDFs com layout incorreto. O usuário disse que a versão anterior — que usava `html2pdf` diretamente com `pagebreak: { mode: [] }` — era a que mais se aproximava do resultado ideal (apenas cortava o texto final).
 
-**Arquivo:** `src/components/TelemedicineHelpSection.tsx`
+## Solução
 
-Transformar o card de ajuda `variant="full"` em um formato mais compacto:
-- Remover o Card/CardHeader e usar apenas um botao/link que abre um Dialog com o conteudo completo
-- O resultado sera um simples botao "Como usar a Telemedicina" com icone de ajuda que, ao clicar, abre um modal com o accordion completo
-- Isso libera espaco vertical na tela
+Voltar à abordagem simples com `html2pdf` (que funcionava bem) e corrigir o corte do texto final aumentando a margem inferior do PDF.
 
-### Mudanca 2: Exibir posicao na fila inline apos check-in
+### Arquivo: `src/pages/LabExamRequests.tsx`
 
-**Arquivo:** `src/pages/OnlineConsultationDetails.tsx`
+1. **Remover** a função `generateSectionBasedPdf` e os imports de `html2canvas` e `jsPDF` (que não são mais necessários para este fluxo)
 
-Alterar o fluxo pos-check-in para nao navegar mais para `/telemedicine-queue`:
+2. **Reescrever `handleDownloadMultiplePDF`** para usar `html2pdf` diretamente no container `#printMultiple`, igual ao padrão do single download:
+   - Esconder elementos `.pdf-hide` antes da captura
+   - Usar `html2pdf().set(options).from(container).output("blob")`
+   - Restaurar elementos `.pdf-hide` depois
+   - Opções: `margin: [10, 10, 20, 10]` (margem inferior maior para evitar corte), `pagebreak: { mode: [] }`, `html2canvas: { scale: 2, useCORS: true, scrollY: 0 }`
 
-1. Adicionar novo state para armazenar dados da fila por appointment:
-```typescript
-const [appointmentQueueData, setAppointmentQueueData] = useState<Record<number, any[]>>({});
-```
+3. **Reescrever `handleShareMultiple`** com a mesma lógica
 
-2. Nos fluxos de check-in (facial e email), em vez de `navigate("/telemedicine-queue")`:
-   - Salvar os dados retornados por `ListarFilaTele` no state `appointmentQueueData` indexado pelo `idAgenda`
-   - Recarregar os agendamentos (ja faz isso)
-   - Nao navegar - permanecer na tela
+### Arquivo: `src/components/GroupedExamRequestView.tsx`
 
-3. Na renderizacao do card de appointment, quando `hasCheckedIn === true`:
-   - Verificar se existe `appointmentQueueData[appointment.idAgenda]`
-   - Se existir, exibir um mini-card com a posicao na fila (posicao, horario, status)
-   - Se nao existir ainda, buscar automaticamente via `ListarFilaTele` ao detectar `possuiAtendimento === "S"`
-
-4. A secao de fila inline tera:
-   - Posicao do paciente na fila (baseado no `idCliente`)
-   - Horario da consulta e horario do check-in
-   - Status atual
-   - Auto-refresh a cada 10 segundos para manter atualizado
-
-### Detalhes tecnicos
-
-**TelemedicineHelpSection.tsx:**
-- O `variant="full"` passa a renderizar um botao compacto com Dialog
-- Layout: linha unica com icone + texto "Como usar a Telemedicina" + seta, estilizado como um banner fino
-- Ao clicar, abre Dialog com o mesmo conteudo do Accordion atual
-
-**OnlineConsultationDetails.tsx - Mudancas principais:**
-
-Novo state:
-```typescript
-const [inlineQueueData, setInlineQueueData] = useState<Record<string, any[]>>({});
-```
-
-useEffect para buscar fila automaticamente para appointments com check-in feito:
-```typescript
-useEffect(() => {
-  appointments.filter(a => a.possuiAtendimento === "S").forEach(appointment => {
-    if (!inlineQueueData[appointment.idAgenda]) {
-      fetchQueueForAppointment(appointment);
-    }
-  });
-}, [appointments]);
-```
-
-Funcao `fetchQueueForAppointment` que popula `inlineQueueData`.
-
-Intervalo de auto-refresh para appointments com check-in.
-
-Na renderizacao do card com `hasCheckedIn`, adicionar abaixo dos botoes existentes:
-```
-+--------------------------------------+
-| Sua posicao na fila                  |
-| Posicao: #2                         |
-| Horario consulta: 14:00             |
-| Check-in: 13:45                     |
-| Status: Aguardando atendimento      |
-| Atualizando a cada 10s...           |
-+--------------------------------------+
-```
-
-Os botoes "Entrar na Sala de Consulta" e "Ver Fila de Atendimento" continuam funcionando normalmente.
+Sem alterações — o componente atual com `data-pdf-section` e `pdf-hide` nos separadores está correto.
 
