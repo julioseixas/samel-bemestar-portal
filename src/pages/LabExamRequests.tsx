@@ -519,8 +519,24 @@ const LabExamRequests = () => {
     
     const fileName = `pedidos_exames_lab_${Date.now()}.pdf`;
 
+    // Hide visual separators before capture
+    const pdfHideEls = container.querySelectorAll('.pdf-hide');
+    pdfHideEls.forEach(el => (el as HTMLElement).style.display = 'none');
+
+    const options = {
+      margin: [10, 10, 20, 10] as [number, number, number, number],
+      filename: fileName,
+      image: { type: "jpeg" as const, quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" as const },
+      pagebreak: { mode: [] as string[] }
+    };
+
     try {
-      const pdfBlob = await withLightTheme(() => generateSectionBasedPdf(container));
+      const pdfBlob = await withLightTheme(() => html2pdf().set(options).from(container).output("blob"));
+
+      // Restore separators
+      pdfHideEls.forEach(el => (el as HTMLElement).style.display = '');
       
       const shared = await handlePdfShare(
         pdfBlob, 
@@ -541,6 +557,8 @@ const LabExamRequests = () => {
         });
       }
     } catch (error) {
+      // Restore separators on error
+      pdfHideEls.forEach(el => (el as HTMLElement).style.display = '');
       toast({
         title: "Erro ao compartilhar",
         description: "Não foi possível compartilhar o documento.",
