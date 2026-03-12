@@ -1,12 +1,12 @@
 services:
   portal-paciente-prod-front:
     container_name: portal-paciente-prod-front
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: healthd/frontend:stable
     ports:
       - "16000:80"        # host:container
     restart: always
+    volumes:
+      - ./dist:/usr/share/nginx/html
     networks:
       - 'portal-paciente-front-inet'
 networks:
