@@ -1,83 +1,18 @@
 
 
-## Diminuir card de ajuda e exibir fila inline na tela de check-in
+## Problema
 
-### Mudanca 1: Compactar o card de ajuda
+O `GroupedExamRequestView` concatena **todos** os exames selecionados em um único template (um cabeçalho + um bloco de conteúdo com todos os `retornoDadosMobile` juntos via `<br/><br/>`). Como mostra a imagem, exames de datas diferentes (29/12/2025 e 26/12/2025) aparecem misturados no mesmo documento.
 
-**Arquivo:** `src/components/TelemedicineHelpSection.tsx`
+## Solução
 
-Transformar o card de ajuda `variant="full"` em um formato mais compacto:
-- Remover o Card/CardHeader e usar apenas um botao/link que abre um Dialog com o conteudo completo
-- O resultado sera um simples botao "Como usar a Telemedicina" com icone de ajuda que, ao clicar, abre um modal com o accordion completo
-- Isso libera espaco vertical na tela
+Modificar o `GroupedExamRequestView` para **agrupar os exames por `dataEntrada`** e renderizar **um template completo (cabeçalho + dados do paciente + corpo) por grupo de data**, separados visualmente.
 
-### Mudanca 2: Exibir posicao na fila inline apos check-in
+### Arquivo: `src/components/GroupedExamRequestView.tsx`
 
-**Arquivo:** `src/pages/OnlineConsultationDetails.tsx`
+1. **Agrupar exames por `dataEntrada`** — criar um `Map<string, ExamData[]>` agrupando pelo campo `dataEntrada`
+2. **Renderizar um template completo por grupo** — cada grupo de data recebe seu próprio cabeçalho (logo, dados Samel), dados do paciente/convênio (usando o primeiro exame do grupo), e corpo com o conteúdo concatenado apenas dos exames daquele grupo
+3. **Separação visual entre grupos** — usar o mesmo padrão de card com borda/sombra (`rounded-lg border-2 shadow-md`) e separador com texto ("Pedido X de Y") entre os templates, similar ao que foi feito para os laudos no `ExamDetailsDialog`
 
-Alterar o fluxo pos-check-in para nao navegar mais para `/telemedicine-queue`:
-
-1. Adicionar novo state para armazenar dados da fila por appointment:
-```typescript
-const [appointmentQueueData, setAppointmentQueueData] = useState<Record<number, any[]>>({});
-```
-
-2. Nos fluxos de check-in (facial e email), em vez de `navigate("/telemedicine-queue")`:
-   - Salvar os dados retornados por `ListarFilaTele` no state `appointmentQueueData` indexado pelo `idAgenda`
-   - Recarregar os agendamentos (ja faz isso)
-   - Nao navegar - permanecer na tela
-
-3. Na renderizacao do card de appointment, quando `hasCheckedIn === true`:
-   - Verificar se existe `appointmentQueueData[appointment.idAgenda]`
-   - Se existir, exibir um mini-card com a posicao na fila (posicao, horario, status)
-   - Se nao existir ainda, buscar automaticamente via `ListarFilaTele` ao detectar `possuiAtendimento === "S"`
-
-4. A secao de fila inline tera:
-   - Posicao do paciente na fila (baseado no `idCliente`)
-   - Horario da consulta e horario do check-in
-   - Status atual
-   - Auto-refresh a cada 10 segundos para manter atualizado
-
-### Detalhes tecnicos
-
-**TelemedicineHelpSection.tsx:**
-- O `variant="full"` passa a renderizar um botao compacto com Dialog
-- Layout: linha unica com icone + texto "Como usar a Telemedicina" + seta, estilizado como um banner fino
-- Ao clicar, abre Dialog com o mesmo conteudo do Accordion atual
-
-**OnlineConsultationDetails.tsx - Mudancas principais:**
-
-Novo state:
-```typescript
-const [inlineQueueData, setInlineQueueData] = useState<Record<string, any[]>>({});
-```
-
-useEffect para buscar fila automaticamente para appointments com check-in feito:
-```typescript
-useEffect(() => {
-  appointments.filter(a => a.possuiAtendimento === "S").forEach(appointment => {
-    if (!inlineQueueData[appointment.idAgenda]) {
-      fetchQueueForAppointment(appointment);
-    }
-  });
-}, [appointments]);
-```
-
-Funcao `fetchQueueForAppointment` que popula `inlineQueueData`.
-
-Intervalo de auto-refresh para appointments com check-in.
-
-Na renderizacao do card com `hasCheckedIn`, adicionar abaixo dos botoes existentes:
-```
-+--------------------------------------+
-| Sua posicao na fila                  |
-| Posicao: #2                         |
-| Horario consulta: 14:00             |
-| Check-in: 13:45                     |
-| Status: Aguardando atendimento      |
-| Atualizando a cada 10s...           |
-+--------------------------------------+
-```
-
-Os botoes "Entrar na Sala de Consulta" e "Ver Fila de Atendimento" continuam funcionando normalmente.
+A mudança é isolada neste componente — o `LabExamRequests.tsx` continua passando `exams={selectedRequests}` sem alteração.
 
