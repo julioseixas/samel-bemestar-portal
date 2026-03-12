@@ -522,8 +522,14 @@ const LabExamRequests = () => {
       pagebreak: { mode: [] as string[] }
     };
 
-    try {
+      // Hide visual separators before PDF capture
+      const pdfHideElements = container.querySelectorAll('.pdf-hide');
+      pdfHideElements.forEach(el => (el as HTMLElement).style.display = 'none');
+      
       const pdfBlob = await withLightTheme(() => html2pdf().set(options).from(container).output("blob"));
+      
+      // Restore separators
+      pdfHideElements.forEach(el => (el as HTMLElement).style.display = '');
       
       const shared = await handlePdfShare(
         pdfBlob, 
