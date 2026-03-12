@@ -403,7 +403,84 @@ const LabExamRequests = () => {
     }
   };
 
-  const handleDownloadMultiplePDF = async () => {
+  const generateSectionBasedPdf = async (container: HTMLElement): Promise<Blob> => {
+    const MARGIN = 10;
+    const A4_W = 210;
+    const A4_H = 297;
+    const CONTENT_W = A4_W - MARGIN * 2;
+
+    // Hide visual separators
+    const pdfHideEls = container.querySelectorAll('.pdf-hide');
+    pdfHideEls.forEach(el => (el as HTMLElement).style.display = 'none');
+
+    try {
+      const sections = Array.from(
+        container.querySelectorAll('[data-pdf-section]')
+      ) as HTMLElement[];
+
+      // Fallback: if no sections found, capture entire container
+      const elements = sections.length > 0 ? sections : [container];
+
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      let isFirstSection = true;
+
+      for (const section of elements) {
+        const canvas = await html2canvas(section, {
+          scale: 2,
+          useCORS: true,
+          scrollY: 0,
+          backgroundColor: '#ffffff',
+        });
+
+        const imgData = canvas.toDataURL('image/jpeg', 0.98);
+        const imgWidthPx = canvas.width;
+        const imgHeightPx = canvas.height;
+        const ratio = CONTENT_W / imgWidthPx;
+        const imgHeightMm = imgHeightPx * ratio;
+
+        if (!isFirstSection) {
+          pdf.addPage();
+        }
+        isFirstSection = false;
+
+        // If section fits in one page
+        if (imgHeightMm <= A4_H - MARGIN * 2) {
+          pdf.addImage(imgData, 'JPEG', MARGIN, MARGIN, CONTENT_W, imgHeightMm);
+        } else {
+          // Section spans multiple pages — slice the canvas
+          const pageContentH = A4_H - MARGIN * 2;
+          const pageContentHPx = pageContentH / ratio;
+          let offsetPx = 0;
+
+          while (offsetPx < imgHeightPx) {
+            const sliceH = Math.min(pageContentHPx, imgHeightPx - offsetPx);
+            const sliceCanvas = document.createElement('canvas');
+            sliceCanvas.width = imgWidthPx;
+            sliceCanvas.height = sliceH;
+            const ctx = sliceCanvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(canvas, 0, offsetPx, imgWidthPx, sliceH, 0, 0, imgWidthPx, sliceH);
+              const sliceData = sliceCanvas.toDataURL('image/jpeg', 0.98);
+              const sliceHeightMm = sliceH * ratio;
+
+              if (offsetPx > 0) {
+                pdf.addPage();
+              }
+              pdf.addImage(sliceData, 'JPEG', MARGIN, MARGIN, CONTENT_W, sliceHeightMm);
+            }
+            offsetPx += sliceH;
+          }
+        }
+      }
+
+      return pdf.output('blob');
+    } finally {
+      // Restore separators
+      pdfHideEls.forEach(el => (el as HTMLElement).style.display = '');
+    }
+  };
+
+
     if (selectedRequests.length === 0) return;
     
     const container = document.getElementById("printMultiple");
