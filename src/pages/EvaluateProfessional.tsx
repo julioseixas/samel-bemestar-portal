@@ -43,6 +43,7 @@ const EvaluateProfessional = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [patientName, setPatientName] = useState("");
   const [profilePhoto, setProfilePhoto] = useState("");
+  const [openDrawerIndex, setOpenDrawerIndex] = useState<number | null>(null);
   const ratingLockUntil = useRef<Record<number, number>>({});
   const ignoreMouseUntilRef = useRef<Record<number, number>>({});
 
