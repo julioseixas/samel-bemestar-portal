@@ -836,17 +836,25 @@ export function ExamDetailsDialog({
 
           <div className="flex-1 overflow-y-auto overflow-x-hidden px-2 sm:px-6 py-3 sm:py-4">
             {getSelectedExams().map((exam, index) => (
-              <div key={`report-${index}`} className="mb-8 pb-8 border-b last:border-b-0">
-                <h3 className="text-lg font-semibold mb-4 text-primary">
-                  Exame {index + 1}: {exam.procedimentoExame}
-                </h3>
-                <ExamReportView
-                  examData={{
-                    ...exam,
-                    dsResultado: exam.dsResultado || exam.dsCabecalho
-                  }}
-                  tipoLaudo={apiEndpoint.includes("Lab") ? "lab" : "cdi"}
-                />
+              <div key={`report-${index}`} className="mb-6">
+                {index > 0 && (
+                  <div className="flex items-center gap-3 my-6">
+                    <div className="flex-1 h-px bg-border" />
+                    <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
+                      Exame {index + 1} de {getSelectedExams().length}
+                    </span>
+                    <div className="flex-1 h-px bg-border" />
+                  </div>
+                )}
+                <div className="rounded-lg border-2 border-border shadow-md bg-card overflow-hidden">
+                  <ExamReportView
+                    examData={{
+                      ...exam,
+                      dsResultado: exam.dsResultado || exam.dsCabecalho
+                    }}
+                    tipoLaudo={apiEndpoint.includes("Lab") ? "lab" : "cdi"}
+                  />
+                </div>
               </div>
             ))}
           </div>
