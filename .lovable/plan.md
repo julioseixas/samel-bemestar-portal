@@ -1,83 +1,36 @@
 
+## Fix definitivo: debounce com setTimeout para Q1 (iPhone Safari)
 
-## Diminuir card de ajuda e exibir fila inline na tela de check-in
+### Problema
+No iPhone/Safari, ao tocar na estrela 10, o browser dispara um segundo evento fantasma ~200-300ms depois que retargeteia para a estrela 5 (mesma posição visual na linha de cima). As guardas anteriores não funcionam porque o evento fantasma chega como um evento legítimo separado.
 
-### Mudanca 1: Compactar o card de ajuda
+### Solução: Debounce por pergunta
 
-**Arquivo:** `src/components/TelemedicineHelpSection.tsx`
+**Arquivo:** `src/pages/EvaluateProfessional.tsx`
 
-Transformar o card de ajuda `variant="full"` em um formato mais compacto:
-- Remover o Card/CardHeader e usar apenas um botao/link que abre um Dialog com o conteudo completo
-- O resultado sera um simples botao "Como usar a Telemedicina" com icone de ajuda que, ao clicar, abre um modal com o accordion completo
-- Isso libera espaco vertical na tela
+Substituir a atualização imediata do rating por um debounce com `setTimeout`:
 
-### Mudanca 2: Exibir posicao na fila inline apos check-in
+1. Criar um `useRef` para armazenar timers pendentes por índice de pergunta (`Record<number, ReturnType<typeof setTimeout>>`)
+2. No `handleRatingChange`:
+   - Cancelar qualquer timer pendente para aquele índice (`clearTimeout`)
+   - Criar novo `setTimeout` de ~350ms que aplica o rating
+   - Isso garante que se dois eventos chegarem em sequência rápida (toque real + fantasma), apenas o **último** é aplicado
+3. Para perguntas que **não** são Q1 (escala 1-5), aplicar imediatamente sem debounce para manter a experiência responsiva
+4. Remover a lógica de guarda temporal anterior (`lastRatingUpdate` ref) que não estava funcionando
 
-**Arquivo:** `src/pages/OnlineConsultationDetails.tsx`
+**Comportamento esperado:**
+- Toque na estrela 10 → timer de 350ms inicia
+- Evento fantasma na estrela 5 chega ~200ms depois → cancela timer anterior, inicia novo timer de 350ms
+- Mas como o evento fantasma é o **segundo**, e queremos o **primeiro** (o real)...
 
-Alterar o fluxo pos-check-in para nao navegar mais para `/telemedicine-queue`:
+Na verdade, a abordagem correta é inversa: **priorizar o primeiro toque e ignorar tudo nos próximos 600ms** (lock temporal):
 
-1. Adicionar novo state para armazenar dados da fila por appointment:
-```typescript
-const [appointmentQueueData, setAppointmentQueueData] = useState<Record<number, any[]>>({});
-```
+1. `useRef` com timestamp do último rating aceito por índice
+2. No `handleRatingChange` para Q1:
+   - Se menos de 600ms desde o último rating aceito para esse índice → ignorar
+   - Senão → aceitar, atualizar timestamp e aplicar rating
+3. Para perguntas não-Q1: aplicar imediatamente sem lock
 
-2. Nos fluxos de check-in (facial e email), em vez de `navigate("/telemedicine-queue")`:
-   - Salvar os dados retornados por `ListarFilaTele` no state `appointmentQueueData` indexado pelo `idAgenda`
-   - Recarregar os agendamentos (ja faz isso)
-   - Nao navegar - permanecer na tela
+Isso é mais simples e robusto: o primeiro toque (real) passa, o fantasma (~200ms depois) é bloqueado.
 
-3. Na renderizacao do card de appointment, quando `hasCheckedIn === true`:
-   - Verificar se existe `appointmentQueueData[appointment.idAgenda]`
-   - Se existir, exibir um mini-card com a posicao na fila (posicao, horario, status)
-   - Se nao existir ainda, buscar automaticamente via `ListarFilaTele` ao detectar `possuiAtendimento === "S"`
-
-4. A secao de fila inline tera:
-   - Posicao do paciente na fila (baseado no `idCliente`)
-   - Horario da consulta e horario do check-in
-   - Status atual
-   - Auto-refresh a cada 10 segundos para manter atualizado
-
-### Detalhes tecnicos
-
-**TelemedicineHelpSection.tsx:**
-- O `variant="full"` passa a renderizar um botao compacto com Dialog
-- Layout: linha unica com icone + texto "Como usar a Telemedicina" + seta, estilizado como um banner fino
-- Ao clicar, abre Dialog com o mesmo conteudo do Accordion atual
-
-**OnlineConsultationDetails.tsx - Mudancas principais:**
-
-Novo state:
-```typescript
-const [inlineQueueData, setInlineQueueData] = useState<Record<string, any[]>>({});
-```
-
-useEffect para buscar fila automaticamente para appointments com check-in feito:
-```typescript
-useEffect(() => {
-  appointments.filter(a => a.possuiAtendimento === "S").forEach(appointment => {
-    if (!inlineQueueData[appointment.idAgenda]) {
-      fetchQueueForAppointment(appointment);
-    }
-  });
-}, [appointments]);
-```
-
-Funcao `fetchQueueForAppointment` que popula `inlineQueueData`.
-
-Intervalo de auto-refresh para appointments com check-in.
-
-Na renderizacao do card com `hasCheckedIn`, adicionar abaixo dos botoes existentes:
-```
-+--------------------------------------+
-| Sua posicao na fila                  |
-| Posicao: #2                         |
-| Horario consulta: 14:00             |
-| Check-in: 13:45                     |
-| Status: Aguardando atendimento      |
-| Atualizando a cada 10s...           |
-+--------------------------------------+
-```
-
-Os botoes "Entrar na Sala de Consulta" e "Ver Fila de Atendimento" continuam funcionando normalmente.
-
+**Mudança concentrada em:** linhas 39, 99-116 do arquivo atual.
