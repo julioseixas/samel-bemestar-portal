@@ -1,83 +1,36 @@
 
 
-## Diminuir card de ajuda e exibir fila inline na tela de check-in
+## Problema
 
-### Mudanca 1: Compactar o card de ajuda
+A imagem mostra o PDF gerado com 3 páginas: página 1 quase em branco, página 2 com o conteúdo real, página 3 em branco. Isso acontece porque:
 
-**Arquivo:** `src/components/TelemedicineHelpSection.tsx`
+1. O `pageBreakBefore: 'always'` no segundo grupo força uma quebra de página que o `html2pdf` interpreta criando páginas vazias
+2. O `pageBreakInside: 'avoid'` no `SingleRequestTemplate` pode empurrar o conteúdo para a próxima página se não couber
+3. O separador visual ("Pedido X de Y") com `print:hidden` é ignorado na impressão mas **não** pelo `html2canvas` — ele ocupa espaço no PDF
+4. O `pagebreak: { mode: ['css', 'legacy'] }` no `html2pdf` está processando essas regras CSS de forma incorreta
 
-Transformar o card de ajuda `variant="full"` em um formato mais compacto:
-- Remover o Card/CardHeader e usar apenas um botao/link que abre um Dialog com o conteudo completo
-- O resultado sera um simples botao "Como usar a Telemedicina" com icone de ajuda que, ao clicar, abre um modal com o accordion completo
-- Isso libera espaco vertical na tela
+## Solução
 
-### Mudanca 2: Exibir posicao na fila inline apos check-in
+Abordagem em duas partes: corrigir o componente visual e mudar a estratégia de geração de PDF para múltiplos pedidos.
 
-**Arquivo:** `src/pages/OnlineConsultationDetails.tsx`
+### 1. `src/components/GroupedExamRequestView.tsx`
 
-Alterar o fluxo pos-check-in para nao navegar mais para `/telemedicine-queue`:
+- Remover `pageBreakInside: 'avoid'` do `SingleRequestTemplate` — deixar o `html2pdf` fluir naturalmente
+- Remover `pageBreakBefore: 'always'` dos grupos — não usar CSS page breaks para controle de PDF
+- Adicionar atributo `data-pdf-section` em cada grupo para permitir captura individual
+- Manter o separador visual apenas para exibição no modal (sem impacto no PDF)
 
-1. Adicionar novo state para armazenar dados da fila por appointment:
-```typescript
-const [appointmentQueueData, setAppointmentQueueData] = useState<Record<number, any[]>>({});
-```
+### 2. `src/pages/LabExamRequests.tsx` — funções `handleDownloadMultiplePDF` e `handleShareMultiple`
 
-2. Nos fluxos de check-in (facial e email), em vez de `navigate("/telemedicine-queue")`:
-   - Salvar os dados retornados por `ListarFilaTele` no state `appointmentQueueData` indexado pelo `idAgenda`
-   - Recarregar os agendamentos (ja faz isso)
-   - Nao navegar - permanecer na tela
+Trocar a estratégia de uma única chamada `html2pdf` sobre o container inteiro por uma abordagem de **captura por seção**:
 
-3. Na renderizacao do card de appointment, quando `hasCheckedIn === true`:
-   - Verificar se existe `appointmentQueueData[appointment.idAgenda]`
-   - Se existir, exibir um mini-card com a posicao na fila (posicao, horario, status)
-   - Se nao existir ainda, buscar automaticamente via `ListarFilaTele` ao detectar `possuiAtendimento === "S"`
+- Buscar todos os elementos `[data-pdf-section]` dentro do container `#printMultiple`
+- Para cada seção, gerar um PDF individual com `html2pdf` e extrair as páginas
+- Ou, mais simples: gerar o PDF normalmente mas **sem** `pagebreak` CSS, usando `pagebreak: { mode: [] }` (desabilitar completamente) e deixar o `html2pdf` fazer a paginação automática baseada apenas no tamanho do conteúdo
 
-4. A secao de fila inline tera:
-   - Posicao do paciente na fila (baseado no `idCliente`)
-   - Horario da consulta e horario do check-in
-   - Status atual
-   - Auto-refresh a cada 10 segundos para manter atualizado
+A abordagem mais simples e menos invasiva: remover todas as regras CSS de page break e usar `pagebreak: { mode: [] }` para deixar o `html2pdf` paginar naturalmente pelo tamanho do conteúdo.
 
-### Detalhes tecnicos
-
-**TelemedicineHelpSection.tsx:**
-- O `variant="full"` passa a renderizar um botao compacto com Dialog
-- Layout: linha unica com icone + texto "Como usar a Telemedicina" + seta, estilizado como um banner fino
-- Ao clicar, abre Dialog com o mesmo conteudo do Accordion atual
-
-**OnlineConsultationDetails.tsx - Mudancas principais:**
-
-Novo state:
-```typescript
-const [inlineQueueData, setInlineQueueData] = useState<Record<string, any[]>>({});
-```
-
-useEffect para buscar fila automaticamente para appointments com check-in feito:
-```typescript
-useEffect(() => {
-  appointments.filter(a => a.possuiAtendimento === "S").forEach(appointment => {
-    if (!inlineQueueData[appointment.idAgenda]) {
-      fetchQueueForAppointment(appointment);
-    }
-  });
-}, [appointments]);
-```
-
-Funcao `fetchQueueForAppointment` que popula `inlineQueueData`.
-
-Intervalo de auto-refresh para appointments com check-in.
-
-Na renderizacao do card com `hasCheckedIn`, adicionar abaixo dos botoes existentes:
-```
-+--------------------------------------+
-| Sua posicao na fila                  |
-| Posicao: #2                         |
-| Horario consulta: 14:00             |
-| Check-in: 13:45                     |
-| Status: Aguardando atendimento      |
-| Atualizando a cada 10s...           |
-+--------------------------------------+
-```
-
-Os botoes "Entrar na Sala de Consulta" e "Ver Fila de Atendimento" continuam funcionando normalmente.
+### Arquivos a editar:
+- `src/components/GroupedExamRequestView.tsx` — remover estilos de page break, adicionar `data-pdf-section`
+- `src/pages/LabExamRequests.tsx` — ajustar opções de `pagebreak` nas funções de download/share múltiplo
 
