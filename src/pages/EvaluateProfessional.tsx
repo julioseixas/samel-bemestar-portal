@@ -37,6 +37,7 @@ const EvaluateProfessional = () => {
   const [patientName, setPatientName] = useState("");
   const [profilePhoto, setProfilePhoto] = useState("");
   const ratingLockUntil = useRef<Record<number, number>>({});
+  const ignoreMouseUntilRef = useRef<Record<number, number>>({});
 
   const getMaxRating = (idPergunta: string) => idPergunta === "Q1" ? 10 : 5;
 
@@ -85,7 +86,27 @@ const EvaluateProfessional = () => {
             comentario: "",
           })
         );
-        setAvaliacoes(avaliacoesComResposta);
+
+        const debugQ1: AvaliacaoComResposta = {
+          idCliente: "DEBUG",
+          idAtendimento: idAtendimento,
+          idTipoEvolucao: "DEBUG",
+          idEvolucao: 0,
+          dataEntrada: new Date().toISOString(),
+          dsEspecialidade: "DEBUG - Frontend",
+          dsEvolucao: "DEBUG",
+          dsPergunta: "[DEBUG FRONTEND] Avaliação Q1 - Gerada localmente para teste",
+          dsSetor: "Debug",
+          idPergunta: "Q1",
+          idUnidade: "0",
+          medico: "Debug",
+          nome: "Debug",
+          nomeUsuarioAtendimento: "Debug",
+          rating: 0,
+          comentario: "",
+        };
+
+        setAvaliacoes([debugQ1, ...avaliacoesComResposta]);
       } else {
         toast.error(data.mensagem || "Erro ao buscar avaliações");
       }
@@ -254,16 +275,23 @@ const EvaluateProfessional = () => {
                       <button
                         key={star}
                         type="button"
-                        onPointerDown={(e) => {
+                        onTouchStart={(e) => {
                           e.preventDefault();
-                          e.stopPropagation();
+                          ignoreMouseUntilRef.current[index] = Date.now() + 1200;
+                          handleRatingChange(index, star, avaliacao.idPergunta);
+                        }}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          if (Date.now() < (ignoreMouseUntilRef.current[index] || 0)) return;
                           handleRatingChange(index, star, avaliacao.idPergunta);
                         }}
                         onClick={(e) => {
                           e.preventDefault();
-                          e.stopPropagation();
+                          if (Date.now() < (ignoreMouseUntilRef.current[index] || 0)) return;
                         }}
-                        className="transition-colors touch-manipulation select-none flex-shrink-0"
+                        className={`transition-colors touch-manipulation select-none flex-shrink-0 ${
+                          avaliacao.idPergunta === "Q1" ? "min-w-[28px] min-h-[28px] flex items-center justify-center" : ""
+                        }`}
                         style={{ WebkitTapHighlightColor: 'transparent' }}
                       >
                         <Star
