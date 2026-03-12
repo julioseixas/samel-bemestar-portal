@@ -1,83 +1,28 @@
 
 
-## Diminuir card de ajuda e exibir fila inline na tela de check-in
+## Bug: Download múltiplo de laudos não funciona
 
-### Mudanca 1: Compactar o card de ajuda
+### Causa raiz identificada
 
-**Arquivo:** `src/components/TelemedicineHelpSection.tsx`
+Há **dois problemas** no `handleDownloadMultipleReports` em `ExamDetailsDialog.tsx`:
 
-Transformar o card de ajuda `variant="full"` em um formato mais compacto:
-- Remover o Card/CardHeader e usar apenas um botao/link que abre um Dialog com o conteudo completo
-- O resultado sera um simples botao "Como usar a Telemedicina" com icone de ajuda que, ao clicar, abre um modal com o accordion completo
-- Isso libera espaco vertical na tela
+1. **`html2canvas` não captura elementos off-screen corretamente.** O `tempDiv` é posicionado com `left: -9999px`, mas `html2canvas` depende do layout visual do DOM para renderizar. Elementos fora da viewport são capturados como vazios ou com dimensões zero, resultando em PDFs em branco ou falha silenciosa.
 
-### Mudanca 2: Exibir posicao na fila inline apos check-in
+2. **Browsers bloqueiam downloads programáticos múltiplos em sequência.** Tanto Safari/iOS quanto Chrome/Android bloqueiam silenciosamente a criação de múltiplos `<a>` com `.click()` em rápida sucessão (mesmo com delay de 500ms). Apenas o primeiro download passa; os demais são descartados sem erro. No WebView (Android), o `saveBase64File` pode ter comportamento similar dependendo da implementação nativa.
 
-**Arquivo:** `src/pages/OnlineConsultationDetails.tsx`
+3. **A imagem do logo (`samelLogo`) não tem tempo de carregar** no elemento temporário antes do `html2canvas` capturar, resultando em logo ausente no PDF.
 
-Alterar o fluxo pos-check-in para nao navegar mais para `/telemedicine-queue`:
+### Correção proposta
 
-1. Adicionar novo state para armazenar dados da fila por appointment:
-```typescript
-const [appointmentQueueData, setAppointmentQueueData] = useState<Record<number, any[]>>({});
-```
+**Arquivo:** `src/components/ExamDetailsDialog.tsx` — função `handleDownloadMultipleReports`
 
-2. Nos fluxos de check-in (facial e email), em vez de `navigate("/telemedicine-queue")`:
-   - Salvar os dados retornados por `ListarFilaTele` no state `appointmentQueueData` indexado pelo `idAgenda`
-   - Recarregar os agendamentos (ja faz isso)
-   - Nao navegar - permanecer na tela
+**Estratégia:** Em vez de gerar N PDFs separados (que o browser bloqueia), gerar **um único PDF concatenado** com todos os laudos selecionados, separados por page breaks.
 
-3. Na renderizacao do card de appointment, quando `hasCheckedIn === true`:
-   - Verificar se existe `appointmentQueueData[appointment.idAgenda]`
-   - Se existir, exibir um mini-card com a posicao na fila (posicao, horario, status)
-   - Se nao existir ainda, buscar automaticamente via `ListarFilaTele` ao detectar `possuiAtendimento === "S"`
+1. Criar um único `tempDiv` com todos os laudos selecionados, cada um em um wrapper com `style="page-break-before: always"` (exceto o primeiro).
+2. Posicionar o `tempDiv` dentro da viewport mas invisível (`opacity: 0; position: fixed; top: 0; left: 0; z-index: -1`) para que o `html2canvas` consiga capturar corretamente.
+3. Aguardar o carregamento das imagens (logo) com um `await` de preload antes de capturar.
+4. Gerar um único blob PDF e fazer um único download com nome `laudos-selecionados.pdf`.
+5. Remover o `tempDiv` após conclusão.
 
-4. A secao de fila inline tera:
-   - Posicao do paciente na fila (baseado no `idCliente`)
-   - Horario da consulta e horario do check-in
-   - Status atual
-   - Auto-refresh a cada 10 segundos para manter atualizado
-
-### Detalhes tecnicos
-
-**TelemedicineHelpSection.tsx:**
-- O `variant="full"` passa a renderizar um botao compacto com Dialog
-- Layout: linha unica com icone + texto "Como usar a Telemedicina" + seta, estilizado como um banner fino
-- Ao clicar, abre Dialog com o mesmo conteudo do Accordion atual
-
-**OnlineConsultationDetails.tsx - Mudancas principais:**
-
-Novo state:
-```typescript
-const [inlineQueueData, setInlineQueueData] = useState<Record<string, any[]>>({});
-```
-
-useEffect para buscar fila automaticamente para appointments com check-in feito:
-```typescript
-useEffect(() => {
-  appointments.filter(a => a.possuiAtendimento === "S").forEach(appointment => {
-    if (!inlineQueueData[appointment.idAgenda]) {
-      fetchQueueForAppointment(appointment);
-    }
-  });
-}, [appointments]);
-```
-
-Funcao `fetchQueueForAppointment` que popula `inlineQueueData`.
-
-Intervalo de auto-refresh para appointments com check-in.
-
-Na renderizacao do card com `hasCheckedIn`, adicionar abaixo dos botoes existentes:
-```
-+--------------------------------------+
-| Sua posicao na fila                  |
-| Posicao: #2                         |
-| Horario consulta: 14:00             |
-| Check-in: 13:45                     |
-| Status: Aguardando atendimento      |
-| Atualizando a cada 10s...           |
-+--------------------------------------+
-```
-
-Os botoes "Entrar na Sala de Consulta" e "Ver Fila de Atendimento" continuam funcionando normalmente.
+Isso resolve ambos os ambientes (web e WebView) pois há apenas uma chamada de download.
 
