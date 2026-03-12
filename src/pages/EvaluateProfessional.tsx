@@ -37,7 +37,7 @@ const EvaluateProfessional = () => {
   const [patientName, setPatientName] = useState("");
   const [profilePhoto, setProfilePhoto] = useState("");
   const ratingLockUntil = useRef<Record<number, number>>({});
-  const touchHandled = useRef(false);
+  const ignoreMouseUntilRef = useRef<Record<number, number>>({});
 
   const getMaxRating = (idPergunta: string) => idPergunta === "Q1" ? 10 : 5;
 
