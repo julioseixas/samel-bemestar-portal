@@ -251,19 +251,25 @@ const EvaluateProfessional = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex gap-2 flex-wrap">
-                    {Array.from({ length: avaliacao.idPergunta === "Q1" ? 10 : 5 }, (_, i) => i + 1).map((star) => (
+                  <div className={`flex ${avaliacao.idPergunta === "Q1" ? "flex-nowrap gap-1" : "flex-wrap gap-2"}`}>
+                    {Array.from({ length: getMaxRating(avaliacao.idPergunta) }, (_, i) => i + 1).map((star) => (
                       <button
                         key={star}
                         type="button"
                         onPointerDown={(e) => {
                           e.preventDefault();
+                          e.stopPropagation();
                           handleRatingChange(index, star);
                         }}
-                        className="transition-colors touch-manipulation select-none"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
+                        className="transition-colors touch-manipulation select-none flex-shrink-0"
+                        style={{ WebkitTapHighlightColor: 'transparent' }}
                       >
                         <Star
-                          className={`${avaliacao.idPergunta === "Q1" ? "w-6 h-6" : "w-8 h-8"} ${
+                          className={`pointer-events-none ${avaliacao.idPergunta === "Q1" ? "w-5 h-5 sm:w-6 sm:h-6" : "w-8 h-8"} ${
                             star <= avaliacao.rating
                               ? "fill-yellow-400 text-yellow-400"
                               : "text-muted-foreground"
