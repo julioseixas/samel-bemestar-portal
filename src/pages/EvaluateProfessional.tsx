@@ -257,7 +257,7 @@ const EvaluateProfessional = () => {
                         onPointerDown={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          handleRatingChange(index, star);
+                          handleRatingChange(index, star, avaliacao.idPergunta);
                         }}
                         onClick={(e) => {
                           e.preventDefault();
