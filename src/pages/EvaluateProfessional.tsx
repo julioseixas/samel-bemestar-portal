@@ -139,9 +139,9 @@ const EvaluateProfessional = () => {
   };
 
   const handleSubmitAvaliacao = async (avaliacao: AvaliacaoComResposta) => {
+    const maxRating = getMaxRating(avaliacao.idPergunta);
     if (avaliacao.rating === 0) {
-      const maxRating = avaliacao.idPergunta === "Q1" ? 10 : 5;
-      toast.error(`Por favor, selecione uma nota de 1 a ${maxRating} estrelas`);
+      toast.error(`Por favor, selecione uma nota de 1 a ${maxRating}`);
       return;
     }
 
