@@ -480,7 +480,7 @@ const LabExamRequests = () => {
     }
   };
 
-
+  const handleDownloadMultiplePDF = async () => {
     if (selectedRequests.length === 0) return;
     
     const container = document.getElementById("printMultiple");
