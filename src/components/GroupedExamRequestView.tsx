@@ -137,9 +137,9 @@ export function GroupedExamRequestView({ exams }: GroupedExamRequestViewProps) {
   return (
     <div>
       {groups.map((group, index) => (
-        <div key={`group-${index}`} className="mb-6" style={index > 0 ? { pageBreakBefore: 'always' } : undefined}>
+        <div key={`group-${index}`} className="mb-6" data-pdf-section>
           {index > 0 && (
-            <div className="flex items-center gap-3 my-6 max-w-[800px] mx-auto print:hidden">
+            <div className="flex items-center gap-3 my-6 max-w-[800px] mx-auto pdf-hide">
               <div className="flex-1 h-px bg-border" />
               <span className="text-xs font-medium text-muted-foreground">
                 Pedido {index + 1} de {groups.length}
