@@ -7,6 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Star, Stethoscope, Activity, UtensilsCrossed, Sparkles, ArrowLeft, UserCheck } from "lucide-react";
 import { toast } from "sonner";
 import { getApiHeaders } from "@/lib/api-headers";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerFooter,
+} from "@/components/ui/drawer";
 
 interface Avaliacao {
   idCliente: string;
@@ -36,6 +43,7 @@ const EvaluateProfessional = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [patientName, setPatientName] = useState("");
   const [profilePhoto, setProfilePhoto] = useState("");
+  const [openDrawerIndex, setOpenDrawerIndex] = useState<number | null>(null);
   const ratingLockUntil = useRef<Record<number, number>>({});
   const ignoreMouseUntilRef = useRef<Record<number, number>>({});
 
@@ -270,61 +278,150 @@ const EvaluateProfessional = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className={`flex ${avaliacao.idPergunta === "Q1" ? "flex-nowrap gap-1" : "flex-wrap gap-2"}`}>
-                    {Array.from({ length: getMaxRating(avaliacao.idPergunta) }, (_, i) => i + 1).map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        onTouchStart={(e) => {
-                          e.preventDefault();
-                          ignoreMouseUntilRef.current[index] = Date.now() + 1200;
-                          handleRatingChange(index, star, avaliacao.idPergunta);
-                        }}
-                        onMouseDown={(e) => {
-                          e.preventDefault();
-                          if (Date.now() < (ignoreMouseUntilRef.current[index] || 0)) return;
-                          handleRatingChange(index, star, avaliacao.idPergunta);
-                        }}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          if (Date.now() < (ignoreMouseUntilRef.current[index] || 0)) return;
-                        }}
-                        className={`transition-colors touch-manipulation select-none flex-shrink-0 ${
-                          avaliacao.idPergunta === "Q1" ? "min-w-[28px] min-h-[28px] flex items-center justify-center" : ""
-                        }`}
-                        style={{ WebkitTapHighlightColor: 'transparent' }}
-                      >
-                        <Star
-                          className={`pointer-events-none ${avaliacao.idPergunta === "Q1" ? "w-5 h-5 sm:w-6 sm:h-6" : "w-8 h-8"} ${
-                            star <= avaliacao.rating
-                              ? "fill-yellow-400 text-yellow-400"
-                              : "text-muted-foreground"
-                          }`}
+                  {avaliacao.idPergunta === "Q1" ? (
+                    <>
+                      <div className="flex items-center gap-3">
+                        {avaliacao.rating > 0 && (
+                          <span className={`text-2xl font-bold ${
+                            avaliacao.rating <= 6 ? "text-destructive" : avaliacao.rating <= 8 ? "text-warning" : "text-success"
+                          }`}>
+                            {avaliacao.rating}/10
+                          </span>
+                        )}
+                        <Button
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => setOpenDrawerIndex(index)}
+                        >
+                          {avaliacao.rating > 0 ? "Alterar Nota" : "Avaliar"}
+                        </Button>
+                      </div>
+
+                      <Drawer open={openDrawerIndex === index} onOpenChange={(open) => setOpenDrawerIndex(open ? index : null)}>
+                        <DrawerContent>
+                          <DrawerHeader>
+                            <DrawerTitle className="text-base leading-snug">
+                              {avaliacao.dsPergunta}
+                            </DrawerTitle>
+                          </DrawerHeader>
+
+                          <div className="px-4 pb-2">
+                            <p className="text-sm text-muted-foreground mb-3">Selecione uma nota de 1 a 10:</p>
+                            <div className="flex justify-between gap-1.5">
+                              {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => {
+                                const isSelected = avaliacao.rating === num;
+                                const colorClass = num <= 6
+                                  ? "bg-destructive text-destructive-foreground"
+                                  : num <= 8
+                                    ? "bg-warning text-warning-foreground"
+                                    : "bg-success text-success-foreground";
+                                const unselectedClass = num <= 6
+                                  ? "border-destructive/40 text-destructive"
+                                  : num <= 8
+                                    ? "border-warning/40 text-warning"
+                                    : "border-success/40 text-success";
+
+                                return (
+                                  <button
+                                    key={num}
+                                    type="button"
+                                    onClick={() => handleRatingChange(index, num, avaliacao.idPergunta)}
+                                    className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full font-bold text-sm sm:text-base transition-all touch-manipulation select-none flex items-center justify-center border-2 ${
+                                      isSelected
+                                        ? `${colorClass} scale-110 shadow-md border-transparent`
+                                        : `bg-transparent ${unselectedClass}`
+                                    }`}
+                                    style={{ WebkitTapHighlightColor: 'transparent' }}
+                                  >
+                                    {num}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          <div className="px-4 py-2 space-y-2">
+                            <label className="text-sm font-medium text-foreground">
+                              Comentário (opcional)
+                            </label>
+                            <Textarea
+                              placeholder="Deixe seu comentário sobre o atendimento..."
+                              value={avaliacao.comentario}
+                              onChange={(e) => handleComentarioChange(index, e.target.value)}
+                              className="min-h-[80px]"
+                            />
+                          </div>
+
+                          <DrawerFooter>
+                            <Button
+                              className="w-full"
+                              onClick={() => {
+                                handleSubmitAvaliacao(avaliacao);
+                                setOpenDrawerIndex(null);
+                              }}
+                              disabled={avaliacao.rating === 0}
+                            >
+                              Enviar Avaliação
+                            </Button>
+                          </DrawerFooter>
+                        </DrawerContent>
+                      </Drawer>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex flex-wrap gap-2">
+                        {Array.from({ length: getMaxRating(avaliacao.idPergunta) }, (_, i) => i + 1).map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onTouchStart={(e) => {
+                              e.preventDefault();
+                              ignoreMouseUntilRef.current[index] = Date.now() + 1200;
+                              handleRatingChange(index, star, avaliacao.idPergunta);
+                            }}
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              if (Date.now() < (ignoreMouseUntilRef.current[index] || 0)) return;
+                              handleRatingChange(index, star, avaliacao.idPergunta);
+                            }}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              if (Date.now() < (ignoreMouseUntilRef.current[index] || 0)) return;
+                            }}
+                            className="transition-colors touch-manipulation select-none flex-shrink-0"
+                            style={{ WebkitTapHighlightColor: 'transparent' }}
+                          >
+                            <Star
+                              className={`pointer-events-none w-8 h-8 ${
+                                star <= avaliacao.rating
+                                  ? "fill-yellow-400 text-yellow-400"
+                                  : "text-muted-foreground"
+                              }`}
+                            />
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-foreground">
+                          Comentário (opcional)
+                        </label>
+                        <Textarea
+                          placeholder="Deixe seu comentário sobre o atendimento..."
+                          value={avaliacao.comentario}
+                          onChange={(e) => handleComentarioChange(index, e.target.value)}
+                          className="min-h-[100px]"
                         />
-                      </button>
-                    ))}
-                  </div>
+                      </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground">
-                      Comentário (opcional)
-                    </label>
-                    <Textarea
-                      placeholder="Deixe seu comentário sobre o atendimento..."
-                      value={avaliacao.comentario}
-                      onChange={(e) =>
-                        handleComentarioChange(index, e.target.value)
-                      }
-                      className="min-h-[100px]"
-                    />
-                  </div>
-
-                  <Button
-                    className="w-full"
-                    onClick={() => handleSubmitAvaliacao(avaliacao)}
-                  >
-                    Enviar Avaliação
-                  </Button>
+                      <Button
+                        className="w-full"
+                        onClick={() => handleSubmitAvaliacao(avaliacao)}
+                      >
+                        Enviar Avaliação
+                      </Button>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             ))}
