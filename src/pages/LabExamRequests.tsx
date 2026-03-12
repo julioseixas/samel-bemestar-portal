@@ -523,6 +523,7 @@ const LabExamRequests = () => {
       pagebreak: { mode: [] as string[] }
     };
 
+    try {
       // Hide visual separators before PDF capture
       const pdfHideElements = container.querySelectorAll('.pdf-hide');
       pdfHideElements.forEach(el => (el as HTMLElement).style.display = 'none');
