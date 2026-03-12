@@ -1,83 +1,52 @@
 
 
-## Diminuir card de ajuda e exibir fila inline na tela de check-in
+## Alternativas de interface para avaliação (escala 1-10, Q1)
 
-### Mudanca 1: Compactar o card de ajuda
+O problema central: 10 estrelas em linha causam eventos fantasma no iOS. Trocar a abordagem visual elimina a raiz do problema.
 
-**Arquivo:** `src/components/TelemedicineHelpSection.tsx`
+### Opções de interface (todas dentro de um bottom sheet / Drawer)
 
-Transformar o card de ajuda `variant="full"` em um formato mais compacto:
-- Remover o Card/CardHeader e usar apenas um botao/link que abre um Dialog com o conteudo completo
-- O resultado sera um simples botao "Como usar a Telemedicina" com icone de ajuda que, ao clicar, abre um modal com o accordion completo
-- Isso libera espaco vertical na tela
+**1. NPS Slider (recomendada)**
+- Um slider horizontal de 0-10 com marcadores numéricos visíveis.
+- Um único ponto de toque arrastável -- elimina completamente o problema de múltiplos botões.
+- Visual limpo, familiar (padrão NPS usado em pesquisas de satisfação).
+- Cores graduais: vermelho (0-6) / amarelo (7-8) / verde (9-10).
 
-### Mudanca 2: Exibir posicao na fila inline apos check-in
+**2. Botões numéricos em grid**
+- Grid 2x5 ou linha única com botões grandes (números 1-10).
+- Cada botão tem área de toque generosa (48x48px+).
+- Visual claro, sem ambiguidade. Botão selecionado fica destacado.
+- Menos propenso ao bug porque cada botão é um elemento independente com espaçamento.
 
-**Arquivo:** `src/pages/OnlineConsultationDetails.tsx`
+**3. Emoji/Face scale**
+- 5 faces (muito insatisfeito a muito satisfeito) mapeadas para faixas de 1-10.
+- Mais intuitivo para pacientes, mas perde granularidade.
 
-Alterar o fluxo pos-check-in para nao navegar mais para `/telemedicine-queue`:
+**4. Stepper com valor central**
+- Número grande no centro + botões "-" e "+" nos lados.
+- Impossível ter evento fantasma (só 2 botões).
+- Menos visual, mais funcional.
 
-1. Adicionar novo state para armazenar dados da fila por appointment:
-```typescript
-const [appointmentQueueData, setAppointmentQueueData] = useState<Record<number, any[]>>({});
-```
+---
 
-2. Nos fluxos de check-in (facial e email), em vez de `navigate("/telemedicine-queue")`:
-   - Salvar os dados retornados por `ListarFilaTele` no state `appointmentQueueData` indexado pelo `idAgenda`
-   - Recarregar os agendamentos (ja faz isso)
-   - Nao navegar - permanecer na tela
+### Proposta de implementação (combinar opções 1 + 2)
 
-3. Na renderizacao do card de appointment, quando `hasCheckedIn === true`:
-   - Verificar se existe `appointmentQueueData[appointment.idAgenda]`
-   - Se existir, exibir um mini-card com a posicao na fila (posicao, horario, status)
-   - Se nao existir ainda, buscar automaticamente via `ListarFilaTele` ao detectar `possuiAtendimento === "S"`
+**Fluxo:**
+1. Na lista de avaliações, cada card Q1 mostra um botão "Avaliar" em vez de estrelas inline.
+2. Ao tocar, abre um **Drawer (bottom sheet)** com:
+   - Pergunta no header
+   - **Botões numéricos 1-10** em linha única com espaçamento generoso (principal)
+   - Código de cores: vermelho (1-6), amarelo (7-8), verde (9-10)
+   - Número selecionado destacado com escala e cor
+   - Campo de comentário
+   - Botão "Enviar Avaliação" no footer fixo
+3. As avaliações com escala 1-5 (A1, B1, N1, etc.) continuam com estrelas inline como estão (sem bug nelas).
 
-4. A secao de fila inline tera:
-   - Posicao do paciente na fila (baseado no `idCliente`)
-   - Horario da consulta e horario do check-in
-   - Status atual
-   - Auto-refresh a cada 10 segundos para manter atualizado
+**Arquivo:** `src/pages/EvaluateProfessional.tsx`
+- Importar `Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter` de `@/components/ui/drawer`
+- Criar estado `openDrawerIndex` para controlar qual avaliação Q1 está aberta
+- Renderizar botões numéricos 1-10 dentro do drawer (cada um ~44px, com `onClick` simples -- sem necessidade de touch guards pois é um único toque em botão grande e espaçado)
+- Manter estrelas para perguntas non-Q1
 
-### Detalhes tecnicos
-
-**TelemedicineHelpSection.tsx:**
-- O `variant="full"` passa a renderizar um botao compacto com Dialog
-- Layout: linha unica com icone + texto "Como usar a Telemedicina" + seta, estilizado como um banner fino
-- Ao clicar, abre Dialog com o mesmo conteudo do Accordion atual
-
-**OnlineConsultationDetails.tsx - Mudancas principais:**
-
-Novo state:
-```typescript
-const [inlineQueueData, setInlineQueueData] = useState<Record<string, any[]>>({});
-```
-
-useEffect para buscar fila automaticamente para appointments com check-in feito:
-```typescript
-useEffect(() => {
-  appointments.filter(a => a.possuiAtendimento === "S").forEach(appointment => {
-    if (!inlineQueueData[appointment.idAgenda]) {
-      fetchQueueForAppointment(appointment);
-    }
-  });
-}, [appointments]);
-```
-
-Funcao `fetchQueueForAppointment` que popula `inlineQueueData`.
-
-Intervalo de auto-refresh para appointments com check-in.
-
-Na renderizacao do card com `hasCheckedIn`, adicionar abaixo dos botoes existentes:
-```
-+--------------------------------------+
-| Sua posicao na fila                  |
-| Posicao: #2                         |
-| Horario consulta: 14:00             |
-| Check-in: 13:45                     |
-| Status: Aguardando atendimento      |
-| Atualizando a cada 10s...           |
-+--------------------------------------+
-```
-
-Os botoes "Entrar na Sala de Consulta" e "Ver Fila de Atendimento" continuam funcionando normalmente.
+**Vantagem principal:** elimina o bug do iOS na raiz, sem hacks de timing. Botões numéricos grandes e espaçados não sofrem do problema de eventos fantasma.
 
