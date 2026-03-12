@@ -36,7 +36,7 @@ const EvaluateProfessional = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [patientName, setPatientName] = useState("");
   const [profilePhoto, setProfilePhoto] = useState("");
-  const lastRatingUpdate = useRef<Record<number, { time: number; value: number }>>({});
+  const ratingLockUntil = useRef<Record<number, number>>({});
 
   const getMaxRating = (idPergunta: string) => idPergunta === "Q1" ? 10 : 5;
 
