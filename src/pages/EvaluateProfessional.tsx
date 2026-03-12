@@ -255,14 +255,16 @@ const EvaluateProfessional = () => {
                       <button
                         key={star}
                         type="button"
-                        onPointerDown={(e) => {
+                        onTouchStart={(e) => {
                           e.preventDefault();
-                          e.stopPropagation();
+                          touchHandled.current = true;
                           handleRatingChange(index, star, avaliacao.idPergunta);
+                          setTimeout(() => { touchHandled.current = false; }, 400);
                         }}
-                        onClick={(e) => {
+                        onMouseDown={(e) => {
                           e.preventDefault();
-                          e.stopPropagation();
+                          if (touchHandled.current) return;
+                          handleRatingChange(index, star, avaliacao.idPergunta);
                         }}
                         className="transition-colors touch-manipulation select-none flex-shrink-0"
                         style={{ WebkitTapHighlightColor: 'transparent' }}
