@@ -28,7 +28,7 @@ function SingleRequestTemplate({ exams }: { exams: ExamData[] }) {
     .join("<br/><br/>");
 
   return (
-    <div className="bg-background p-6 pb-8 max-w-[800px] mx-auto print:p-0">
+    <div className="bg-background p-6 pb-12 max-w-[800px] mx-auto print:p-0">
       {/* CABEÇALHO */}
       <div className="flex mb-4 border border-border">
         <div className="w-[80px] sm:w-[150px] border-r border-border flex items-center justify-center p-2 sm:p-4 bg-card">
@@ -101,7 +101,7 @@ function SingleRequestTemplate({ exams }: { exams: ExamData[] }) {
       </div>
 
       {/* CORPO DO PEDIDO */}
-      <div className="border border-border bg-card p-6 mb-4 min-h-[300px]">
+      <div className="border border-border bg-card p-6 pb-10 mb-6 min-h-[300px]">
         <div
           className="prose max-w-none text-sm [&_table]:table-fixed [&_table]:w-full [&_img]:max-w-full overflow-x-hidden"
           dangerouslySetInnerHTML={{
