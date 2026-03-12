@@ -96,20 +96,18 @@ const EvaluateProfessional = () => {
     }
   };
 
-  const handleRatingChange = useCallback((index: number, rating: number) => {
-    const now = Date.now();
-    const last = lastRatingUpdate.current[index];
+  const handleRatingChange = useCallback((index: number, rating: number, idPergunta: string) => {
+    const isQ1 = idPergunta === "Q1";
     
-    // Ghost-click guard for Q1: ignore rapid downward jumps (e.g. 10→5 in <500ms)
-    if (last) {
-      const timeDiff = now - last.time;
-      const drop = last.value - rating;
-      if (timeDiff < 500 && drop >= 3) {
-        return; // block ghost event
+    if (isQ1) {
+      const now = Date.now();
+      const lockUntil = ratingLockUntil.current[index] || 0;
+      if (now < lockUntil) {
+        return; // ignore ghost event within lock window
       }
+      ratingLockUntil.current[index] = now + 600;
     }
     
-    lastRatingUpdate.current[index] = { time: now, value: rating };
     setAvaliacoes((prev) =>
       prev.map((av, i) => (i === index ? { ...av, rating } : av))
     );
