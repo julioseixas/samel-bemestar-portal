@@ -7,6 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Star, Stethoscope, Activity, UtensilsCrossed, Sparkles, ArrowLeft, UserCheck } from "lucide-react";
 import { toast } from "sonner";
 import { getApiHeaders } from "@/lib/api-headers";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerFooter,
+} from "@/components/ui/drawer";
 
 interface Avaliacao {
   idCliente: string;
