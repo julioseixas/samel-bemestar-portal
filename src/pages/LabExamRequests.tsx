@@ -410,24 +410,9 @@ const LabExamRequests = () => {
     if (!container) return;
     
     const fileName = `pedidos_exames_lab_${Date.now()}.pdf`;
-    const options = {
-      margin: [10, 10, 15, 10] as [number, number, number, number],
-      filename: fileName,
-      image: { type: "jpeg" as const, quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" as const },
-      pagebreak: { mode: [] as string[] }
-    };
     
     try {
-      // Hide visual separators before PDF capture
-      const pdfHideElements = container.querySelectorAll('.pdf-hide');
-      pdfHideElements.forEach(el => (el as HTMLElement).style.display = 'none');
-      
-      const pdfBlob = await withLightTheme(() => html2pdf().set(options).from(container).output("blob"));
-      
-      // Restore separators
-      pdfHideElements.forEach(el => (el as HTMLElement).style.display = '');
+      const pdfBlob = await withLightTheme(() => generateSectionBasedPdf(container));
       const success = await handlePdfDownload(pdfBlob, fileName);
       
       if (success) {
