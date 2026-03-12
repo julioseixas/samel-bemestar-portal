@@ -200,21 +200,31 @@ const RateAppointments = () => {
     setHoveredStars({});
   };
 
-  const handleStarClick = (perguntaSeq: number, estrelas: number) => {
+  const handleStarClick = (perguntaSeq: number, estrelas: number, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     setRespostas(prev => ({
       ...prev,
       [perguntaSeq]: estrelas,
     }));
   };
 
-  const handleStarHover = (perguntaSeq: number, estrelas: number) => {
+  const handleStarHover = (perguntaSeq: number, estrelas: number, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+    }
     setHoveredStars(prev => ({
       ...prev,
       [perguntaSeq]: estrelas,
     }));
   };
 
-  const handleStarLeave = (perguntaSeq: number) => {
+  const handleStarLeave = (perguntaSeq: number, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+    }
     setHoveredStars(prev => ({
       ...prev,
       [perguntaSeq]: 0,
@@ -312,9 +322,9 @@ const RateAppointments = () => {
             <button
               key={star}
               type="button"
-              onClick={() => handleStarClick(perguntaSeq, star)}
-              onMouseEnter={() => handleStarHover(perguntaSeq, star)}
-              onMouseLeave={() => handleStarLeave(perguntaSeq)}
+              onClick={(e) => handleStarClick(perguntaSeq, star, e)}
+              onMouseEnter={(e) => handleStarHover(perguntaSeq, star, e)}
+              onMouseLeave={(e) => handleStarLeave(perguntaSeq, e)}
               className="transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-warning focus:ring-offset-2 rounded"
             >
               <Star
