@@ -101,7 +101,7 @@ function SingleRequestTemplate({ exams }: { exams: ExamData[] }) {
       </div>
 
       {/* CORPO DO PEDIDO */}
-      <div className="border border-border bg-card p-6 mb-4 min-h-[300px]">
+      <div className="border border-border bg-card p-6 pb-10 mb-6 min-h-[300px]">
         <div
           className="prose max-w-none text-sm [&_table]:table-fixed [&_table]:w-full [&_img]:max-w-full overflow-x-hidden"
           dangerouslySetInnerHTML={{
