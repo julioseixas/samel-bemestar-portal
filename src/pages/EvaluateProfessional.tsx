@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,6 +36,9 @@ const EvaluateProfessional = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [patientName, setPatientName] = useState("");
   const [profilePhoto, setProfilePhoto] = useState("");
+  const lastRatingUpdate = useRef<Record<number, { time: number; value: number }>>({});
+
+  const getMaxRating = (idPergunta: string) => idPergunta === "Q1" ? 10 : 5;
 
   useEffect(() => {
     const patientData = localStorage.getItem("patientData");
@@ -93,11 +96,24 @@ const EvaluateProfessional = () => {
     }
   };
 
-  const handleRatingChange = (index: number, rating: number) => {
+  const handleRatingChange = useCallback((index: number, rating: number) => {
+    const now = Date.now();
+    const last = lastRatingUpdate.current[index];
+    
+    // Ghost-click guard for Q1: ignore rapid downward jumps (e.g. 10→5 in <500ms)
+    if (last) {
+      const timeDiff = now - last.time;
+      const drop = last.value - rating;
+      if (timeDiff < 500 && drop >= 3) {
+        return; // block ghost event
+      }
+    }
+    
+    lastRatingUpdate.current[index] = { time: now, value: rating };
     setAvaliacoes((prev) =>
       prev.map((av, i) => (i === index ? { ...av, rating } : av))
     );
-  };
+  }, []);
 
   const handleComentarioChange = (index: number, comentario: string) => {
     setAvaliacoes((prev) =>
@@ -123,9 +139,9 @@ const EvaluateProfessional = () => {
   };
 
   const handleSubmitAvaliacao = async (avaliacao: AvaliacaoComResposta) => {
+    const maxRating = getMaxRating(avaliacao.idPergunta);
     if (avaliacao.rating === 0) {
-      const maxRating = avaliacao.idPergunta === "Q1" ? 10 : 5;
-      toast.error(`Por favor, selecione uma nota de 1 a ${maxRating} estrelas`);
+      toast.error(`Por favor, selecione uma nota de 1 a ${maxRating}`);
       return;
     }
 
@@ -235,19 +251,25 @@ const EvaluateProfessional = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex gap-2 flex-wrap">
-                    {Array.from({ length: avaliacao.idPergunta === "Q1" ? 10 : 5 }, (_, i) => i + 1).map((star) => (
+                  <div className={`flex ${avaliacao.idPergunta === "Q1" ? "flex-nowrap gap-1" : "flex-wrap gap-2"}`}>
+                    {Array.from({ length: getMaxRating(avaliacao.idPergunta) }, (_, i) => i + 1).map((star) => (
                       <button
                         key={star}
                         type="button"
                         onPointerDown={(e) => {
                           e.preventDefault();
+                          e.stopPropagation();
                           handleRatingChange(index, star);
                         }}
-                        className="transition-colors touch-manipulation select-none"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
+                        className="transition-colors touch-manipulation select-none flex-shrink-0"
+                        style={{ WebkitTapHighlightColor: 'transparent' }}
                       >
                         <Star
-                          className={`${avaliacao.idPergunta === "Q1" ? "w-6 h-6" : "w-8 h-8"} ${
+                          className={`pointer-events-none ${avaliacao.idPergunta === "Q1" ? "w-5 h-5 sm:w-6 sm:h-6" : "w-8 h-8"} ${
                             star <= avaliacao.rating
                               ? "fill-yellow-400 text-yellow-400"
                               : "text-muted-foreground"
