@@ -133,6 +133,16 @@ const AppointmentDetailsV2 = () => {
         console.error("Erro ao processar encaminhamentos:", error);
       }
     }
+
+    // Verificar agenda especial
+    const storedAgendaEspecial = localStorage.getItem("agendaEspecial");
+    if (storedAgendaEspecial) {
+      try {
+        setAgendaEspecial(JSON.parse(storedAgendaEspecial));
+      } catch (error) {
+        console.error("Erro ao processar agenda especial:", error);
+      }
+    }
   }, [navigate]);
 
   useEffect(() => {
