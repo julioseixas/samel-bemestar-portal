@@ -1,4 +1,5 @@
 import { Header } from "@/components/Header";
+import { getApiHeaders } from "@/lib/api-headers";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -136,17 +137,11 @@ const AppointmentSchedule = () => {
     
     // Verificar agenda especial
     try {
-      const headers = {
-        "Content-Type": "application/json",
-        "identificador-dispositivo": "request-android",
-        "chave-autenticacao": localStorage.getItem("user") || ""
-      };
-
       const agendaEspecialResponse = await fetch(
         'https://api-portalpaciente-web.samel.com.br/api/Agenda/VerificarAgendaEspecial',
         {
           method: "POST",
-          headers,
+          headers: getApiHeaders(),
           body: JSON.stringify({
             idCliente: String(patientApiId),
             tipo: 1
@@ -167,22 +162,11 @@ const AppointmentSchedule = () => {
 
     // Buscar encaminhamentos
     try {
-      const userToken = localStorage.getItem("user") || "";
-      if (!userToken) {
-        throw new Error("Token de autenticação não encontrado");
-      }
-
-      const headers = {
-        "Content-Type": "application/json",
-        "identificador-dispositivo": "request-android",
-        "chave-autenticacao": userToken
-      };
-
       const response = await fetch(
         `https://api-portalpaciente-web.samel.com.br/api/Agenda/Encaminhamento/buscarEncaminhamentosPaciente/${patientApiId}`,
         {
           method: "GET",
-          headers
+          headers: getApiHeaders()
         }
       );
       
