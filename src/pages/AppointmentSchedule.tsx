@@ -137,17 +137,11 @@ const AppointmentSchedule = () => {
     
     // Verificar agenda especial
     try {
-      const headers = {
-        "Content-Type": "application/json",
-        "identificador-dispositivo": "request-android",
-        "chave-autenticacao": localStorage.getItem("user") || ""
-      };
-
       const agendaEspecialResponse = await fetch(
         'https://api-portalpaciente-web.samel.com.br/api/Agenda/VerificarAgendaEspecial',
         {
           method: "POST",
-          headers,
+          headers: getApiHeaders(),
           body: JSON.stringify({
             idCliente: String(patientApiId),
             tipo: 1
