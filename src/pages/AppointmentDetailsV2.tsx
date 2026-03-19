@@ -81,6 +81,7 @@ const AppointmentDetailsV2 = () => {
   const [encaminhamentos, setEncaminhamentos] = useState<Encaminhamento[]>([]);
   const [useEncaminhamento, setUseEncaminhamento] = useState(false);
   const [selectedNrSeqMedAvaliacao, setSelectedNrSeqMedAvaliacao] = useState<number | null>(null);
+  const [agendaEspecial, setAgendaEspecial] = useState<any[]>([]);
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
