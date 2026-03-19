@@ -162,22 +162,11 @@ const AppointmentSchedule = () => {
 
     // Buscar encaminhamentos
     try {
-      const userToken = localStorage.getItem("user") || "";
-      if (!userToken) {
-        throw new Error("Token de autenticação não encontrado");
-      }
-
-      const headers = {
-        "Content-Type": "application/json",
-        "identificador-dispositivo": "request-android",
-        "chave-autenticacao": userToken
-      };
-
       const response = await fetch(
         `https://api-portalpaciente-web.samel.com.br/api/Agenda/Encaminhamento/buscarEncaminhamentosPaciente/${patientApiId}`,
         {
           method: "GET",
-          headers
+          headers: getApiHeaders()
         }
       );
       
