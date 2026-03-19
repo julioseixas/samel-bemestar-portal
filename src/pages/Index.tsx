@@ -266,7 +266,7 @@ const Index = () => {
     });
   };
 
-  const handleAppointmentSchedule = () => {
+  const handleAppointmentSchedule = async () => {
     const listToSchedule = localStorage.getItem("listToSchedule");
     
     if (listToSchedule) {
@@ -296,6 +296,37 @@ const Index = () => {
             }
             
             localStorage.setItem("selectedPatient", JSON.stringify(titular));
+            
+            // Verificar agenda especial
+            try {
+              const userToken = localStorage.getItem("user") || "";
+              const titularApiId = titular.cdPessoaFisica || titular.id;
+              const agendaResponse = await fetch(
+                'https://api-portalpaciente-web.samel.com.br/api/Agenda/VerificarAgendaEspecial',
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "identificador-dispositivo": "request-android",
+                    "chave-autenticacao": userToken
+                  },
+                  body: JSON.stringify({
+                    idCliente: String(titularApiId),
+                    tipo: 1
+                  })
+                }
+              );
+              const agendaData = await agendaResponse.json();
+              if (agendaData.sucesso && agendaData.dados && agendaData.dados.length > 0) {
+                localStorage.setItem("agendaEspecial", JSON.stringify(agendaData.dados));
+              } else {
+                localStorage.removeItem("agendaEspecial");
+              }
+            } catch (error) {
+              console.error("Erro ao verificar agenda especial:", error);
+              localStorage.removeItem("agendaEspecial");
+            }
+            
             navigate("/appointment-details");
           } else {
             navigate("/appointment-schedule");

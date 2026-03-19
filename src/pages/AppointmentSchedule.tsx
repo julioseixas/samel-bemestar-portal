@@ -134,6 +134,38 @@ const AppointmentSchedule = () => {
     
     localStorage.setItem("selectedPatient", JSON.stringify(patientData));
     
+    // Verificar agenda especial
+    try {
+      const headers = {
+        "Content-Type": "application/json",
+        "identificador-dispositivo": "request-android",
+        "chave-autenticacao": localStorage.getItem("user") || ""
+      };
+
+      const agendaEspecialResponse = await fetch(
+        'https://api-portalpaciente-web.samel.com.br/api/Agenda/VerificarAgendaEspecial',
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            idCliente: String(patientApiId),
+            tipo: 1
+          })
+        }
+      );
+      const agendaEspecialData = await agendaEspecialResponse.json();
+      
+      if (agendaEspecialData.sucesso && agendaEspecialData.dados && agendaEspecialData.dados.length > 0) {
+        localStorage.setItem("agendaEspecial", JSON.stringify(agendaEspecialData.dados));
+      } else {
+        localStorage.removeItem("agendaEspecial");
+      }
+    } catch (error) {
+      console.error("Erro ao verificar agenda especial:", error);
+      localStorage.removeItem("agendaEspecial");
+    }
+
+    // Buscar encaminhamentos
     try {
       const userToken = localStorage.getItem("user") || "";
       if (!userToken) {
@@ -157,7 +189,6 @@ const AppointmentSchedule = () => {
       const data = await response.json();
       
       if (data.status && data.dados && data.dados.length > 0) {
-        // Filtrar encaminhamentos duplicados por id
         const encaminhamentosUnicos = data.dados.reduce((acc: any[], current: any) => {
           const existe = acc.find(item => item.id === current.id);
           if (!existe) {
@@ -172,7 +203,6 @@ const AppointmentSchedule = () => {
       }
     } catch (error) {
       console.error("Erro ao buscar encaminhamentos:", error);
-      // Limpar encaminhamentos em caso de erro
       localStorage.removeItem("patientEncaminhamentos");
     }
     

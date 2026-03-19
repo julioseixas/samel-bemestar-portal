@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getApiHeaders } from "@/lib/api-headers";
 import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { CalendarDays } from "lucide-react";
 
 interface Patient {
   id: string | number;
@@ -79,6 +81,7 @@ const AppointmentDetailsV2 = () => {
   const [encaminhamentos, setEncaminhamentos] = useState<Encaminhamento[]>([]);
   const [useEncaminhamento, setUseEncaminhamento] = useState(false);
   const [selectedNrSeqMedAvaliacao, setSelectedNrSeqMedAvaliacao] = useState<number | null>(null);
+  const [agendaEspecial, setAgendaEspecial] = useState<any[]>([]);
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -128,6 +131,16 @@ const AppointmentDetailsV2 = () => {
         setEncaminhamentos(encaminhamentosUnicos);
       } catch (error) {
         console.error("Erro ao processar encaminhamentos:", error);
+      }
+    }
+
+    // Verificar agenda especial
+    const storedAgendaEspecial = localStorage.getItem("agendaEspecial");
+    if (storedAgendaEspecial) {
+      try {
+        setAgendaEspecial(JSON.parse(storedAgendaEspecial));
+      } catch (error) {
+        console.error("Erro ao processar agenda especial:", error);
       }
     }
   }, [navigate]);
@@ -421,6 +434,19 @@ const AppointmentDetailsV2 = () => {
               Selecione o convênio e a especialidade para a consulta
             </p>
           </div>
+
+          {agendaEspecial.length > 0 && (
+            <div className="space-y-2 mb-4">
+              {agendaEspecial.map((agenda: any, index: number) => (
+                <Alert key={index} className="border-warning bg-warning/10">
+                  <CalendarDays className="h-4 w-4 text-warning" />
+                  <AlertDescription className="text-sm font-medium">
+                    Você possui horário especial na especialidade: <strong>{agenda.dsEspecialidade}</strong> com o profissional: <strong>{agenda.medico}</strong>.
+                  </AlertDescription>
+                </Alert>
+              ))}
+            </div>
+          )}
 
           <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
             <Card>
