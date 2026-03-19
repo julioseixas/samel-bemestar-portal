@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getApiHeaders } from "@/lib/api-headers";
 import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { CalendarDays } from "lucide-react";
 
 interface Patient {
   id: string | number;
