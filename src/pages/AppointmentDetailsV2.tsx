@@ -435,6 +435,19 @@ const AppointmentDetailsV2 = () => {
             </p>
           </div>
 
+          {agendaEspecial.length > 0 && (
+            <div className="space-y-2 mb-4">
+              {agendaEspecial.map((agenda: any, index: number) => (
+                <Alert key={index} className="border-warning bg-warning/10">
+                  <CalendarDays className="h-4 w-4 text-warning" />
+                  <AlertDescription className="text-sm font-medium">
+                    Você possui horário especial na especialidade: <strong>{agenda.dsEspecialidade}</strong> com o profissional: <strong>{agenda.medico}</strong>.
+                  </AlertDescription>
+                </Alert>
+              ))}
+            </div>
+          )}
+
           <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
             <Card>
               <CardHeader>
