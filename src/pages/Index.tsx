@@ -266,7 +266,7 @@ const Index = () => {
     });
   };
 
-  const handleAppointmentSchedule = () => {
+  const handleAppointmentSchedule = async () => {
     const listToSchedule = localStorage.getItem("listToSchedule");
     
     if (listToSchedule) {
