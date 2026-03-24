@@ -288,6 +288,14 @@ const AppointmentTimes = () => {
       return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
     });
 
+  const regularAvailableDates = availableDates.filter(date =>
+    !specialDates.some(specialDate =>
+      specialDate.getDate() === date.getDate() &&
+      specialDate.getMonth() === date.getMonth() &&
+      specialDate.getFullYear() === date.getFullYear()
+    )
+  );
+
   const isDateAvailable = (date: Date) => {
     const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     const isAvailable = availableDates.some(
@@ -894,16 +902,16 @@ const AppointmentTimes = () => {
                         sd.getMonth() === selectedDate.getMonth() &&
                         sd.getFullYear() === selectedDate.getFullYear()
                       )
-                        ? "bg-orange-500 text-white hover:bg-orange-600 hover:text-white focus:bg-orange-500 focus:text-white"
+                        ? "bg-warning text-warning-foreground hover:bg-warning hover:text-warning-foreground focus:bg-warning focus:text-warning-foreground"
                         : "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
                     }}
                     modifiers={{
-                      available: availableDates,
+                      available: regularAvailableDates,
                       special: specialDates
                     }}
                     modifiersClassNames={{
                       available: "bg-primary/20 text-primary font-semibold rounded-full",
-                      special: "!bg-orange-500/20 !text-orange-600 font-semibold rounded-full ring-2 ring-orange-400"
+                      special: "!bg-warning/20 !text-warning font-semibold rounded-full ring-2 ring-warning"
                     }}
                   />
                 </CardContent>
