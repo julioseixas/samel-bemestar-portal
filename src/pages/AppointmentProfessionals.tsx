@@ -278,7 +278,7 @@ const AppointmentProfessionals = () => {
                   return (
                       <Card 
                         key={profissional.idAgenda} 
-                        className="hover:shadow-lg transition-shadow cursor-pointer"
+                        className={`hover:shadow-lg transition-shadow cursor-pointer ${profissional.tipoAgenda === "Agenda Especial" ? "border-2 border-warning ring-2 ring-warning/20" : ""}`}
                         onClick={handleSelectProfessional}
                       >
                         <CardHeader>
