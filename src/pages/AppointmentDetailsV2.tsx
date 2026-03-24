@@ -609,6 +609,45 @@ const AppointmentDetailsV2 = () => {
         </div>
       </main>
     </div>
+
+      {/* Modal de Agendas Especiais */}
+      <Dialog open={showAgendaEspecialModal} onOpenChange={setShowAgendaEspecialModal}>
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Star className="h-5 w-5 text-warning fill-warning" />
+              Agendas Especiais Disponíveis
+            </DialogTitle>
+            <DialogDescription>
+              Você possui horários especiais disponíveis para agendamento.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 max-h-[50vh] overflow-y-auto">
+            {agendaEspecial.map((agenda: any, index: number) => (
+              <div
+                key={index}
+                className="flex items-start gap-3 p-3 rounded-lg border border-warning/30 bg-warning/5"
+              >
+                <CalendarDays className="h-5 w-5 text-warning shrink-0 mt-0.5" />
+                <div className="text-sm">
+                  <p>
+                    Especialidade: <strong>{agenda.dsEspecialidade}</strong>
+                  </p>
+                  <p className="text-muted-foreground">
+                    Profissional: <strong className="text-foreground">{agenda.medico}</strong>
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <Button className="w-full" onClick={() => setShowAgendaEspecialModal(false)}>
+            OK
+          </Button>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 };
 
