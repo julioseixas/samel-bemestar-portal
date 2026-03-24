@@ -443,16 +443,14 @@ const AppointmentDetailsV2 = () => {
           </div>
 
           {agendaEspecial.length > 0 && (
-            <div className="space-y-2 mb-4">
-              {agendaEspecial.map((agenda: any, index: number) => (
-                <Alert key={index} className="border-warning bg-warning/10">
-                  <CalendarDays className="h-4 w-4 text-warning" />
-                  <AlertDescription className="text-sm font-medium">
-                    Você possui horário especial na especialidade: <strong>{agenda.dsEspecialidade}</strong> com o profissional: <strong>{agenda.medico}</strong>.
-                  </AlertDescription>
-                </Alert>
-              ))}
-            </div>
+            <Button
+              variant="outline"
+              className="w-full mb-4 border-warning text-warning hover:bg-warning/10 gap-2"
+              onClick={() => setShowAgendaEspecialModal(true)}
+            >
+              <Star className="h-4 w-4 fill-warning" />
+              Ver {agendaEspecial.length} agenda{agendaEspecial.length > 1 ? 's' : ''} especial{agendaEspecial.length > 1 ? 'is' : ''} disponível{agendaEspecial.length > 1 ? 'is' : ''}
+            </Button>
           )}
 
           <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
