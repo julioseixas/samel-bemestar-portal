@@ -9,8 +9,14 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getApiHeaders } from "@/lib/api-headers";
 import { useToast } from "@/hooks/use-toast";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Star } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface Patient {
   id: string | number;
@@ -82,6 +88,7 @@ const AppointmentDetailsV2 = () => {
   const [useEncaminhamento, setUseEncaminhamento] = useState(false);
   const [selectedNrSeqMedAvaliacao, setSelectedNrSeqMedAvaliacao] = useState<number | null>(null);
   const [agendaEspecial, setAgendaEspecial] = useState<any[]>([]);
+  const [showAgendaEspecialModal, setShowAgendaEspecialModal] = useState(false);
 
   useEffect(() => {
     const storedTitular = localStorage.getItem("titular");
@@ -437,16 +444,14 @@ const AppointmentDetailsV2 = () => {
           </div>
 
           {agendaEspecial.length > 0 && (
-            <div className="space-y-2 mb-4">
-              {agendaEspecial.map((agenda: any, index: number) => (
-                <Alert key={index} className="border-warning bg-warning/10">
-                  <CalendarDays className="h-4 w-4 text-warning" />
-                  <AlertDescription className="text-sm font-medium">
-                    Você possui horário especial na especialidade: <strong>{agenda.dsEspecialidade}</strong> com o profissional: <strong>{agenda.medico}</strong>.
-                  </AlertDescription>
-                </Alert>
-              ))}
-            </div>
+            <Button
+              variant="outline"
+              className="w-full mb-4 border-warning text-warning hover:bg-warning/10 gap-2"
+              onClick={() => setShowAgendaEspecialModal(true)}
+            >
+              <Star className="h-4 w-4 fill-warning" />
+              Ver {agendaEspecial.length} agenda{agendaEspecial.length > 1 ? 's' : ''} especial{agendaEspecial.length > 1 ? 'is' : ''} disponível{agendaEspecial.length > 1 ? 'is' : ''}
+            </Button>
           )}
 
           <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
@@ -603,6 +608,44 @@ const AppointmentDetailsV2 = () => {
           </div>
         </div>
       </main>
+
+      {/* Modal de Agendas Especiais */}
+      <Dialog open={showAgendaEspecialModal} onOpenChange={setShowAgendaEspecialModal}>
+        <DialogContent className="max-w-[calc(100vw-1.5rem)] sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Star className="h-5 w-5 text-warning fill-warning" />
+              Agendas Especiais Disponíveis
+            </DialogTitle>
+            <DialogDescription>
+              Você possui horários especiais disponíveis para agendamento.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 max-h-[50vh] overflow-y-auto">
+            {agendaEspecial.map((agenda: any, index: number) => (
+              <div
+                key={index}
+                className="flex items-start gap-3 p-3 rounded-lg border border-warning/30 bg-warning/5"
+              >
+                <CalendarDays className="h-5 w-5 text-warning shrink-0 mt-0.5" />
+                <div className="text-sm">
+                  <p>
+                    Especialidade: <strong>{agenda.dsEspecialidade}</strong>
+                  </p>
+                  <p className="text-muted-foreground">
+                    Profissional: <strong className="text-foreground">{agenda.medico}</strong>
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <Button className="w-full" onClick={() => setShowAgendaEspecialModal(false)}>
+            OK
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
