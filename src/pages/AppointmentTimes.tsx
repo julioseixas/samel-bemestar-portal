@@ -896,15 +896,14 @@ const AppointmentTimes = () => {
                     disabled={(date) => !isDateAvailable(date)}
                     locale={ptBR}
                     className="rounded-md border pointer-events-auto"
-                    classNames={{
-                      day_selected: selectedDate && specialDates.some(sd =>
-                        sd.getDate() === selectedDate.getDate() &&
-                        sd.getMonth() === selectedDate.getMonth() &&
-                        sd.getFullYear() === selectedDate.getFullYear()
-                      )
-                        ? "bg-warning text-warning-foreground hover:bg-warning hover:text-warning-foreground focus:bg-warning focus:text-warning-foreground"
-                        : "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-                    }}
+                    classNames={selectedDate && specialDates.some(sd =>
+                      sd.getDate() === selectedDate.getDate() &&
+                      sd.getMonth() === selectedDate.getMonth() &&
+                      sd.getFullYear() === selectedDate.getFullYear()
+                    ) ? {
+                      cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected])]:bg-warning/20 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                      day_selected: "!bg-warning !text-warning-foreground hover:!bg-warning hover:!text-warning-foreground focus:!bg-warning focus:!text-warning-foreground",
+                    } : undefined}
                     modifiers={{
                       available: regularAvailableDates,
                       special: specialDates
