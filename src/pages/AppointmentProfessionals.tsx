@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Stethoscope, Check, X } from "lucide-react";
+import { Stethoscope, Check, X, Star } from "lucide-react";
 
 interface Unidade {
   id: string;
