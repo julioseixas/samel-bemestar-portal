@@ -288,6 +288,14 @@ const AppointmentTimes = () => {
       return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
     });
 
+  const regularAvailableDates = availableDates.filter(date =>
+    !specialDates.some(specialDate =>
+      specialDate.getDate() === date.getDate() &&
+      specialDate.getMonth() === date.getMonth() &&
+      specialDate.getFullYear() === date.getFullYear()
+    )
+  );
+
   const isDateAvailable = (date: Date) => {
     const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     const isAvailable = availableDates.some(
