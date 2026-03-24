@@ -906,12 +906,12 @@ const AppointmentTimes = () => {
                         : "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
                     }}
                     modifiers={{
-                      available: availableDates,
+                      available: regularAvailableDates,
                       special: specialDates
                     }}
                     modifiersClassNames={{
                       available: "bg-primary/20 text-primary font-semibold rounded-full",
-                      special: "!bg-orange-500/20 !text-orange-600 font-semibold rounded-full ring-2 ring-orange-400"
+                      special: "!bg-warning/20 !text-warning font-semibold rounded-full ring-2 ring-warning"
                     }}
                   />
                 </CardContent>
