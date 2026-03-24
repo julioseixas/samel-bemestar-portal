@@ -280,6 +280,14 @@ const AppointmentTimes = () => {
     fetchHorarios();
   }, [selectedPatient, selectedConvenio, selectedEspecialidade, selectedProfissional]);
 
+  const specialDates = horarios
+    .filter(h => h.horaEspecial === "S")
+    .map(h => {
+      const dateStr = h.data2.split(' ')[0];
+      const [day, month, year] = dateStr.split('/');
+      return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    });
+
   const isDateAvailable = (date: Date) => {
     const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     const isAvailable = availableDates.some(
@@ -881,10 +889,12 @@ const AppointmentTimes = () => {
                     locale={ptBR}
                     className="rounded-md border pointer-events-auto"
                     modifiers={{
-                      available: availableDates
+                      available: availableDates,
+                      special: specialDates
                     }}
                     modifiersClassNames={{
-                      available: "bg-primary/20 text-primary font-semibold rounded-full"
+                      available: "bg-primary/20 text-primary font-semibold rounded-full",
+                      special: "!bg-orange-500/20 !text-orange-600 font-semibold rounded-full ring-2 ring-orange-400"
                     }}
                   />
                 </CardContent>
