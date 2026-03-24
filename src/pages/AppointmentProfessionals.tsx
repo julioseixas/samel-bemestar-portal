@@ -278,11 +278,11 @@ const AppointmentProfessionals = () => {
                   return (
                       <Card 
                         key={profissional.idAgenda} 
-                        className={`hover:shadow-lg transition-shadow cursor-pointer ${profissional.tipoAgenda === "Agenda Especial" ? "border-2 border-warning ring-2 ring-warning/20" : ""}`}
+                        className={`hover:shadow-lg transition-shadow cursor-pointer ${profissional.tipoAgenda?.trim() === "Agenda Especial" ? "border-2 border-warning ring-2 ring-warning/20" : ""}`}
                         onClick={handleSelectProfessional}
                       >
                         <CardHeader>
-                          {profissional.tipoAgenda === "Agenda Especial" && (
+                          {profissional.tipoAgenda?.trim() === "Agenda Especial" && (
                             <div className="flex items-center gap-2 mb-2 bg-warning/15 text-warning-foreground border border-warning/30 rounded-md px-3 py-1.5">
                               <Star className="h-4 w-4 text-warning fill-warning" />
                               <span className="text-xs sm:text-sm font-semibold text-warning">Agenda Especial</span>
