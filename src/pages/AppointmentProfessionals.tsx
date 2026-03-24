@@ -24,8 +24,10 @@ interface Profissional {
   dsEspecialidade: string;
   dsComplemento?: string | null;
   ieSexo: string;
-  ie_sigla_conselho: string;
-  nr_conselho: string;
+  ie_sigla_conselho?: string;
+  ieSiglaConselho?: string;
+  nr_conselho?: string;
+  nrConselho?: string;
   idsProcedimentos: number[];
   unidade: Unidade;
   tipoAgenda?: string;
@@ -297,7 +299,7 @@ const AppointmentProfessionals = () => {
                                 {profissional.nome}{profissional.dsComplemento ? ` - ${profissional.dsComplemento}` : ''}
                               </CardTitle>
                               <Badge variant="outline" className="mt-1">
-                                {profissional.ie_sigla_conselho} {profissional.nr_conselho}
+                                {profissional.ie_sigla_conselho || profissional.ieSiglaConselho} {profissional.nr_conselho || profissional.nrConselho}
                               </Badge>
                             </div>
                           </div>
