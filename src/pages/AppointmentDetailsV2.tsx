@@ -608,7 +608,6 @@ const AppointmentDetailsV2 = () => {
           </div>
         </div>
       </main>
-    </div>
 
       {/* Modal de Agendas Especiais */}
       <Dialog open={showAgendaEspecialModal} onOpenChange={setShowAgendaEspecialModal}>
