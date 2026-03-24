@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Stethoscope, Check, X } from "lucide-react";
+import { Stethoscope, Check, X, Star } from "lucide-react";
 
 interface Unidade {
   id: string;
@@ -28,6 +28,7 @@ interface Profissional {
   nr_conselho: string;
   idsProcedimentos: number[];
   unidade: Unidade;
+  tipoAgenda?: string;
 }
 
 interface ProfissionalGroup {
@@ -277,10 +278,16 @@ const AppointmentProfessionals = () => {
                   return (
                       <Card 
                         key={profissional.idAgenda} 
-                        className="hover:shadow-lg transition-shadow cursor-pointer"
+                        className={`hover:shadow-lg transition-shadow cursor-pointer ${profissional.tipoAgenda === "Agenda Especial" ? "border-2 border-warning ring-2 ring-warning/20" : ""}`}
                         onClick={handleSelectProfessional}
                       >
                         <CardHeader>
+                          {profissional.tipoAgenda === "Agenda Especial" && (
+                            <div className="flex items-center gap-2 mb-2 bg-warning/15 text-warning-foreground border border-warning/30 rounded-md px-3 py-1.5">
+                              <Star className="h-4 w-4 text-warning fill-warning" />
+                              <span className="text-xs sm:text-sm font-semibold text-warning">Agenda Especial</span>
+                            </div>
+                          )}
                           <div className="flex items-center gap-4">
                             <div className={`h-16 w-16 rounded-full flex items-center justify-center ${getAvatarColor(profissional.ieSexo)}`}>
                               <Stethoscope className="h-8 w-8 text-primary" />
