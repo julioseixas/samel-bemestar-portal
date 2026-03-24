@@ -888,6 +888,15 @@ const AppointmentTimes = () => {
                     disabled={(date) => !isDateAvailable(date)}
                     locale={ptBR}
                     className="rounded-md border pointer-events-auto"
+                    classNames={{
+                      day_selected: selectedDate && specialDates.some(sd =>
+                        sd.getDate() === selectedDate.getDate() &&
+                        sd.getMonth() === selectedDate.getMonth() &&
+                        sd.getFullYear() === selectedDate.getFullYear()
+                      )
+                        ? "bg-orange-500 text-white hover:bg-orange-600 hover:text-white focus:bg-orange-500 focus:text-white"
+                        : "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                    }}
                     modifiers={{
                       available: availableDates,
                       special: specialDates
