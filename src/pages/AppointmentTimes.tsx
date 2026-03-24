@@ -889,10 +889,12 @@ const AppointmentTimes = () => {
                     locale={ptBR}
                     className="rounded-md border pointer-events-auto"
                     modifiers={{
-                      available: availableDates
+                      available: availableDates,
+                      special: specialDates
                     }}
                     modifiersClassNames={{
-                      available: "bg-primary/20 text-primary font-semibold rounded-full"
+                      available: "bg-primary/20 text-primary font-semibold rounded-full",
+                      special: "!bg-orange-500/20 !text-orange-600 font-semibold rounded-full ring-2 ring-orange-400"
                     }}
                   />
                 </CardContent>
