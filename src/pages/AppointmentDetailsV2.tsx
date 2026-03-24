@@ -450,7 +450,7 @@ const AppointmentDetailsV2 = () => {
               onClick={() => setShowAgendaEspecialModal(true)}
             >
               <Star className="h-4 w-4 fill-warning" />
-              Ver {agendaEspecial.length} agenda{agendaEspecial.length > 1 ? 's' : ''} especial{agendaEspecial.length > 1 ? 'is' : ''} disponível{agendaEspecial.length > 1 ? 'is' : ''}
+              Ver {agendaEspecial.length} {agendaEspecial.length > 1 ? 'agendas especiais disponíveis' : 'agenda especial disponível'}
             </Button>
           )}
 
