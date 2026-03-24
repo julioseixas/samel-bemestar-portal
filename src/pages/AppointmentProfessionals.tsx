@@ -24,8 +24,10 @@ interface Profissional {
   dsEspecialidade: string;
   dsComplemento?: string | null;
   ieSexo: string;
-  ie_sigla_conselho: string;
-  nr_conselho: string;
+  ie_sigla_conselho?: string;
+  ieSiglaConselho?: string;
+  nr_conselho?: string;
+  nrConselho?: string;
   idsProcedimentos: number[];
   unidade: Unidade;
   tipoAgenda?: string;
