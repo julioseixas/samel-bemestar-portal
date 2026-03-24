@@ -280,6 +280,14 @@ const AppointmentTimes = () => {
     fetchHorarios();
   }, [selectedPatient, selectedConvenio, selectedEspecialidade, selectedProfissional]);
 
+  const specialDates = horarios
+    .filter(h => h.horaEspecial === "S")
+    .map(h => {
+      const dateStr = h.data2.split(' ')[0];
+      const [day, month, year] = dateStr.split('/');
+      return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    });
+
   const isDateAvailable = (date: Date) => {
     const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     const isAvailable = availableDates.some(
