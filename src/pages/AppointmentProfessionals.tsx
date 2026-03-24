@@ -28,6 +28,7 @@ interface Profissional {
   nr_conselho: string;
   idsProcedimentos: number[];
   unidade: Unidade;
+  tipoAgenda?: string;
 }
 
 interface ProfissionalGroup {
