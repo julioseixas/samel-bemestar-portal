@@ -902,7 +902,7 @@ const AppointmentTimes = () => {
                         sd.getMonth() === selectedDate.getMonth() &&
                         sd.getFullYear() === selectedDate.getFullYear()
                       )
-                        ? "bg-orange-500 text-white hover:bg-orange-600 hover:text-white focus:bg-orange-500 focus:text-white"
+                        ? "bg-warning text-warning-foreground hover:bg-warning hover:text-warning-foreground focus:bg-warning focus:text-warning-foreground"
                         : "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
                     }}
                     modifiers={{
