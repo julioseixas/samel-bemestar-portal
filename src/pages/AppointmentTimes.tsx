@@ -906,9 +906,14 @@ const AppointmentTimes = () => {
                       return (
                         <div key={horario.id} className="space-y-6">
                           <div className="flex flex-col items-center justify-center py-8 space-y-4">
-                            <div className="text-6xl font-bold text-primary">
+                            <div className={`text-6xl font-bold ${horario.horaEspecial === "S" ? "text-orange-500" : "text-primary"}`}>
                               {horarioTime}
                             </div>
+                            {horario.horaEspecial === "S" && (
+                              <Badge className="bg-orange-500/15 text-orange-600 border border-orange-500/30 hover:bg-orange-500/20">
+                                ⭐ Horário Especial
+                              </Badge>
+                            )}
                             <div className="flex items-center gap-2 text-muted-foreground">
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
