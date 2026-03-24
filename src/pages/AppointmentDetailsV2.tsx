@@ -351,6 +351,7 @@ const AppointmentDetailsV2 = () => {
             ieSexo: prof.ieSexo,
             ie_sigla_conselho: prof.ieSiglaConselho,
             nr_conselho: prof.nrConselho,
+            tipoAgenda: prof.tipoAgenda,
             idsProcedimentos: [],
             unidade: {
               id: prof.unidade.id.toString(),
